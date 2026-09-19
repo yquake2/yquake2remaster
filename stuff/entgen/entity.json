@@ -3827,8 +3827,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 240,
+    "mass": 250,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -3836,8 +3836,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -60
   },
   {
     "classname": "monster_boss2",
@@ -3875,8 +3875,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 2000,
+    "mass": 1000,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -3884,8 +3884,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -200
   },
   {
     "classname": "monster_boss3_stand",
@@ -3932,7 +3932,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -3971,8 +3971,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 300,
+    "mass": 400,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -3980,8 +3980,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -150
   },
   {
     "classname": "monster_chick",
@@ -4019,8 +4019,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 175,
+    "mass": 200,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -4028,8 +4028,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -70
   },
   {
     "classname": "monster_commander_body",
@@ -4076,7 +4076,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -4115,8 +4115,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 50,
+    "mass": 100,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -4124,8 +4124,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -30
   },
   {
     "classname": "monster_floater",
@@ -4163,8 +4163,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 200,
+    "mass": 300,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -4172,8 +4172,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -80
   },
   {
     "classname": "monster_flyer",
@@ -4211,8 +4211,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 50,
+    "mass": 50,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -4220,8 +4220,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -50
   },
   {
     "classname": "monster_gladiator",
@@ -4259,8 +4259,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 400,
+    "mass": 400,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -4268,8 +4268,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -175
   },
   {
     "classname": "monster_gunner",
@@ -4307,8 +4307,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 175,
+    "mass": 200,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -4316,8 +4316,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -70
   },
   {
     "classname": "monster_hover",
@@ -4355,8 +4355,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 240,
+    "mass": 150,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -4364,8 +4364,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -100
   },
   {
     "classname": "monster_infantry",
@@ -4403,8 +4403,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 100,
+    "mass": 200,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -4412,8 +4412,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -40
   },
   {
     "classname": "monster_jorg",
@@ -4451,8 +4451,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 3000,
+    "mass": 1000,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -4460,8 +4460,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -2000
   },
   {
     "classname": "monster_makron",
@@ -4499,8 +4499,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 3000,
+    "mass": 500,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -4508,8 +4508,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -2000
   },
   {
     "classname": "monster_medic",
@@ -4547,8 +4547,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 300,
+    "mass": 400,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -4556,8 +4556,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -130
   },
   {
     "classname": "monster_mutant",
@@ -4595,8 +4595,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 300,
+    "mass": 300,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -4604,8 +4604,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -120
   },
   {
     "classname": "monster_parasite",
@@ -4643,8 +4643,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 175,
+    "mass": 250,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -4652,8 +4652,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -50
   },
   {
     "classname": "monster_soldier_light",
@@ -4691,8 +4691,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 20,
+    "mass": 100,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -4700,8 +4700,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -30
   },
   {
     "classname": "monster_soldier_ss",
@@ -4739,8 +4739,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 70,
+    "mass": 100,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -4748,8 +4748,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -30
   },
   {
     "classname": "monster_soldier",
@@ -4787,8 +4787,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 50,
+    "mass": 100,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -4796,8 +4796,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -30
   },
   {
     "classname": "monster_supertank",
@@ -4835,8 +4835,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 1500,
+    "mass": 800,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -4844,8 +4844,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -500
   },
   {
     "classname": "monster_tank_commander",
@@ -4883,8 +4883,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 1000,
+    "mass": 500,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -4892,8 +4892,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -225
   },
   {
     "classname": "monster_tank",
@@ -4931,8 +4931,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 750,
+    "mass": 500,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -4940,8 +4940,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -225
   },
   {
     "classname": "path_corner",
@@ -8012,7 +8012,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -8060,7 +8060,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -8099,8 +8099,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 150,
+    "mass": 150,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -8108,8 +8108,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -100
   },
   {
     "classname": "monster_gekk",
@@ -8147,8 +8147,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 125,
+    "mass": 300,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -8156,8 +8156,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -30
   },
   {
     "classname": "monster_gladb",
@@ -8204,7 +8204,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -8243,8 +8243,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 40,
+    "mass": 100,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -8252,8 +8252,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -30
   },
   {
     "classname": "monster_soldier_lasergun",
@@ -8291,8 +8291,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 50,
+    "mass": 100,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -8300,8 +8300,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -30
   },
   {
     "classname": "monster_soldier_ripper",
@@ -8339,8 +8339,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 60,
+    "mass": 100,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -8348,8 +8348,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -30
   },
   {
     "classname": "rotating_light",
@@ -9884,7 +9884,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -9932,7 +9932,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -9980,7 +9980,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -10028,7 +10028,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -10067,8 +10067,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 250,
+    "mass": 250,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -10076,8 +10076,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -50
   },
   {
     "classname": "monster_turret",
@@ -10124,7 +10124,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -10172,7 +10172,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -10220,7 +10220,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -11564,7 +11564,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -11612,7 +11612,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -11660,7 +11660,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -12908,7 +12908,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -12956,7 +12956,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -13004,7 +13004,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -13052,7 +13052,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -14099,8 +14099,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 30,
+    "mass": 30,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -14108,8 +14108,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -35
   },
   {
     "classname": "monster_demon",
@@ -14147,8 +14147,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 300,
+    "mass": 300,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -14156,8 +14156,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -80
   },
   {
     "classname": "monster_dog",
@@ -14243,8 +14243,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 80,
+    "mass": 80,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -14252,8 +14252,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -35
   },
   {
     "classname": "monster_floaterv",
@@ -14300,7 +14300,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -14348,7 +14348,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -14396,7 +14396,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -14540,7 +14540,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -14637,7 +14637,7 @@
       0.0
     ],
     "gib_type": "organic",
-    "gib_health": 0
+    "gib_health": -25
   },
   {
     "classname": "monster_shalrath",
@@ -14675,8 +14675,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 400,
+    "mass": 400,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -14684,8 +14684,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -90
   },
   {
     "classname": "monster_shambler",
@@ -14723,8 +14723,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 600,
+    "mass": 500,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -14732,8 +14732,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -60
   },
   {
     "classname": "monster_shockerv",
@@ -14780,7 +14780,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -14828,7 +14828,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -14867,8 +14867,8 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
+    "health": 80,
+    "mass": 50,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -14876,7 +14876,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -14924,8 +14924,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -40
   },
   {
     "classname": "monster_zombie",
@@ -15581,7 +15581,7 @@
     "misc_value": 0,
     "no_mip": 0,
     "spawn_sequence": "none",
-    "description": "Monster Alienship",
+    "description": "Alien Ship",
     "color": [
       0.5,
       0.5,
@@ -15596,8 +15596,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -30
   },
   {
     "classname": "monster_grunt1v1",
@@ -15629,13 +15629,13 @@
     "misc_value": 0,
     "no_mip": 0,
     "spawn_sequence": "none",
-    "description": "Monster Grunt1v1",
+    "description": "Grunt 1v1",
     "color": [
       0.5,
       0.5,
       0.5
     ],
-    "health": 80,
+    "health": 60,
     "mass": 100,
     "damage": 0,
     "damage_range": 0,
@@ -15644,8 +15644,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -40
   },
   {
     "classname": "monster_grunt1v2",
@@ -15677,14 +15677,14 @@
     "misc_value": 0,
     "no_mip": 0,
     "spawn_sequence": "none",
-    "description": "Monster Grunt1v2",
+    "description": "Grunt 1v2",
     "color": [
       0.5,
       0.5,
       0.5
     ],
     "health": 80,
-    "mass": 120,
+    "mass": 100,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -15692,8 +15692,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -40
   },
   {
     "classname": "monster_grunt2",
@@ -15725,7 +15725,7 @@
     "misc_value": 0,
     "no_mip": 0,
     "spawn_sequence": "none",
-    "description": "Monster Grunt2",
+    "description": "Grunt 2",
     "color": [
       0.5,
       0.5,
@@ -15740,8 +15740,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -60
   },
   {
     "classname": "monster_screamer",
@@ -15773,7 +15773,7 @@
     "misc_value": 0,
     "no_mip": 0,
     "spawn_sequence": "none",
-    "description": "Monster Screamer",
+    "description": "Screamer",
     "color": [
       0.5,
       0.5,
@@ -15788,8 +15788,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -50
   },
   {
     "classname": "weapon_6bshot",
@@ -16595,8 +16595,8 @@
       0.5,
       0.0
     ],
-    "health": 300,
-    "mass": 300,
+    "health": 160,
+    "mass": 200,
     "damage": 0,
     "damage_range": 0,
     "damage_aim": [
@@ -16604,8 +16604,8 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": -120
+    "gib_type": "organic",
+    "gib_health": -60
   },
   {
     "classname": "monster_kigrax",
@@ -16700,7 +16700,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -34748,7 +34748,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -34844,7 +34844,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -34892,7 +34892,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -34940,7 +34940,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -34988,7 +34988,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -35036,7 +35036,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -35084,7 +35084,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -35132,7 +35132,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -35180,7 +35180,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -35228,7 +35228,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -35276,7 +35276,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -35372,7 +35372,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -35660,7 +35660,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -35708,7 +35708,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -35756,7 +35756,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": -80
   },
   {
@@ -35804,7 +35804,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -35852,7 +35852,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -35900,7 +35900,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -35948,7 +35948,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -35996,7 +35996,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -47276,7 +47276,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -47324,7 +47324,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -47372,7 +47372,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -47420,7 +47420,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -47468,7 +47468,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -47516,7 +47516,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -47564,7 +47564,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -47612,7 +47612,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -47660,7 +47660,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -47708,7 +47708,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -47756,7 +47756,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -47804,7 +47804,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -47852,7 +47852,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -47900,7 +47900,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -47948,7 +47948,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -47996,7 +47996,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -48044,7 +48044,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -48092,7 +48092,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -52844,7 +52844,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -52892,7 +52892,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -52940,7 +52940,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -52988,7 +52988,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -53036,7 +53036,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -56156,7 +56156,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -56204,7 +56204,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -56252,7 +56252,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -56300,7 +56300,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -56348,7 +56348,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -56396,7 +56396,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -56444,7 +56444,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -56492,7 +56492,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -56540,7 +56540,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -56588,7 +56588,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -56636,7 +56636,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -56684,7 +56684,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -56732,7 +56732,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -56780,7 +56780,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -56828,7 +56828,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -56876,7 +56876,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -56924,7 +56924,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -56972,7 +56972,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -57020,7 +57020,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -57068,7 +57068,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -57116,7 +57116,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -57164,7 +57164,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -57212,7 +57212,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -57260,7 +57260,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -57308,7 +57308,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -57356,7 +57356,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -57404,7 +57404,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -57452,7 +57452,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -57500,7 +57500,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -57548,7 +57548,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -57596,7 +57596,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -57644,7 +57644,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -57692,7 +57692,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -57740,7 +57740,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -66908,7 +66908,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -66956,7 +66956,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -67004,7 +67004,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -67052,7 +67052,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -67100,7 +67100,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -67148,7 +67148,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -67196,7 +67196,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -67244,7 +67244,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -67292,7 +67292,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -67340,7 +67340,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -67388,7 +67388,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -67436,7 +67436,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -67484,7 +67484,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -67580,7 +67580,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -67676,7 +67676,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -67724,7 +67724,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -67772,7 +67772,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -67820,7 +67820,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -67868,7 +67868,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -67916,7 +67916,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -67964,7 +67964,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -68012,7 +68012,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -68060,7 +68060,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -68108,7 +68108,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -68156,7 +68156,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -68204,7 +68204,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -68252,7 +68252,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -68300,7 +68300,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -68348,7 +68348,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -68396,7 +68396,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -68444,7 +68444,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -68492,7 +68492,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -68540,7 +68540,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -68588,7 +68588,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -68636,7 +68636,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -68684,7 +68684,7 @@
       0.0,
       0.0
     ],
-    "gib_type": "none",
+    "gib_type": "organic",
     "gib_health": 0
   },
   {
@@ -70462,5 +70462,533 @@
     ],
     "gib_type": "none",
     "gib_health": 0
+  },
+  {
+    "classname": "monster_blossom",
+    "model_path": "models/monsters/blossom/tris.md2",
+    "scale": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "entity_type": "char",
+    "mins": [
+      -16.0,
+      -16.0,
+      -24.0
+    ],
+    "maxs": [
+      16.0,
+      16.0,
+      32.0
+    ],
+    "noshadow": "shadow",
+    "solidflag": 1,
+    "walk_speed": 0.0,
+    "run_speed": 0.0,
+    "speed": 0,
+    "lighting": 0,
+    "blending": 0,
+    "target_sequence": "0:0",
+    "misc_value": 0,
+    "no_mip": 0,
+    "spawn_sequence": "none",
+    "description": "Blossom",
+    "color": [
+      1.0,
+      0.5,
+      0.0
+    ],
+    "health": 120,
+    "mass": 100,
+    "damage": 0,
+    "damage_range": 0,
+    "damage_aim": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "gib_type": "organic",
+    "gib_health": -30
+  },
+  {
+    "classname": "monster_grunt3",
+    "model_path": "models/monsters/grunt3/tris.md2",
+    "scale": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "entity_type": "char",
+    "mins": [
+      -10.0,
+      -23.0,
+      -25.0
+    ],
+    "maxs": [
+      12.0,
+      22.0,
+      52.0
+    ],
+    "noshadow": "shadow",
+    "solidflag": 1,
+    "walk_speed": 0.0,
+    "run_speed": 0.0,
+    "speed": 0,
+    "lighting": 0,
+    "blending": 0,
+    "target_sequence": "0:0",
+    "misc_value": 0,
+    "no_mip": 0,
+    "spawn_sequence": "none",
+    "description": "Grunt 3",
+    "color": [
+      1.0,
+      0.5,
+      0.0
+    ],
+    "health": 220,
+    "mass": 100,
+    "damage": 0,
+    "damage_range": 0,
+    "damage_aim": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "gib_type": "organic",
+    "gib_health": -60
+  },
+  {
+    "classname": "monster_grunt1v3",
+    "model_path": "models/monsters/grunt/tris.md2",
+    "scale": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "entity_type": "char",
+    "mins": [
+      -16.0,
+      -16.0,
+      -25.0
+    ],
+    "maxs": [
+      16.0,
+      16.0,
+      30.0
+    ],
+    "noshadow": "shadow",
+    "solidflag": 1,
+    "walk_speed": 0.0,
+    "run_speed": 0.0,
+    "speed": 0,
+    "lighting": 0,
+    "blending": 0,
+    "target_sequence": "0:0",
+    "misc_value": 0,
+    "no_mip": 0,
+    "spawn_sequence": "none",
+    "description": "Grunt 1v3",
+    "color": [
+      1.0,
+      0.5,
+      0.0
+    ],
+    "health": 120,
+    "mass": 100,
+    "damage": 0,
+    "damage_range": 0,
+    "damage_aim": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "gib_type": "organic",
+    "gib_health": -40
+  },
+  {
+    "classname": "monster_grunt1v4",
+    "model_path": "models/monsters/grunt/tris.md2",
+    "scale": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "entity_type": "char",
+    "mins": [
+      -16.0,
+      -16.0,
+      -25.0
+    ],
+    "maxs": [
+      16.0,
+      16.0,
+      30.0
+    ],
+    "noshadow": "shadow",
+    "solidflag": 1,
+    "walk_speed": 0.0,
+    "run_speed": 0.0,
+    "speed": 0,
+    "lighting": 0,
+    "blending": 0,
+    "target_sequence": "0:0",
+    "misc_value": 0,
+    "no_mip": 0,
+    "spawn_sequence": "none",
+    "description": "Grunt 1v4",
+    "color": [
+      1.0,
+      0.5,
+      0.0
+    ],
+    "health": 100,
+    "mass": 100,
+    "damage": 0,
+    "damage_range": 0,
+    "damage_aim": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "gib_type": "organic",
+    "gib_health": -40
+  },
+  {
+    "classname": "monster_jelly",
+    "model_path": "models/monsters/jelly/tris.md2",
+    "scale": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "entity_type": "char",
+    "mins": [
+      -38.0,
+      -18.0,
+      -82.0
+    ],
+    "maxs": [
+      25.0,
+      17.0,
+      37.0
+    ],
+    "noshadow": "shadow",
+    "solidflag": 1,
+    "walk_speed": 0.0,
+    "run_speed": 0.0,
+    "speed": 0,
+    "lighting": 0,
+    "blending": 0,
+    "target_sequence": "0:0",
+    "misc_value": 0,
+    "no_mip": 0,
+    "spawn_sequence": "none",
+    "description": "Jelly",
+    "color": [
+      1.0,
+      0.5,
+      0.0
+    ],
+    "health": 100,
+    "mass": 50,
+    "damage": 0,
+    "damage_range": 0,
+    "damage_aim": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "gib_type": "organic",
+    "gib_health": -40
+  },
+  {
+    "classname": "monster_roach",
+    "model_path": "models/monsters/roach/tris.md2",
+    "scale": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "entity_type": "char",
+    "mins": [
+      -32.0,
+      -34.0,
+      -23.0
+    ],
+    "maxs": [
+      42.0,
+      33.0,
+      75.0
+    ],
+    "noshadow": "shadow",
+    "solidflag": 1,
+    "walk_speed": 0.0,
+    "run_speed": 0.0,
+    "speed": 0,
+    "lighting": 0,
+    "blending": 0,
+    "target_sequence": "0:0",
+    "misc_value": 0,
+    "no_mip": 0,
+    "spawn_sequence": "none",
+    "description": "Roach",
+    "color": [
+      1.0,
+      0.5,
+      0.0
+    ],
+    "health": 500,
+    "mass": 300,
+    "damage": 0,
+    "damage_range": 0,
+    "damage_aim": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "gib_type": "organic",
+    "gib_health": -120
+  },
+  {
+    "classname": "monster_roller",
+    "model_path": "models/monsters/roller/tris.md2",
+    "scale": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "entity_type": "char",
+    "mins": [
+      -25.0,
+      -25.0,
+      -25.0
+    ],
+    "maxs": [
+      25.0,
+      25.0,
+      52.0
+    ],
+    "noshadow": "shadow",
+    "solidflag": 1,
+    "walk_speed": 0.0,
+    "run_speed": 0.0,
+    "speed": 0,
+    "lighting": 0,
+    "blending": 0,
+    "target_sequence": "0:0",
+    "misc_value": 0,
+    "no_mip": 0,
+    "spawn_sequence": "none",
+    "description": "Roller",
+    "color": [
+      1.0,
+      0.5,
+      0.0
+    ],
+    "health": 180,
+    "mass": 150,
+    "damage": 0,
+    "damage_range": 0,
+    "damage_aim": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "gib_type": "organic",
+    "gib_health": -50
+  },
+  {
+    "classname": "monster_alienship2",
+    "model_path": "models/monsters/aliens2/tris.md2",
+    "scale": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "entity_type": "char",
+    "mins": [
+      -34.0,
+      -25.0,
+      -13.0
+    ],
+    "maxs": [
+      45.0,
+      43.0,
+      41.0
+    ],
+    "noshadow": "shadow",
+    "solidflag": 1,
+    "walk_speed": 0.0,
+    "run_speed": 0.0,
+    "speed": 0,
+    "lighting": 0,
+    "blending": 0,
+    "target_sequence": "0:0",
+    "misc_value": 0,
+    "no_mip": 0,
+    "spawn_sequence": "none",
+    "description": "Alien Ship 2",
+    "color": [
+      1.0,
+      0.5,
+      0.0
+    ],
+    "health": 120,
+    "mass": 50,
+    "damage": 0,
+    "damage_range": 0,
+    "damage_aim": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "gib_type": "organic",
+    "gib_health": -30
+  },
+  {
+    "classname": "monster_alienship3",
+    "model_path": "models/monsters/aliens3/tris.md2",
+    "scale": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "entity_type": "char",
+    "mins": [
+      -34.0,
+      -25.0,
+      -13.0
+    ],
+    "maxs": [
+      45.0,
+      43.0,
+      41.0
+    ],
+    "noshadow": "shadow",
+    "solidflag": 1,
+    "walk_speed": 0.0,
+    "run_speed": 0.0,
+    "speed": 0,
+    "lighting": 0,
+    "blending": 0,
+    "target_sequence": "0:0",
+    "misc_value": 0,
+    "no_mip": 0,
+    "spawn_sequence": "none",
+    "description": "Alien Ship 3",
+    "color": [
+      1.0,
+      0.5,
+      0.0
+    ],
+    "health": 280,
+    "mass": 50,
+    "damage": 0,
+    "damage_range": 0,
+    "damage_aim": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "gib_type": "organic",
+    "gib_health": -30
+  },
+  {
+    "classname": "monster_alienship4",
+    "model_path": "models/monsters/aliens4/tris.md2",
+    "scale": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "entity_type": "char",
+    "mins": [
+      -34.0,
+      -25.0,
+      -13.0
+    ],
+    "maxs": [
+      45.0,
+      43.0,
+      41.0
+    ],
+    "noshadow": "shadow",
+    "solidflag": 1,
+    "walk_speed": 0.0,
+    "run_speed": 0.0,
+    "speed": 0,
+    "lighting": 0,
+    "blending": 0,
+    "target_sequence": "0:0",
+    "misc_value": 0,
+    "no_mip": 0,
+    "spawn_sequence": "none",
+    "description": "Alien Ship 4",
+    "color": [
+      1.0,
+      0.5,
+      0.0
+    ],
+    "health": 35,
+    "mass": 50,
+    "damage": 0,
+    "damage_range": 0,
+    "damage_aim": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "gib_type": "organic",
+    "gib_health": -30
+  },
+  {
+    "classname": "monster_zombifier",
+    "model_path": "models/monsters/zombify/tris.md2",
+    "scale": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "entity_type": "char",
+    "mins": [
+      -23.0,
+      -23.0,
+      -25.0
+    ],
+    "maxs": [
+      35.0,
+      35.0,
+      40.0
+    ],
+    "noshadow": "shadow",
+    "solidflag": 1,
+    "walk_speed": 0.0,
+    "run_speed": 0.0,
+    "speed": 0,
+    "lighting": 0,
+    "blending": 0,
+    "target_sequence": "0:0",
+    "misc_value": 0,
+    "no_mip": 0,
+    "spawn_sequence": "none",
+    "description": "Zombifier",
+    "color": [
+      1.0,
+      0.5,
+      0.0
+    ],
+    "health": 120,
+    "mass": 200,
+    "damage": 0,
+    "damage_range": 0,
+    "damage_aim": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "gib_type": "organic",
+    "gib_health": -70
   }
 ]
