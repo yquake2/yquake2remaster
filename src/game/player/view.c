@@ -569,7 +569,7 @@ SV_CalcGunOffset(edict_t *ent)
 	}
 }
 
-static void
+void
 SV_AddBlend(float r, float g, float b, float a, float *v_blend)
 {
 	float a2, a3;
@@ -791,6 +791,8 @@ SV_CalcBlend(edict_t *ent)
 		SV_AddBlend(0.85, 0.7, 0.3, ent->client->bonus_alpha,
 				ent->client->ps.blend);
 	}
+
+	G_ScreenFade_AddBlend(ent);
 
 	/* drop the damage value */
 	ent->client->damage_alpha -= 0.06;

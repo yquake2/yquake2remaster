@@ -1228,6 +1228,9 @@ void M_SetStandMinMax(edict_t *ent, float *mins, float *maxs);
 /* g_phys.c */
 void G_RunEntity(edict_t *ent);
 void SV_AddGravity(edict_t *ent);
+void SV_AddBlend(float r, float g, float b, float a, float *v_blend);
+void G_ScreenFade_AddBlend(edict_t *client);
+void G_ScreenFade_Reset(void);
 
 /* g_main.c */
 void SaveClientData(void);

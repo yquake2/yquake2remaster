@@ -4445,6 +4445,348 @@ void SP_misc_model(edict_t *ent)
 	gi.linkentity(ent);
 }
 
+/* ======================================================================= */
+
+#define SCREENFADER_STATE_IDLE          0
+#define SCREENFADER_STATE_PENDING       1
+#define SCREENFADER_STATE_ACTIVE        2
+#define SCREENFADER_STATE_HOLD          3
+
+#define SCREENFADER_START_ON            1
+
+static edict_t *screenfader_active_list;
+
+static void
+ScreenFader_EnablePolyblend(void)
+{
+	int i;
+
+	if (!maxclients)
+	{
+		return;
+	}
+
+	for (i = 1; i <= maxclients->value; i++)
+	{
+		edict_t *cl = &g_edicts[i];
+
+		if (!cl->inuse || !cl->client)
+		{
+			continue;
+		}
+
+		gi.WriteByte(svc_stufftext);
+		gi.WriteString("gl_polyblend 1\n");
+		gi.unicast(cl, true);
+	}
+}
+
+static void
+ScreenFader_AddActive(edict_t *ent)
+{
+	edict_t **link;
+
+	for (link = &screenfader_active_list; *link; link = &(*link)->chain)
+	{
+		if (*link == ent)
+		{
+			return;
+		}
+	}
+
+	ent->chain = screenfader_active_list;
+	screenfader_active_list = ent;
+}
+
+static void
+ScreenFader_RemoveActive(edict_t *ent)
+{
+	edict_t **link;
+
+	for (link = &screenfader_active_list; *link; link = &(*link)->chain)
+	{
+		if (*link == ent)
+		{
+			*link = ent->chain;
+			ent->chain = NULL;
+			return;
+		}
+	}
+}
+
+static float
+ScreenFader_Clamp01(float value)
+{
+	if (value < 0.0f)
+	{
+		return 0.0f;
+	}
+	if (value > 1.0f)
+	{
+		return 1.0f;
+	}
+	return value;
+}
+
+static qboolean
+ScreenFader_ParseColor(const char *string, vec3_t rgb, float *alpha)
+{
+	float r, g, b, a;
+
+	if (!string || !string[0])
+	{
+		return false;
+	}
+
+	if (sscanf(string, "%f %f %f %f", &r, &g, &b, &a) != 4)
+	{
+		return false;
+	}
+
+	rgb[0] = ScreenFader_Clamp01(r);
+	rgb[1] = ScreenFader_Clamp01(g);
+	rgb[2] = ScreenFader_Clamp01(b);
+	*alpha = ScreenFader_Clamp01(a);
+	return true;
+}
+
+static float
+ScreenFader_Lerp(float start, float end, float frac)
+{
+	return start + (end - start) * frac;
+}
+
+static void ScreenFader_Update(edict_t *self);
+static void ScreenFader_ClearHold(edict_t *self);
+
+static void
+ScreenFader_Begin(edict_t *self)
+{
+	ScreenFader_RemoveActive(self);
+	ScreenFader_EnablePolyblend();
+
+	if (self->wait <= 0.0f)
+	{
+		self->wait = FRAMETIME;
+	}
+
+	self->timestamp = level.time;
+	self->count = SCREENFADER_STATE_ACTIVE;
+	self->think = ScreenFader_Update;
+	self->nextthink = level.time + FRAMETIME;
+
+	ScreenFader_AddActive(self);
+}
+
+static void
+ScreenFader_Finish(edict_t *self)
+{
+	float hold = self->random > 0.0f ? self->random : 0.0f;
+
+	self->count = hold > 0.0f ? SCREENFADER_STATE_HOLD : SCREENFADER_STATE_IDLE;
+
+	if (hold > 0.0f)
+	{
+		self->think = ScreenFader_ClearHold;
+		self->nextthink = level.time + hold;
+	}
+	else
+	{
+		ScreenFader_RemoveActive(self);
+		self->think = NULL;
+		self->nextthink = 0;
+	}
+
+	if (self->activator)
+	{
+		G_UseTargets(self, self->activator);
+	}
+	self->activator = NULL;
+}
+
+static void
+ScreenFader_Update(edict_t *self)
+{
+	float elapsed;
+
+	if (self->count != SCREENFADER_STATE_ACTIVE)
+	{
+		return;
+	}
+
+	elapsed = level.time - self->timestamp;
+
+	if (elapsed >= self->wait)
+	{
+		ScreenFader_Finish(self);
+		return;
+	}
+
+	self->nextthink = level.time + FRAMETIME;
+}
+
+static void
+ScreenFader_ClearHold(edict_t *self)
+{
+	ScreenFader_RemoveActive(self);
+	self->think = NULL;
+	self->nextthink = 0;
+	self->count = SCREENFADER_STATE_IDLE;
+}
+
+static void
+misc_screenfader_use(edict_t *self, edict_t *other, edict_t *activator)
+{
+	if (!self->inuse)
+	{
+		return;
+	}
+
+	self->activator = activator ? activator : self;
+
+	if (self->delay > 0.0f)
+	{
+		self->think = ScreenFader_Begin;
+		self->nextthink = level.time + self->delay;
+		self->count = SCREENFADER_STATE_PENDING;
+	}
+	else
+	{
+		ScreenFader_Begin(self);
+	}
+}
+
+void
+G_ScreenFade_Reset(void)
+{
+	screenfader_active_list = NULL;
+}
+
+void
+G_ScreenFade_AddBlend(edict_t *client)
+{
+	edict_t *fader;
+
+	if (!client->client)
+	{
+		return;
+	}
+
+	for (fader = screenfader_active_list; fader; fader = fader->chain)
+	{
+		float duration, frac, alpha;
+		vec3_t color;
+
+		if (!fader->inuse)
+		{
+			continue;
+		}
+
+		if (fader->count == SCREENFADER_STATE_ACTIVE)
+		{
+			duration = fader->wait > 0.0f ? fader->wait : FRAMETIME;
+			frac = (level.time - fader->timestamp) / duration;
+			if (frac < 0.0f)
+			{
+				frac = 0.0f;
+			}
+			if (frac > 1.0f)
+			{
+				frac = 1.0f;
+			}
+		}
+		else if (fader->count == SCREENFADER_STATE_HOLD)
+		{
+			frac = 1.0f;
+		}
+		else
+		{
+			continue;
+		}
+
+		color[0] = ScreenFader_Lerp(fader->move_origin[0], fader->move_angles[0], frac);
+		color[1] = ScreenFader_Lerp(fader->move_origin[1], fader->move_angles[1], frac);
+		color[2] = ScreenFader_Lerp(fader->move_origin[2], fader->move_angles[2], frac);
+		alpha = ScreenFader_Lerp(fader->speed, fader->accel, frac);
+
+		if (alpha <= 0.0f)
+		{
+			continue;
+		}
+
+		SV_AddBlend(color[0], color[1], color[2], alpha, client->client->ps.blend);
+	}
+}
+
+/*QUAKED misc_screenfader (0 0 1) (-8 -8 -8) (8 8 8) START_ON
+Fades the player's screen from the first color to the second over time.
+pathtarget      "r g b a" string for the starting color. "message" can be used as a fallback.
+deathtarget     "r g b a" string for the ending color.
+count           Fade duration in seconds.
+delay           Optional delay before the fade begins after being triggered.
+random          Optional hold time to keep the final color before clearing.
+target          Entity to trigger when the fade completes.
+*/
+void
+SP_misc_screenfader(edict_t *self)
+{
+	vec3_t start_rgb, end_rgb;
+	float start_alpha = 0.0f, end_alpha = 0.0f;
+	const char *start_string;
+	const char *end_string;
+
+	start_string = self->pathtarget ? self->pathtarget : self->message;
+	end_string = self->deathtarget;
+
+	if (!ScreenFader_ParseColor(start_string, start_rgb, &start_alpha))
+	{
+		gi.dprintf("misc_screenfader missing valid start color\n");
+		G_FreeEdict(self);
+		return;
+	}
+
+	if (!ScreenFader_ParseColor(end_string, end_rgb, &end_alpha))
+	{
+		gi.dprintf("misc_screenfader missing valid end color\n");
+		G_FreeEdict(self);
+		return;
+	}
+
+	VectorCopy(start_rgb, self->move_origin);
+	VectorCopy(end_rgb, self->move_angles);
+	self->speed = start_alpha;
+	self->accel = end_alpha;
+
+	if (self->count > 0)
+	{
+		self->wait = (float)self->count;
+	}
+
+	if (self->wait <= 0.0f)
+	{
+		self->wait = 1.0f;
+	}
+
+	if (self->random < 0.0f)
+	{
+		self->random = 0.0f;
+	}
+
+	self->movetype = MOVETYPE_NONE;
+	self->solid = SOLID_NOT;
+	self->svflags |= SVF_NOCLIENT;
+	self->chain = NULL;
+	self->count = SCREENFADER_STATE_IDLE;
+	self->use = misc_screenfader_use;
+
+	gi.linkentity(self);
+
+	if (self->spawnflags & SCREENFADER_START_ON)
+	{
+		misc_screenfader_use(self, self, self);
+	}
+}
+
 /*
  * QUAKED npc_timeminder (0 1 0) (-8 -8 -8) (8 8 8)
  *
