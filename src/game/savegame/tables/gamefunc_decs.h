@@ -27,6 +27,7 @@
 
 // die
 extern void DBall_BallDie (edict_t *, edict_t *, edict_t *, int, const vec3_t);
+extern void RTDU_RemoveTurret (edict_t *, edict_t *, edict_t *, int, const vec3_t);
 extern void actor_die (edict_t *, edict_t *, edict_t *, int, const vec3_t);
 extern void arachnid_die (edict_t *, edict_t *, edict_t *, int, const vec3_t);
 extern void army_die (edict_t *, edict_t *, edict_t *, int, const vec3_t);
@@ -178,6 +179,8 @@ extern void BossExplode2 (edict_t *);
 extern void CTFDropFlagThink (edict_t *);
 extern void CTFFlagSetup (edict_t *);
 extern void CTFFlagThink (edict_t *);
+extern void Camera_TargetThink (edict_t *);
+extern void Camera_Think (edict_t *);
 extern void ChasecamTrack (edict_t *);
 extern void DBall_BallRespawn (edict_t *);
 extern void DoRespawn (edict_t *);
@@ -194,6 +197,8 @@ extern void Move_Final (edict_t *);
 extern void Nuke_Quake (edict_t *);
 extern void Nuke_Think (edict_t *);
 extern void Prox_Explode (edict_t *);
+extern void RTDU_RemoveTurretThink (edict_t *);
+extern void RTDU_TurretThink (edict_t *);
 extern void RotateTrain_MoveBegin (edict_t *);
 extern void RotateTrain_MoveDone (edict_t *);
 extern void RotateTrain_MoveFinal (edict_t *);
@@ -361,6 +366,7 @@ extern void Touch_Item (edict_t *, edict_t *, const cplane_t *, const csurface_t
 extern void Touch_Multi (edict_t *, edict_t *, const cplane_t *, const csurface_t *);
 extern void Touch_Plat_Center (edict_t *, edict_t *, const cplane_t *, const csurface_t *);
 extern void Touch_Plat_Center2 (edict_t *, edict_t *, const cplane_t *, const csurface_t *);
+extern void TriggerCamera_Touch (edict_t *, edict_t *, const cplane_t *, const csurface_t *);
 extern void badarea_touch (edict_t *, edict_t *, const cplane_t *, const csurface_t *);
 extern void barrel_touch (edict_t *, edict_t *, const cplane_t *, const csurface_t *);
 extern void bfg_touch (edict_t *, edict_t *, const cplane_t *, const csurface_t *);
@@ -431,6 +437,8 @@ extern void widow_gib_touch (edict_t *, edict_t *, const cplane_t *, const csurf
 extern void zombie_gib_touch (edict_t *, edict_t *, const cplane_t *, const csurface_t *);
 extern void zombie_touch (edict_t *, edict_t *, const cplane_t *, const csurface_t *);
 // use
+extern void Camera_TargetUse (edict_t *, edict_t *, edict_t *);
+extern void Camera_Use (edict_t *, edict_t *, edict_t *);
 extern void Door_Activate (edict_t *, edict_t *, edict_t *);
 extern void Item_TriggeredSpawn (edict_t *, edict_t *, edict_t *);
 extern void Use_Areaportal (edict_t *, edict_t *, edict_t *);

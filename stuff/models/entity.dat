@@ -80,30 +80,30 @@ misc_teleporter_dest|models/objects/dmspot/tris.md2|1.0|1.0|1.0|general|-32.0|-3
 misc_teleporter|models/objects/dmspot/tris.md2|1.0|1.0|1.0|general|-32.0|-32.0|-24.0|32.0|32.0|-16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Teleporter : To hide the teleport pads, place them units 10 units into a brush.|1.0|0.0|0.0|0|0|0|0|0|0|0|none|0
 misc_viper_bomb|models/objects/bomb/tris.md2|1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Viper Bomb|1.0|0.0|0.0|0|0|0|0|0|0|0|none|0
 misc_viper|models/ships/viper/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Viper for flybys|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_berserk|models/monsters/berserk/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Berserker|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_boss2|models/monsters/boss2/tris.md2|1.0|1.0|1.0|char|-56.0|-56.0|0.0|56.0|56.0|80.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Hornet|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_boss3_stand|models/monsters/boss3/rider/tris.md2|1.0|1.0|1.0|char|-32.0|-32.0|0.0|32.0|32.0|80.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Stationnary Makron|1|.5|0|0|0|0|0|0|0|0|none|0
-monster_brain|models/monsters/brain/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Brains|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_chick|models/monsters/bitch/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|56.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Iron Maiden|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_commander_body|models/monsters/commandr/tris.md2|1.0|1.0|1.0|char|-32.0|-32.0|0.0|32.0|32.0|48.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Tank commander's decapitated body|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_flipper|models/monsters/flipper/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Barracuda shark|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_floater|models/monsters/float/tris.md2|1.0|1.0|1.0|char|-24.0|-24.0|-24.0|24.0|24.0|48.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Technician|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_flyer|models/monsters/flyer/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Flyer|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_gladiator|models/monsters/gladiatr/tris.md2|1.0|1.0|1.0|char|-32.0|-32.0|-24.0|32.0|32.0|64.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Gladiator|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_gunner|models/monsters/gunner/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Gunner|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_hover|models/monsters/hover/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Icarus|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_infantry|models/monsters/infantry/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Infantry|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_jorg|models/monsters/boss3/jorg/tris.md2|1.0|1.0|1.0|char|-80.0|-80.0|0.0|90.0|90.0|140.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Jorg|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_makron|models/monsters/boss3/rider/tris.md2|1.0|1.0|1.0|char|-32.0|-32.0|0.0|32.0|32.0|80.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Makron|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_medic|models/monsters/medic/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Medic|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_mutant|models/monsters/mutant/tris.md2|1.0|1.0|1.0|char|-32.0|-32.0|-24.0|32.0|32.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Mutant|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_parasite|models/monsters/parasite/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Parasite|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_soldier_light|models/monsters/soldier/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Light Soldier|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_soldier_ss|models/monsters/soldier/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|SS Soldier|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_soldier|models/monsters/soldier/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Soldier|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_supertank|models/monsters/boss1/tris.md2|1.0|1.0|1.0|char|-64.0|-64.0|0.0|64.0|64.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Super Tank Boss|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_tank_commander|models/monsters/tank/tris.md2|1.0|1.0|1.0|char|-32.0|-32.0|-16.0|32.0|32.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Tank Commander|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_tank|models/monsters/tank/tris.md2|1.0|1.0|1.0|char|-32.0|-32.0|-16.0|32.0|32.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Tank|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
+monster_berserk|models/monsters/berserk/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Berserker|1.0|0.5|0.0|240|250|0|0|0|0|0|organic|-60
+monster_boss2|models/monsters/boss2/tris.md2|1.0|1.0|1.0|char|-56.0|-56.0|0.0|56.0|56.0|80.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Hornet|1.0|0.5|0.0|2000|1000|0|0|0|0|0|organic|-200
+monster_boss3_stand|models/monsters/boss3/rider/tris.md2|1.0|1.0|1.0|char|-32.0|-32.0|0.0|32.0|32.0|80.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Stationnary Makron|1|.5|0|0|0|0|0|0|0|0|organic|0
+monster_brain|models/monsters/brain/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Brains|1.0|0.5|0.0|300|400|0|0|0|0|0|organic|-150
+monster_chick|models/monsters/bitch/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|56.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Iron Maiden|1.0|0.5|0.0|175|200|0|0|0|0|0|organic|-70
+monster_commander_body|models/monsters/commandr/tris.md2|1.0|1.0|1.0|char|-32.0|-32.0|0.0|32.0|32.0|48.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Tank commander's decapitated body|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
+monster_flipper|models/monsters/flipper/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Barracuda shark|1.0|0.5|0.0|50|100|0|0|0|0|0|organic|-30
+monster_floater|models/monsters/float/tris.md2|1.0|1.0|1.0|char|-24.0|-24.0|-24.0|24.0|24.0|48.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Technician|1.0|0.5|0.0|200|300|0|0|0|0|0|organic|-80
+monster_flyer|models/monsters/flyer/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Flyer|1.0|0.5|0.0|50|50|0|0|0|0|0|organic|-50
+monster_gladiator|models/monsters/gladiatr/tris.md2|1.0|1.0|1.0|char|-32.0|-32.0|-24.0|32.0|32.0|64.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Gladiator|1.0|0.5|0.0|400|400|0|0|0|0|0|organic|-175
+monster_gunner|models/monsters/gunner/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Gunner|1.0|0.5|0.0|175|200|0|0|0|0|0|organic|-70
+monster_hover|models/monsters/hover/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Icarus|1.0|0.5|0.0|240|150|0|0|0|0|0|organic|-100
+monster_infantry|models/monsters/infantry/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Infantry|1.0|0.5|0.0|100|200|0|0|0|0|0|organic|-40
+monster_jorg|models/monsters/boss3/jorg/tris.md2|1.0|1.0|1.0|char|-80.0|-80.0|0.0|90.0|90.0|140.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Jorg|1.0|0.5|0.0|3000|1000|0|0|0|0|0|organic|-2000
+monster_makron|models/monsters/boss3/rider/tris.md2|1.0|1.0|1.0|char|-32.0|-32.0|0.0|32.0|32.0|80.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Makron|1.0|0.5|0.0|3000|500|0|0|0|0|0|organic|-2000
+monster_medic|models/monsters/medic/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Medic|1.0|0.5|0.0|300|400|0|0|0|0|0|organic|-130
+monster_mutant|models/monsters/mutant/tris.md2|1.0|1.0|1.0|char|-32.0|-32.0|-24.0|32.0|32.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Mutant|1.0|0.5|0.0|300|300|0|0|0|0|0|organic|-120
+monster_parasite|models/monsters/parasite/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Parasite|1.0|0.5|0.0|175|250|0|0|0|0|0|organic|-50
+monster_soldier_light|models/monsters/soldier/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Light Soldier|1.0|0.5|0.0|20|100|0|0|0|0|0|organic|-30
+monster_soldier_ss|models/monsters/soldier/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|SS Soldier|1.0|0.5|0.0|70|100|0|0|0|0|0|organic|-30
+monster_soldier|models/monsters/soldier/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Soldier|1.0|0.5|0.0|50|100|0|0|0|0|0|organic|-30
+monster_supertank|models/monsters/boss1/tris.md2|1.0|1.0|1.0|char|-64.0|-64.0|0.0|64.0|64.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Super Tank Boss|1.0|0.5|0.0|1500|800|0|0|0|0|0|organic|-500
+monster_tank_commander|models/monsters/tank/tris.md2|1.0|1.0|1.0|char|-32.0|-32.0|-16.0|32.0|32.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Tank Commander|1.0|0.5|0.0|1000|500|0|0|0|0|0|organic|-225
+monster_tank|models/monsters/tank/tris.md2|1.0|1.0|1.0|char|-32.0|-32.0|-16.0|32.0|32.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Tank|1.0|0.5|0.0|750|500|0|0|0|0|0|organic|-225
 path_corner||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Path marker|0.5|0.3|0.0|0|0|0|0|0|0|0|none|0
 point_combat||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Point of combat - should be the first/only target of a monster|0.5|0.3|0.04|0|0|0|0|0|0|0|none|0
 target_actor||1.0|1.0|1.0|general|-8|-8|-8|8|8|8|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Actor path|.5|.3|0|0|0|0|0|0|0|0|none|0
@@ -171,14 +171,14 @@ misc_crashviper|models/ships/viper/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|0.0|
 misc_nuke||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Nuke (kill all entities)|1.0|0.0|0.0|0|0|0|0|0|0|0|none|0
 misc_transport|models/objects/ship/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Xatrix Transport|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
 misc_viper_missile|models/objects/bomb/tris.md2|1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Viper Missile|1.0|0.0|0.0|0|0|0|0|0|0|0|none|0
-monster_boss5|models/monsters/boss1/tris.md2|1.0|1.0|1.0|char|-64.0|-64.0|0.0|64.0|64.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Super Tank Boss (power armor)|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_chick_heat|models/monsters/bitch/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|56.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Iron Maiden (heat-seeking missile)|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_fixbot|models/monsters/fixbot/tris.md2|1.0|1.0|1.0|char|-32.0|-32.0|-24.0|32.0|32.0|24.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Fixbot|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_gekk|models/monsters/gekk/tris.md2|1.0|1.0|1.0|char|-24.0|-24.0|-24.0|24.0|24.0|24.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Gekk|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_gladb|models/monsters/gladiatr/tris.md2|1.0|1.0|1.0|char|-32.0|-32.0|-24.0|32.0|32.0|64.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Gladiator (phalanx)|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_soldier_hypergun|models/monsters/soldier/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Hypergun Soldier|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_soldier_lasergun|models/monsters/soldier/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Lasergun Soldier|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_soldier_ripper|models/monsters/soldier/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Ripper Soldier|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
+monster_boss5|models/monsters/boss1/tris.md2|1.0|1.0|1.0|char|-64.0|-64.0|0.0|64.0|64.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Super Tank Boss (power armor)|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
+monster_chick_heat|models/monsters/bitch/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|56.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Iron Maiden (heat-seeking missile)|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
+monster_fixbot|models/monsters/fixbot/tris.md2|1.0|1.0|1.0|char|-32.0|-32.0|-24.0|32.0|32.0|24.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Fixbot|1.0|0.5|0.0|150|150|0|0|0|0|0|organic|-100
+monster_gekk|models/monsters/gekk/tris.md2|1.0|1.0|1.0|char|-24.0|-24.0|-24.0|24.0|24.0|24.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Gekk|1.0|0.5|0.0|125|300|0|0|0|0|0|organic|-30
+monster_gladb|models/monsters/gladiatr/tris.md2|1.0|1.0|1.0|char|-32.0|-32.0|-24.0|32.0|32.0|64.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Gladiator (phalanx)|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
+monster_soldier_hypergun|models/monsters/soldier/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Hypergun Soldier|1.0|0.5|0.0|40|100|0|0|0|0|0|organic|-30
+monster_soldier_lasergun|models/monsters/soldier/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Lasergun Soldier|1.0|0.5|0.0|50|100|0|0|0|0|0|organic|-30
+monster_soldier_ripper|models/monsters/soldier/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Ripper Soldier|1.0|0.5|0.0|60|100|0|0|0|0|0|organic|-30
 rotating_light|models/props/light/tris.md2|1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|a rotating light. From Q2 Xatrix mod.|0.0|0.5|0.8|0|0|0|0|0|0|0|none|0
 target_mal_laser||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Laser (Xatrix; Mal Laser)|0.0|0.5|0.8|0|0|0|0|0|0|0|none|0
 weapon_boomer|models/weapons/g_boom/tris.md2|1.0|1.0|1.0|charfly|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ionripper|1.0|0.3|0.3|0|0|0|0|0|0|0|none|0
@@ -212,14 +212,14 @@ item_sphere_vengeance|models/items/vengnce/tris.md2|1.0|1.0|1.0|general|-16.0|-1
 key_nuke_container|models/weapons/g_nuke/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Antimatter Pod (nuke key part 1)|0.0|0.5|0.8|0|0|0|0|0|0|0|none|0
 key_nuke|models/weapons/g_nuke/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Antimatter Bomb (nuke key part 2)|0.0|0.5|0.8|0|0|0|0|0|0|0|none|0
 misc_nuke_core|models/objects/core/tris.md2|1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Nuke Core (must be targeted to appear)|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_carrier|models/monsters/carrier/tris.md2|1.0|1.0|1.0|char|-56.0|-56.0|-44.0|56.0|56.0|44.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Carrier|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_daedalus|models/monsters/hover/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Daedalus|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_kamikaze|models/monsters/flyer/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Flyer (kamikaze)|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_medic_commander|models/monsters/medic/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Medic Commander|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_stalker|models/monsters/stalker/tris.md2|1.0|1.0|1.0|char|-28.0|-28.0|-18.0|28.0|28.0|18.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Stalker|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_turret|models/monsters/turret/tris.md2|1.0|1.0|1.0|char|-12.0|-12.0|-12.0|12.0|12.0|12.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Turret Monster|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_widow2|models/monsters/blackwidow2/tris.md2|1.0|1.0|1.0|char|-70|-70|0|70|70|144|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0|0|0|0|0|0|0|0|none|0
-monster_widow|models/monsters/blackwidow/tris.md2|1.0|1.0|1.0|char|-40.0|-40.0|0.0|40.0|40.0|144.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Black Widow (on foot)|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
+monster_carrier|models/monsters/carrier/tris.md2|1.0|1.0|1.0|char|-56.0|-56.0|-44.0|56.0|56.0|44.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Carrier|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
+monster_daedalus|models/monsters/hover/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Daedalus|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
+monster_kamikaze|models/monsters/flyer/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Flyer (kamikaze)|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
+monster_medic_commander|models/monsters/medic/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Medic Commander|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
+monster_stalker|models/monsters/stalker/tris.md2|1.0|1.0|1.0|char|-28.0|-28.0|-18.0|28.0|28.0|18.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Stalker|1.0|0.5|0.0|250|250|0|0|0|0|0|organic|-50
+monster_turret|models/monsters/turret/tris.md2|1.0|1.0|1.0|char|-12.0|-12.0|-12.0|12.0|12.0|12.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Turret Monster|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
+monster_widow2|models/monsters/blackwidow2/tris.md2|1.0|1.0|1.0|char|-70|-70|0|70|70|144|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0|0|0|0|0|0|0|0|organic|0
+monster_widow|models/monsters/blackwidow/tris.md2|1.0|1.0|1.0|char|-40.0|-40.0|0.0|40.0|40.0|144.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Black Widow (on foot)|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
 target_anger||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Anger (make monster angry at something)|1.0|0.0|0.0|0|0|0|0|0|0|0|none|0
 target_blacklight|models/items/spawngro2/tris.md2|1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Large Orb (black light)|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
 target_killplayers||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Nuke (kill all players)|1.0|0.0|0.0|0|0|0|0|0|0|0|none|0
@@ -249,9 +249,9 @@ key_lava|models/items/keys/lava/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|1
 key_slime|models/items/keys/slime/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||0|.5|.8|0|0|0|0|0|0|0|none|0
 load_mirrorlevel||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|0|0|0|0|0|0|0|0|0|none|0
 misc_commdish|models/objects/satdish/tris.md2|1.0|1.0|1.0|general|-16|-16|0|16|16|40|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||0|.5|.8|0|0|0|0|0|0|0|none|0
-monster_handler|models/monsters/guard/handler/tris.md2|1.0|1.0|1.0|char|-16|-16|-24|16|16|32|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0|175|250|0|0|0|0|0|none|0
-monster_hound|models/monsters/guard/hound/tris.md2|1.0|1.0|1.0|char|-16|-16|-24|16|16|32|shadow|1|7.0|40.0|0|0|0|0:0|0|0|none||1|.5|0|175|250|0|0|0|0|0|none|0
-monster_zboss|models/monsters/bossz/mech/tris.md2|1.0|1.0|1.0|char|-16|-16|-24|16|16|32|shadow|1|3.0|5.0|0|0|0|0:0|0|0|none||1|.5|0|3000|1000|0|0|0|0|0|none|0
+monster_handler|models/monsters/guard/handler/tris.md2|1.0|1.0|1.0|char|-16|-16|-24|16|16|32|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0|175|250|0|0|0|0|0|organic|0
+monster_hound|models/monsters/guard/hound/tris.md2|1.0|1.0|1.0|char|-16|-16|-24|16|16|32|shadow|1|7.0|40.0|0|0|0|0:0|0|0|none||1|.5|0|175|250|0|0|0|0|0|organic|0
+monster_zboss|models/monsters/bossz/mech/tris.md2|1.0|1.0|1.0|char|-16|-16|-24|16|16|32|shadow|1|3.0|5.0|0|0|0|0:0|0|0|none||1|.5|0|3000|1000|0|0|0|0|0|organic|0
 sound_echo||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|0|0|0|0|0|0|0|0|0|none|0
 target_zboss_target||1.0|1.0|1.0|general|||||||shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|||||0|0|0|0|0|0|0|none|0
 trigger_laser||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|0|0|0|0|0|0|0|0|0|none|0
@@ -279,10 +279,10 @@ misc_hologram|models/ships/strogg1/tris.md2|1.0|1.0|1.0|general|-16|-16|0|16|16|
 misc_lavaball||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|(N64) Lavaball|.5|.5|.5|0|0|0|0|0|0|0|none|0
 misc_model||1.0|1.0|1.0|general|-8|-8|-8|8|8|8|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|0|0|0|0|0|0|0|0|0|none|0
 misc_player_mannequin|models/monsters/insane/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Player Mannequin|1.0|0.5|1.0|0|0|0|0|0|0|0|none|0
-monster_arachnid|models/monsters/arachnid/tris.md2|1.0|1.0|1.0|char|-48.0|-48.0|-20.0|48.0|48.0|48.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Arachnid (PSX)|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_guardian|models/monsters/guardian/tris.md2|1.0|1.0|1.0|char|-96.0|-96.0|-66.0|96.0|96.0|62.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Guardian (PSX)|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_guncmdr|models/monsters/gunner/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Gunner Commander|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_tank_stand|models/monsters/tank/tris.md2|1.0|1.0|1.0|char|-32|-32|0|32|32|90|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0|0|0|0|0|0|0|0|none|0
+monster_arachnid|models/monsters/arachnid/tris.md2|1.0|1.0|1.0|char|-48.0|-48.0|-20.0|48.0|48.0|48.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Arachnid (PSX)|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
+monster_guardian|models/monsters/guardian/tris.md2|1.0|1.0|1.0|char|-96.0|-96.0|-66.0|96.0|96.0|62.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Guardian (PSX)|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
+monster_guncmdr|models/monsters/gunner/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Gunner Commander|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
+monster_tank_stand|models/monsters/tank/tris.md2|1.0|1.0|1.0|char|-32|-32|0|32|32|90|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0|0|0|0|0|0|0|0|organic|0
 target_achievement||1.0|1.0|1.0|general|-8|-8|-8|8|8|8|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.5|.5|.5|0|0|0|0|0|0|0|none|0
 target_autosave||1.0|1.0|1.0|general|-8|-8|-8|8|8|8|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Autosave|0|1|0|0|0|0|0|0|0|0|none|0
 target_camera||1.0|1.0|1.0|general|-8|-8|-8|8|8|8|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|(N64) Camera|1|0|0|0|0|0|0|0|0|0|none|0
@@ -306,24 +306,24 @@ misc_actorvx|models/vault/player_x/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-24.
 misc_actorvy|models/vault/player_y/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Vault Actor Y|0.0|1.0|0.0|0|0|0|0|0|0|0|none|0
 misc_fighter|models/vault/ships/fighter/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Vault fighter ship|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
 misc_transprt|models/vault/ships/transprt/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Vault transport ship|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_army|models/monsters/army/tris.md2|1.0|1.0|1.0|char|-16,|-16,|-24|16,|16,|40|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Army soldier|1|.5|0|0|0|0|0|0|0|0|none|0
-monster_demon|models/monsters/demon/tris.md2|1.0|1.0|1.0|char|-32,|-32,|-24|32,|32,|64|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Demon|1|.5|0|0|0|0|0|0|0|0|none|0
+monster_army|models/monsters/army/tris.md2|1.0|1.0|1.0|char|-16,|-16,|-24|16,|16,|40|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Army soldier|1|.5|0|30|30|0|0|0|0|0|organic|-35
+monster_demon|models/monsters/demon/tris.md2|1.0|1.0|1.0|char|-32,|-32,|-24|32,|32,|64|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Demon|1|.5|0|300|300|0|0|0|0|0|organic|-80
 monster_dog|models/monsters/dog/tris.md2|1.0|1.0|1.0|char|-32,|-32,|-24|32,|32,|40|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Dog|1|.5|0|25|30|0|24|100|0|-24|organic|-35
-monster_enforcer|models/monsters/enforcer/tris.md2|1.0|1.0|1.0|char|-16,|-16,|-24|16,|16,|40|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Enforcer|1|.5|0|0|0|0|0|0|0|0|none|0
-monster_floaterv|models/vault/monsters/float/tris.md2|1.0|1.0|1.0|char|-24.0|-24.0|-24.0|24.0|24.0|48.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Vault Technician|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_flyerv|models/vault/monsters/flyer/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Vault Flyer|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_gnorta|models/vault/monsters/gnorta/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Vault Gnorta|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
+monster_enforcer|models/monsters/enforcer/tris.md2|1.0|1.0|1.0|char|-16,|-16,|-24|16,|16,|40|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Enforcer|1|.5|0|80|80|0|0|0|0|0|organic|-35
+monster_floaterv|models/vault/monsters/float/tris.md2|1.0|1.0|1.0|char|-24.0|-24.0|-24.0|24.0|24.0|48.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Vault Technician|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
+monster_flyerv|models/vault/monsters/flyer/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Vault Flyer|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
+monster_gnorta|models/vault/monsters/gnorta/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Vault Gnorta|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
 monster_hknight|models/monsters/hknight/tris.md2|1.0|1.0|1.0|char|-16,|-16,|-24|16,|16,|40|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|HKnight|1|.5|0|250|250|0|10|100|0|-24|organic|-40
 monster_knight|models/monsters/knight/tris.md2|1.0|1.0|1.0|char|-16,|-16,|-24|16,|16,|40|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Knight|1|.5|0|75|75|0|10|100|0|-24|organic|-40
-monster_mutantv|models/vault/monsters/mutant/tris.md2|1.0|1.0|1.0|char|-32.0|-32.0|-24.0|32.0|32.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Vault Mutant|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
+monster_mutantv|models/vault/monsters/mutant/tris.md2|1.0|1.0|1.0|char|-32.0|-32.0|-24.0|32.0|32.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Vault Mutant|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
 monster_ogre|models/monsters/ogre/tris.md2|1.0|1.0|1.0|char|-32,|-32,|-24|32,|32,|64|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Ogre|1|.5|0|200|200|0|12|100|0|-24|organic|-80
-monster_rotfish|models/monsters/rotfish/tris.md2|1.0|1.0|1.0|char|-25.0|-25.0|-14.0|25.0|25.0|14.0|shadow|1|6.0|12.0|0|0|0|0:0|0|0|none|Rotfish|1.0|0.5|0.0|25|25|0|0|0|0|0|organic|0
-monster_shalrath|models/monsters/shalrath/tris.md2|1.0|1.0|1.0|char|-32,|-32,|-24|32,|32,|48|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Shalrath|1|.5|0|0|0|0|0|0|0|0|none|0
-monster_shambler|models/monsters/shambler/tris.md2|1.0|1.0|1.0|char|-32.0|-32.0|-24.0|32.0|32.0|64.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Shambler|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_shockerv|models/vault/monsters/shocker/tris.md2|1.0|1.0|1.0|char|-32.0|-32.0|-24.0|32.0|32.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Vault Shocker|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_tankv|models/vault/monsters/tank/tris.md2|1.0|1.0|1.0|char|-32.0|-32.0|-16.0|32.0|32.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Vault Tank|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_tarbaby|models/monsters/tarbaby/tris.md2|1.0|1.0|1.0|char|-16,|-16,|-24|16,|16,|40|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Tarbaby|1|.5|0|0|0|0|0|0|0|0|none|0
-monster_wizard|models/monsters/wizard/tris.md2|1.0|1.0|1.0|char|-16,|-16,|-24|16,|16,|40|shadow|1|8.0|16.0|0|0|0|0:0|0|0|none|Wizard|1|.5|0|80|80|0|0|0|0|0|none|0
+monster_rotfish|models/monsters/rotfish/tris.md2|1.0|1.0|1.0|char|-25.0|-25.0|-14.0|25.0|25.0|14.0|shadow|1|6.0|12.0|0|0|0|0:0|0|0|none|Rotfish|1.0|0.5|0.0|25|25|0|0|0|0|0|organic|-25
+monster_shalrath|models/monsters/shalrath/tris.md2|1.0|1.0|1.0|char|-32,|-32,|-24|32,|32,|48|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Shalrath|1|.5|0|400|400|0|0|0|0|0|organic|-90
+monster_shambler|models/monsters/shambler/tris.md2|1.0|1.0|1.0|char|-32.0|-32.0|-24.0|32.0|32.0|64.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Shambler|1.0|0.5|0.0|600|500|0|0|0|0|0|organic|-60
+monster_shockerv|models/vault/monsters/shocker/tris.md2|1.0|1.0|1.0|char|-32.0|-32.0|-24.0|32.0|32.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Vault Shocker|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
+monster_tankv|models/vault/monsters/tank/tris.md2|1.0|1.0|1.0|char|-32.0|-32.0|-16.0|32.0|32.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Vault Tank|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
+monster_tarbaby|models/monsters/tarbaby/tris.md2|1.0|1.0|1.0|char|-16,|-16,|-24|16,|16,|40|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Tarbaby|1|.5|0|80|50|0|0|0|0|0|organic|0
+monster_wizard|models/monsters/wizard/tris.md2|1.0|1.0|1.0|char|-16,|-16,|-24|16,|16,|40|shadow|1|8.0|16.0|0|0|0|0:0|0|0|none|Wizard|1|.5|0|80|80|0|0|0|0|0|organic|-40
 monster_zombie|models/monsters/zombie/tris.md2|1.0|1.0|1.0|char|-16,|-16,|-24|16,|16,|40|shadow|1|0.0|8.0|0|0|0|0:0|0|0|none|Zombie|1|.5|0|60|60|0|0|0|0|0|organic|-5
 npc_timeminder|models/monsters/insane/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|54|8.0|8|1|0|0:0|0|0|none|Save Menu|0|1|0|0|0|0|0|0|0|0|none|0
 weapon_grapple|models/weapons/grapple/hook/tris.md2|1.0|1.0|1.0|charfly|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1|0|0|0|0|0|0|0|none|0
@@ -339,11 +339,11 @@ misc_drip|models/objects/drip/tris.md2|1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0
 misc_lightning||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Misc Lightning|.5|.5|.5|0|0|0|0|0|0|0|none|0
 misc_rain|models/objects/rain/tris.md2|1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Misc Rain|.5|.5|.5|0|0|0|0|0|0|0|none|0
 misc_text_caption||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Misc Text Caption|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_alienship1|models/monsters/aliens1/tris.md2|1.0|1.0|1.0|general|-34.0|-25.0|-13.0|45.0|43.0|41.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Monster Alienship|.5|.5|.5|35|50|0|0|0|0|0|none|0
-monster_grunt1v1|models/monsters/grunt/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-25.0|16.0|16.0|30.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Monster Grunt1v1|.5|.5|.5|80|100|0|0|0|0|0|none|0
-monster_grunt1v2|models/monsters/grunt/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-25.0|16.0|16.0|30.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Monster Grunt1v2|.5|.5|.5|80|120|0|0|0|0|0|none|0
-monster_grunt2|models/monsters/grunt2/tris.md2|1.0|1.0|1.0|general|-10.0|-23.0|-25.0|12.0|22.0|52.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Monster Grunt2|.5|.5|.5|180|100|0|0|0|0|0|none|0
-monster_screamer|models/monsters/screamer/tris.md2|1.0|1.0|1.0|general|-20.0|-20.0|-25.0|20.0|20.0|38.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Monster Screamer|.5|.5|.5|180|200|0|0|0|0|0|none|0
+monster_alienship1|models/monsters/aliens1/tris.md2|1.0|1.0|1.0|general|-34.0|-25.0|-13.0|45.0|43.0|41.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Alien Ship|.5|.5|.5|35|50|0|0|0|0|0|organic|-30
+monster_grunt1v1|models/monsters/grunt/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-25.0|16.0|16.0|30.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Grunt 1v1|.5|.5|.5|60|100|0|0|0|0|0|organic|-40
+monster_grunt1v2|models/monsters/grunt/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-25.0|16.0|16.0|30.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Grunt 1v2|.5|.5|.5|80|100|0|0|0|0|0|organic|-40
+monster_grunt2|models/monsters/grunt2/tris.md2|1.0|1.0|1.0|general|-10.0|-23.0|-25.0|12.0|22.0|52.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Grunt 2|.5|.5|.5|180|100|0|0|0|0|0|organic|-60
+monster_screamer|models/monsters/screamer/tris.md2|1.0|1.0|1.0|general|-20.0|-20.0|-25.0|20.0|20.0|38.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Screamer|.5|.5|.5|180|200|0|0|0|0|0|organic|-50
 weapon_6bshot|models/weapons/g_6bshot/tris.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Riot Shotgun|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
 weapon_biggun|models/weapons/g_biggun/tris.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Big Gun|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
 weapon_blaze|models/weapons/g_blaze/tris.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Blazer|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
@@ -362,9 +362,9 @@ misc_camera||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0
 misc_camera_target||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|misc camera target|1.0|0.0|0.0|0|0|0|0|0|0|0|none|0
 misc_screenfader||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Fades the player's screen from the first color to the second color over count seconds.|0.0|0.0|1.0|0|0|0|0|0|0|0|none|0
 monster_badass|models/monsters/badass/tris.md2|1.0|1.0|1.0|char|-52|-40|-64|38|40|32|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Badass|1.0|0.5|0.0|1500|1000|0|0|0|0|0|metal|0
-monster_cyborg|models/monsters/cyborg/tris.md2|1.0|1.0|1.0|char|-16|-16|-38|16|16|27|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Cyborg|1.0|0.5|0.0|300|300|0|0|0|0|0|none|-120
+monster_cyborg|models/monsters/cyborg/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-38.0|16.0|16.0|27.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Cyborg|1.0|0.5|0.0|160|200|0|0|0|0|0|organic|-60
 monster_kigrax|models/monsters/kigrax/tris.md2|1.0|1.0|1.0|char|-20|-20|-32|20|20|12|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Kigrax|1.0|0.5|0.0|200|150|0|0|0|0|0|organic|-100
-monster_soldier_deatom|models/monsters/soldier/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Soldier deatom|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
+monster_soldier_deatom|models/monsters/soldier/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Soldier deatom|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
 monster_spider|models/monsters/spider/tris.md2|1.0|1.0|1.0|char|-32|-32|-35|32|32|32|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Spider|1.0|0.5|0.0|400|300|0|0|0|0|0|organic|-175
 target_railgun||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Fires a railgun shot in set direction when triggered|1.0|0.0|0.0|0|0|0|0|0|0|0|none|0
 target_rocket||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Fires a rocket in the set direction|1.0|0.0|0.0|0|0|0|0|0|0|0|none|0
@@ -744,33 +744,33 @@ misc_fire_sparker||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0
 misc_magic_portal||1.0|1.0|1.0|general|-32.0|-32.0|-24.0|32.0|32.0|-16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Magic Portal|1.0|0.0|0.0|0|0|0|0|0|0|0|none|0
 misc_remote_camera||1.0|1.0|1.0|general|-32.0|-32.0|-24.0|32.0|32.0|-16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Remote Camera|1.0|0.0|0.0|0|0|0|0|0|0|0|none|0
 misc_update_spawner||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Updates level spawn point to trigger's position. Relevant for teleport spell.|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_assassin|models/monsters/assassin/tris.fm|1.0|1.0|1.0|char|-16.0|-16.0|-32.0|16.0|16.0|48.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Assassin|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
+monster_assassin|models/monsters/assassin/tris.fm|1.0|1.0|1.0|char|-16.0|-16.0|-32.0|16.0|16.0|48.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Assassin|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
 monster_bee|models/monsters/bee/tris.fm|1.0|1.0|1.0|char|-2.0|-2.0|-25.0|2.0|2.0|25.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Bee (unfinished)|1.0|0.5|0.0|40|40|0|0|0|0|0|wood|0
-monster_chicken|models/monsters/chicken2/tris.fm|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Chicken|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_chkroktk|models/monsters/rat/tris.fm|1.0|1.0|1.0|char|-16|-16|-26|16|16|26|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0|0|0|0|0|0|0|0|none|0
-monster_elflord|models/monsters/elflord/tris.fm|1.0|1.0|1.0|char|-24.0|-24.0|-64.0|24.0|24.0|16.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Celestial Watcher|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_fish|models/monsters/fish/tris.fm|1.0|1.0|1.0|char|-25.0|-25.0|-14.0|25.0|25.0|14.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Fish|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_gkrokon|models/monsters/gkrokon/tris.fm|1.0|1.0|1.0|char|-20.0|-20.0|-0.0|20.0|20.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Gkrokon|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_gorgon|models/monsters/gorgon/tris.fm|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Gorgon|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_harpy|models/monsters/harpy/tris.fm|1.0|1.0|1.0|char|-16.0|-16.0|-12.0|16.0|16.0|12.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Harpy|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_high_priestess|models/monsters/highpriestess/tris.fm|1.0|1.0|1.0|char|-24.0|-24.0|0.0|24.0|24.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|High Priestess|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_morcalavin|models/monsters/morcalavin/tris.fm|1.0|1.0|1.0|char|-24.0|-24.0|-50.0|24.0|24.0|40.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Morcalavin|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_mssithra|models/monsters/mutantsithra/tris.fm|1.0|1.0|1.0|char|-36.0|-36.0|0.0|36.0|36.0|96.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Mssithra|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
+monster_chicken|models/monsters/chicken2/tris.fm|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Chicken|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
+monster_chkroktk|models/monsters/rat/tris.fm|1.0|1.0|1.0|char|-16|-16|-26|16|16|26|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0|0|0|0|0|0|0|0|organic|0
+monster_elflord|models/monsters/elflord/tris.fm|1.0|1.0|1.0|char|-24.0|-24.0|-64.0|24.0|24.0|16.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Celestial Watcher|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
+monster_fish|models/monsters/fish/tris.fm|1.0|1.0|1.0|char|-25.0|-25.0|-14.0|25.0|25.0|14.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Fish|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
+monster_gkrokon|models/monsters/gkrokon/tris.fm|1.0|1.0|1.0|char|-20.0|-20.0|-0.0|20.0|20.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Gkrokon|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
+monster_gorgon|models/monsters/gorgon/tris.fm|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Gorgon|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
+monster_harpy|models/monsters/harpy/tris.fm|1.0|1.0|1.0|char|-16.0|-16.0|-12.0|16.0|16.0|12.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Harpy|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
+monster_high_priestess|models/monsters/highpriestess/tris.fm|1.0|1.0|1.0|char|-24.0|-24.0|0.0|24.0|24.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|High Priestess|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
+monster_morcalavin|models/monsters/morcalavin/tris.fm|1.0|1.0|1.0|char|-24.0|-24.0|-50.0|24.0|24.0|40.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Morcalavin|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
+monster_mssithra|models/monsters/mutantsithra/tris.fm|1.0|1.0|1.0|char|-36.0|-36.0|0.0|36.0|36.0|96.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Mssithra|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
 monster_nothing||1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Nothing|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_ogle|models/monsters/ogle/tris.fm|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|16.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Ogle|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
+monster_ogle|models/monsters/ogle/tris.fm|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|16.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Ogle|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
 monster_palace_plague_guard|models/monsters/plaguelf/tris.fm|1.0|1.0|1.0|char|-17.0|-25.0|-1.0|22.0|12.0|63.0|shadow|1|6.0|12.0|0|0|0|0:0|0|0|none|Plague Guard|1.0|0.5|0.0|100|150|2|2|100|0|0|flesh|-80
 monster_palace_plague_guard_invisible|models/monsters/plaguelf/tris.fm|1.0|1.0|1.0|char|-17.0|-25.0|-1.0|22.0|12.0|63.0|shadow|1|6.0|12.0|0|0|0|0:0|0|0|none|Invisible Plague Guard|1.0|0.5|0.0|100|150|2|2|100|0|0|flesh|-80
 monster_plagueElf|models/monsters/plaguelf/tris.fm|1.0|1.0|1.0|char|-17.0|-25.0|-1.0|22.0|12.0|63.0|shadow|1|6.0|12.0|0|0|0|0:0|0|0|none|Elf|1.0|0.5|0.0|50|150|2|2|100|0|0|flesh|-80
 monster_rat|models/monsters/rat/tris.fm|1.0|1.0|1.0|char|-16.0|-16.0|-0.0|16.0|16.0|32.0|shadow|1|4.0|10.0|0|0|0|0:0|0|0|none|Rat|1.0|0.5|0.0|10|10|1|1|100|0|0|flesh|-40
 monster_rat_giant|models/monsters/rat/superduperat/tris.fm|2.0|2.0|2.0|char|-8.0|-8.0|-0.0|8.0|8.0|16.0|shadow|1|4.0|10.0|0|0|0|0:0|0|0|none|Giant Rat|1.0|0.5|0.0|40|20|4|2|100|0|0|flesh|-40
-monster_seraph_guard|models/monsters/guard/tris.fm|2.5|2.5|2.5|char|-12.0|-12.0|-17.0|12.0|12.0|17.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Seraph Guard|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_seraph_overlord|models/monsters/overlord/tris.fm|1.0|1.0|1.0|char|-24.0|-24.0|-34.0|24.0|24.0|34.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Seraph Overlord|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_spreader|models/monsters/spreader/tris.fm|1.0|1.0|1.0|char|-16.0|-16.0|-0.0|16.0|16.0|32.0|shadow|1|8.0|16.0|0|0|0|0:0|0|0|none|Spreader|1.0|0.5|0.0|200|275|10|0|100|0|0|none|-80
-monster_ssithra|models/monsters/ssithra/tris.fm|1.1|1.1|1.1|char|-16.0|-16.0|-32.0|16.0|16.0|26.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Plague Ssithra|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_tcheckrik_female|models/monsters/tcheckrik/female/tris.fm|1.0|1.0|1.0|char|-16.0|-16.0|-32.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Female Tcheckrik|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_tcheckrik_male|models/monsters/tcheckrik/male/tris.fm|1.0|1.0|1.0|char|-16.0|-16.0|-32.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Male Tcheckrik|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_tcheckrik_mothers|models/monsters/mother/tris.fm|1.0|1.0|1.0|char|-40.0|-40.0|-75.0|40.0|40.0|75.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Tcheckrik Mother|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_trial_beast|models/monsters/beast/tris.fm|1.0|1.0|1.0|char|-100.0|-100.0|-36.0|100.0|100.0|150.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Trial Beast|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
+monster_seraph_guard|models/monsters/guard/tris.fm|2.5|2.5|2.5|char|-12.0|-12.0|-17.0|12.0|12.0|17.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Seraph Guard|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
+monster_seraph_overlord|models/monsters/overlord/tris.fm|1.0|1.0|1.0|char|-24.0|-24.0|-34.0|24.0|24.0|34.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Seraph Overlord|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
+monster_spreader|models/monsters/spreader/tris.fm|1.0|1.0|1.0|char|-16.0|-16.0|-0.0|16.0|16.0|32.0|shadow|1|8.0|16.0|0|0|0|0:0|0|0|none|Spreader|1.0|0.5|0.0|200|275|10|0|100|0|0|organic|-80
+monster_ssithra|models/monsters/ssithra/tris.fm|1.1|1.1|1.1|char|-16.0|-16.0|-32.0|16.0|16.0|26.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Plague Ssithra|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
+monster_tcheckrik_female|models/monsters/tcheckrik/female/tris.fm|1.0|1.0|1.0|char|-16.0|-16.0|-32.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Female Tcheckrik|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
+monster_tcheckrik_male|models/monsters/tcheckrik/male/tris.fm|1.0|1.0|1.0|char|-16.0|-16.0|-32.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Male Tcheckrik|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
+monster_tcheckrik_mothers|models/monsters/mother/tris.fm|1.0|1.0|1.0|char|-40.0|-40.0|-75.0|40.0|40.0|75.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Tcheckrik Mother|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
+monster_trial_beast|models/monsters/beast/tris.fm|1.0|1.0|1.0|char|-100.0|-100.0|-36.0|100.0|100.0|150.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Trial Beast|1.0|0.5|0.0|0|0|0|0|0|0|0|organic|0
 obj_andwallhanging|models/objects/andwallhang/tris.fm|1.0|1.0|1.0|general|0.0|-19.0|-24.0|4.0|19.0|24.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Circular Andorian wall hanging|0.3|0.3|1.0|75|100|0|0|0|0|0|wood|0
 obj_banner|models/objects/banner/wall/tris.fm|1.0|1.0|1.0|general|-8.0|-44.0|-296.0|8.0|44.0|0.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Banner|0.3|0.3|1.0|40|200|0|0|0|0|0|cloth|0
 obj_banneronpole|models/objects/banner/onpole/tris.fm|1.0|1.0|1.0|general|-8.0|-28.0|-30.0|8.0|28.0|30.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Banner on Pole|0.3|0.3|1.0|40|200|0|0|0|0|0|wood|0
@@ -1007,24 +1007,24 @@ key_gold|models/objects/key.md2|1.0|1.0|1.0|general|-2.0|-2.0|-4.0|2.0|2.0|4.0|s
 key_metal|models/objects/key.md2|1.0|1.0|1.0|general|-2.0|-2.0|-4.0|2.0|2.0|4.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Metal Key|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
 key_silver|models/objects/key.md2|1.0|1.0|1.0|general|-2.0|-2.0|-4.0|2.0|2.0|4.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Silver Key|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
 keys_xxx||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.5|.3|0|0|0|0|0|0|0|0|none|0
-monster_agath|models/monsters/agath.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Agathodaemon|1.0|0.0|0.0|0|0|0|0|0|0|0|none|0
-monster_apprentice|models/monsters/necro.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Apprentice|1.0|0.0|0.0|0|0|0|0|0|0|0|none|0
-monster_captain|models/monsters/captain.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Captain|1.0|0.0|0.0|0|0|0|0|0|0|0|none|0
-monster_carnivean|models/monsters/carniv.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Carnivean|1.0|0.0|0.0|0|0|0|0|0|0|0|none|0
-monster_crescent|models/monsters/crescent.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Crescent|1.0|0.0|0.0|0|0|0|0|0|0|0|none|0
-monster_dweller|models/monsters/dweller.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Dweller|1.0|0.0|0.0|0|0|0|0|0|0|0|none|0
-monster_hellhound|models/monsters/hhound.md2|1.0|1.0|1.0|char|-15|-15|-23|15|15|16|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none||1|0|0|0|0|0|0|0|0|0|none|0
-monster_merc_axe|models/monsters/merc_a.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Mercenary Axe|1.0|0.0|0.0|0|0|0|0|0|0|0|none|0
-monster_merc_sword|models/monsters/merc_s.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Mercenary Sword|1.0|0.0|0.0|0|0|0|0|0|0|0|none|0
-monster_merc_xbow|models/monsters/merc_x.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Mercenary Crossbow|1.0|0.0|0.0|0|0|0|0|0|0|0|none|0
-monster_necromancer|models/monsters/necro.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Necromancer|1.0|0.0|0.0|0|0|0|0|0|0|0|none|0
-monster_outrider|models/monsters/outrider.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Outrider|1.0|0.0|0.0|0|0|0|0|0|0|0|none|0
-monster_pilot|models/monsters/crescent.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Pilot|1.0|0.0|0.0|0|0|0|0|0|0|0|none|0
-monster_scout|models/monsters/scout.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Scout|1.0|0.0|0.0|0|0|0|0|0|0|0|none|0
-monster_sultan|models/npcs/insnvlg.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Sultan|1.0|0.0|0.0|0|0|0|0|0|0|0|none|0
-monster_tenebrion|models/monsters/teneb.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Tenebrion|1.0|0.0|0.0|0|0|0|0|0|0|0|none|0
-monster_tormentor|models/monsters/torment.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Tormentor|1.0|0.0|0.0|0|0|0|0|0|0|0|none|0
-monster_wraith|models/monsters/wraith.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Wraith|1.0|0.0|0.0|0|0|0|0|0|0|0|none|0
+monster_agath|models/monsters/agath.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Agathodaemon|1.0|0.0|0.0|0|0|0|0|0|0|0|organic|0
+monster_apprentice|models/monsters/necro.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Apprentice|1.0|0.0|0.0|0|0|0|0|0|0|0|organic|0
+monster_captain|models/monsters/captain.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Captain|1.0|0.0|0.0|0|0|0|0|0|0|0|organic|0
+monster_carnivean|models/monsters/carniv.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Carnivean|1.0|0.0|0.0|0|0|0|0|0|0|0|organic|0
+monster_crescent|models/monsters/crescent.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Crescent|1.0|0.0|0.0|0|0|0|0|0|0|0|organic|0
+monster_dweller|models/monsters/dweller.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Dweller|1.0|0.0|0.0|0|0|0|0|0|0|0|organic|0
+monster_hellhound|models/monsters/hhound.md2|1.0|1.0|1.0|char|-15|-15|-23|15|15|16|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none||1|0|0|0|0|0|0|0|0|0|organic|0
+monster_merc_axe|models/monsters/merc_a.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Mercenary Axe|1.0|0.0|0.0|0|0|0|0|0|0|0|organic|0
+monster_merc_sword|models/monsters/merc_s.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Mercenary Sword|1.0|0.0|0.0|0|0|0|0|0|0|0|organic|0
+monster_merc_xbow|models/monsters/merc_x.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Mercenary Crossbow|1.0|0.0|0.0|0|0|0|0|0|0|0|organic|0
+monster_necromancer|models/monsters/necro.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Necromancer|1.0|0.0|0.0|0|0|0|0|0|0|0|organic|0
+monster_outrider|models/monsters/outrider.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Outrider|1.0|0.0|0.0|0|0|0|0|0|0|0|organic|0
+monster_pilot|models/monsters/crescent.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Pilot|1.0|0.0|0.0|0|0|0|0|0|0|0|organic|0
+monster_scout|models/monsters/scout.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Scout|1.0|0.0|0.0|0|0|0|0|0|0|0|organic|0
+monster_sultan|models/npcs/insnvlg.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Sultan|1.0|0.0|0.0|0|0|0|0|0|0|0|organic|0
+monster_tenebrion|models/monsters/teneb.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Tenebrion|1.0|0.0|0.0|0|0|0|0|0|0|0|organic|0
+monster_tormentor|models/monsters/torment.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Tormentor|1.0|0.0|0.0|0|0|0|0|0|0|0|organic|0
+monster_wraith|models/monsters/wraith.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Wraith|1.0|0.0|0.0|0|0|0|0|0|0|0|organic|0
 npc_boy|models/npcs/boy.md2|1.0|1.0|1.0|char|-12.0|-12.0|-24.0|12.0|12.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|NPC Boy|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
 npc_femvilgr|models/npcs/femvilg.md2|1.0|1.0|1.0|char|-12.0|-12.0|-24.0|12.0|12.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|NPC Female Villager|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
 npc_fslave|models/npcs/fslave.md2|1.0|1.0|1.0|char|-12.0|-12.0|-24.0|12.0|12.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|NPC Female Slave|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
@@ -1125,11 +1125,11 @@ light_torch_small_walltorch|progs/flame.mdl|1.0|1.0|1.0|general|-4.0|-4.0|-12.0|
 misc_explobox2|maps/b_exbox2.bsp|1.0|1.0|1.0|general|0.0|0.0|0.0|32.0|32.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Small exploding container|.5|.5|.5|0|0|0|0|0|0|0|none|0
 misc_noisemaker||1.0|1.0|1.0|general|0.0|0.0|0.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Debug entity: continuously plays enforcer sounds|.5|.5|.5|0|0|0|0|0|0|0|none|0
 misc_teleporttrain|progs/teleport.mdl|1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Flying teleporter destination|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_boss|progs/boss.mdl|1.0|1.0|1.0|char|-128.0|-128.0|-24.0|128.0|128.0|256.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Chthon|0.86|0.0|0.0|0|0|0|0|0|0|0|none|0
-monster_demon1|progs/demon.mdl|1.0|1.0|1.0|char|-32.0|-32.0|-24.0|32.0|32.0|64.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Fiend|0.86|0.0|0.0|0|0|0|0|0|0|0|none|0
-monster_hell_knight|progs/hknight.mdl|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|40.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Hell knight|0.86|0.0|0.0|0|0|0|0|0|0|0|none|0
-monster_ogre_marksman|progs/ogre.mdl|1.0|1.0|1.0|char|-32.0|-32.0|-24.0|32.0|32.0|64.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Ogre marksman|0.86|0.0|0.0|0|0|0|0|0|0|0|none|0
-monster_oldone|progs/oldone.mdl|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Shub-Niggurath|0.86|0.0|0.0|0|0|0|0|0|0|0|none|0
+monster_boss|progs/boss.mdl|1.0|1.0|1.0|char|-128.0|-128.0|-24.0|128.0|128.0|256.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Chthon|0.86|0.0|0.0|0|0|0|0|0|0|0|organic|0
+monster_demon1|progs/demon.mdl|1.0|1.0|1.0|char|-32.0|-32.0|-24.0|32.0|32.0|64.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Fiend|0.86|0.0|0.0|0|0|0|0|0|0|0|organic|0
+monster_hell_knight|progs/hknight.mdl|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|40.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Hell knight|0.86|0.0|0.0|0|0|0|0|0|0|0|organic|0
+monster_ogre_marksman|progs/ogre.mdl|1.0|1.0|1.0|char|-32.0|-32.0|-24.0|32.0|32.0|64.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Ogre marksman|0.86|0.0|0.0|0|0|0|0|0|0|0|organic|0
+monster_oldone|progs/oldone.mdl|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Shub-Niggurath|0.86|0.0|0.0|0|0|0|0|0|0|0|organic|0
 testplayerstart|progs/player.mdl|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Testing player start|0.0|1.0|0.0|0|0|0|0|0|0|0|none|0
 trap_shooter||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Continuous shooter|0.86|0.59|0.59|0|0|0|0|0|0|0|none|0
 trap_spikeshooter||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Triggered shooter|.5|.5|.5|0|0|0|0|0|0|0|none|0
@@ -1196,40 +1196,40 @@ light_torch_egypt|models/egtorch.mdl|1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|
 light_torch_meso|models/mflmtrch.mdl|1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Meso torch|.5|.5|.5|0|0|0|0|0|0|0|none|0
 light_torch_rome|models/rflmtrch.mdl|1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Roman torch|.5|.5|.5|0|0|0|0|0|0|0|none|0
 misc_fountain||1.0|1.0|1.0|general|0.0|0.0|0.0|32.0|32.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Fountain|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_archer|models/archer.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Archer|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_archer_ice|models/archer.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Ice archer (PoP)|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_archer_lord|models/archer.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Archer lord|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_buddha|models/pravus.mdl|1.0|1.0|1.0|char|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Praevus (PoP)|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_eidolon|models/eidolon.mdl|1.0|1.0|1.0|char|-100.0|-100.0|0.0|100.0|100.0|666.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Eidolon|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_eidolon_weakling||1.0|1.0|1.0|char|-100.0|-100.0|0.0|100.0|100.0|666.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Eidolon weakling (PoP)|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_fallen_angel|models/fangel.mdl|1.0|1.0|1.0|char|-14.0|-14.0|-41.0|14.0|14.0|23.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Fallen angel|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_fallen_angel_lord|models/fangel.mdl|1.0|1.0|1.0|char|-14.0|-14.0|-41.0|14.0|14.0|23.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Fallen angel lord|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_golem_bronze|models/golem_b.mdl|1.0|1.0|1.0|char|-64.0|-64.0|0.0|64.0|64.0|194.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Bronze golem|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_golem_crystal|models/golem_s.mdl|1.0|1.0|1.0|char|-32.0|-32.0|-24.0|32.0|32.0|64.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Crystal golem|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_golem_iron|models/golem_i.mdl|1.0|1.0|1.0|char|-55.0|-55.0|0.0|55.0|55.0|120.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Iron golem|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_golem_stone|models/golem_s.mdl|1.0|1.0|1.0|char|-32.0|-32.0|0.0|32.0|32.0|112.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Stone golem|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_hydra|models/hydra.mdl|1.0|1.0|1.0|char|-40.0|-40.0|-42.0|40.0|40.0|42.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Hydra|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_medusa_green|models/medusa.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Green medusa|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_medusa_red|models/medusa2.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Red medusa|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_mummy|models/mummy.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|55.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Mummy|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_mummy_lord|models/mummy.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|55.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Mummy lord|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_pentacles||1.0|1.0|1.0|char|-20.0|-20.0|0.0|20.0|20.0|40.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Pentacle (PoP)|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_ratnest|models/rat.mdl|1.0|1.0|1.0|char|-20.0|-20.0|0.0|20.0|20.0|10.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Rat's nest|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_raven|models/raven.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Raven|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_scorpion_black|models/scorpion.mdl|1.0|1.0|1.0|char|-40.0|-40.0|0.0|40.0|40.0|64.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Black scorpion|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_scorpion_yellow|models/scorpion.mdl|1.0|1.0|1.0|char|-40.0|-40.0|0.0|40.0|40.0|64.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Yellow scorpion|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_skull_wizard|models/skullwiz.mdl|1.0|1.0|1.0|char|-24.0|-24.0|0.0|24.0|24.0|64.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Skull wizard|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_skull_wizard_lord|models/skullwiz.mdl|1.0|1.0|1.0|char|-24.0|-24.0|0.0|24.0|24.0|64.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Skull wizard lord|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_snake|models/snake.mdl|1.0|1.0|1.0|char|-80.0|-80.0|0.0|80.0|80.0|200.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Snake|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_spider_red_large|models/spider.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|26.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Big red spider|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_spider_red_small|models/spider.mdl|1.0|1.0|1.0|char|-12.0|-12.0|0.0|12.0|12.0|16.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Small red spider|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_spider_yellow_large|models/spider.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|26.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Big yellow spider|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_spider_yellow_small|models/spider.mdl|1.0|1.0|1.0|char|-12.0|-12.0|0.0|12.0|12.0|16.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Small yellow spider|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_werejaguar|models/mezzoman.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Werejaguar|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_werepanther|models/mezzoman.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Werepanther|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_weresnowleopard|models/mezzoman.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Were leopard (PoP)|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_weretiger|models/mezzoman.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Were tiger (PoP)|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_yakman|models/yakman.mdl|1.0|1.0|1.0|char|-32.0|-32.0|0.0|32.0|32.0|104.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Yakman (PoP)|.5|.5|.5|0|0|0|0|0|0|0|none|0
+monster_archer|models/archer.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Archer|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_archer_ice|models/archer.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Ice archer (PoP)|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_archer_lord|models/archer.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Archer lord|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_buddha|models/pravus.mdl|1.0|1.0|1.0|char|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Praevus (PoP)|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_eidolon|models/eidolon.mdl|1.0|1.0|1.0|char|-100.0|-100.0|0.0|100.0|100.0|666.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Eidolon|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_eidolon_weakling||1.0|1.0|1.0|char|-100.0|-100.0|0.0|100.0|100.0|666.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Eidolon weakling (PoP)|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_fallen_angel|models/fangel.mdl|1.0|1.0|1.0|char|-14.0|-14.0|-41.0|14.0|14.0|23.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Fallen angel|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_fallen_angel_lord|models/fangel.mdl|1.0|1.0|1.0|char|-14.0|-14.0|-41.0|14.0|14.0|23.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Fallen angel lord|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_golem_bronze|models/golem_b.mdl|1.0|1.0|1.0|char|-64.0|-64.0|0.0|64.0|64.0|194.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Bronze golem|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_golem_crystal|models/golem_s.mdl|1.0|1.0|1.0|char|-32.0|-32.0|-24.0|32.0|32.0|64.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Crystal golem|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_golem_iron|models/golem_i.mdl|1.0|1.0|1.0|char|-55.0|-55.0|0.0|55.0|55.0|120.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Iron golem|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_golem_stone|models/golem_s.mdl|1.0|1.0|1.0|char|-32.0|-32.0|0.0|32.0|32.0|112.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Stone golem|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_hydra|models/hydra.mdl|1.0|1.0|1.0|char|-40.0|-40.0|-42.0|40.0|40.0|42.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Hydra|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_medusa_green|models/medusa.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Green medusa|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_medusa_red|models/medusa2.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Red medusa|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_mummy|models/mummy.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|55.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Mummy|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_mummy_lord|models/mummy.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|55.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Mummy lord|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_pentacles||1.0|1.0|1.0|char|-20.0|-20.0|0.0|20.0|20.0|40.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Pentacle (PoP)|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_ratnest|models/rat.mdl|1.0|1.0|1.0|char|-20.0|-20.0|0.0|20.0|20.0|10.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Rat's nest|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_raven|models/raven.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Raven|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_scorpion_black|models/scorpion.mdl|1.0|1.0|1.0|char|-40.0|-40.0|0.0|40.0|40.0|64.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Black scorpion|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_scorpion_yellow|models/scorpion.mdl|1.0|1.0|1.0|char|-40.0|-40.0|0.0|40.0|40.0|64.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Yellow scorpion|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_skull_wizard|models/skullwiz.mdl|1.0|1.0|1.0|char|-24.0|-24.0|0.0|24.0|24.0|64.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Skull wizard|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_skull_wizard_lord|models/skullwiz.mdl|1.0|1.0|1.0|char|-24.0|-24.0|0.0|24.0|24.0|64.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Skull wizard lord|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_snake|models/snake.mdl|1.0|1.0|1.0|char|-80.0|-80.0|0.0|80.0|80.0|200.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Snake|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_spider_red_large|models/spider.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|26.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Big red spider|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_spider_red_small|models/spider.mdl|1.0|1.0|1.0|char|-12.0|-12.0|0.0|12.0|12.0|16.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Small red spider|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_spider_yellow_large|models/spider.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|26.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Big yellow spider|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_spider_yellow_small|models/spider.mdl|1.0|1.0|1.0|char|-12.0|-12.0|0.0|12.0|12.0|16.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Small yellow spider|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_werejaguar|models/mezzoman.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Werejaguar|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_werepanther|models/mezzoman.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Werepanther|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_weresnowleopard|models/mezzoman.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Were leopard (PoP)|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_weretiger|models/mezzoman.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Were tiger (PoP)|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_yakman|models/yakman.mdl|1.0|1.0|1.0|char|-32.0|-32.0|0.0|32.0|32.0|104.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Yakman (PoP)|.5|.5|.5|0|0|0|0|0|0|0|organic|0
 obj_ballista|models/ballista.mdl|1.0|1.0|1.0|general|-45.0|-45.0|0.0|45.0|45.0|60.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ballista|.5|.5|.5|0|0|0|0|0|0|0|none|0
 obj_barrel_exploding|models/barrel.mdl|1.0|1.0|1.0|general|-13.0|-13.0|0.0|13.0|13.0|36.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Barrel exploding|.5|.5|.5|0|0|0|0|0|0|0|none|0
 obj_barrel_indestructible|models/barrel.mdl|1.0|1.0|1.0|general|-13.0|-13.0|0.0|13.0|13.0|36.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Barrel indestructible|.5|.5|.5|0|0|0|0|0|0|0|none|0
@@ -1422,44 +1422,44 @@ light_environment||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|
 light_spot||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Spotlight|.5|.5|.5|0|0|0|0|0|0|0|none|0
 momentary_door||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Momentary/Continuous door|.5|.5|.5|0|0|0|0|0|0|0|none|0
 momentary_rot_button||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Direct wheel control|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_alien_controller|models/controller.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Controller|0.0|0.78|0.78|0|0|0|0|0|0|0|none|0
-monster_alien_grunt|models/agrunt.mdl|1.0|1.0|1.0|char|-32.0|-32.0|0.0|32.0|32.0|64.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Alien Grunt|0.0|0.78|0.78|0|0|0|0|0|0|0|none|0
-monster_alien_slave|models/islave.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Vortigaunt|0.0|0.78|0.78|0|0|0|0|0|0|0|none|0
-monster_apache|models/apache.mdl|1.0|1.0|1.0|char|-360.0|-360.0|-172.0|360.0|360.0|8.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Apache|0.0|0.78|0.78|0|0|0|0|0|0|0|none|0
-monster_babycrab|models/baby_headcrab.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|36.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Baby Headcrab|0.0|0.78|0.78|0|0|0|0|0|0|0|none|0
-monster_barnacle|models/barnacle.mdl|1.0|1.0|1.0|char|-16.0|-16.0|-36.0|16.0|16.0|0.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Barnacle Monster|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_barney|models/barney.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Barney|0.0|0.78|0.78|0|0|0|0|0|0|0|none|0
-monster_barney_dead||1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Dead Barney|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_bigmomma|models/big_mom.mdl|1.0|1.0|1.0|char|-95.0|-95.0|0.0|95.0|95.0|190.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Big Mamma|0.0|0.78|0.78|0|0|0|0|0|0|0|none|0
-monster_bloater|models/floater.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Bloater|0.0|0.78|0.78|0|0|0|0|0|0|0|none|0
-monster_bullchicken|models/bullsquid.mdl|1.0|1.0|1.0|char|-32.0|-32.0|0.0|32.0|32.0|64.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|BullChicken|0.0|0.78|0.78|0|0|0|0|0|0|0|none|0
-monster_cockroach|models/roach.mdl|1.0|1.0|1.0|char|-3.0|-3.0|0.0|3.0|3.0|3.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Cockroach|0.0|0.78|0.78|0|0|0|0|0|0|0|none|0
-monster_flyer_flock|models/aflock.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|16.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Flock of Flyers|0.0|0.78|0.78|0|0|0|0|0|0|0|none|0
+monster_alien_controller|models/controller.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Controller|0.0|0.78|0.78|0|0|0|0|0|0|0|organic|0
+monster_alien_grunt|models/agrunt.mdl|1.0|1.0|1.0|char|-32.0|-32.0|0.0|32.0|32.0|64.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Alien Grunt|0.0|0.78|0.78|0|0|0|0|0|0|0|organic|0
+monster_alien_slave|models/islave.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Vortigaunt|0.0|0.78|0.78|0|0|0|0|0|0|0|organic|0
+monster_apache|models/apache.mdl|1.0|1.0|1.0|char|-360.0|-360.0|-172.0|360.0|360.0|8.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Apache|0.0|0.78|0.78|0|0|0|0|0|0|0|organic|0
+monster_babycrab|models/baby_headcrab.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|36.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Baby Headcrab|0.0|0.78|0.78|0|0|0|0|0|0|0|organic|0
+monster_barnacle|models/barnacle.mdl|1.0|1.0|1.0|char|-16.0|-16.0|-36.0|16.0|16.0|0.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Barnacle Monster|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_barney|models/barney.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Barney|0.0|0.78|0.78|0|0|0|0|0|0|0|organic|0
+monster_barney_dead||1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Dead Barney|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_bigmomma|models/big_mom.mdl|1.0|1.0|1.0|char|-95.0|-95.0|0.0|95.0|95.0|190.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Big Mamma|0.0|0.78|0.78|0|0|0|0|0|0|0|organic|0
+monster_bloater|models/floater.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Bloater|0.0|0.78|0.78|0|0|0|0|0|0|0|organic|0
+monster_bullchicken|models/bullsquid.mdl|1.0|1.0|1.0|char|-32.0|-32.0|0.0|32.0|32.0|64.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|BullChicken|0.0|0.78|0.78|0|0|0|0|0|0|0|organic|0
+monster_cockroach|models/roach.mdl|1.0|1.0|1.0|char|-3.0|-3.0|0.0|3.0|3.0|3.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Cockroach|0.0|0.78|0.78|0|0|0|0|0|0|0|organic|0
+monster_flyer_flock|models/aflock.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|16.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Flock of Flyers|0.0|0.78|0.78|0|0|0|0|0|0|0|organic|0
 monster_furniture||1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Monster Furniture|0.0|0.78|0.78|0|0|0|0|0|0|0|none|0
-monster_gargantua|models/garg.mdl|1.0|1.0|1.0|char|-32.0|-32.0|0.0|32.0|32.0|128.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Gargantua|0.0|0.78|0.78|0|0|0|0|0|0|0|none|0
+monster_gargantua|models/garg.mdl|1.0|1.0|1.0|char|-32.0|-32.0|0.0|32.0|32.0|128.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Gargantua|0.0|0.78|0.78|0|0|0|0|0|0|0|organic|0
 monster_generic||1.0|1.0|1.0|char|-16.0|-16.0|-36.0|16.0|16.0|36.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Generic Script Monster|0.0|0.78|0.78|0|0|0|0|0|0|0|none|0
-monster_gman|models/gman.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|G-Man|0.0|0.78|0.78|0|0|0|0|0|0|0|none|0
-monster_grunt_repel|models/hgrunt.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Human Grunt (Repel)|0.0|0.78|0.78|0|0|0|0|0|0|0|none|0
-monster_handgrenade|models/w_grenade.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Live Handgrenade|0.0|0.0|0.78|0|0|0|0|0|0|0|none|0
-monster_headcrab|models/headcrab.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|36.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Head Crab|0.0|0.78|0.78|0|0|0|0|0|0|0|none|0
-monster_hevsuit_dead||1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Dead HEV Suit|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_hgrunt_dead|models/hgrunt.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Dead Human Grunt|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_houndeye|models/houndeye.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|36.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Houndeye|0.0|0.78|0.78|0|0|0|0|0|0|0|none|0
-monster_human_assassin|models/hassassin.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Human Assassin|0.0|0.78|0.78|0|0|0|0|0|0|0|none|0
-monster_human_grunt|models/hgrunt.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Human Grunt (camo)|0.0|0.78|0.78|0|0|0|0|0|0|0|none|0
-monster_ichthyosaur|models/icky.mdl|1.0|1.0|1.0|char|-32.0|-32.0|0.0|32.0|32.0|64.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Ichthyosaur|0.0|0.78|0.78|0|0|0|0|0|0|0|none|0
-monster_leech|models/leech.mdl|1.0|1.0|1.0|char|-6.0|-6.0|0.0|6.0|6.0|6.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Leech|0.0|0.78|0.78|0|0|0|0|0|0|0|none|0
-monster_miniturret|models/miniturret.mdl|1.0|1.0|1.0|char|-16.0|-16.0|-32.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Mini Auto Turret|0.0|0.78|0.78|0|0|0|0|0|0|0|none|0
-monster_nihilanth|models/nihilanth.mdl|1.0|1.0|1.0|char|-192.0|-192.0|0.0|192.0|192.0|384.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Nihilanth|0.0|0.78|0.78|0|0|0|0|0|0|0|none|0
-monster_osprey|models/osprey.mdl|1.0|1.0|1.0|char|-480.0|-480.0|-112.0|480.0|480.0|24.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Osprey|0.0|0.78|0.78|0|0|0|0|0|0|0|none|0
-monster_satchelcharge|models/w_satchel.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Live Satchel Charge|0.0|0.0|0.78|0|0|0|0|0|0|0|none|0
-monster_scientist|models/scientist.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Scared Scientist|0.0|0.78|0.78|0|0|0|0|0|0|0|none|0
-monster_scientist_dead|models/scientist.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Dead Scientist|.5|.5|.5|0|0|0|0|0|0|0|none|0
-monster_sentry|models/sentry.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Sentry Turret Gun|0.0|0.78|0.78|0|0|0|0|0|0|0|none|0
-monster_sitting_scientist|models/scientist.mdl|1.0|1.0|1.0|char|-14.0|-14.0|22.0|14.0|14.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Sitting Scientist|0.0|0.78|0.78|0|0|0|0|0|0|0|none|0
-monster_snark|models/w_squeak.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|36.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Armed Snark|0.0|0.78|0.78|0|0|0|0|0|0|0|none|0
-monster_tentacle|models/tentacle2.mdl|1.0|1.0|1.0|char|-32.0|-32.0|0.0|32.0|32.0|64.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Tentacle Arm|0.0|0.78|0.78|0|0|0|0|0|0|0|none|0
-monster_tripmine||1.0|1.0|1.0|char|0|0|0|0|0|0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Active Tripmine|0.0|0.78|0.78|0|0|0|0|0|0|0|none|0
+monster_gman|models/gman.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|G-Man|0.0|0.78|0.78|0|0|0|0|0|0|0|organic|0
+monster_grunt_repel|models/hgrunt.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Human Grunt (Repel)|0.0|0.78|0.78|0|0|0|0|0|0|0|organic|0
+monster_handgrenade|models/w_grenade.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Live Handgrenade|0.0|0.0|0.78|0|0|0|0|0|0|0|organic|0
+monster_headcrab|models/headcrab.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|36.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Head Crab|0.0|0.78|0.78|0|0|0|0|0|0|0|organic|0
+monster_hevsuit_dead||1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Dead HEV Suit|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_hgrunt_dead|models/hgrunt.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Dead Human Grunt|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_houndeye|models/houndeye.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|36.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Houndeye|0.0|0.78|0.78|0|0|0|0|0|0|0|organic|0
+monster_human_assassin|models/hassassin.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Human Assassin|0.0|0.78|0.78|0|0|0|0|0|0|0|organic|0
+monster_human_grunt|models/hgrunt.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Human Grunt (camo)|0.0|0.78|0.78|0|0|0|0|0|0|0|organic|0
+monster_ichthyosaur|models/icky.mdl|1.0|1.0|1.0|char|-32.0|-32.0|0.0|32.0|32.0|64.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Ichthyosaur|0.0|0.78|0.78|0|0|0|0|0|0|0|organic|0
+monster_leech|models/leech.mdl|1.0|1.0|1.0|char|-6.0|-6.0|0.0|6.0|6.0|6.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Leech|0.0|0.78|0.78|0|0|0|0|0|0|0|organic|0
+monster_miniturret|models/miniturret.mdl|1.0|1.0|1.0|char|-16.0|-16.0|-32.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Mini Auto Turret|0.0|0.78|0.78|0|0|0|0|0|0|0|organic|0
+monster_nihilanth|models/nihilanth.mdl|1.0|1.0|1.0|char|-192.0|-192.0|0.0|192.0|192.0|384.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Nihilanth|0.0|0.78|0.78|0|0|0|0|0|0|0|organic|0
+monster_osprey|models/osprey.mdl|1.0|1.0|1.0|char|-480.0|-480.0|-112.0|480.0|480.0|24.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Osprey|0.0|0.78|0.78|0|0|0|0|0|0|0|organic|0
+monster_satchelcharge|models/w_satchel.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Live Satchel Charge|0.0|0.0|0.78|0|0|0|0|0|0|0|organic|0
+monster_scientist|models/scientist.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Scared Scientist|0.0|0.78|0.78|0|0|0|0|0|0|0|organic|0
+monster_scientist_dead|models/scientist.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Dead Scientist|.5|.5|.5|0|0|0|0|0|0|0|organic|0
+monster_sentry|models/sentry.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Sentry Turret Gun|0.0|0.78|0.78|0|0|0|0|0|0|0|organic|0
+monster_sitting_scientist|models/scientist.mdl|1.0|1.0|1.0|char|-14.0|-14.0|22.0|14.0|14.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Sitting Scientist|0.0|0.78|0.78|0|0|0|0|0|0|0|organic|0
+monster_snark|models/w_squeak.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|36.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Armed Snark|0.0|0.78|0.78|0|0|0|0|0|0|0|organic|0
+monster_tentacle|models/tentacle2.mdl|1.0|1.0|1.0|char|-32.0|-32.0|0.0|32.0|32.0|64.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Tentacle Arm|0.0|0.78|0.78|0|0|0|0|0|0|0|organic|0
+monster_tripmine||1.0|1.0|1.0|char|0|0|0|0|0|0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Active Tripmine|0.0|0.78|0.78|0|0|0|0|0|0|0|organic|0
 monstermaker||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Monster Maker|.5|.5|.5|0|0|0|0|0|0|0|none|0
 multi_manager||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|MultiTarget Manager|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
 multisource||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Multisource|0.5|1.0|0.5|0|0|0|0|0|0|0|none|0
@@ -1497,3 +1497,14 @@ xen_spore_large|models/fungus(large).mdl|1.0|1.0|1.0|general|-90.0|-90.0|0.0|90.
 xen_spore_medium|models/fungus.mdl|1.0|1.0|1.0|general|-40.0|-40.0|0.0|40.0|40.0|120.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Xen Spore (medium)|.5|.5|.5|0|0|0|0|0|0|0|none|0
 xen_spore_small|models/fungus(small).mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|64.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Xen Spore (small)|.5|.5|.5|0|0|0|0|0|0|0|none|0
 xen_tree|models/tree.mdl|1.0|1.0|1.0|general|-24.0|-24.0|0.0|24.0|24.0|188.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Xen Tree|.5|.5|.5|0|0|0|0|0|0|0|none|0
+monster_blossom|models/monsters/blossom/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Blossom|1.0|0.5|0.0|120|100|0|0|0|0|0|organic|-30
+monster_grunt3|models/monsters/grunt3/tris.md2|1.0|1.0|1.0|char|-10.0|-23.0|-25.0|12.0|22.0|52.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Grunt 3|1.0|0.5|0.0|220|100|0|0|0|0|0|organic|-60
+monster_grunt1v3|models/monsters/grunt/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-25.0|16.0|16.0|30.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Grunt 1v3|1.0|0.5|0.0|120|100|0|0|0|0|0|organic|-40
+monster_grunt1v4|models/monsters/grunt/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-25.0|16.0|16.0|30.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Grunt 1v4|1.0|0.5|0.0|100|100|0|0|0|0|0|organic|-40
+monster_jelly|models/monsters/jelly/tris.md2|1.0|1.0|1.0|char|-38.0|-18.0|-82.0|25.0|17.0|37.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Jelly|1.0|0.5|0.0|100|50|0|0|0|0|0|organic|-40
+monster_roach|models/monsters/roach/tris.md2|1.0|1.0|1.0|char|-32.0|-34.0|-23.0|42.0|33.0|75.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Roach|1.0|0.5|0.0|500|300|0|0|0|0|0|organic|-120
+monster_roller|models/monsters/roller/tris.md2|1.0|1.0|1.0|char|-25.0|-25.0|-25.0|25.0|25.0|52.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Roller|1.0|0.5|0.0|180|150|0|0|0|0|0|organic|-50
+monster_alienship2|models/monsters/aliens2/tris.md2|1.0|1.0|1.0|char|-34.0|-25.0|-13.0|45.0|43.0|41.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Alien Ship 2|1.0|0.5|0.0|120|50|0|0|0|0|0|organic|-30
+monster_alienship3|models/monsters/aliens3/tris.md2|1.0|1.0|1.0|char|-34.0|-25.0|-13.0|45.0|43.0|41.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Alien Ship 3|1.0|0.5|0.0|280|50|0|0|0|0|0|organic|-30
+monster_alienship4|models/monsters/aliens4/tris.md2|1.0|1.0|1.0|char|-34.0|-25.0|-13.0|45.0|43.0|41.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Alien Ship 4|1.0|0.5|0.0|35|50|0|0|0|0|0|organic|-30
+monster_zombifier|models/monsters/zombify/tris.md2|1.0|1.0|1.0|char|-23.0|-23.0|-25.0|35.0|35.0|40.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Zombifier|1.0|0.5|0.0|120|200|0|0|0|0|0|organic|-70
