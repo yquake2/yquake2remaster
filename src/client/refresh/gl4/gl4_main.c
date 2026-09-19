@@ -82,7 +82,6 @@ cvar_t *gl4_particle_size;
 cvar_t *gl4_particle_fade_factor;
 cvar_t *gl4_particle_square;
 cvar_t *gl4_colorlight;
-cvar_t *gl_polyblend;
 cvar_t *gl4_intensity;
 cvar_t *gl4_intensity_2D;
 cvar_t *gl4_overbrightbits;
@@ -198,7 +197,6 @@ GL4_Register(void)
 	gl4_particle_square = ri.Cvar_Get("gl4_particle_square", "0", CVAR_ARCHIVE);
 	// if set to 0, lights (from lightmaps, dynamic lights and on models) are white instead of colored
 	gl4_colorlight = ri.Cvar_Get("gl4_colorlight", "1", CVAR_ARCHIVE);
-	gl_polyblend = ri.Cvar_Get("gl_polyblend", "1", CVAR_ARCHIVE);
 
 	r_bloom = ri.Cvar_Get("r_bloom", "0", CVAR_ARCHIVE);
 	gl_nobind = ri.Cvar_Get("gl_nobind", "0", 0);

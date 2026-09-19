@@ -606,7 +606,6 @@ extern cvar_t *gl3_overbrightbits;
 extern cvar_t *gl3_particle_fade_factor;
 extern cvar_t *gl3_particle_square;
 extern cvar_t *gl3_colorlight;
-extern cvar_t *gl_polyblend;
 
 extern cvar_t *gl3_debugcontext;
 

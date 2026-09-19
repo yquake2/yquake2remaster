@@ -94,13 +94,14 @@ static const replacement_t replacements[] = {
 	{"gl_shadows", "r_shadows"},
 	{"gl_anisotropic", "r_anisotropic"},
 	{"gl_lightmap", "r_lightmap"},
-	{"gl1_polyblend", "gl_polyblend"},
+	{"gl1_polyblend", "r_polyblend"},
 	{"gl_cull", "r_cull"},
 	{"intensity", "gl1_intensity"},
 	{"gl_showtris", "r_showtris"},
 	{"vk_showtris", "r_showtris"},
 	{"gl_zfix", "r_zfix"},
 	{"vk_zfix", "r_zfix"},
+	{"gl_polyblend", "r_polyblend"},
 };
 
 /* An ugly hack to rewrite changed CVARs */

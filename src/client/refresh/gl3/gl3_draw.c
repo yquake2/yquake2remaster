@@ -892,7 +892,7 @@ GL3_Draw_Flash(const float color[4], float x, float y, float w, float h)
 {
 	size_t i = 0;
 
-	if (gl_polyblend->value == 0)
+	if (r_polyblend->value == 0)
 	{
 		return;
 	}
