@@ -4370,6 +4370,101 @@ SP_object_repair(edict_t *ent)
 #define SPAWNFLAG_ROTATE_TRAIN_TOGGLE 2
 #define SPAWNFLAG_ROTATE_TRAIN_BLOCK_STOPS 4
 
+void rotate_train_next(edict_t *self);
+
+void
+RotateTrain_MoveDone(edict_t *self)
+{
+	VectorClear(self->velocity);
+	VectorClear(self->avelocity);
+
+	self->s.angles[0] = (int)self->s.angles[0] % 360;
+	self->s.angles[1] = (int)self->s.angles[1] % 360;
+	self->s.angles[2] = (int)self->s.angles[2] % 360;
+
+	self->moveinfo.endfunc(self);
+}
+
+void
+RotateTrain_MoveFinal(edict_t *self)
+{
+	vec3_t delta;
+
+	if (self->moveinfo.remaining_distance == 0)
+	{
+		RotateTrain_MoveDone(self);
+		return;
+	}
+
+	VectorScale(self->moveinfo.dir, self->moveinfo.remaining_distance * 10.0f,
+		    self->velocity);
+
+	if (!VectorCompare(self->rotate, vec3_origin))
+	{
+		VectorSubtract(self->moveinfo.end_angles, self->s.angles, delta);
+		if (VectorCompare(delta, vec3_origin))
+		{
+			VectorClear(self->avelocity);
+		}
+		else
+		{
+			VectorScale(delta, 10.0f, self->avelocity);
+		}
+	}
+
+	self->think = RotateTrain_MoveDone;
+	self->nextthink = level.time + FRAMETIME;
+}
+
+void
+RotateTrain_MoveBegin(edict_t *self)
+{
+	vec3_t delta;
+	float frames;
+	float travel_time;
+
+	if ((self->moveinfo.speed * FRAMETIME) >= self->moveinfo.remaining_distance)
+	{
+		RotateTrain_MoveFinal(self);
+		return;
+	}
+
+	VectorScale(self->moveinfo.dir, self->moveinfo.speed, self->velocity);
+
+	travel_time = self->moveinfo.remaining_distance / self->moveinfo.speed;
+	frames = (float)floor(travel_time * 10.0f);
+	self->moveinfo.remaining_distance -=
+		frames * self->moveinfo.speed * FRAMETIME;
+
+	if (!VectorCompare(self->rotate, vec3_origin))
+	{
+		VectorSubtract(self->moveinfo.end_angles, self->moveinfo.start_angles,
+			       delta);
+
+		if (VectorCompare(delta, vec3_origin))
+		{
+			VectorClear(self->avelocity);
+		}
+		else
+		{
+			if (self->duration > 0)
+			{
+				travel_time = self->duration;
+			}
+			else
+			{
+				travel_time = VectorLength(delta) / self->moveinfo.speed;
+			}
+
+			frames = (float)floor(travel_time * 10.0f);
+			VectorScale(delta, 1.0f / travel_time, self->avelocity);
+		}
+	}
+
+	self->think = RotateTrain_MoveFinal;
+	self->nextthink = level.time + frames * FRAMETIME;
+}
+
 static void
 RotateTrain_MoveCalc(edict_t *self, vec3_t dest,
 				 void (*func)(edict_t *))
@@ -4550,99 +4645,6 @@ again:
 
 	RotateTrain_MoveCalc(self, ent->s.origin, rotate_train_wait);
 	self->spawnflags |= SPAWNFLAG_TRAIN_START_ON;
-}
-
-void
-RotateTrain_MoveDone(edict_t *self)
-{
-	VectorClear(self->velocity);
-	VectorClear(self->avelocity);
-
-	self->s.angles[0] = (int)self->s.angles[0] % 360;
-	self->s.angles[1] = (int)self->s.angles[1] % 360;
-	self->s.angles[2] = (int)self->s.angles[2] % 360;
-
-	self->moveinfo.endfunc(self);
-}
-
-void
-RotateTrain_MoveFinal(edict_t *self)
-{
-	vec3_t delta;
-
-	if (self->moveinfo.remaining_distance == 0)
-	{
-		RotateTrain_MoveDone(self);
-		return;
-	}
-
-	VectorScale(self->moveinfo.dir, self->moveinfo.remaining_distance * 10.0f,
-		    self->velocity);
-
-	if (!VectorCompare(self->rotate, vec3_origin))
-	{
-		VectorSubtract(self->moveinfo.end_angles, self->s.angles, delta);
-		if (VectorCompare(delta, vec3_origin))
-		{
-			VectorClear(self->avelocity);
-		}
-		else
-		{
-			VectorScale(delta, 10.0f, self->avelocity);
-		}
-	}
-
-	self->think = RotateTrain_MoveDone;
-	self->nextthink = level.time + FRAMETIME;
-}
-
-void
-RotateTrain_MoveBegin(edict_t *self)
-{
-	vec3_t delta;
-	float frames;
-	float travel_time;
-
-	if ((self->moveinfo.speed * FRAMETIME) >= self->moveinfo.remaining_distance)
-	{
-		RotateTrain_MoveFinal(self);
-		return;
-	}
-
-	VectorScale(self->moveinfo.dir, self->moveinfo.speed, self->velocity);
-
-	travel_time = self->moveinfo.remaining_distance / self->moveinfo.speed;
-	frames = (float)floor(travel_time * 10.0f);
-	self->moveinfo.remaining_distance -=
-		frames * self->moveinfo.speed * FRAMETIME;
-
-	if (!VectorCompare(self->rotate, vec3_origin))
-	{
-		VectorSubtract(self->moveinfo.end_angles, self->moveinfo.start_angles,
-			       delta);
-
-		if (VectorCompare(delta, vec3_origin))
-		{
-			VectorClear(self->avelocity);
-		}
-		else
-		{
-			if (self->duration > 0)
-			{
-				travel_time = self->duration;
-			}
-			else
-			{
-				travel_time = VectorLength(delta) / self->moveinfo.speed;
-			}
-
-			frames = (float)floor(travel_time * 10.0f);
-			VectorScale(delta, 1.0f / travel_time, self->avelocity);
-		}
-	}
-
-	self->think = RotateTrain_MoveFinal;
-	self->nextthink = level.time + frames * FRAMETIME;
 }
 
 static void
