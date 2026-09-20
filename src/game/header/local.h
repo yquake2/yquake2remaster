@@ -488,6 +488,7 @@ typedef struct
 	char *goals;
 	int effects;
 	int renderfx;
+
 	/* shadow/light specific spawn fields */
 	float sl_radius;           /* shadow map resolution */
 	int sl_resolution;         /* shadow map resolution */
@@ -497,6 +498,11 @@ typedef struct
 	int sl_lightstyle;         /* index to bind lightstyle */
 	float sl_coneangle;        /* _cone key for spotlights */
 	char *sl_lightstyletarget; /* target used to bind a lightstyle */
+
+	/* rotate_train */
+	float duration;
+	vec3_t rotate;
+	vec3_t rotate_speed;
 
 	/* Addional fields for models */
 	vec3_t scale;
@@ -1129,6 +1135,7 @@ void Grenade_Explode(edict_t *ent);
 #define SPAWNFLAG_LASER_YELLOW 0x0010
 #define SPAWNFLAG_LASER_ZAP 0x80000000
 #define SPAWNFLAG_TRAIN_START_ON 1
+#define SPAWNFLAG_PATH_CORNER_TELEPORT 1
 void target_laser_start(edict_t *self);
 
 /* g_trigger.c */
@@ -1757,6 +1764,10 @@ struct edict_s
 	int max_health;
 	int gib_health;
 	int deadflag;
+
+	float duration;
+	vec3_t rotate;
+	vec3_t rotate_speed;
 
 	float show_hostile;
 	float powerarmor_time;

@@ -58,6 +58,7 @@
 {"func_rotating", SP_func_rotating},
 {"func_timer", SP_func_timer},
 {"func_train", SP_func_train},
+{"func_rotate_train", SP_func_rotate_train},
 {"func_wall", SP_func_wall},
 {"func_water", SP_func_water},
 {"hint_path", SP_hint_path},

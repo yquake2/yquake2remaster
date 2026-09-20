@@ -57,6 +57,7 @@ void SP_func_plat2 ( edict_t * ent ) ;
 void SP_func_rotating ( edict_t * ent ) ;
 void SP_func_timer( edict_t * self ) ;
 void SP_func_train( edict_t * self ) ;
+void SP_func_rotate_train( edict_t * self ) ;
 void SP_func_wall( edict_t * self ) ;
 void SP_func_water( edict_t * self ) ;
 void SP_hint_path( edict_t * self ) ;

@@ -63,3 +63,6 @@
 {"music", STOFS(music), F_LRAWSTRING},
 {"nextmap", STOFS(nextmap), F_LRAWSTRING},
 {"weight", STOFS(weight), F_INT},
+{"duration", STOFS(duration), F_FLOAT},
+{"rotate", STOFS(rotate), F_VECTOR},
+{"rotate_speed", STOFS(rotate_speed), F_VECTOR},
