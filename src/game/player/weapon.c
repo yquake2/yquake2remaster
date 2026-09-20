@@ -4218,6 +4218,57 @@ Weapon_ProximityMines(edict_t *ent)
 	}
 }
 
+static void
+weapon_iredlaser_fire(edict_t *ent)
+{
+	if (!ent)
+	{
+		return;
+	}
+
+	if (ent->client->ps.gunframe == 10)
+	{
+		vec3_t offset, forward, start;
+		int damage = 200;
+
+		if (is_quad)
+		{
+			damage *= 4;
+		}
+
+		VectorSet(offset, 0, 0, ent->viewheight * 0.75);
+		AngleVectors(ent->client->v_angle, forward, NULL, NULL);
+		VectorAdd(ent->s.origin, offset, start);
+
+		if (fire_iredlaser(ent, start, forward, 1.0f, damage, 200, is_quad))
+		{
+			ent->client->pers.inventory[ent->client->ammo_index] -= 1;
+			ent->client->ps.gunindex = gi.modelindex("models/weapons/v_ired/hand.md2");
+			if (is_quad)
+			{
+				gi.sound(ent, CHAN_ITEM, gi.soundindex("items/damage3.wav"), 1, ATTN_NORM, 0);
+			}
+		}
+	}
+	else if (ent->client->ps.gunframe == 15)
+	{
+		int model = gi.modelindex("models/weapons/v_ired/tris.md2");
+		if (ent->client->ps.gunindex != model)
+		{
+			ent->client->ps.gunindex = model;
+			ent->client->ps.gunframe = 0;
+			return;
+		}
+	}
+	else if (ent->client->ps.gunframe == 6)
+	{
+		ent->client->ps.gunframe = 16;
+		return;
+	}
+
+	ent->client->ps.gunframe++;
+}
+
 void
 Weapon_DynamicWeapon(edict_t *ent)
 {
@@ -4356,8 +4407,8 @@ Weapon_DynamicWeapon(edict_t *ent)
 		static const int pause_frames[] = {24, 33, 43, 0};
 		static const int fire_frames[] = {6, 10, 15, 0};
 
-		Weapon_Generic(ent, 6, 15, 43, 48, pause_frames, fire_frames,
-			Weapon_Blaster_Fire);
+		Weapon_Generic(ent, 6, 15, 43, 48, pause_frames,
+			fire_frames, weapon_iredlaser_fire);
 	}
 	else if (!strcmp(ent->client->pers.weapon->classname, "weapon_soniccannon"))
 	{

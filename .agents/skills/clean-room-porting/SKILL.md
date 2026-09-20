@@ -26,10 +26,14 @@ When porting code from a non-GPL-compatible codebase into a GPL codebase, direct
 ### Step 2: Functional Specification Generation (Black-Box Analysis)
 Create a `SPEC.md` document that defines the external behavior without referencing or containing copyrighted source code implementations.
 
-Include only:
-- **External Interfaces:** Console variables (cvars), console commands, network message IDs, and saved game chunk identifiers.
-- **Behavioral Specifications:** Input/output states, edge cases, formula descriptions in plain math or pseudocode (describing logical outcomes, not code translation), and state machine transitions.
-- **Data Formats / File Layouts:** Offsets, byte orders, structure layouts defined purely by specification requirements.
+**Strict Rules for `SPEC.md`:**
+- **NEVER** mention or keep original function names, internal routine names, callback names, or internal variable names from the source mod.
+- `SPEC.md` must contain ONLY:
+  - High-level descriptions of actions, input/output states, and state machine transitions.
+  - **Weapon Animation & Firing Behavior:** Descriptions of frame sequences, activation/firing/idle timing flows, view/hand model switching logic, and ammo decrement triggers during weapon use.
+  - Numerical constant values.
+  - Constants common to all mods defined in `game.h`, `local.h`, or `shared.h`.
+  - Values of text fields such as sound names, model names, classnames, icons, and pickup strings.
 
 *Crucial Rule:* The spec writer must **never** write the target implementation code.
 

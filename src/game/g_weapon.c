@@ -3001,3 +3001,374 @@ fire_proximity_mine(edict_t *self, vec3_t start, vec3_t aimdir, int speed)
 
 	mine_enforce_limit(mine);
 }
+
+/* --- ammo_ired --- */
+#define MAX_ACTIVE_IRED 8
+
+void
+ired_shrapnel_touch(edict_t *ent, edict_t *other, const cplane_t *plane, const csurface_t *surf)
+{
+	if (!ent || !other)
+	{
+		return;
+	}
+
+	if (other == ent->owner)
+		return;
+
+	if (VectorCompare(ent->velocity, vec3_origin))
+		return;
+
+	T_Damage(other, ent, ent->owner, ent->velocity, ent->s.origin,
+		plane->normal, 15, 8, 0, MOD_GRENADE);
+	G_FreeEdict(ent);
+}
+
+void
+ired_explode(edict_t *ent)
+{
+	vec3_t origin;
+	int i = 0;
+
+	if (!ent)
+	{
+		return;
+	}
+
+	T_RadiusDamage(ent, ent->owner ? ent->owner : ent, ent->dmg, ent, ent->dmg_radius, MOD_GRENADE);
+
+	VectorMA(ent->s.origin, -0.02, ent->velocity, origin);
+
+	gi.WriteByte(svc_temp_entity);
+	if (ent->waterlevel)
+	{
+		if (ent->groundentity)
+		{
+			gi.WriteByte(TE_GRENADE_EXPLOSION_WATER);
+		}
+		else
+		{
+			gi.WriteByte(TE_ROCKET_EXPLOSION_WATER);
+		}
+	}
+	else
+	{
+		if (ent->groundentity)
+		{
+			gi.WriteByte(TE_GRENADE_EXPLOSION);
+		}
+		else
+		{
+			gi.WriteByte(TE_ROCKET_EXPLOSION);
+		}
+	}
+	gi.WritePosition(origin);
+	gi.multicast(ent->s.origin, MULTICAST_PHS);
+
+	for (i = 0; i < 6; i++)
+	{
+		vec3_t forward, right, up;
+		edict_t *shrapnel;
+
+		shrapnel = G_Spawn();
+		shrapnel->classname = "shrapnel";
+		shrapnel->movetype = MOVETYPE_BOUNCE;
+		shrapnel->solid = SOLID_BBOX;
+		shrapnel->s.effects |= EF_GRENADE;
+		shrapnel->s.modelindex = gi.modelindex("models/objects/shrapnel/tris.md2");
+		shrapnel->owner = ent->owner;
+		VectorCopy(ent->rrs.scale, shrapnel->rrs.scale);
+		VectorSet(shrapnel->avelocity, 300, 300, 300);
+		VectorCopy(ent->s.origin, shrapnel->s.origin);
+		AngleVectors(shrapnel->s.angles, forward, right, up);
+		VectorScale(forward, 500, forward);
+		VectorMA(forward, crandom() * 500, right, forward);
+		VectorMA(forward, crandom() * 500, up, forward);
+		VectorCopy(forward, shrapnel->velocity);
+		shrapnel->touch = ired_shrapnel_touch;
+		shrapnel->think = G_FreeEdict;
+		shrapnel->nextthink = level.time + 3.0 + crandom() * 1.5;
+	}
+
+	G_FreeEdict(ent);
+}
+
+void
+ired_laser_think(edict_t *self)
+{
+	vec3_t start, end, delta;
+	trace_t tr;
+
+	if (!self)
+	{
+		return;
+	}
+
+	self->nextthink = level.time + FRAMETIME;
+
+	if (level.time > self->wait)
+	{
+		if (self->chain)
+		{
+			self->chain->think = ired_explode;
+			self->chain->nextthink = level.time + FRAMETIME;
+		}
+		G_FreeEdict(self);
+		return;
+	}
+
+	if (random() < 0.1)
+	{
+		self->svflags |= SVF_NOCLIENT;
+		return;
+	}
+
+	self->svflags &= ~SVF_NOCLIENT;
+	VectorCopy(self->s.origin, start);
+	VectorMA(start, 2048, self->movedir, end);
+
+	tr = gi.trace(start, NULL, NULL, end, self, MASK_SHOT);
+
+	if (!tr.ent)
+		return;
+
+	VectorSubtract(tr.endpos, self->move_origin, delta);
+	if (VectorCompare(self->s.origin, self->move_origin))
+	{
+		VectorCopy(tr.endpos, self->move_origin);
+		if (self->spawnflags & SPAWNFLAG_LASER_ZAP)
+		{
+			int count = 8;
+			self->spawnflags &= ~SPAWNFLAG_LASER_ZAP;
+			gi.WriteByte(svc_temp_entity);
+			gi.WriteByte(TE_LASER_SPARKS);
+			gi.WriteByte(count);
+			gi.WritePosition(tr.endpos);
+			gi.WriteDir(tr.plane.normal);
+			gi.WriteByte(self->s.skinnum);
+			gi.multicast(tr.endpos, MULTICAST_PVS);
+		}
+	}
+	else if (VectorLength(delta) > 1.0)
+	{
+		if (self->chain)
+		{
+			self->chain->think = ired_explode;
+			self->chain->nextthink = level.time + FRAMETIME;
+		}
+		G_FreeEdict(self);
+		return;
+	}
+	VectorCopy(self->move_origin, self->s.old_origin);
+}
+
+void
+ired_laser_on(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->svflags &= ~SVF_NOCLIENT;
+	self->think = ired_laser_think;
+
+	gi.sound(self, CHAN_VOICE, gi.soundindex("weapons/ired/las_arm.wav"), 1, ATTN_NORM, 0);
+	ired_laser_think(self);
+}
+
+static void
+create_ired_laser(edict_t *self)
+{
+	edict_t *laser;
+
+	if (!self)
+	{
+		return;
+	}
+
+	laser = G_Spawn();
+	self->chain = laser;
+	laser->classname = "ired laser";
+	VectorCopy(self->s.origin, laser->s.origin);
+	VectorCopy(self->s.origin, laser->move_origin);
+	VectorCopy(self->s.angles, laser->s.angles);
+	G_SetMovedir(laser->s.angles, laser->movedir);
+	laser->owner = self;
+	laser->s.skinnum = 0xb0b1b2b3;
+	laser->s.frame = 2;
+	laser->movetype = MOVETYPE_NONE;
+	laser->solid = SOLID_NOT;
+	laser->s.renderfx |= RF_BEAM | RF_TRANSLUCENT;
+	laser->s.modelindex = 1;
+	VectorCopy(self->rrs.scale, laser->rrs.scale);
+	laser->chain = self;
+	laser->spawnflags |= SPAWNFLAG_LASER_ZAP | SPAWNFLAG_LASER_ON;
+	laser->think = ired_laser_on;
+	laser->nextthink = level.time + FRAMETIME;
+	laser->svflags |= SVF_NOCLIENT;
+	laser->wait = level.time + 120.0f;
+	gi.linkentity(laser);
+}
+
+void
+iredbomb_off(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->s.effects &= ~EF_COLOR_SHELL;
+	self->s.renderfx &= ~RF_SHELL_GREEN;
+	self->think = NULL;
+	self->nextthink = 0;
+}
+
+void
+iredbomb_pain(edict_t *self, edict_t *other, float kick, int damage)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->damage_debounce_time = level.time + 0.2;
+
+	if (self->think == NULL)
+	{
+		self->s.effects |= EF_COLOR_SHELL;
+		self->s.renderfx |= RF_SHELL_GREEN;
+		self->nextthink = self->damage_debounce_time;
+		self->think = iredbomb_off;
+	}
+}
+
+void
+iredbomb_think(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	if (self->chain == NULL)
+	{
+		if (self->wait < level.time)
+		{
+			create_ired_laser(self);
+		}
+	}
+
+	if (self->damage_debounce_time > level.time)
+	{
+		self->s.effects |= EF_COLOR_SHELL;
+		self->s.renderfx |= RF_SHELL_GREEN;
+	}
+	else
+	{
+		self->s.effects &= ~EF_COLOR_SHELL;
+		self->s.renderfx &= ~RF_SHELL_GREEN;
+	}
+
+	self->nextthink = level.time + FRAMETIME;
+}
+
+static void
+ired_enforce_limit(edict_t *bomb)
+{
+	edict_t *oldestEnt = NULL;
+	edict_t *e = NULL;
+	int count = 0;
+
+	if (!bomb || !bomb->owner)
+	{
+		return;
+	}
+
+	while (1)
+	{
+		e = G_Find(e, FOFS(classname), "ired");
+		if (e == NULL)
+			break;
+
+		if (e->owner != bomb->owner)
+		{
+			continue;
+		}
+
+		count++;
+
+		if (oldestEnt == NULL || e->timestamp < oldestEnt->timestamp)
+		{
+			oldestEnt = e;
+		}
+	}
+
+	if (count > MAX_ACTIVE_IRED && oldestEnt)
+	{
+		oldestEnt->think = ired_explode;
+		oldestEnt->nextthink = level.time + FRAMETIME;
+		if (oldestEnt->chain)
+		{
+			G_FreeEdict(oldestEnt->chain);
+		}
+	}
+}
+
+qboolean
+fire_iredlaser(edict_t *self, vec3_t start, vec3_t dir, float timer, float damage,
+	float damage_radius, qboolean quad)
+{
+	vec3_t endPos, _dir;
+	edict_t *bomb = NULL;
+	trace_t tr;
+
+	if (!self)
+	{
+		return false;
+	}
+
+	VectorScale(dir, 64, _dir);
+	VectorAdd(start, _dir, endPos);
+
+	tr = gi.trace(start, NULL, NULL, endPos, self, MASK_SHOT);
+	if (tr.fraction == 1.0)
+	{
+		return false;
+	}
+
+	if (Q_stricmp(tr.ent->classname, "worldspawn") != 0)
+	{
+		return false;
+	}
+
+	bomb = G_Spawn();
+	VectorMA(tr.endpos, 3, tr.plane.normal, bomb->s.origin);
+	vectoangles(tr.plane.normal, bomb->s.angles);
+	bomb->owner = self;
+	bomb->classname = "ired";
+	VectorSet(bomb->mins, -8, -8, -8);
+	VectorSet(bomb->maxs, 8, 8, 8);
+	bomb->solid = SOLID_BBOX;
+	bomb->movetype = MOVETYPE_NONE;
+	bomb->s.modelindex = gi.modelindex("models/objects/ired/tris.md2");
+	VectorCopy(self->rrs.scale, bomb->rrs.scale);
+	bomb->radius_dmg = damage;
+	bomb->dmg = damage;
+	bomb->dmg_radius = damage_radius;
+	bomb->health = 1;
+	bomb->takedamage = DAMAGE_NO;
+	bomb->pain = iredbomb_pain;
+	gi.linkentity(bomb);
+
+	bomb->timestamp = level.time;
+	bomb->wait = level.time + timer;
+	bomb->nextthink = level.time + FRAMETIME;
+	bomb->think = iredbomb_think;
+
+	ired_enforce_limit(bomb);
+
+	gi.sound(self, CHAN_VOICE, gi.soundindex("weapons/ired/las_set.wav"), 1, ATTN_NORM, 0);
+	return true;
+}

@@ -4845,7 +4845,8 @@ InitItems(void)
 							itemlist[num_items].count_width = 3;
 							itemlist[num_items].icon = "w_ired";
 							itemlist[num_items].view_model = "models/weapons/v_ired/tris.md2";
-							itemlist[num_items].quantity = 3;
+							itemlist[num_items].quantity = 1;
+							itemlist[num_items].ammo = "IRED";
 							itemlist[num_items].weaponthink = Weapon_DynamicWeapon;
 							itemlist[num_items].flags |= IT_WEAPON;
 						}

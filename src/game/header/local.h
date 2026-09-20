@@ -1112,6 +1112,8 @@ void detpack_detonate(edict_t *self);
 edict_t *fire_detpack(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 			float damage_radius, float speed, float timer);
 void fire_proximity_mine(edict_t *self, vec3_t start, vec3_t aimdir, int speed);
+qboolean fire_iredlaser(edict_t *self, vec3_t start, vec3_t dir, float timer,
+	float damage, float damage_radius, qboolean quad);
 void check_dodge(edict_t *self, vec3_t start, vec3_t dir, int speed);
 void Grenade_Explode(edict_t *ent);
 

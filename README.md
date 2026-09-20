@@ -255,6 +255,7 @@ Checked with:
 * [ ] Oblivion: Add support of `trigger_misc_camera`,
 * [ ] Oblivion: Add support of `weapon_rtdu`,
 * [ ] Oblivion: Add dynamic animation based on `activate` for `badass` and `floater`,
+* [ ] game: share `ired_enforce_limit`, `mine_enforce_limit`, `detpack_enforce_limit`,
 * [ ] Dynamic count of entities on client.
 
 ### Fixed:
