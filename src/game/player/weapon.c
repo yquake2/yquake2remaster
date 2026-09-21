@@ -4269,6 +4269,18 @@ weapon_iredlaser_fire(edict_t *ent)
 	ent->client->ps.gunframe++;
 }
 
+static void
+Weapon_DOD_Fire(edict_t *ent)
+{
+	vec3_t forward;
+
+	ent->client->ps.gunframe++;
+	AngleVectors(ent->s.angles, forward, NULL, NULL);
+	fire_dod(ent, ent->s.origin, forward);
+
+	G_RemoveAmmo(ent);
+}
+
 void
 Weapon_DynamicWeapon(edict_t *ent)
 {
@@ -4384,6 +4396,14 @@ Weapon_DynamicWeapon(edict_t *ent)
 	else if (!strcmp(ent->client->pers.weapon->classname, "ammo_mines"))
 	{
 		Weapon_ProximityMines(ent);
+	}
+	else if (!strcmp(ent->client->pers.weapon->classname, "ammo_dod"))
+	{
+		static const int pause_frames[] = {26, 0};
+		static const int fire_frames[] = {13, 0};
+
+		Weapon_Generic(ent, 10, 15, 35, 46, pause_frames, fire_frames,
+			Weapon_DOD_Fire);
 	}
 	/* Zaero */
 	else if (!strcmp(ent->client->pers.weapon->classname, "ammo_a2k"))

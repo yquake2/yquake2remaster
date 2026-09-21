@@ -231,6 +231,7 @@ extern void dabeam_hit (edict_t *);
 extern void deatom_think (edict_t *);
 extern void defender_think (edict_t *);
 extern void detpack_detonate (edict_t *);
+extern void dod_pulse_think (edict_t *);
 extern void door_go_down (edict_t *);
 extern void door_secret_move2 (edict_t *);
 extern void door_secret_move4 (edict_t *);

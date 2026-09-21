@@ -3035,7 +3035,8 @@ ired_explode(edict_t *ent)
 		return;
 	}
 
-	T_RadiusDamage(ent, ent->owner ? ent->owner : ent, ent->dmg, ent, ent->dmg_radius, MOD_GRENADE);
+	T_RadiusDamage(ent, ent->owner ? ent->owner : ent, ent->dmg, ent,
+		ent->dmg_radius, MOD_GRENADE);
 
 	VectorMA(ent->s.origin, -0.02, ent->velocity, origin);
 
@@ -3371,4 +3372,54 @@ fire_iredlaser(edict_t *self, vec3_t start, vec3_t dir, float timer, float damag
 
 	gi.sound(self, CHAN_VOICE, gi.soundindex("weapons/ired/las_set.wav"), 1, ATTN_NORM, 0);
 	return true;
+}
+
+void
+dod_pulse_think(edict_t *self)
+{
+	if (self->s.frame < 10)
+	{
+		self->s.frame++;
+		self->dmg += 25;
+		self->dmg_radius += 32.0f;
+		T_RadiusDamage(self, self->owner, self->dmg, self->owner,
+			self->dmg_radius, MOD_GRENADE);
+		self->nextthink = level.time + 0.1f;
+		return;
+	}
+
+	self->think = G_FreeEdict;
+	self->nextthink = level.time + 0.1f;
+}
+
+void
+fire_dod(edict_t *self, vec3_t start, vec3_t dir)
+{
+	edict_t *dod;
+
+	dod = G_Spawn();
+	VectorCopy(self->rrs.scale, dod->rrs.scale);
+	VectorCopy(start, dod->s.origin);
+	VectorCopy(start, dod->s.old_origin);
+	VectorSet(dod->mins, -16.0f, -16.0f, -16.0f);
+	VectorSet(dod->maxs, 16.0f, 16.0f, 16.0f);
+	VectorClear(dod->s.angles);
+	VectorClear(dod->velocity);
+	VectorClear(dod->avelocity);
+	dod->avelocity[YAW] = 90.0f;
+	dod->movetype = MOVETYPE_FLY;
+	dod->solid = SOLID_BBOX;
+	dod->takedamage = DAMAGE_NO;
+	dod->s.modelindex = gi.modelindex("models/objects/dod/tris.md2");
+	dod->s.frame = 0;
+	dod->s.renderfx = RF_FULLBRIGHT;
+	dod->owner = self;
+	dod->nextthink = level.time + 0.1f;
+	dod->think = dod_pulse_think;
+	dod->dmg = 50;
+	dod->dmg_radius = 64.0f;
+	dod->classname = "dod";
+
+	gi.sound(self, CHAN_WEAPON, gi.soundindex("dod/dod.wav"), 1, ATTN_NORM, 0);
+	gi.linkentity(dod);
 }

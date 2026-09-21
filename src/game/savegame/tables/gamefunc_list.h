@@ -256,6 +256,7 @@ static const fnlist_entry_t fnentries_think[] =
 	{"deatom_think", (byte *)deatom_think},
 	{"defender_think", (byte *)defender_think},
 	{"detpack_detonate", (byte *)detpack_detonate},
+	{"dod_pulse_think", (byte *)dod_pulse_think},
 	{"door_go_down", (byte *)door_go_down},
 	{"door_secret_move2", (byte *)door_secret_move2},
 	{"door_secret_move4", (byte *)door_secret_move4},
