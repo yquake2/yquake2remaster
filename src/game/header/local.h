@@ -499,11 +499,6 @@ typedef struct
 	float sl_coneangle;        /* _cone key for spotlights */
 	char *sl_lightstyletarget; /* target used to bind a lightstyle */
 
-	/* rotate_train */
-	float duration;
-	vec3_t rotate;
-	vec3_t rotate_speed;
-
 	/* Addional fields for models */
 	vec3_t scale;
 	float health_multiplier;

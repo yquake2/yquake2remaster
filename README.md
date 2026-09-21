@@ -249,7 +249,7 @@ Checked with:
 * [ ] Infinity: Add support of `weapon_goop`,
 * [ ] Infinity: Add support of `weapon_rifle`,
 * [ ] Oblivion: Add support of `ammo_dod`,
-* [ ] Oblivion: Add support of `func_rotate_train`,
+* [ ] Oblivion: Finish support of `func_rotate_train`, add `speeds` for `path_corner`,
 * [ ] Oblivion: Add support of `misc_camera`,
 * [ ] Oblivion: Add support of `misc_camera_target`,
 * [ ] Oblivion: Add support of `trigger_misc_camera`,
