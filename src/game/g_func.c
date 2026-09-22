@@ -4650,7 +4650,7 @@ again:
 static void
 rotate_train_resume(edict_t *self)
 {
-	if (self || !self->target_ent)
+	if (!self || !self->target_ent)
 	{
 		return;
 	}

@@ -7,7 +7,7 @@ from entity_lib import parse_entity_dat
 
 def main():
     input_path = "stuff/models/entity.dat"
-    output_path = "stuff/models/entity.json"
+    output_path = "stuff/entgen/entity.json"
     if len(sys.argv) > 1:
         input_path = sys.argv[1]
     if len(sys.argv) > 2:
