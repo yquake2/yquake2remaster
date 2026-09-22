@@ -260,33 +260,6 @@ Checked with:
 
 ### Fixed:
 
-* [x] Oblivion: Add support of `info_teleporter_dest`,
-* [x] Oblivion: Add support of `misc_screenfader`,
-* [x] Oblivion: Add support of `ammo_mines`,
-* [x] Support load `.cin` by ffmpeg from `.pak` file
-* [x] Support obj waveform model format for debug other formats,
-* [x] vulkan: group `it_pic` images,
-* [x] Heretic 2: correct obj placeholders,
-* [x] windows build: restore build asset on tag,
-* [x] Oblivion: Add support of `ammo_detpack`,
-* [x] Oblivion: Add support of `weapon_remote_detonator`,
-* [x] Oblivion: Add support of `target_rocket`,
-* [x] Oblivion: Add support of `target_railgun`,
-* [x] Oblivion: Add support of `monster_spider`,
-* [x] Oblivion: Add support of `monster_badass`,
-* [x] Oblivion: Add support of `monster_cyborg`,
-* [x] Oblivion: Add support of `monster_kigrax`,
-* [x] Infinity: Add support of `ammo_goop`,
-* [x] Infinity: Add support of `ammo_energy`,
-* [x] Oblivion: Add support of `ammo_rifleplasma`,
-* [x] Half-Life: support mdl,
-* [x] Oblivion: Add support of `weapon_hellfury`,
-* [x] Oblivion: Add support of `weapon_plasma_pistol`,
-* [x] Oblivion: Add support of `weapon_plasma_rifle`,
-* [x] Oblivion: Add support of `weapon_deatomizer`,
-* [x] renders: add lanczos3 2x scale by `r_scale32bittextures`,
-* [x] Oblivion: Add support of `monster_soldier_deatom`,
-
 ### Not a goal:
 
 * [ ] Multiplayer protocol support with KEX engine,

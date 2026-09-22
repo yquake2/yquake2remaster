@@ -1,3 +1,33 @@
+Quake II 8.71RR16:
+- Fixes from yquake2,
+- Improved image load warnings and cache logic,
+- Oblivion: Add support of `info_teleporter_dest`,
+- Oblivion: Add support of `misc_screenfader`,
+- Oblivion: Add support of `ammo_mines`,
+- Support load `.cin` by ffmpeg from `.pak` file
+- Support obj waveform model format for debug other formats,
+- vulkan: group `it_pic` images,
+- Heretic 2: correct obj placeholders,
+- windows build: restore build asset on tag,
+- Oblivion: Add support of `ammo_detpack`,
+- Oblivion: Add support of `weapon_remote_detonator`,
+- Oblivion: Add support of `target_rocket`,
+- Oblivion: Add support of `target_railgun`,
+- Oblivion: Add support of `monster_spider`,
+- Oblivion: Add support of `monster_badass`,
+- Oblivion: Add support of `monster_cyborg`,
+- Oblivion: Add support of `monster_kigrax`,
+- Infinity: Add support of `ammo_goop`,
+- Infinity: Add support of `ammo_energy`,
+- Oblivion: Add support of `ammo_rifleplasma`,
+- Half-Life: support mdl,
+- Oblivion: Add support of `weapon_hellfury`,
+- Oblivion: Add support of `weapon_plasma_pistol`,
+- Oblivion: Add support of `weapon_plasma_rifle`,
+- Oblivion: Add support of `weapon_deatomizer`,
+- renders: Add lanczos3 2x scale by `r_scale32bittextures`,
+- Oblivion: Add support of `monster_soldier_deatom`.
+
 Quake II 8.71RR15:
 - Fixes from yquake2,
 - SiN Reloaded Demo: support pak format,
