@@ -730,6 +730,60 @@ Use_Double(edict_t *ent, const gitem_t *item)
 }
 
 static void
+Use_Radar(edict_t *ent, const gitem_t *item)
+{
+	gitem_t *energy_item;
+
+	if (!ent || !item || !ent->client)
+	{
+		return;
+	}
+
+	energy_item = FindItem("energy");
+	if (!energy_item)
+	{
+		energy_item = FindItem("Cells");
+	}
+
+	if (ent->flags & FL_POWER_ARMOR) /* reuse flag or add custom flag, or check ent->client radar state */
+	{
+		/* Turning OFF */
+		ent->flags &= ~FL_POWER_ARMOR;
+		gi.sound(ent, CHAN_ITEM, gi.soundindex("misc/power2.wav"), 1, ATTN_NORM, 0);
+	}
+	else
+	{
+		/* Turning ON */
+		if (energy_item && ent->client->pers.inventory[ITEM_INDEX(energy_item)] <= 0)
+		{
+			gi.cprintf(ent, PRINT_HIGH, "No energy for radar\n");
+			return;
+		}
+		ent->flags |= FL_POWER_ARMOR;
+		gi.sound(ent, CHAN_ITEM, gi.soundindex("misc/power1.wav"), 1, ATTN_NORM, 0);
+	}
+}
+
+static void
+Drop_Radar(edict_t *ent, const gitem_t *item)
+{
+	if (!ent || !item || !ent->client)
+	{
+		return;
+	}
+
+	if ((ent->flags & FL_POWER_ARMOR) && ent->client->pers.inventory[ITEM_INDEX(item)] == 1)
+	{
+		ent->flags &= ~FL_POWER_ARMOR;
+		gi.sound(ent, CHAN_ITEM, gi.soundindex("misc/power2.wav"), 1, ATTN_NORM, 0);
+	}
+
+	Drop_Item(ent, item);
+	ent->client->pers.inventory[ITEM_INDEX(item)]--;
+	ValidateSelectedItem(ent->client);
+}
+
+static void
 Use_Compass(edict_t *ent, const gitem_t *item)
 {
 	int ang;
@@ -3800,6 +3854,30 @@ static const gitem_t gameitemlist[] = {
 		NULL,
 		0,
 		"misc/ddamage1.wav misc/ddamage2.wav misc/ddamage3.wav"
+	},
+
+	/*
+	 * QUAKED item_radar (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
+	 */
+	{
+		"item_radar",
+		Pickup_Powerup,
+		Use_Radar,
+		Drop_Radar,
+		NULL,
+		"items/pkup.wav",
+		"models/items/radar/tris.md2", EF_ROTATE,
+		NULL,
+		"i_radar",
+		"Radar",
+		2,
+		60,
+		NULL,
+		IT_POWERUP,
+		0,
+		NULL,
+		0,
+		"misc/power1.wav misc/power2.wav"
 	},
 
 	/*
