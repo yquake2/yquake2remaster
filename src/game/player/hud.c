@@ -639,6 +639,118 @@ G_SetStats(edict_t *ent)
 	/* selected item */
 	G_SetStats_SelectedItem(ent->client);
 
+	/* radar layout */
+	if (ent->flags & FL_POWER_ARMOR)
+	{
+		gitem_t *radar_item = FindItem("Radar");
+		gitem_t *energy_item = FindItem("energy");
+		if (!energy_item)
+		{
+			energy_item = FindItem("Cells");
+		}
+
+		if (radar_item && energy_item)
+		{
+			int r_index = ITEM_INDEX(radar_item);
+			int e_index = ITEM_INDEX(energy_item);
+
+			if (ent->client->pers.inventory[r_index] <= 0)
+			{
+				ent->flags &= ~FL_POWER_ARMOR;
+			}
+			else
+			{
+				static int radarnum = 0;
+				radarnum++;
+				if (radarnum >= 5)
+				{
+					radarnum = 0;
+					ent->client->pers.inventory[e_index]--;
+					if (ent->client->pers.inventory[e_index] <= 0)
+					{
+						ent->client->pers.inventory[e_index] = 0;
+						ent->flags &= ~FL_POWER_ARMOR;
+						gi.cprintf(ent, PRINT_HIGH, "Energy exhausted\n");
+						gi.sound(ent, CHAN_ITEM, gi.soundindex("misc/power2.wav"), 1, ATTN_NORM, 0);
+					}
+				}
+
+				ent->client->ps.stats[STAT_RADAR_ICON] = gi.imageindex("radar/radar");
+				ent->client->ps.stats[STAT_RADAR] = ent->client->pers.inventory[e_index];
+
+				{
+					char layout[1400];
+					int len = 0;
+					edict_t *head = NULL;
+					vec3_t org;
+
+					Com_sprintf(layout, sizeof(layout), "xv 0 yv 136 picn radar/radar ");
+					len = strlen(layout);
+					VectorCopy(ent->s.origin, org);
+
+					while ((head = findradius(head, org, 500)) != NULL)
+					{
+						if (head == ent)
+							continue;
+						if (!head->client && !(head->svflags & SVF_MONSTER))
+							continue;
+						if (head->deadflag || head->health <= 0)
+							continue;
+
+						{
+							vec3_t v;
+							float dist, yaw, s, c;
+							float rx, ry;
+							int px, py;
+							const char *pic = "radar/dot";
+							char entry[64];
+							int j;
+
+							VectorSubtract(head->s.origin, org, v);
+							dist = VectorLength(v);
+							if (dist > 500)
+								continue;
+
+							yaw = ent->client->v_angle[1] * M_PI / 180.0f;
+							s = sin(yaw);
+							c = cos(yaw);
+
+							// Rotate relative to player view yaw
+							rx = (v[1] * c - v[0] * s) / 500.0f * 32.0f;
+							ry = (v[0] * c + v[1] * s) / 500.0f * 32.0f;
+
+							px = (int)(64 + rx);
+							py = (int)(168 + ry);
+
+							if (head->s.origin[2] > org[2] + 16)
+								pic = "radar/up";
+							else if (head->s.origin[2] < org[2] - 16)
+								pic = "radar/down";
+
+							Com_sprintf(entry, sizeof(entry), "xv %d yv %d picn %s ", px, py, pic);
+							j = strlen(entry);
+
+							if (len + j < (int)sizeof(layout))
+							{
+								strcpy(layout + len, entry);
+								len += j;
+							}
+						}
+					}
+
+					gi.WriteByte(svc_layout);
+					gi.WriteString(layout);
+					gi.unicast(ent, true);
+				}
+			}
+		}
+	}
+	else
+	{
+		ent->client->ps.stats[STAT_RADAR_ICON] = 0;
+		ent->client->ps.stats[STAT_RADAR] = 0;
+	}
+
 	/* layouts */
 	ent->client->ps.stats[STAT_LAYOUTS] = 0;
 
