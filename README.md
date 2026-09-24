@@ -93,6 +93,7 @@ For complete technical specifications and compatibility tables, see [.agents/doc
 
 * 8.71RR15+:
 
+[![Check Oblivion](https://img.youtube.com/vi/D_bWu4apLLg/hqdefault.jpg)](https://www.youtube.com/watch?v=D_bWu4apLLg)
 [![Check Oblivion/Ininity state](https://img.youtube.com/vi/uixogpssDSI/hqdefault.jpg)](https://www.youtube.com/watch?v=uixogpssDSI)
 [![Check BSP46 state](https://img.youtube.com/vi/dmrfJeqW9HU/hqdefault.jpg)](https://www.youtube.com/watch?v=dmrfJeqW9HU)
 [![Check release state](https://img.youtube.com/vi/vFpdbPOcU4A/hqdefault.jpg)](https://www.youtube.com/watch?v=vFpdbPOcU4A)
