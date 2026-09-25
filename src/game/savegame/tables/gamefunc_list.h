@@ -1078,8 +1078,8 @@ static const fnlist_entry_t fnentries_mv_end[] =
 	{"door_secret_move5", (byte *)door_secret_move5},
 	{"plat_hit_bottom", (byte *)plat_hit_bottom},
 	{"plat_hit_top", (byte *)plat_hit_top},
-	{"train_wait", (byte *)train_wait},
 	{"rotate_train_wait", (byte *)rotate_train_wait},
+	{"train_wait", (byte *)train_wait},
 	{"wizard_finish_attack", (byte *)wizard_finish_attack},
 };
 static const functionList_t fnlist_mv_end =

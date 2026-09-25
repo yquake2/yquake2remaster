@@ -909,6 +909,6 @@ extern void door_secret_move3 (edict_t *);
 extern void door_secret_move5 (edict_t *);
 extern void plat_hit_bottom (edict_t *);
 extern void plat_hit_top (edict_t *);
-extern void train_wait (edict_t *);
 extern void rotate_train_wait (edict_t *);
+extern void train_wait (edict_t *);
 extern void wizard_finish_attack (edict_t *);
