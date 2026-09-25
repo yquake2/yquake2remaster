@@ -2774,6 +2774,36 @@ static const char *lump_names[HEADER_LUMPS] = {
 	"AREAPORTALS"
 };
 
+/* DOOM lumps names */
+static const char *const doom_lumps[] = {
+	"THINGS",
+	"LINEDEFS",
+	"SIDEDEFS",
+	"VERTEXES",
+	"SEGS",
+	"SSECTORS",
+	"NODES",
+	"SECTORS",
+	"REJECT",
+	"BLOCKMAP",
+	"BEHAVIOR"
+};
+
+/* Doom map conversion rules mapping nearest Doom lump types to Quake 2 BSP lump types */
+static const rule_t doombsplumps[11] = {
+	{LUMP_ENTITIES, sizeof(char), Mod_Load2QBSP_IBSP_Copy}, /* THINGS -> ENTITIES */
+	{-1, 0, NULL}, /* LINEDEFS */
+	{-1, 0, NULL}, /* SIDEDEFS */
+	{LUMP_VERTEXES, sizeof(short) * 2, Mod_Load2QBSP_IBSP_Copy}, /* VERTEXES (x, y shorts) -> VERTEXES */
+	{-1, 0, NULL}, /* SEGS */
+	{-1, 0, NULL}, /* SSECTORS */
+	{LUMP_NODES, sizeof(short), Mod_Load2QBSP_IBSP_Copy}, /* NODES -> NODES */
+	{LUMP_TEXINFO, sizeof(short), Mod_Load2QBSP_IBSP_Copy}, /* SECTORS -> TEXINFO */
+	{LUMP_VISIBILITY, sizeof(char), Mod_Load2QBSP_IBSP_Copy}, /* REJECT -> VISIBILITY */
+	{-1, 0, NULL}, /* BLOCKMAP */
+	{-1, 0, NULL}  /* BEHAVIOR */
+};
+
 static const char*
 Mod_MaptypeName(maptype_t maptype)
 {
@@ -2792,6 +2822,7 @@ Mod_MaptypeName(maptype_t maptype)
 		case map_kingpin: maptypename = "Kingpin"; break;
 		case map_anachronox: maptypename = "Anachronox"; break;
 		case map_sin: maptypename = "SiN"; break;
+		case map_doom: maptypename = "Doom"; break;
 		default: maptypename = "Unknown"; break;
 	}
 
@@ -3005,6 +3036,12 @@ Mod_LoadGetRules(int ident, int version, const byte *inbuf, const lump_t *lumps,
 		*numrules = *numlumps = HEADER_LUMPS;
 		return map_sin;
 	}
+	else if (ident == PWADHEADER && version == 0)
+	{
+		*rules = doombsplumps;
+		*numrules = *numlumps = ARRLEN(doom_lumps);
+		return map_doom;
+	}
 
 	*rules = NULL;
 	return map_quake2rr;
@@ -3068,7 +3105,7 @@ Mod_Load2QBSPValidateRules(const char *name, const rule_t *rules, size_t numrule
 				(ident >> 16) & 0xFF,
 				(ident >> 24) & 0xFF,
 				version, Mod_MaptypeName(maptype),
-				result_size);
+				rules ? result_size : filesize);
 
 	if (error || !rules)
 	{
@@ -3314,3 +3351,154 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 	return outbuf;
 }
 
+/*
+ * Combine separate Doom map lumps into a single file structure expected by Mod_Load2QBSP:
+ * - IDENT (4 bytes)
+ * - VERSION (4 bytes)
+ * - Lump list with offset and length for each lump
+ * - Lump contents
+ */
+int
+Mod_CombineLumps(const char *name, void **buffer)
+{
+	char dir[MAX_QPATH];
+	const char *basename;
+	byte *lumpdata[ARRLEN(doom_lumps)];
+	int lumpsize[ARRLEN(doom_lumps)];
+	qboolean lumpexists[ARRLEN(doom_lumps)];
+	int lumppos[ARRLEN(doom_lumps)];
+	size_t i;
+	int num_found = 0;
+	size_t data_ofs;
+	size_t total_size;
+	byte *outbuf;
+	lump_t *outlumps;
+	qboolean has_essential_lump = false;
+
+	if (!name || !name[0] || !buffer)
+	{
+		return -1;
+	}
+
+	*buffer = NULL;
+
+	COM_StripExtension(name, dir);
+	basename = COM_SkipPath(dir);
+	if (!basename || !basename[0])
+	{
+		return -1;
+	}
+
+	for (i = 0; i < ARRLEN(doom_lumps); i++)
+	{
+		char lumppath[MAX_QPATH];
+		int len;
+
+		lumpdata[i] = NULL;
+		lumpsize[i] = 0;
+		lumpexists[i] = false;
+		lumppos[i] = 0;
+
+		Com_sprintf(lumppath, sizeof(lumppath), "%s/%s.lmp", dir, doom_lumps[i]);
+		len = FS_LoadFile(lumppath, (void **)&lumpdata[i]);
+
+		if (len >= 0)
+		{
+			lumpexists[i] = true;
+			lumpsize[i] = len;
+			num_found++;
+
+			if (!strcmp(doom_lumps[i], "VERTEXES") ||
+				!strcmp(doom_lumps[i], "LINEDEFS") ||
+				!strcmp(doom_lumps[i], "SECTORS") ||
+				!strcmp(doom_lumps[i], "NODES"))
+			{
+				has_essential_lump = true;
+			}
+		}
+	}
+
+	if (num_found == 0 || !has_essential_lump)
+	{
+		for (i = 1; i < ARRLEN(doom_lumps); i++)
+		{
+			if (lumpdata[i])
+			{
+				FS_FreeFile(lumpdata[i]);
+			}
+		}
+		return -1;
+	}
+
+	/*
+	 * Structure:
+	 * 1. ident (4 bytes) + version (4 bytes)
+	 * 2. lump_t array [ARRLEN(doom_lumps)]
+	 * 3. Lump contents
+	 */
+	data_ofs = sizeof(int) * 2 + sizeof(lump_t) * ARRLEN(doom_lumps);
+	data_ofs = (data_ofs + 3) & ~3;
+
+	for (i = 0; i < ARRLEN(doom_lumps); i++)
+	{
+		if (lumpexists[i] && lumpsize[i] > 0)
+		{
+			data_ofs = (data_ofs + 3) & ~3;
+			lumppos[i] = (int)data_ofs;
+			data_ofs += lumpsize[i];
+		}
+		else
+		{
+			lumppos[i] = 0;
+			lumpsize[i] = 0;
+		}
+	}
+
+	data_ofs = (data_ofs + 3) & ~3;
+	total_size = data_ofs;
+
+	outbuf = Z_Malloc(total_size);
+	if (!outbuf)
+	{
+		for (i = 0; i < ARRLEN(doom_lumps); i++)
+		{
+			if (lumpdata[i])
+			{
+				FS_FreeFile(lumpdata[i]);
+			}
+		}
+		return -1;
+	}
+
+	/* Write IDENT and VERSION */
+	((int *)outbuf)[0] = LittleLong(PWADHEADER);
+	((int *)outbuf)[1] = LittleLong(0);
+
+	/* Write lump list: offset and length for each lump */
+	outlumps = (lump_t *)((int *)outbuf + 2);
+	for (i = 0; i < ARRLEN(doom_lumps); i++)
+	{
+		outlumps[i].fileofs = LittleLong(lumppos[i]);
+		outlumps[i].filelen = LittleLong(lumpsize[i]);
+	}
+
+	/* Copy content of each lump */
+	for (i = 0; i < ARRLEN(doom_lumps); i++)
+	{
+		if (lumpexists[i] && lumpsize[i] > 0 && lumpdata[i])
+		{
+			memcpy(outbuf + lumppos[i], lumpdata[i], lumpsize[i]);
+		}
+	}
+
+	for (i = 0; i < ARRLEN(doom_lumps); i++)
+	{
+		if (lumpdata[i])
+		{
+			FS_FreeFile(lumpdata[i]);
+		}
+	}
+
+	*buffer = outbuf;
+	return total_size;
+}

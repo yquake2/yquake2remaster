@@ -1855,6 +1855,17 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 
 	filelen = FS_LoadFile(name, (void **)&filebuf);
 
+	if (filelen == 0)
+	{
+		if (filebuf)
+		{
+			FS_FreeFile(filebuf);
+			filebuf = NULL;
+		}
+
+		filelen = Mod_CombineLumps(name, (void **)&filebuf);
+	}
+
 	if (!filebuf || filelen <= 0)
 	{
 		Com_Printf("%s: Couldn't load %s\n", __func__, name);

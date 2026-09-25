@@ -52,6 +52,7 @@ typedef enum
 	map_halflife1,
 	map_quake2,
 	map_quake3,
+	map_doom,
 } maptype_t;
 
 extern int Mod_CalcLumpHunkSize(const lump_t *l, int inSize, int outSize, int extra);
@@ -61,6 +62,7 @@ extern void Mod_LoadPlanes(const char *name, cplane_t **planes, int *numplanes,
 	const byte *mod_base, const lump_t *l);
 extern byte *Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize,
 	size_t *out_len, maptype_t *maptype);
+extern int Mod_CombineLumps(const char *name, void **buffer);
 extern float Mod_RadiusFromBounds(const vec3_t mins, const vec3_t maxs);
 extern void Mod_DecompressVis(const byte *in, byte *out, const byte* numvisibility,
 	int row);
