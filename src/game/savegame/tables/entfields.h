@@ -34,7 +34,7 @@
 {"decel", FOFS(decel), F_FLOAT},
 {"duration", FOFS(duration), F_FLOAT},
 {"rotate", FOFS(rotate), F_VECTOR},
-{"rotate_speed", FOFS(rotate_speed), F_VECTOR},
+{"speeds", FOFS(speeds), F_VECTOR},
 {"target", FOFS(target), F_LRAWSTRING},
 {"targetname", FOFS(targetname), F_LRAWSTRING},
 {"pathtarget", FOFS(pathtarget), F_LRAWSTRING},

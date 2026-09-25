@@ -1763,7 +1763,7 @@ struct edict_s
 
 	float duration;
 	vec3_t rotate;
-	vec3_t rotate_speed;
+	vec3_t speeds; /* Oblivion: func_rotate_train */
 
 	float show_hostile;
 	float powerarmor_time;

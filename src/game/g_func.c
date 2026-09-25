@@ -4536,9 +4536,9 @@ RotateTrain_MoveCalc(edict_t *self, vec3_t dest)
 		VectorAdd(self->moveinfo.end_angles, self->rotate,
 			  self->moveinfo.end_angles);
 	}
-	else if (!VectorCompare(self->rotate_speed, vec3_origin))
+	else if (!VectorCompare(self->speeds, vec3_origin))
 	{
-		VectorCopy(self->rotate_speed, self->avelocity);
+		VectorCopy(self->speeds, self->avelocity);
 	}
 
 	if (level.current_entity ==
@@ -4629,13 +4629,13 @@ again:
 		VectorClear(self->rotate);
 	}
 
-	if (!VectorCompare(ent->rotate_speed, vec3_origin))
+	if (!VectorCompare(ent->speeds, vec3_origin))
 	{
-		VectorCopy(ent->rotate_speed, self->rotate_speed);
+		VectorCopy(ent->speeds, self->speeds);
 	}
 	else
 	{
-		VectorClear(self->rotate_speed);
+		VectorClear(self->speeds);
 	}
 
 	VectorCopy(self->s.origin, self->moveinfo.start_origin);
@@ -4698,13 +4698,13 @@ rotate_train_find(edict_t *self)
 		VectorClear(self->rotate);
 	}
 
-	if (!VectorCompare(ent->rotate_speed, vec3_origin))
+	if (!VectorCompare(ent->speeds, vec3_origin))
 	{
-		VectorCopy(ent->rotate_speed, self->rotate_speed);
+		VectorCopy(ent->speeds, self->speeds);
 	}
 	else
 	{
-		VectorClear(self->rotate_speed);
+		VectorClear(self->speeds);
 	}
 
 	self->moveinfo.speed = ent->speed;
