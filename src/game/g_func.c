@@ -4504,7 +4504,7 @@ RotateTrain_MoveCalc(edict_t *self, vec3_t dest,
 	}
 }
 
-static void
+void
 rotate_train_wait(edict_t *self)
 {
 	if (self->target_ent->pathtarget)
