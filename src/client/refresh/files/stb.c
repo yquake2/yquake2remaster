@@ -1456,11 +1456,75 @@ R_FloodFillSkin(byte *skin, int skinwidth, int skinheight, const unsigned *table
 	}
 }
 
+typedef struct
+{
+	const byte *data;
+	unsigned *trans;
+	const unsigned *table_8to24;
+	size_t width;
+	size_t height;
+} convert8to32job_t;
+
+static void
+R_Convert8to32_Worker(size_t row_start, size_t row_end, void *user)
+{
+	const convert8to32job_t *job = (const convert8to32job_t *)user;
+	const byte *data = job->data;
+	unsigned *trans = job->trans;
+	const unsigned *table_8to24 = job->table_8to24;
+	size_t width = job->width;
+	size_t height = job->height;
+	size_t s = width * height;
+	int r;
+
+	for (r = row_start; r < row_end; r++)
+	{
+		size_t i;
+		for (i = (size_t)r * width; i < (size_t)(r + 1) * width && i < s; i++)
+		{
+			byte p = data[i];
+			trans[i] = table_8to24[p];
+
+			/* transparent, so scan around for
+			   another color to avoid alpha fringes */
+			if (p == 255)
+			{
+				if ((i >= width) && (data[i - width] != 255))
+				{
+					p = data[i - width];
+				}
+				else if ((i < s - width) && (data[i + width] != 255))
+				{
+					p = data[i + width];
+				}
+				else if ((i % width > 0) && (data[i - 1] != 255))
+				{
+					p = data[i - 1];
+				}
+				else if ((i % width < width - 1) && (i < s - 1) && (data[i + 1] != 255))
+				{
+					p = data[i + 1];
+				}
+				else
+				{
+					p = 0;
+				}
+
+				/* copy rgb components */
+				((byte *)&trans[i])[0] = ((byte *)&table_8to24[p])[0];
+				((byte *)&trans[i])[1] = ((byte *)&table_8to24[p])[1];
+				((byte *)&trans[i])[2] = ((byte *)&table_8to24[p])[2];
+			}
+		}
+	}
+}
+
 unsigned *
 R_Convert8to32(const byte *data, size_t width, size_t height, const unsigned *table_8to24)
 {
+	convert8to32job_t job;
 	unsigned *trans;
-	size_t i, s;
+	size_t s;
 
 	if (height == 0 || width > INT_MAX / sizeof(*trans) / height)
 	{
@@ -1471,50 +1535,20 @@ R_Convert8to32(const byte *data, size_t width, size_t height, const unsigned *ta
 	s = width * height;
 
 	trans = malloc(s * sizeof(unsigned));
-	YQ2_COM_CHECK_OOM(trans, "malloc()",
-		s * sizeof(unsigned))
+	YQ2_COM_CHECK_OOM(trans, "malloc()", s * sizeof(unsigned))
 	if (!trans)
 	{
 		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
 		return NULL;
 	}
 
-	for (i = 0; i < s; i++)
-	{
-		byte p = data[i];
-		trans[i] = table_8to24[p];
+	job.data = data;
+	job.trans = trans;
+	job.table_8to24 = table_8to24;
+	job.width = width;
+	job.height = height;
 
-		/* transparent, so scan around for
-		   another color to avoid alpha fringes */
-		if (p == 255)
-		{
-			if ((i > width) && (data[i - width] != 255))
-			{
-				p = data[i - width];
-			}
-			else if ((i < s - width) && (data[i + width] != 255))
-			{
-				p = data[i + width];
-			}
-			else if ((i > 0) && (data[i - 1] != 255))
-			{
-				p = data[i - 1];
-			}
-			else if ((i < s - 1) && (data[i + 1] != 255))
-			{
-				p = data[i + 1];
-			}
-			else
-			{
-				p = 0;
-			}
-
-			/* copy rgb components */
-			((byte *)&trans[i])[0] = ((byte *)&table_8to24[p])[0];
-			((byte *)&trans[i])[1] = ((byte *)&table_8to24[p])[1];
-			((byte *)&trans[i])[2] = ((byte *)&table_8to24[p])[2];
-		}
-	}
+	R_ParallelTasks(height, 64, R_Convert8to32_Worker, &job);
 
 	return trans;
 }
