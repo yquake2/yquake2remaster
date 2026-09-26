@@ -399,40 +399,33 @@ R_DrawEntitiesOnList(void)
 	}
 }
 
+typedef struct {
+	float x,y,z,r,g,b,a,u,v;
+} vk_pvertex;
+
+typedef struct {
+	const particle_t *particles;
+	vk_pvertex *visibleParticles;
+	vec3_t up;
+	vec3_t right;
+} vk_particle_job_t;
+
 static void
-Vk_DrawParticles(int num_particles, const particle_t particles[])
+Vk_DrawParticles_Worker(size_t start, size_t end, void *user)
 {
-	typedef struct {
-		float x,y,z,r,g,b,a,u,v;
-	} pvertex;
+	const vk_particle_job_t *job = (const vk_particle_job_t *)user;
+	vk_pvertex *currentvertex;
+	size_t i;
 
-	const particle_t *p;
-	int				i;
-	vec3_t			up, right;
-	pvertex*	currentvertex;
+	i = start;
+	currentvertex = &job->visibleParticles[i * 3];
 
-	if (!num_particles)
+	for (; i < end; i++)
 	{
-		return;
-	}
+		const particle_t *p = &job->particles[i];
+		YQ2_ALIGNAS_TYPE(unsigned) byte color[4];
+		float scale;
 
-	VectorScale(vup, 1.5, up);
-	VectorScale(vright, 1.5, right);
-
-	static pvertex visibleParticles[MAX_PARTICLES * 3];
-
-	if (num_particles > MAX_PARTICLES)
-	{
-		num_particles = MAX_PARTICLES;
-	}
-
-	currentvertex = visibleParticles;
-	for (p = particles, i = 0; i < num_particles; i++, p++)
-	{
-		YQ2_ALIGNAS_TYPE(unsigned) byte	color[4];
-		float	scale;
-
-		// hack a scale up to keep particles from disapearing
 		scale = (p->origin[0] - r_origin[0]) * vpn[0] +
 				(p->origin[1] - r_origin[1]) * vpn[1] +
 				(p->origin[2] - r_origin[2]) * vpn[2];
@@ -463,9 +456,9 @@ Vk_DrawParticles(int num_particles, const particle_t particles[])
 		currentvertex->v = 0.0625;
 		currentvertex++;
 
-		currentvertex->x = p->origin[0] + up[0] * scale;
-		currentvertex->y = p->origin[1] + up[1] * scale;
-		currentvertex->z = p->origin[2] + up[2] * scale;
+		currentvertex->x = p->origin[0] + job->up[0] * scale;
+		currentvertex->y = p->origin[1] + job->up[1] * scale;
+		currentvertex->z = p->origin[2] + job->up[2] * scale;
 		currentvertex->r = r;
 		currentvertex->g = g;
 		currentvertex->b = b;
@@ -474,9 +467,9 @@ Vk_DrawParticles(int num_particles, const particle_t particles[])
 		currentvertex->v = 0.0625;
 		currentvertex++;
 
-		currentvertex->x = p->origin[0] + right[0] * scale;
-		currentvertex->y = p->origin[1] + right[1] * scale;
-		currentvertex->z = p->origin[2] + right[2] * scale;
+		currentvertex->x = p->origin[0] + job->right[0] * scale;
+		currentvertex->y = p->origin[1] + job->right[1] * scale;
+		currentvertex->z = p->origin[2] + job->right[2] * scale;
 		currentvertex->r = r;
 		currentvertex->g = g;
 		currentvertex->b = b;
@@ -485,13 +478,45 @@ Vk_DrawParticles(int num_particles, const particle_t particles[])
 		currentvertex->v = 1.0625;
 		currentvertex++;
 	}
+}
+
+static void
+Vk_DrawParticles(int num_particles, const particle_t particles[])
+{
+	vec3_t			up, right;
+	vk_pvertex*	currentvertex;
+
+	if (!num_particles)
+	{
+		return;
+	}
+
+	VectorScale(vup, 1.5, up);
+	VectorScale(vright, 1.5, right);
+
+	static vk_pvertex visibleParticles[MAX_PARTICLES * 3];
+
+	if (num_particles > MAX_PARTICLES)
+	{
+		num_particles = MAX_PARTICLES;
+	}
+
+	vk_particle_job_t job;
+	job.particles = particles;
+	job.visibleParticles = visibleParticles;
+	VectorCopy(up, job.up);
+	VectorCopy(right, job.right);
+
+	R_ParallelTasks(num_particles, 1024, Vk_DrawParticles_Worker, &job);
+
+	currentvertex = visibleParticles + num_particles * 3;
 
 	QVk_BindPipeline(&vk_drawParticlesPipeline);
 
 	VkBuffer vbo;
 	VkDeviceSize vboOffset;
-	uint8_t *vertData = QVk_GetVertexBuffer((currentvertex - visibleParticles) * sizeof(pvertex), &vbo, &vboOffset);
-	memcpy(vertData, &visibleParticles, (currentvertex - visibleParticles) * sizeof(pvertex));
+	uint8_t *vertData = QVk_GetVertexBuffer((currentvertex - visibleParticles) * sizeof(vk_pvertex), &vbo, &vboOffset);
+	memcpy(vertData, &visibleParticles, (currentvertex - visibleParticles) * sizeof(vk_pvertex));
 
 	float gamma = 2.1F - vid_gamma->value;
 

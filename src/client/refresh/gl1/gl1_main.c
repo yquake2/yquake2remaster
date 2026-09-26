@@ -400,34 +400,34 @@ R_DrawEntitiesOnList(void)
 	R_EnableMultitexture(false);
 }
 
+typedef struct {
+	const particle_t *particles;
+	GLfloat *vtx;
+	GLfloat *tex;
+	GLubyte *clr;
+	vec3_t up;
+	vec3_t right;
+} gl1_particle_job_t;
+
 static void
-R_DrawParticles2(int num_particles, const particle_t particles[])
+R_DrawParticles2_Worker(size_t start, size_t end, void *user)
 {
+	const gl1_particle_job_t *job = (const gl1_particle_job_t *)user;
+	size_t i, index_vtx, index_tex, index_clr;
 	const particle_t *p;
-	int i;
-	vec3_t up, right;
-	YQ2_ALIGNAS_TYPE(unsigned) byte color[4];
 
-	YQ2_VLA(GLfloat, vtx, 3 * num_particles * 3);
-	YQ2_VLA(GLfloat, tex, 2 * num_particles * 3);
-	YQ2_VLA(GLubyte, clr, 4 * num_particles * 3);
+	i = start;
 
-	unsigned int index_vtx = 0;
-	unsigned int index_tex = 0;
-	unsigned int index_clr = 0;
-	unsigned int j;
+	index_vtx = i * 9;
+	index_tex = i * 6;
+	index_clr = i * 12;
+	p = &job->particles[i];
 
-	R_Bind(r_particletexture->texnum);
-	glDepthMask(GL_FALSE); /* no z buffering */
-	glEnable(GL_BLEND);
-	R_TexEnv(GL_MODULATE);
-
-	VectorScale( vup, 1.5, up );
-	VectorScale( vright, 1.5, right );
-
-	for ( p = particles, i = 0; i < num_particles; i++, p++ )
+	for (; i < end; i++)
 	{
+		YQ2_ALIGNAS_TYPE(unsigned) byte color[4];
 		float scale;
+		unsigned int j;
 
 		/* hack a scale up to keep particles from disapearing */
 		scale = ( p->origin [ 0 ] - r_origin [ 0 ] ) * vpn [ 0 ] +
@@ -445,38 +445,66 @@ R_DrawParticles2(int num_particles, const particle_t particles[])
 
 		*(unsigned *) color = p->color;
 
-		for (j=0; j<3; j++) // Copy the color for each point
+		for (j = 0; j < 3; j++)
 		{
-			clr[index_clr++] = gammatable[color[0]];
-			clr[index_clr++] = gammatable[color[1]];
-			clr[index_clr++] = gammatable[color[2]];
-			clr[index_clr++] = p->alpha * 255;
+			job->clr[index_clr++] = gammatable[color[0]];
+			job->clr[index_clr++] = gammatable[color[1]];
+			job->clr[index_clr++] = gammatable[color[2]];
+			job->clr[index_clr++] = p->alpha * 255;
 		}
 
 		// point 0
-		tex[index_tex++] = 0.0625f;
-		tex[index_tex++] = 0.0625f;
+		job->tex[index_tex++] = 0.0625f;
+		job->tex[index_tex++] = 0.0625f;
 
-		vtx[index_vtx++] = p->origin[0];
-		vtx[index_vtx++] = p->origin[1];
-		vtx[index_vtx++] = p->origin[2];
+		job->vtx[index_vtx++] = p->origin[0];
+		job->vtx[index_vtx++] = p->origin[1];
+		job->vtx[index_vtx++] = p->origin[2];
 
 		// point 1
-		tex[index_tex++] = 1.0625f;
-		tex[index_tex++] = 0.0625f;
+		job->tex[index_tex++] = 1.0625f;
+		job->tex[index_tex++] = 0.0625f;
 
-		vtx[index_vtx++] = p->origin [ 0 ] + up [ 0 ] * scale;
-		vtx[index_vtx++] = p->origin [ 1 ] + up [ 1 ] * scale;
-		vtx[index_vtx++] = p->origin [ 2 ] + up [ 2 ] * scale;
+		job->vtx[index_vtx++] = p->origin[0] + job->up[0] * scale;
+		job->vtx[index_vtx++] = p->origin[1] + job->up[1] * scale;
+		job->vtx[index_vtx++] = p->origin[2] + job->up[2] * scale;
 
 		// point 2
-		tex[index_tex++] = 0.0625f;
-		tex[index_tex++] = 1.0625f;
+		job->tex[index_tex++] = 0.0625f;
+		job->tex[index_tex++] = 1.0625f;
 
-		vtx[index_vtx++] = p->origin [ 0 ] + right [ 0 ] * scale;
-		vtx[index_vtx++] = p->origin [ 1 ] + right [ 1 ] * scale;
-		vtx[index_vtx++] = p->origin [ 2 ] + right [ 2 ] * scale;
+		job->vtx[index_vtx++] = p->origin[0] + job->right[0] * scale;
+		job->vtx[index_vtx++] = p->origin[1] + job->right[1] * scale;
+		job->vtx[index_vtx++] = p->origin[2] + job->right[2] * scale;
 	}
+}
+
+static void
+R_DrawParticles2(int num_particles, const particle_t particles[])
+{
+	vec3_t up, right;
+
+	YQ2_VLA(GLfloat, vtx, 3 * num_particles * 3);
+	YQ2_VLA(GLfloat, tex, 2 * num_particles * 3);
+	YQ2_VLA(GLubyte, clr, 4 * num_particles * 3);
+
+	R_Bind(r_particletexture->texnum);
+	glDepthMask(GL_FALSE); /* no z buffering */
+	glEnable(GL_BLEND);
+	R_TexEnv(GL_MODULATE);
+
+	VectorScale( vup, 1.5, up );
+	VectorScale( vright, 1.5, right );
+
+	gl1_particle_job_t job;
+	job.particles = particles;
+	job.vtx = vtx;
+	job.tex = tex;
+	job.clr = clr;
+	VectorCopy(up, job.up);
+	VectorCopy(right, job.right);
+
+	R_ParallelTasks(num_particles, 1024, R_DrawParticles2_Worker, &job);
 
 	glEnableClientState( GL_VERTEX_ARRAY );
 	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
@@ -501,6 +529,39 @@ R_DrawParticles2(int num_particles, const particle_t particles[])
 	YQ2_VLAFREE(clr);
 }
 
+typedef struct {
+	const particle_t *particles;
+	GLfloat *vtx;
+	GLubyte *clr;
+} gl1_particles_point_job_t;
+
+static void
+R_DrawParticlesPoint_Worker(size_t start, size_t end, void *user)
+{
+	const gl1_particles_point_job_t *job = (const gl1_particles_point_job_t *)user;
+	size_t i, index_vtx, index_clr;
+
+	i = start;
+	index_vtx = i * 3;
+	index_clr = i * 4;
+
+	for (; i < end; i++)
+	{
+		const particle_t *p = &job->particles[i];
+		YQ2_ALIGNAS_TYPE(unsigned) byte color[4];
+
+		*(int *)color = p->color;
+		job->clr[index_clr++] = gammatable[color[0]];
+		job->clr[index_clr++] = gammatable[color[1]];
+		job->clr[index_clr++] = gammatable[color[2]];
+		job->clr[index_clr++] = p->alpha * 255;
+
+		job->vtx[index_vtx++] = p->origin[0];
+		job->vtx[index_vtx++] = p->origin[1];
+		job->vtx[index_vtx++] = p->origin[2];
+	}
+}
+
 static void
 R_DrawParticles(void)
 {
@@ -514,14 +575,10 @@ R_DrawParticles(void)
 
 	if (gl_config.pointparameters && !(stereo_split_tb || stereo_split_lr))
 	{
-		int i;
-		const particle_t *p;
+		int num_particles = r_newrefdef.num_particles;
 
-		YQ2_VLA(GLfloat, vtx, 3 * r_newrefdef.num_particles);
-		YQ2_VLA(GLubyte, clr, 4 * r_newrefdef.num_particles);
-
-		unsigned int index_vtx = 0;
-		unsigned int index_clr = 0;
+		YQ2_VLA(GLfloat, vtx, 3 * num_particles);
+		YQ2_VLA(GLubyte, clr, 4 * num_particles);
 
 		glDepthMask(GL_FALSE);
 		glEnable(GL_BLEND);
@@ -530,27 +587,19 @@ R_DrawParticles(void)
 		// assume the particle size looks good with window height 480px and scale according to real resolution
 		glPointSize(gl1_particle_size->value * (float)r_newrefdef.height/480.0f);
 
-		for ( i = 0, p = r_newrefdef.particles; i < r_newrefdef.num_particles; i++, p++ )
-		{
-			YQ2_ALIGNAS_TYPE(unsigned) byte color[4];
+		gl1_particles_point_job_t job;
+		job.particles = r_newrefdef.particles;
+		job.vtx = vtx;
+		job.clr = clr;
 
-			*(int *) color = p->color;
-			clr[index_clr++] = gammatable[color[0]];
-			clr[index_clr++] = gammatable[color[1]];
-			clr[index_clr++] = gammatable[color[2]];
-			clr[index_clr++] = p->alpha * 255;
-
-			vtx[index_vtx++] = p->origin[0];
-			vtx[index_vtx++] = p->origin[1];
-			vtx[index_vtx++] = p->origin[2];
-		}
+		R_ParallelTasks(num_particles, 1024, R_DrawParticlesPoint_Worker, &job);
 
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_COLOR_ARRAY );
 
 		glVertexPointer( 3, GL_FLOAT, 0, vtx );
 		glColorPointer( 4, GL_UNSIGNED_BYTE, 0, clr );
-		glDrawArrays( GL_POINTS, 0, r_newrefdef.num_particles );
+		glDrawArrays( GL_POINTS, 0, num_particles );
 
 		glDisableClientState( GL_VERTEX_ARRAY );
 		glDisableClientState( GL_COLOR_ARRAY );
