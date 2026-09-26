@@ -249,8 +249,7 @@ Checked with:
 * [ ] Infinity: Add support of `weapon_blaze`,
 * [ ] Infinity: Add support of `weapon_goop`,
 * [ ] Infinity: Add support of `weapon_rifle`,
-* [ ] Oblivion: Add support of `ammo_dod`,
-* [ ] Oblivion: Finish support of `func_rotate_train`, add `speeds` for `path_corner`,
+* [ ] Oblivion: Validate support of `func_rotate_train`,
 * [ ] Oblivion: Add support of `misc_camera`,
 * [ ] Oblivion: Add support of `misc_camera_target`,
 * [ ] Oblivion: Add support of `trigger_misc_camera`,
@@ -260,6 +259,8 @@ Checked with:
 * [ ] Dynamic count of entities on client.
 
 ### Fixed:
+* [x] Oblivion: Finish support of `func_rotate_train`, add `speeds` for `path_corner`,
+* [x] Oblivion: Add support of `ammo_dod`.
 
 ### Not a goal:
 

@@ -5,7 +5,7 @@ instructions: |
   Your task is to port functionality from a source mod directory into the main project.
 
   ## Workflow:
-  1. **Analyze Requirements:** Review the requested functionality and locate the relevant source files in the provided source directory.
+  1. **Analyze Requirements & Document:** Review the requested functionality, locate the relevant source files in the provided source directory, and write a functional specification document stored in the `specs/` folder with a descriptive filename reflecting the analyzed functionality (e.g., `specs/<functionality>_spec.md`).
   2. **Port Implementation:** Integrate the necessary source files and logic into the appropriate directories (e.g., `src/game/`, `src/game/header/local.h`, etc.).
   3. **Build & Validate:** Compile the project using the exact command:
      `DEBUG=1 CC="ccache gcc -flto=auto -Wall " make -j $(nproc)`
