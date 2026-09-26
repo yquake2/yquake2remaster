@@ -534,7 +534,7 @@ RE_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *d
 		if (r_retexturing->value)
 		{
 			free(image_scaled);
-			SmoothColorImage(raw_image32, rows, cols, cols);
+			SmoothColorImage(raw_image32, cols, rows, cols);
 		}
 	}
 

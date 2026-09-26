@@ -89,9 +89,9 @@ R_ParallelTasks(size_t rows, size_t min_rows_per_task,
 		return;
 	}
 
-	if (threads > rows)
+	if ((threads * min_rows_per_task) > rows)
 	{
-		threads = rows;
+		threads = rows / min_rows_per_task + 1;
 	}
 
 	chunk = (rows + threads - 1) / threads;

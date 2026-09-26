@@ -2167,7 +2167,7 @@ RE_CopyFrame(Uint32 *pixels, int pitch, SDL_Rect *rect)
 
 	if ((r_anisotropic->value > 0) && !fastmoving)
 	{
-		SmoothColorImage((unsigned *)pixels, rect->h, vid_buffer_width,
+		SmoothColorImage((unsigned *)pixels, vid_buffer_width, rect->h,
 			r_anisotropic->value);
 	}
 }

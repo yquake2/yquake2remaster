@@ -109,21 +109,24 @@ ResizeSTB(const byte *input_pixels, int input_width, int input_height,
 /* 8 looks good for smoothed textures with whole width as rstep */
 #define COLOR_DISTANCE 8
 
-void
-SmoothColorImage(unsigned *dst, size_t width, size_t height, size_t rstep)
+typedef struct {
+	unsigned *dst;
+	size_t width;
+	size_t rstep;
+} smooth_job_t;
+
+static void
+SmoothColorImageRow(unsigned *dst, size_t size, size_t rstep)
 {
 	const unsigned *full_size;
 	unsigned last_color;
 	unsigned *last_diff;
-	size_t size;
 
 	// maximum step for apply
-	if (rstep < 2)
+	if (rstep < 2 || size < 2)
 	{
 		return;
 	}
-
-	size = width * height;
 
 	// step one pixel back as with check one pixel more
 	full_size = dst + size - rstep - 1;
@@ -137,7 +140,7 @@ SmoothColorImage(unsigned *dst, size_t width, size_t height, size_t rstep)
 	{
 		if (last_color != *dst)
 		{
-			int step = dst - last_diff;
+			size_t step = dst - last_diff;
 			if (step > 1)
 			{
 				int a_beg, b_beg, c_beg, d_beg;
@@ -228,6 +231,36 @@ SmoothColorImage(unsigned *dst, size_t width, size_t height, size_t rstep)
 		}
 		dst ++;
 	}
+}
+
+static void
+SmoothColorImageJob(size_t row_start, size_t row_end, void *user)
+{
+	const smooth_job_t *job = (const smooth_job_t *)user;
+	size_t y;
+
+	for (y = row_start; y < row_end; y++)
+	{
+		SmoothColorImageRow(job->dst + y * job->width, job->width, job->rstep);
+	}
+}
+
+void
+SmoothColorImage(unsigned *dst, size_t width, size_t height, size_t rstep)
+{
+	smooth_job_t job;
+
+	// maximum step for apply
+	if (rstep < 2 || width < 2 || height == 0)
+	{
+		return;
+	}
+
+	job.dst = dst;
+	job.width = width;
+	job.rstep = rstep;
+
+	R_ParallelTasks(height, 32, SmoothColorImageJob, &job);
 }
 
 /* https://en.wikipedia.org/wiki/Pixel-art_scaling_algorithms */
