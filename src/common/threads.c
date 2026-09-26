@@ -30,7 +30,7 @@
 #include <SDL2/SDL.h>
 #endif
 
-#include "../ref_shared.h"
+#include "header/common.h"
 
 #ifndef R_MAX_THREADS
 #define R_MAX_THREADS 8
