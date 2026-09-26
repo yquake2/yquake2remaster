@@ -2134,7 +2134,6 @@ RE_CopyFrame(Uint32 *pixels, int pitch, SDL_Rect *rect)
 	/* no gaps between images rows */
 	if (pitch == vid_buffer_width)
 	{
-		const byte *src_max;
 		Uint32 *dst;
 		byte *src;
 

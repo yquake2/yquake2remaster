@@ -1594,7 +1594,6 @@ R_Convert8to32Solid(const byte *src, unsigned *dst, size_t size,
 	const unsigned *table_8to24)
 {
 	const byte *src_max;
-	size_t i;
 
 	src_max = src + size;
 	while (src < src_max)

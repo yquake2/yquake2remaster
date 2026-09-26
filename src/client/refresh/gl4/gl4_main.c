@@ -1106,6 +1106,49 @@ GL4_DrawNullModel(entity_t *currententity)
 
 }
 
+typedef struct part_vtx {
+	GLfloat pos[3];
+	GLfloat size;
+	GLfloat dist;
+	GLfloat color[4];
+} part_vtx;
+
+typedef struct {
+	const particle_t *particles;
+	part_vtx *buf;
+	vec3_t viewOrg;
+	float pointSize;
+} gl4_particle_job_t;
+
+static void
+GL4_DrawParticles_Worker(size_t start, size_t end, void *user)
+{
+	const gl4_particle_job_t *job = (const gl4_particle_job_t *)user;
+	size_t i;
+
+	for (i = start; i < end; i++)
+	{
+		const particle_t *p = &job->particles[i];
+		YQ2_ALIGNAS_TYPE(unsigned) byte color[4];
+		part_vtx *cur = &job->buf[i];
+		vec3_t offset;
+
+		*(int *)color = p->color;
+		VectorSubtract(job->viewOrg, p->origin, offset);
+
+		VectorCopy(p->origin, cur->pos);
+		cur->size = job->pointSize;
+		cur->dist = VectorLength(offset);
+
+		for (int j = 0; j < 3; ++j)
+		{
+			cur->color[j] = color[j] * (1.0f / 255.0f);
+		}
+
+		cur->color[3] = p->alpha;
+	}
+}
+
 static void
 GL4_DrawParticles(void)
 {
@@ -1115,19 +1158,11 @@ GL4_DrawParticles(void)
 
 	//if (!(stereo_split_tb || stereo_split_lr))
 	{
-		int i;
 		int numParticles = r_newrefdef.num_particles;
-		YQ2_ALIGNAS_TYPE(unsigned) byte color[4];
-		const particle_t *p;
 		// assume the size looks good with window height 480px and scale according to real resolution
 		float pointSize = gl4_particle_size->value * (float)r_newrefdef.height/480.0f;
+		gl4_particle_job_t job;
 
-		typedef struct part_vtx {
-			GLfloat pos[3];
-			GLfloat size;
-			GLfloat dist;
-			GLfloat color[4];
-		} part_vtx;
 		YQ2_STATIC_ASSERT(sizeof(part_vtx)==9*sizeof(float), "invalid part_vtx size"); // remember to update GL4_SurfInit() if this changes!
 
 		// Don't try to draw particles if there aren't any.
@@ -1149,24 +1184,12 @@ GL4_DrawParticles(void)
 
 		GL4_UseProgram(gl4state.siParticle.shaderProgram);
 
-		for ( i = 0, p = r_newrefdef.particles; i < numParticles; i++, p++ )
-		{
-			*(int *) color = p->color;
-			part_vtx* cur = &buf[i];
-			vec3_t offset; // between viewOrg and particle position
-			VectorSubtract(viewOrg, p->origin, offset);
+		job.particles = r_newrefdef.particles;
+		job.buf = buf;
+		VectorCopy(viewOrg, job.viewOrg);
+		job.pointSize = pointSize;
 
-			VectorCopy(p->origin, cur->pos);
-			cur->size = pointSize;
-			cur->dist = VectorLength(offset);
-
-			for (int j=0; j<3; ++j)
-			{
-				cur->color[j] = color[j] * (1.0f / 255.0f);
-			}
-
-			cur->color[3] = p->alpha;
-		}
+		R_ParallelTasks(numParticles, 1024, GL4_DrawParticles_Worker, &job);
 
 		GL4_BindVAO(gl4state.vaoParticle);
 		GL4_BindVBO(gl4state.vboParticle);
