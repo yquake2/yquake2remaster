@@ -784,7 +784,7 @@ R_Upload32(unsigned *data, size_t width, size_t height, qboolean mipmap)
 	/* optimize 8bit images only when we forced such logic */
 	if (r_scale8bittextures->value)
 	{
-		SmoothColorImage(data, width * height, width);
+		SmoothColorImage(data, width, height, width);
 	}
 
 	if (gl_config.npottextures)

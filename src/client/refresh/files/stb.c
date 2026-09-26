@@ -110,17 +110,20 @@ ResizeSTB(const byte *input_pixels, int input_width, int input_height,
 #define COLOR_DISTANCE 8
 
 void
-SmoothColorImage(unsigned *dst, size_t size, size_t rstep)
+SmoothColorImage(unsigned *dst, size_t width, size_t height, size_t rstep)
 {
 	const unsigned *full_size;
 	unsigned last_color;
 	unsigned *last_diff;
+	size_t size;
 
 	// maximum step for apply
 	if (rstep < 2)
 	{
 		return;
 	}
+
+	size = width * height;
 
 	// step one pixel back as with check one pixel more
 	full_size = dst + size - rstep - 1;
@@ -761,7 +764,7 @@ LoadImage_Ext(const char *name, const char* namewe, const char *ext, imagetype_t
 				{
 					if (r_scale8bittextures->value)
 					{
-						SmoothColorImage((unsigned*)image_buffer, size, width);
+						SmoothColorImage((unsigned*)image_buffer, width, height, width);
 					}
 
 					image = load_image(name, image_buffer,

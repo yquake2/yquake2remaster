@@ -404,7 +404,7 @@ GL3_Upload32(unsigned *data, int width, int height, qboolean mipmap)
 	/* optimize 8bit images only when we forced such logic */
 	if (r_scale8bittextures->value)
 	{
-		SmoothColorImage(data, width * height, width);
+		SmoothColorImage(data, width, height, width);
 	}
 
 	glTexImage2D(GL_TEXTURE_2D, 0, comp, width, height,
