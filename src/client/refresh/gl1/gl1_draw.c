@@ -629,7 +629,6 @@ RDraw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *dat
 		{
 			static unsigned image32[320 * 240]; /* was 256 * 256, but we want a bit more space */
 			unsigned* img = image32;
-			size_t i;
 
 			if (cols * rows > 320 * 240)
 			{
@@ -647,16 +646,7 @@ RDraw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *dat
 				}
 			}
 
-			for (i = 0; i < rows; ++i)
-			{
-				size_t j, rowOffset = i * cols;
-
-				for (j = 0; j < cols; ++j)
-				{
-					byte palIdx = data[rowOffset+j];
-					img[rowOffset+j] = r_rawpalette[palIdx];
-				}
-			}
+			R_Convert8to32Solid(data, img, cols * rows, r_rawpalette);
 
 			glTexImage2D(GL_TEXTURE_2D, 0, gl_tex_solid_format,
 								cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE,

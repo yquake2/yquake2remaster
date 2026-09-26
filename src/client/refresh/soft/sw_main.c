@@ -2140,15 +2140,8 @@ RE_CopyFrame(Uint32 *pixels, int pitch, SDL_Rect *rect)
 
 		dst = pixels;
 		src = vid_buffer + rect->y * vid_buffer_width;
-		src_max = src + rect->h * vid_buffer_width;
 
-		while (src < src_max)
-		{
-			*dst = sdl_palette[*src];
-
-			src++;
-			dst++;
-		}
+		R_Convert8to32Solid(src, dst, rect->h * vid_buffer_width, sdl_palette);
 	}
 	else
 	{

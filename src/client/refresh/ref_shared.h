@@ -32,18 +32,18 @@
 
 #ifdef _MSC_VER
 
-  #include <malloc.h>
+	#include <malloc.h>
 
-  #define YQ2_VLA(TYPE, VARNAME, NUMELEMS) \
-	TYPE * VARNAME = (TYPE *) _malloca(sizeof(TYPE) * NUMELEMS)
-  #define YQ2_VLAFREE(VARNAME) \
-	_freea(VARNAME); VARNAME=NULL;
+	#define YQ2_VLA(TYPE, VARNAME, NUMELEMS) \
+		TYPE * VARNAME = (TYPE *) _malloca(sizeof(TYPE) * NUMELEMS)
+	#define YQ2_VLAFREE(VARNAME) \
+		_freea(VARNAME); VARNAME=NULL;
 
 #else // other compilers hopefully support C99 VLAs (gcc/mingw and clang do)
 
-  #define YQ2_VLA(TYPE, VARNAME, NUMELEMS) \
-	TYPE VARNAME[NUMELEMS]
-  #define YQ2_VLAFREE(VARNAME)
+	#define YQ2_VLA(TYPE, VARNAME, NUMELEMS) \
+		TYPE VARNAME[NUMELEMS]
+	#define YQ2_VLAFREE(VARNAME)
 
 #endif
 
@@ -442,6 +442,8 @@ extern struct image_s *R_LoadConsoleChars(findimage_t find_image);
 extern unsigned R_NextUTF8Code(const char **curr);
 extern void R_FloodFillSkin(byte *skin, int skinwidth, int skinheight, const unsigned *table_8to24);
 extern unsigned *R_Convert8to32(const byte *data, size_t width, size_t height, const unsigned *table_8to24);
+extern void R_Convert8to32Solid(const byte *src, unsigned *dst, size_t size,
+	const unsigned *table_8to24);
 extern struct image_s *R_LoadImage(const char *name, const char* namewe, const char *ext,
 	imagetype_t type, loadimage_t load_image);
 extern void Mod_LoadQBSPNodes(const char *name, cplane_t *planes, int numplanes,

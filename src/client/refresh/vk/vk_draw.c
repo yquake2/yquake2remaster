@@ -445,7 +445,6 @@ RE_Draw_FadeScreen(void)
 void
 RE_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *data, int bits)
 {
-	byte *source;
 	byte *image_scaled = NULL;
 	unsigned *raw_image32;
 
@@ -471,9 +470,6 @@ RE_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *d
 	}
 	else
 	{
-		unsigned *dest;
-		size_t i;
-
 		if (r_retexturing->value)
 		{
 			// triple scaling
@@ -533,20 +529,7 @@ RE_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *d
 			return;
 		}
 
-		source = image_scaled;
-		dest = raw_image32;
-		for (i = 0; i < rows; ++i)
-		{
-			size_t j, rowOffset;
-
-			rowOffset = i * cols;
-
-			for (j = 0; j < cols; ++j)
-			{
-				byte palIdx = source[rowOffset + j];
-				dest[rowOffset + j] = r_rawpalette[palIdx];
-			}
-		}
+		R_Convert8to32Solid(image_scaled, raw_image32, cols * rows, r_rawpalette);
 
 		if (r_retexturing->value)
 		{
