@@ -4528,6 +4528,10 @@ RotateTrain_MoveCalc(edict_t *self, vec3_t dest)
 		self->moveinfo.speed =
 			self->moveinfo.remaining_distance / self->duration;
 	}
+	else
+	{
+		self->moveinfo.speed = self->speed;
+	}
 
 	if (!VectorCompare(self->rotate, vec3_origin))
 	{
@@ -4617,7 +4621,7 @@ again:
 
 	if (ent->speed > 0)
 	{
-		self->moveinfo.speed = ent->speed;
+		self->speed = ent->speed;
 	}
 
 	if (!VectorCompare(ent->rotate, vec3_origin))
@@ -4706,8 +4710,6 @@ rotate_train_find(edict_t *self)
 	{
 		VectorClear(self->speeds);
 	}
-
-	self->moveinfo.speed = ent->speed;
 
 	VectorCopy(ent->s.origin, self->s.origin);
 	gi.linkentity(self);
