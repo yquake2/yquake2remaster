@@ -124,45 +124,81 @@ R_VertBufferFree(void)
 	bonesbuffnum = 0;
 }
 
-static void
-R_StaticVerts(qboolean powerUpEffect, int nverts,
-		const dxtrivertx_t *v, const dxtrivertx_t *ov,
-		float *lerp, const float move[3],
-		const float frontv[3], const float backv[3], const float *scale)
+typedef struct
 {
-	if (powerUpEffect)
-	{
-		int i;
+	qboolean powerUpEffect;
+	const dxtrivertx_t *v;
+	const dxtrivertx_t *ov;
+	float *lerp;
+	const float *move;
+	const float *frontv;
+	const float *backv;
+	const float *scale;
+} static_verts_job_t;
 
-		for (i = 0; i < nverts; i++, v++, ov++, lerp += 4)
+static void
+R_StaticVerts_Worker(size_t start, size_t end, void *user)
+{
+	const static_verts_job_t *job = (const static_verts_job_t *)user;
+	size_t i;
+	const dxtrivertx_t *v = job->v + start;
+	const dxtrivertx_t *ov = job->ov + start;
+	float *lerp = job->lerp + start * 4;
+
+	if (job->powerUpEffect)
+	{
+		for (i = start; i < end; i++, v++, ov++, lerp += 4)
 		{
 			int n;
 
-			for (n = 0; n < 3; n ++)
+			for (n = 0; n < 3; n++)
 			{
 				float normal;
 
 				normal = r_byteNormalScale[(unsigned char)v->normal[n]];
 
-				lerp[n] = scale[n] * (move[n] + ov->v[n] * backv[n] + v->v[n] * frontv[n]) +
+				lerp[n] = job->scale[n] * (job->move[n] + ov->v[n] * job->backv[n] + v->v[n] * job->frontv[n]) +
 						  normal * POWERSUIT_SCALE;
 			}
 		}
 	}
 	else
 	{
-		int i;
-
-		for (i = 0; i < nverts; i++, v++, ov++, lerp += 4)
+		for (i = start; i < end; i++, v++, ov++, lerp += 4)
 		{
 			int n;
 
 			for (n = 0; n < 3; n++)
 			{
-				lerp[n] = scale[n] * (move[n] + ov->v[n] * backv[n] + v->v[n] * frontv[n]);
+				lerp[n] = job->scale[n] * (job->move[n] + ov->v[n] * job->backv[n] + v->v[n] * job->frontv[n]);
 			}
 		}
 	}
+}
+
+static void
+R_StaticVerts(qboolean powerUpEffect, int nverts,
+		const dxtrivertx_t *v, const dxtrivertx_t *ov,
+		float *lerp, const float move[3],
+		const float frontv[3], const float backv[3], const float *scale)
+{
+	static_verts_job_t job;
+
+	if (nverts <= 0)
+	{
+		return;
+	}
+
+	job.powerUpEffect = powerUpEffect;
+	job.v = v;
+	job.ov = ov;
+	job.lerp = lerp;
+	job.move = move;
+	job.frontv = frontv;
+	job.backv = backv;
+	job.scale = scale;
+
+	R_ParallelTasks(nverts, 256, R_StaticVerts_Worker, &job);
 }
 
 /* quaternion slerp for bone interpolation; assumes unit quaternions */
