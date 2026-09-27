@@ -141,8 +141,5 @@ R_ParallelTasks(size_t rows, size_t min_rows_per_task,
 		}
 	}
 
-	if (jobcount)
-	{
-		Com_DPrintf("%s: threads " YQ2_COM_PRIdS "\n", __func__, jobcount);
-	}
+	Com_DPrintf("%s: threads " YQ2_COM_PRIdS "\n", __func__, jobcount);
 }

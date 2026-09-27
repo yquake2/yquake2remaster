@@ -246,47 +246,33 @@ BoneSlerp(const vec4_t qa, const vec4_t qb, float t, vec4_t out)
 	}
 }
 
-static void
-R_SkeletalVerts(const dmdx_t *pheader, int frame, int oldframe, float frontlerp,
-	float backlerp, float *lerp, const float move[3], const float *scale)
+typedef struct
 {
-	const dmdx_baseframe_joint_t *poses, *old_poses;
-	int num_joints, num_verts, num_weights, i;
+	int num_joints;
+	int num_weights;
 	const dmdx_vertex_t *mesh_verteces;
 	const dmdx_weight_t *weights;
-	skeletal_bone_t *bonematrix;
+	const skeletal_bone_t *bonematrix;
+	float *lerp;
+	const float *move;
+	const float *scale;
+} skeletal_verts_job_t;
 
-	bonematrix = R_BonesBufferRealloc(pheader->num_joints);
+static void
+R_SkeletalVerts_Worker(size_t start, size_t end, void *user)
+{
+	const skeletal_verts_job_t *job = (const skeletal_verts_job_t *)user;
+	size_t i;
+	float *lerp = job->lerp + start * 4;
+	const dmdx_vertex_t *mesh_verteces = job->mesh_verteces;
+	const dmdx_weight_t *weights = job->weights;
+	const skeletal_bone_t *bonematrix = job->bonematrix;
+	int num_joints = job->num_joints;
+	int num_weights = job->num_weights;
+	const float *scale = job->scale;
+	const float *move = job->move;
 
-	poses = (const dmdx_baseframe_joint_t *)((const byte *)pheader + pheader->ofs_baseframe_joints)
-	        + frame * pheader->num_joints;
-	old_poses = (const dmdx_baseframe_joint_t *)((const byte *)pheader + pheader->ofs_baseframe_joints)
-	           + oldframe * pheader->num_joints;
-	weights = (const dmdx_weight_t *)((const byte *)pheader + pheader->ofs_weights);
-	mesh_verteces = (const dmdx_vertex_t *)((const byte *)pheader + pheader->ofs_mesh_verteces);
-	num_joints = pheader->num_joints;
-	num_weights = pheader->num_weights;
-	num_verts = pheader->num_xyz;
-
-	/* lerp/slerp each bone and build its world-space matrix */
-	for (i = 0; i < num_joints; i++)
-	{
-		vec4_t lorient;
-		int n;
-
-		for (n = 0; n < 3; n++)
-		{
-			bonematrix[i].pos[n] = old_poses[i].pos[n] * backlerp +
-				poses[i].pos[n] * frontlerp;
-		}
-
-		BoneSlerp(old_poses[i].orient, poses[i].orient, frontlerp, lorient);
-		Quat_normalize(lorient);
-		Quat_toMat3(lorient, bonematrix[i].rot);
-	}
-
-	/* skin each vertex */
-	for (i = 0; i < num_verts; i++, lerp += 4)
+	for (i = start; i < end; i++, lerp += 4)
 	{
 		const dmdx_vertex_t *bind = &mesh_verteces[i];
 		vec3_t result = { 0.0f, 0.0f, 0.0f };
@@ -324,6 +310,64 @@ R_SkeletalVerts(const dmdx_t *pheader, int frame, int oldframe, float frontlerp,
 		lerp[1] = scale[1] * (result[1] + move[1]);
 		lerp[2] = scale[2] * (result[2] + move[2]);
 	}
+}
+
+static void
+R_SkeletalVerts(const dmdx_t *pheader, int frame, int oldframe, float frontlerp,
+	float backlerp, float *lerp, const float move[3], const float *scale)
+{
+	const dmdx_baseframe_joint_t *poses, *old_poses;
+	int num_joints, num_verts, num_weights, i;
+	const dmdx_vertex_t *mesh_verteces;
+	const dmdx_weight_t *weights;
+	skeletal_bone_t *bonematrix;
+	skeletal_verts_job_t job;
+
+	if (pheader->num_xyz <= 0)
+	{
+		return;
+	}
+
+	bonematrix = R_BonesBufferRealloc(pheader->num_joints);
+
+	poses = (const dmdx_baseframe_joint_t *)((const byte *)pheader + pheader->ofs_baseframe_joints)
+	        + frame * pheader->num_joints;
+	old_poses = (const dmdx_baseframe_joint_t *)((const byte *)pheader + pheader->ofs_baseframe_joints)
+	           + oldframe * pheader->num_joints;
+	weights = (const dmdx_weight_t *)((const byte *)pheader + pheader->ofs_weights);
+	mesh_verteces = (const dmdx_vertex_t *)((const byte *)pheader + pheader->ofs_mesh_verteces);
+	num_joints = pheader->num_joints;
+	num_weights = pheader->num_weights;
+	num_verts = pheader->num_xyz;
+
+	/* lerp/slerp each bone and build its world-space matrix */
+	for (i = 0; i < num_joints; i++)
+	{
+		vec4_t lorient;
+		int n;
+
+		for (n = 0; n < 3; n++)
+		{
+			bonematrix[i].pos[n] = old_poses[i].pos[n] * backlerp +
+				poses[i].pos[n] * frontlerp;
+		}
+
+		BoneSlerp(old_poses[i].orient, poses[i].orient, frontlerp, lorient);
+		Quat_normalize(lorient);
+		Quat_toMat3(lorient, bonematrix[i].rot);
+	}
+
+	/* skin each vertex using parallel tasks */
+	job.num_joints = num_joints;
+	job.num_weights = num_weights;
+	job.mesh_verteces = mesh_verteces;
+	job.weights = weights;
+	job.bonematrix = bonematrix;
+	job.lerp = lerp;
+	job.move = move;
+	job.scale = scale;
+
+	R_ParallelTasks(num_verts, 256, R_SkeletalVerts_Worker, &job);
 }
 
 void
