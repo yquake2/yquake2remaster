@@ -13,10 +13,14 @@
 
 #include "header/local.h"
 
+#define SPAWNFLAG_DISGUISE_START_ON 2
+#define SPAWNFLAG_DISGUISE_REMOVE 4
+
 #define TELEPORT_PLAYER_ONLY 1
 #define TELEPORT_SILENT 2
 #define TELEPORT_CTF_ONLY 4
-#define TELEPORT_START_ON 8
+#define SPAWNFLAG_TELEPORT_START_ON 8
+#define TELEPORT_START_ON SPAWNFLAG_TELEPORT_START_ON
 
 extern void TeleportEffect(vec3_t origin);
 
@@ -155,7 +159,7 @@ SP_trigger_teleport(edict_t *self)
 	{
 		self->use = trigger_teleport_use;
 
-		if (!(self->spawnflags & TELEPORT_START_ON))
+		if (!(self->spawnflags & SPAWNFLAG_TELEPORT_START_ON))
 		{
 			self->delay = 1;
 		}
@@ -197,7 +201,7 @@ trigger_disguise_touch(edict_t *self, edict_t *other, const cplane_t *plane /* u
 
 	if (other->client)
 	{
-		if (self->spawnflags & 4)
+		if (self->spawnflags & SPAWNFLAG_DISGUISE_REMOVE)
 		{
 			other->flags &= ~FL_DISGUISED;
 		}
@@ -236,7 +240,7 @@ SP_trigger_disguise(edict_t *self)
 		return;
 	}
 
-	if (self->spawnflags & 2)
+	if (self->spawnflags & SPAWNFLAG_DISGUISE_START_ON)
 	{
 		self->solid = SOLID_TRIGGER;
 	}

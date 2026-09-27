@@ -26,6 +26,13 @@
  */
 
 #include "header/local.h"
+
+#define SPAWNFLAG_POINT_COMBAT_HOLD 1
+#define SPAWNFLAG_WALL_TRIGGER_SPAWN 1
+#define SPAWNFLAG_WALL_TOGGLE 2
+#define SPAWNFLAG_WALL_START_ON 4
+#define SPAWNFLAG_WALL_ANIMATED 8
+#define SPAWNFLAG_WALL_ANIMATED_FAST 16
 #include "monster/misc/player.h"
 
 int debristhisframe;
@@ -808,7 +815,7 @@ point_combat_touch(edict_t *self, edict_t *other, const cplane_t *plane /* unuse
 
 		self->target = NULL;
 	}
-	else if ((self->spawnflags & 1) && !(other->flags & (FL_SWIM | FL_FLY)))
+	else if ((self->spawnflags & SPAWNFLAG_POINT_COMBAT_HOLD) && !(other->flags & (FL_SWIM | FL_FLY)))
 	{
 		other->monsterinfo.pausetime = level.time + 100000000;
 		other->monsterinfo.aiflags |= AI_STAND_GROUND;
@@ -958,8 +965,10 @@ SP_info_notnull(edict_t *self)
 	VectorCopy(self->s.origin, self->absmax);
 }
 
-#define START_OFF 1
-#define LIGHT_ALLOW_IN_DM 2
+#define SPAWNFLAG_LIGHT_START_OFF 1
+#define SPAWNFLAG_LIGHT_ALLOW_IN_DM 2
+#define START_OFF SPAWNFLAG_LIGHT_START_OFF
+#define LIGHT_ALLOW_IN_DM SPAWNFLAG_LIGHT_ALLOW_IN_DM
 
 /*
  * QUAKED light (0 1 0) (-8 -8 -8) (8 8 8) START_OFF
@@ -978,15 +987,15 @@ light_use(edict_t *self, edict_t *other /* unused */, edict_t *activator /* unus
 		return;
 	}
 
-	if (self->spawnflags & START_OFF)
+	if (self->spawnflags & SPAWNFLAG_LIGHT_START_OFF)
 	{
 		gi.configstring(CS_LIGHTS + self->style, self->style_on);
-		self->spawnflags &= ~START_OFF;
+		self->spawnflags &= ~SPAWNFLAG_LIGHT_START_OFF;
 	}
 	else
 	{
 		gi.configstring(CS_LIGHTS + self->style, self->style_off);
-		self->spawnflags |= START_OFF;
+		self->spawnflags |= SPAWNFLAG_LIGHT_START_OFF;
 	}
 }
 
@@ -1044,7 +1053,7 @@ SP_light(edict_t *self)
 
 	/* no targeted lights in deathmatch, because they cause global messages */
 	if ((!self->targetname ||
-		(deathmatch->value && !(self->spawnflags & LIGHT_ALLOW_IN_DM))) &&
+		(deathmatch->value && !(self->spawnflags & SPAWNFLAG_LIGHT_ALLOW_IN_DM))) &&
 		st.sl_radius == 0)
 	{
 		G_FreeEdict(self);
@@ -1083,7 +1092,7 @@ SP_light(edict_t *self)
 			}
 		}
 
-		if (self->spawnflags & START_OFF)
+		if (self->spawnflags & SPAWNFLAG_LIGHT_START_OFF)
 		{
 			gi.configstring(CS_LIGHTS + self->style, self->style_off);
 		}
@@ -1219,7 +1228,7 @@ SP_dynamic_light(edict_t *self)
 		self->use = dynamic_light_use;
 	}
 
-	if (self->spawnflags & START_OFF)
+	if (self->spawnflags & SPAWNFLAG_LIGHT_START_OFF)
 	{
 		self->svflags ^= SVF_NOCLIENT;
 	}
@@ -1265,7 +1274,7 @@ func_wall_use(edict_t *self, edict_t *other /* unused */, edict_t *activator /* 
 
 	gi.linkentity(self);
 
-	if (!(self->spawnflags & 2))
+	if (!(self->spawnflags & SPAWNFLAG_WALL_TOGGLE))
 	{
 		self->use = NULL;
 	}
@@ -1282,18 +1291,19 @@ SP_func_wall(edict_t *self)
 	self->movetype = MOVETYPE_PUSH;
 	gi.setmodel(self, self->model);
 
-	if (self->spawnflags & 8)
+	if (self->spawnflags & SPAWNFLAG_WALL_ANIMATED)
 	{
 		self->s.effects |= EF_ANIM_ALL;
 	}
 
-	if (self->spawnflags & 16)
+	if (self->spawnflags & SPAWNFLAG_WALL_ANIMATED_FAST)
 	{
 		self->s.effects |= EF_ANIM_ALLFAST;
 	}
 
 	/* just a wall */
-	if ((self->spawnflags & 7) == 0)
+	if ((self->spawnflags & (SPAWNFLAG_WALL_TRIGGER_SPAWN | SPAWNFLAG_WALL_TOGGLE |
+			SPAWNFLAG_WALL_START_ON)) == 0)
 	{
 		self->solid = SOLID_BSP;
 		gi.linkentity(self);
@@ -1301,24 +1311,24 @@ SP_func_wall(edict_t *self)
 	}
 
 	/* it must be TRIGGER_SPAWN */
-	if (!(self->spawnflags & 1))
+	if (!(self->spawnflags & SPAWNFLAG_WALL_TRIGGER_SPAWN))
 	{
-		self->spawnflags |= 1;
+		self->spawnflags |= SPAWNFLAG_WALL_TRIGGER_SPAWN;
 	}
 
 	/* yell if the spawnflags are odd */
-	if (self->spawnflags & 4)
+	if (self->spawnflags & SPAWNFLAG_WALL_START_ON)
 	{
-		if (!(self->spawnflags & 2))
+		if (!(self->spawnflags & SPAWNFLAG_WALL_TOGGLE))
 		{
 			gi.dprintf("%s START_ON without TOGGLE\n", self->classname);
-			self->spawnflags |= 2;
+			self->spawnflags |= SPAWNFLAG_WALL_TOGGLE;
 		}
 	}
 
 	self->use = func_wall_use;
 
-	if (self->spawnflags & 4)
+	if (self->spawnflags & SPAWNFLAG_WALL_START_ON)
 	{
 		self->solid = SOLID_BSP;
 	}
@@ -1342,7 +1352,8 @@ SP_func_wall(edict_t *self)
  * START_ON		will start in alterate animation
  */
 
-#define START_ON 1
+#define SPAWNFLAG_ANIMATION_START_ON 1
+#define START_ON SPAWNFLAG_ANIMATION_START_ON
 
 void
 func_animation_use(edict_t *self, edict_t *other, edict_t *activator)
@@ -1365,7 +1376,7 @@ SP_func_animation(edict_t *self)
 	self->solid = SOLID_BSP;
 
 	self->use = func_animation_use;
-	self->bmodel_anim.alternate = (self->spawnflags & START_ON) ? true : false;
+	self->bmodel_anim.alternate = (self->spawnflags & SPAWNFLAG_ANIMATION_START_ON) ? true : false;
 
 	if (self->bmodel_anim.alternate)
 	{
@@ -2787,9 +2798,9 @@ SP_misc_transport(edict_t *ent)
 	ent->svflags |= SVF_NOCLIENT;
 	ent->moveinfo.accel = ent->moveinfo.decel = ent->moveinfo.speed = ent->speed;
 
-	if (!(ent->spawnflags & 1))
+	if (!(ent->spawnflags & SPAWNFLAG_TRAIN_START_ON))
 	{
-		ent->spawnflags |= 1;
+		ent->spawnflags |= SPAWNFLAG_TRAIN_START_ON;
 	}
 
 	gi.linkentity(ent);

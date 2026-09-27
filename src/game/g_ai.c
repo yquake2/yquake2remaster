@@ -643,7 +643,7 @@ FindTarget(edict_t *self)
 	heardit = false;
 
 	if ((level.sight_entity_framenum >= (level.framenum - 1)) &&
-		!(self->spawnflags & 1))
+		!(self->spawnflags & SPAWNFLAG_MONSTER_AMBUSH))
 	{
 		client = level.sight_entity;
 
@@ -663,7 +663,7 @@ FindTarget(edict_t *self)
 	}
 	else if (!(self->enemy) &&
 			 (level.sound2_entity_framenum >= (level.framenum - 1)) &&
-			 !(self->spawnflags & 1))
+			 !(self->spawnflags & SPAWNFLAG_MONSTER_AMBUSH))
 	{
 		client = level.sound2_entity;
 		heardit = true;
@@ -792,7 +792,7 @@ FindTarget(edict_t *self)
 	{
 		vec3_t temp;
 
-		if (self->spawnflags & 1)
+		if (self->spawnflags & SPAWNFLAG_MONSTER_AMBUSH)
 		{
 			if (!visible(self, client))
 			{

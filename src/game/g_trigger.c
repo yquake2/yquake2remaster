@@ -27,14 +27,34 @@
 
 #include "header/local.h"
 
-#define TRIGGER_MONSTER 0x01
-#define TRIGGER_NOT_PLAYER 0x02
-#define TRIGGER_TRIGGERED 0x04
-#define TRIGGER_TOGGLE 0x08
-
-#define PUSH_ONCE 0x01
-#define PUSH_START_OFF 0x02
-#define PUSH_SILENT 0x04
+#define SPAWNFLAG_TRIGGER_MONSTER 0x01
+#define SPAWNFLAG_TRIGGER_NOT_PLAYER 0x02
+#define SPAWNFLAG_TRIGGER_TRIGGERED 0x04
+#define SPAWNFLAG_TRIGGER_TOGGLE 0x08
+#define SPAWNFLAG_COUNTER_NOMESSAGE 0x01
+#define SPAWNFLAG_PUSH_ONCE 0x01
+#define SPAWNFLAG_PUSH_PLUS 0x02
+#define SPAWNFLAG_PUSH_SILENT 0x04
+#define SPAWNFLAG_PUSH_START_OFF 0x08
+#define SPAWNFLAG_PUSH_CLIP 0x10
+#define SPAWNFLAG_HURT_START_OFF 1
+#define SPAWNFLAG_HURT_TOGGLE 2
+#define SPAWNFLAG_HURT_SILENT 4
+#define SPAWNFLAG_HURT_NO_PROTECTION 8
+#define SPAWNFLAG_HURT_SLOW 16
+#define SPAWNFLAG_GRAVITY_TOGGLE 1
+#define SPAWNFLAG_GRAVITY_START_OFF 2
+#define SPAWNFLAG_GRAVITY_CLIPPED 4
+#define SPAWNFLAG_MONSTERJUMP_TOGGLE 1
+#define SPAWNFLAG_MONSTERJUMP_START_OFF 2
+#define SPAWNFLAG_MONSTERJUMP_CLIPPED 4
+#define TRIGGER_MONSTER SPAWNFLAG_TRIGGER_MONSTER
+#define TRIGGER_NOT_PLAYER SPAWNFLAG_TRIGGER_NOT_PLAYER
+#define TRIGGER_TRIGGERED SPAWNFLAG_TRIGGER_TRIGGERED
+#define TRIGGER_TOGGLE SPAWNFLAG_TRIGGER_TOGGLE
+#define PUSH_ONCE SPAWNFLAG_PUSH_ONCE
+#define PUSH_START_OFF SPAWNFLAG_PUSH_START_OFF
+#define PUSH_SILENT SPAWNFLAG_PUSH_SILENT
 
 static int windsound;
 
@@ -121,7 +141,7 @@ Use_Multi(edict_t *ent, edict_t *other /* unused */, edict_t *activator)
 		return;
 	}
 
-	if (ent->spawnflags & TRIGGER_TOGGLE)
+	if (ent->spawnflags & SPAWNFLAG_TRIGGER_TOGGLE)
 	{
 		if (ent->solid == SOLID_TRIGGER)
 		{
@@ -152,14 +172,14 @@ Touch_Multi(edict_t *self, edict_t *other, const cplane_t *plane /* unused */,
 
 	if (other->client)
 	{
-		if (self->spawnflags & 2)
+		if (self->spawnflags & SPAWNFLAG_TRIGGER_NOT_PLAYER)
 		{
 			return;
 		}
 	}
 	else if (other->svflags & SVF_MONSTER)
 	{
-		if (!(self->spawnflags & 1))
+		if (!(self->spawnflags & SPAWNFLAG_TRIGGER_MONSTER))
 		{
 			return;
 		}
@@ -247,7 +267,7 @@ SP_trigger_multiple(edict_t *ent)
 	ent->movetype = MOVETYPE_NONE;
 	ent->svflags |= SVF_NOCLIENT;
 
-	if (ent->spawnflags & (TRIGGER_TRIGGERED | TRIGGER_TOGGLE))
+	if (ent->spawnflags & (SPAWNFLAG_TRIGGER_TRIGGERED | SPAWNFLAG_TRIGGER_TOGGLE))
 	{
 		ent->solid = SOLID_NOT;
 		ent->use = trigger_enable;
@@ -297,13 +317,13 @@ SP_trigger_once(edict_t *ent)
 	   messed up on flag assignments here
 	   triggered was on bit 1 when it
 	   should have been on bit 4 */
-	if (ent->spawnflags & 1)
+	if (ent->spawnflags & SPAWNFLAG_TRIGGER_MONSTER)
 	{
 		vec3_t v;
 
 		VectorMA(ent->mins, 0.5, ent->size, v);
-		ent->spawnflags &= ~1;
-		ent->spawnflags |= 4;
+		ent->spawnflags &= ~SPAWNFLAG_TRIGGER_MONSTER;
+		ent->spawnflags |= SPAWNFLAG_TRIGGER_TRIGGERED;
 		gi.dprintf("fixed TRIGGERED flag on %s at %s\n", ent->classname, vtos(v));
 	}
 
@@ -533,7 +553,7 @@ trigger_counter_use(edict_t *self, edict_t *other /* unused */,
 
 	if (self->count)
 	{
-		if (!(self->spawnflags & 1))
+		if (!(self->spawnflags & SPAWNFLAG_COUNTER_NOMESSAGE))
 		{
 			gi.centerprintf(activator, "%i more to go...", self->count);
 			gi.sound(activator, CHAN_AUTO, gi.soundindex(
@@ -543,7 +563,7 @@ trigger_counter_use(edict_t *self, edict_t *other /* unused */,
 		return;
 	}
 
-	if (!(self->spawnflags & 1))
+	if (!(self->spawnflags & SPAWNFLAG_COUNTER_NOMESSAGE))
 	{
 		gi.centerprintf(activator, "Sequence completed!");
 		gi.sound(activator, CHAN_AUTO, gi.soundindex(
@@ -634,7 +654,7 @@ trigger_push_touch(edict_t *self, edict_t *other, const cplane_t *plane /* unuse
 			   immediately from this */
 			VectorCopy(other->velocity, other->client->oldvelocity);
 
-			if (!(self->spawnflags & PUSH_SILENT) &&
+			if (!(self->spawnflags & SPAWNFLAG_PUSH_SILENT) &&
 				(other->fly_sound_debounce_time < level.time))
 			{
 				other->fly_sound_debounce_time = level.time + 1.5;
@@ -643,7 +663,7 @@ trigger_push_touch(edict_t *self, edict_t *other, const cplane_t *plane /* unuse
 		}
 	}
 
-	if (self->spawnflags & PUSH_ONCE)
+	if (self->spawnflags & SPAWNFLAG_PUSH_ONCE)
 	{
 		G_FreeEdict(self);
 	}
@@ -773,7 +793,7 @@ SP_trigger_push(edict_t *self)
 		self->speed = 1000;
 	}
 
-	if (self->spawnflags & PUSH_START_OFF)
+	if (self->spawnflags & SPAWNFLAG_PUSH_START_OFF)
 	{
 		if (!self->wait)
 		{
@@ -789,12 +809,12 @@ SP_trigger_push(edict_t *self)
 	{
 		self->use = trigger_push_use;
 
-		if (self->spawnflags & PUSH_START_OFF)
+		if (self->spawnflags & SPAWNFLAG_PUSH_START_OFF)
 		{
 			self->solid = SOLID_NOT;
 		}
 	}
-	else if (self->spawnflags & PUSH_START_OFF)
+	else if (self->spawnflags & SPAWNFLAG_PUSH_START_OFF)
 	{
 		gi.dprintf("trigger_push is START_OFF but not targeted.\n");
 		self->svflags = 0;
@@ -861,7 +881,7 @@ hurt_use(edict_t *self, edict_t *other /* unused */,
 
 	gi.linkentity(self);
 
-	if (!(self->spawnflags & 2))
+	if (!(self->spawnflags & SPAWNFLAG_HURT_TOGGLE))
 	{
 		self->use = NULL;
 	}
@@ -888,7 +908,7 @@ hurt_touch(edict_t *self, edict_t *other, const cplane_t *plane /* unused */,
 		return;
 	}
 
-	if (self->spawnflags & 16)
+	if (self->spawnflags & SPAWNFLAG_HURT_SLOW)
 	{
 		self->timestamp = level.time + 1;
 	}
@@ -897,7 +917,7 @@ hurt_touch(edict_t *self, edict_t *other, const cplane_t *plane /* unused */,
 		self->timestamp = level.time + FRAMETIME;
 	}
 
-	if (!(self->spawnflags & 4))
+	if (!(self->spawnflags & SPAWNFLAG_HURT_SILENT))
 	{
 		if ((level.framenum % 10) == 0)
 		{
@@ -905,7 +925,7 @@ hurt_touch(edict_t *self, edict_t *other, const cplane_t *plane /* unused */,
 		}
 	}
 
-	if (self->spawnflags & 8)
+	if (self->spawnflags & SPAWNFLAG_HURT_NO_PROTECTION)
 	{
 		dflags = DAMAGE_NO_PROTECTION;
 	}
@@ -936,7 +956,7 @@ SP_trigger_hurt(edict_t *self)
 		self->dmg = 5;
 	}
 
-	if (self->spawnflags & 1)
+	if (self->spawnflags & SPAWNFLAG_HURT_START_OFF)
 	{
 		self->solid = SOLID_NOT;
 	}
@@ -945,7 +965,7 @@ SP_trigger_hurt(edict_t *self)
 		self->solid = SOLID_TRIGGER;
 	}
 
-	if (self->spawnflags & 2)
+	if (self->spawnflags & SPAWNFLAG_HURT_TOGGLE)
 	{
 		self->use = hurt_use;
 	}
@@ -1027,12 +1047,12 @@ SP_trigger_gravity(edict_t *self)
 	InitTrigger(self);
 	self->gravity = (int)strtol(st.gravity, (char **)NULL, 10);
 
-	if (self->spawnflags & 1) /* TOGGLE */
+	if (self->spawnflags & SPAWNFLAG_GRAVITY_TOGGLE) /* TOGGLE */
 	{
 		self->use = trigger_gravity_use;
 	}
 
-	if (self->spawnflags & 2) /* START_OFF */
+	if (self->spawnflags & SPAWNFLAG_GRAVITY_START_OFF) /* START_OFF */
 	{
 		self->use = trigger_gravity_use;
 		self->solid = SOLID_NOT;

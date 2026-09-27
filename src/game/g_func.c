@@ -27,6 +27,21 @@
 
 #include "header/local.h"
 
+#define SPAWNFLAG_ROTATING_START_ON 1
+#define SPAWNFLAG_ROTATING_REVERSE 2
+#define SPAWNFLAG_ROTATING_X_AXIS 4
+#define SPAWNFLAG_ROTATING_Y_AXIS 8
+#define SPAWNFLAG_ROTATING_TOUCH_PAIN 16
+#define SPAWNFLAG_ROTATING_STOP 32
+#define SPAWNFLAG_ROTATING_ANIMATED 64
+#define SPAWNFLAG_ROTATING_ANIMATED_FAST 128
+/* ReRelease has 0x00010000 */
+#define SPAWNFLAG_ROTATING_ACCEL 8192
+#define SPAWNFLAG_WATER_SMART 2
+#define SPAWNFLAG_TIMER_START_ON 1
+#define SPAWNFLAG_CONVEYOR_START_ON 1
+#define SPAWNFLAG_CONVEYOR_TOGGLE 2
+
 #define PLAT_LOW_TRIGGER 1
 #define PLAT2_TOGGLE 2
 #define PLAT2_TOP 4
@@ -1641,7 +1656,7 @@ rotating_use(edict_t *self, edict_t *other /* unused */,
 	{
 		self->s.sound = 0;
 
-		if (self->spawnflags & 8192) /* Decelerate */
+		if (self->spawnflags & SPAWNFLAG_ROTATING_ACCEL) /* Decelerate */
 		{
 			rotating_decel(self);
 		}
@@ -1656,7 +1671,7 @@ rotating_use(edict_t *self, edict_t *other /* unused */,
 	{
 		self->s.sound = self->moveinfo.sound_middle;
 
-		if (self->spawnflags & 8192) /* accelerate */
+		if (self->spawnflags & SPAWNFLAG_ROTATING_ACCEL) /* accelerate */
 		{
 			rotating_accel(self);
 		}
@@ -1666,7 +1681,7 @@ rotating_use(edict_t *self, edict_t *other /* unused */,
 			G_UseTargets(self, self);
 		}
 
-		if (self->spawnflags & 16)
+		if (self->spawnflags & SPAWNFLAG_ROTATING_TOUCH_PAIN)
 		{
 			self->touch = rotating_touch;
 		}
@@ -1683,7 +1698,7 @@ SP_func_rotating(edict_t *ent)
 
 	ent->solid = SOLID_BSP;
 
-	if (ent->spawnflags & 32)
+	if (ent->spawnflags & SPAWNFLAG_ROTATING_STOP)
 	{
 		ent->movetype = MOVETYPE_STOP;
 	}
@@ -1695,11 +1710,11 @@ SP_func_rotating(edict_t *ent)
 	/* set the axis of rotation */
 	VectorClear(ent->movedir);
 
-	if (ent->spawnflags & 4)
+	if (ent->spawnflags & SPAWNFLAG_ROTATING_X_AXIS)
 	{
 		ent->movedir[2] = 1.0;
 	}
-	else if (ent->spawnflags & 8)
+	else if (ent->spawnflags & SPAWNFLAG_ROTATING_Y_AXIS)
 	{
 		ent->movedir[0] = 1.0;
 	}
@@ -1709,7 +1724,7 @@ SP_func_rotating(edict_t *ent)
 	}
 
 	/* check for reverse rotation */
-	if (ent->spawnflags & 2)
+	if (ent->spawnflags & SPAWNFLAG_ROTATING_REVERSE)
 	{
 		VectorNegate(ent->movedir, ent->movedir);
 	}
@@ -1731,22 +1746,22 @@ SP_func_rotating(edict_t *ent)
 		ent->blocked = rotating_blocked;
 	}
 
-	if (ent->spawnflags & 1)
+	if (ent->spawnflags & SPAWNFLAG_ROTATING_START_ON)
 	{
 		ent->use(ent, NULL, NULL);
 	}
 
-	if (ent->spawnflags & DOOR_ANIMATED_FAST)
+	if (ent->spawnflags & SPAWNFLAG_ROTATING_ANIMATED)
 	{
 		ent->s.effects |= EF_ANIM_ALL;
 	}
 
-	if (ent->spawnflags & 128)
+	if (ent->spawnflags & SPAWNFLAG_ROTATING_ANIMATED_FAST)
 	{
 		ent->s.effects |= EF_ANIM_ALLFAST;
 	}
 
-	if (ent->spawnflags & 8192) /* Accelerate / Decelerate */
+	if (ent->spawnflags & SPAWNFLAG_ROTATING_ACCEL) /* Accelerate / Decelerate */
 	{
 		if (!ent->accel)
 		{
@@ -2399,7 +2414,7 @@ door_use(edict_t *self, edict_t *other /* unused */, edict_t *activator)
 	VectorAdd(self->mins, self->maxs, center);
 	VectorScale(center, 0.5, center);
 
-	if ((gi.pointcontents(center) & MASK_WATER) && self->spawnflags & 2)
+	if ((gi.pointcontents(center) & MASK_WATER) && self->spawnflags & SPAWNFLAG_WATER_SMART)
 	{
 		self->message = NULL;
 		self->touch = NULL;
@@ -3120,7 +3135,7 @@ SP_func_water(edict_t *self)
 	self->moveinfo.accel = self->moveinfo.decel =
 		self->moveinfo.speed = self->speed;
 
-	if (self->spawnflags & 2)   /* smart water */
+	if (self->spawnflags & SPAWNFLAG_WATER_SMART)   /* smart water */
 	{
 		if (!self->accel)
 		{
@@ -3756,7 +3771,7 @@ SP_func_timer(edict_t *self)
 				self->classname, vtos(self->s.origin));
 	}
 
-	if (self->spawnflags & 1)
+	if (self->spawnflags & SPAWNFLAG_TIMER_START_ON)
 	{
 		self->nextthink = level.time + 1.0 + st.pausetime + self->delay +
 						  self->wait + crandom() * self->random;
@@ -3786,18 +3801,18 @@ func_conveyor_use(edict_t *self, edict_t *other /* unused */,
 		return;
 	}
 
-	if (self->spawnflags & 1)
+	if (self->spawnflags & SPAWNFLAG_CONVEYOR_START_ON)
 	{
 		self->speed = 0;
-		self->spawnflags &= ~1;
+		self->spawnflags &= ~SPAWNFLAG_CONVEYOR_START_ON;
 	}
 	else
 	{
 		self->speed = self->count;
-		self->spawnflags |= 1;
+		self->spawnflags |= SPAWNFLAG_CONVEYOR_START_ON;
 	}
 
-	if (!(self->spawnflags & 2))
+	if (!(self->spawnflags & SPAWNFLAG_CONVEYOR_TOGGLE))
 	{
 		self->count = 0;
 	}
@@ -3816,7 +3831,7 @@ SP_func_conveyor(edict_t *self)
 		self->speed = 100;
 	}
 
-	if (!(self->spawnflags & 1))
+	if (!(self->spawnflags & SPAWNFLAG_CONVEYOR_START_ON))
 	{
 		self->count = self->speed;
 		self->speed = 0;
@@ -4142,7 +4157,9 @@ SP_func_killbox(edict_t *ent)
  * "health"	if set, the light may be killed.
  */
 
-#define START_OFF 1
+#define SPAWNFLAG_ROTATING_LIGHT_START_OFF 1
+#define SPAWNFLAG_ROTATING_LIGHT_ALARM 2
+#define START_OFF SPAWNFLAG_ROTATING_LIGHT_START_OFF
 
 void
 rotating_light_alarm(edict_t *self)
@@ -4152,7 +4169,7 @@ rotating_light_alarm(edict_t *self)
 		return;
 	}
 
-	if (self->spawnflags & START_OFF)
+	if (self->spawnflags & SPAWNFLAG_ROTATING_LIGHT_START_OFF)
 	{
 		self->think = NULL;
 		self->nextthink = 0;
@@ -4200,12 +4217,12 @@ rotating_light_use(edict_t *self, edict_t *other /* unused */,
 		return;
 	}
 
-	if (self->spawnflags & START_OFF)
+	if (self->spawnflags & SPAWNFLAG_ROTATING_LIGHT_START_OFF)
 	{
-		self->spawnflags &= ~START_OFF;
+		self->spawnflags &= ~SPAWNFLAG_ROTATING_LIGHT_START_OFF;
 		self->s.effects |= EF_SPINNINGLIGHTS;
 
-		if (self->spawnflags & 2)
+		if (self->spawnflags & SPAWNFLAG_ROTATING_LIGHT_ALARM)
 		{
 			self->think = rotating_light_alarm;
 			self->nextthink = level.time + 0.1;
@@ -4213,7 +4230,7 @@ rotating_light_use(edict_t *self, edict_t *other /* unused */,
 	}
 	else
 	{
-		self->spawnflags |= START_OFF;
+		self->spawnflags |= SPAWNFLAG_ROTATING_LIGHT_START_OFF;
 		self->s.effects &= ~EF_SPINNINGLIGHTS;
 	}
 }
@@ -4235,7 +4252,7 @@ SP_rotating_light(edict_t *self)
 
 	self->use = rotating_light_use;
 
-	if (self->spawnflags & START_OFF)
+	if (self->spawnflags & SPAWNFLAG_ROTATING_LIGHT_START_OFF)
 	{
 		self->s.effects &= ~EF_SPINNINGLIGHTS;
 	}
@@ -4263,7 +4280,7 @@ SP_rotating_light(edict_t *self)
 		self->takedamage = DAMAGE_YES;
 	}
 
-	if (self->spawnflags & 2)
+	if (self->spawnflags & SPAWNFLAG_ROTATING_LIGHT_ALARM)
 	{
 		self->moveinfo.sound_start = gi.soundindex("misc/alarm.wav");
 	}

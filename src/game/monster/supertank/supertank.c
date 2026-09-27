@@ -29,6 +29,8 @@
 #include "../../header/local.h"
 #include "supertank.h"
 
+#define SPAWNFLAG_SUPERTANK_POWERSHIELD 8
+
 static int sound_pain1;
 static int sound_pain2;
 static int sound_pain3;
@@ -945,7 +947,7 @@ SP_monster_supertank(edict_t *self)
 	self->monsterinfo.currentmove = &supertank_move_stand;
 	self->monsterinfo.scale = MODEL_SCALE;
 
-	if (self->spawnflags & 8)
+	if (self->spawnflags & SPAWNFLAG_SUPERTANK_POWERSHIELD)
 	{
 		self->monsterinfo.power_armor_type = POWER_ARMOR_SHIELD;
 		self->monsterinfo.power_armor_power = 400;

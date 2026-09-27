@@ -28,7 +28,11 @@
 #include "../../header/local.h"
 #include "insane.h"
 
-#define SPAWNFLAG_CRUSIFIED	8
+#define SPAWNFLAG_INSANE_CRAWL 4
+#define SPAWNFLAG_INSANE_CRUCIFIED 8
+#define SPAWNFLAG_INSANE_STAND_GROUND 16
+#define SPAWNFLAG_INSANE_ALWAYS_STAND 32
+#define SPAWNFLAG_CRUSIFIED SPAWNFLAG_INSANE_CRUCIFIED
 
 static int sound_fist;
 static int sound_shake;
@@ -625,7 +629,7 @@ insane_walk(edict_t *self)
 		return;
 	}
 
-	if (self->spawnflags & 16) /* Hold Ground? */
+	if (self->spawnflags & SPAWNFLAG_INSANE_STAND_GROUND) /* Hold Ground? */
 	{
 		if (self->s.frame == FRAME_cr_pain10)
 		{
@@ -634,7 +638,7 @@ insane_walk(edict_t *self)
 		}
 	}
 
-	if (self->spawnflags & 4)
+	if (self->spawnflags & SPAWNFLAG_INSANE_CRAWL)
 	{
 		self->monsterinfo.currentmove = &insane_move_crawl;
 	}
@@ -657,7 +661,7 @@ insane_run(edict_t *self)
 		return;
 	}
 
-	if (self->spawnflags & 16) /* Hold Ground? */
+	if (self->spawnflags & SPAWNFLAG_INSANE_STAND_GROUND) /* Hold Ground? */
 	{
 		if (self->s.frame == FRAME_cr_pain10)
 		{
@@ -666,7 +670,7 @@ insane_run(edict_t *self)
 		}
 	}
 
-	if (self->spawnflags & 4) /* Crawling? */
+	if (self->spawnflags & SPAWNFLAG_INSANE_CRAWL) /* Crawling? */
 	{
 		self->monsterinfo.currentmove = &insane_move_runcrawl;
 	}
@@ -729,7 +733,7 @@ insane_pain(edict_t *self, edict_t *other /* unused */,
 	}
 
 	/* Don't go into pain frames if crucified. */
-	if (self->spawnflags & SPAWNFLAG_CRUSIFIED)
+	if (self->spawnflags & SPAWNFLAG_INSANE_CRUCIFIED)
 	{
 		self->monsterinfo.currentmove = &insane_move_struggle_cross;
 		return;
@@ -767,7 +771,7 @@ insane_checkdown(edict_t *self)
 		return;
 	}
 
-	if (self->spawnflags & 32) /* Always stand */
+	if (self->spawnflags & SPAWNFLAG_INSANE_ALWAYS_STAND) /* Always stand */
 	{
 		return;
 	}
@@ -794,7 +798,7 @@ insane_checkup(edict_t *self)
 	}
 
 	/* If Hold_Ground and Crawl are set */
-	if ((self->spawnflags & 4) && (self->spawnflags & 16))
+	if ((self->spawnflags & SPAWNFLAG_INSANE_CRAWL) && (self->spawnflags & SPAWNFLAG_INSANE_STAND_GROUND))
 	{
 		return;
 	}
@@ -813,13 +817,13 @@ insane_stand(edict_t *self)
 		return;
 	}
 
-	if (self->spawnflags & SPAWNFLAG_CRUSIFIED) /* If crucified */
+	if (self->spawnflags & SPAWNFLAG_INSANE_CRUCIFIED) /* If crucified */
 	{
 		self->monsterinfo.currentmove = &insane_move_cross;
 		self->monsterinfo.aiflags |= AI_STAND_GROUND;
 	}
 	/* If Hold_Ground and Crawl are set */
-	else if ((self->spawnflags & 4) && (self->spawnflags & 16))
+	else if ((self->spawnflags & SPAWNFLAG_INSANE_CRAWL) && (self->spawnflags & SPAWNFLAG_INSANE_STAND_GROUND))
 	{
 		self->monsterinfo.currentmove = &insane_move_down;
 	}
@@ -842,7 +846,7 @@ insane_dead(edict_t *self)
 		return;
 	}
 
-	if (self->spawnflags & SPAWNFLAG_CRUSIFIED)
+	if (self->spawnflags & SPAWNFLAG_INSANE_CRUCIFIED)
 	{
 		self->flags |= FL_FLY;
 	}
@@ -902,7 +906,7 @@ insane_die(edict_t *self, edict_t *inflictor /* unused */,
 	self->deadflag = DEAD_DEAD;
 	self->takedamage = DAMAGE_YES;
 
-	if (self->spawnflags & SPAWNFLAG_CRUSIFIED)
+	if (self->spawnflags & SPAWNFLAG_INSANE_CRUCIFIED)
 	{
 		insane_dead(self);
 	}
@@ -983,7 +987,7 @@ SP_misc_insane(edict_t *self)
 
 	gi.linkentity(self);
 
-	if (self->spawnflags & 16) /* Stand Ground */
+	if (self->spawnflags & SPAWNFLAG_INSANE_STAND_GROUND) /* Stand Ground */
 	{
 		self->monsterinfo.aiflags |= AI_STAND_GROUND;
 	}
@@ -992,7 +996,7 @@ SP_misc_insane(edict_t *self)
 
 	self->monsterinfo.scale = MODEL_SCALE;
 
-	if (self->spawnflags & SPAWNFLAG_CRUSIFIED) /* Crucified ? */
+	if (self->spawnflags & SPAWNFLAG_INSANE_CRUCIFIED) /* Crucified ? */
 	{
 		VectorSet(self->mins, -16, 0, 0);
 		VectorSet(self->maxs, 16, 8, 32);

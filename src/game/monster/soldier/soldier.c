@@ -32,6 +32,8 @@
 #include "../../header/local.h"
 #include "soldier.h"
 
+#define SPAWNFLAG_SOLDIER_BLIND 8
+
 static int sound_idle;
 static int sound_sight1;
 static int sound_sight2;
@@ -3328,7 +3330,7 @@ SP_monster_soldier_x(edict_t *self)
 	self->monsterinfo.unduck = monster_duck_up;
 	self->monsterinfo.sidestep = soldier_sidestep;
 
-	if (self->spawnflags & 8) /* blind */
+	if (self->spawnflags & SPAWNFLAG_SOLDIER_BLIND) /* blind */
 	{
 		self->monsterinfo.stand = soldier_blind;
 	}

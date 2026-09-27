@@ -27,6 +27,8 @@
 
 #include "header/local.h"
 
+#define SPAWNFLAG_TURRET_BREACH_FIRE 65536
+
 void infantry_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 		int damage, const vec3_t point);
 void infantry_stand(edict_t *self);
@@ -296,10 +298,10 @@ turret_breach_think(edict_t *self)
 		diff = target_z - self->owner->s.origin[2];
 		self->owner->velocity[2] = diff * 1.0 / FRAMETIME;
 
-		if (self->spawnflags & 65536)
+		if (self->spawnflags & SPAWNFLAG_TURRET_BREACH_FIRE)
 		{
 			turret_breach_fire(self);
-			self->spawnflags &= ~65536;
+			self->spawnflags &= ~SPAWNFLAG_TURRET_BREACH_FIRE;
 		}
 	}
 }
@@ -519,7 +521,7 @@ turret_driver_think(edict_t *self)
 	}
 
 	self->monsterinfo.attack_finished = level.time + reaction_time + 1.0;
-	self->target_ent->spawnflags |= 65536;
+		self->target_ent->spawnflags |= SPAWNFLAG_TURRET_BREACH_FIRE;
 }
 
 void
@@ -722,7 +724,7 @@ turret_brain_think(edict_t *self)
 	}
 
 	self->monsterinfo.attack_finished = level.time + reaction_time + 1.0;
-	self->target_ent->spawnflags |= 65536;
+	self->target_ent->spawnflags |= SPAWNFLAG_TURRET_BREACH_FIRE;
 }
 
 void

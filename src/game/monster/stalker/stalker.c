@@ -29,6 +29,8 @@
 #include "stalker.h"
 #include <float.h>
 
+#define SPAWNFLAG_STALKER_ONROOF 8
+
 static int sound_pain;
 static int sound_die;
 static int sound_sight;
@@ -1487,7 +1489,7 @@ SP_monster_stalker(edict_t *self)
 
 	self->monsterinfo.aiflags |= AI_WALK_WALLS;
 
-	if (self->spawnflags & 8)
+	if (self->spawnflags & SPAWNFLAG_STALKER_ONROOF)
 	{
 		self->s.angles[ROLL] = 180;
 		self->gravityVector[2] = 1;

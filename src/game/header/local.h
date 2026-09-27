@@ -795,8 +795,10 @@ extern cvar_t *g_game;
 #define world (&g_edicts[0])
 
 /* item spawnflags */
-#define ITEM_TRIGGER_SPAWN 0x00000001
-#define ITEM_NO_TOUCH 0x00000002
+#define SPAWNFLAG_ITEM_TRIGGER_SPAWN 0x00000001
+#define SPAWNFLAG_ITEM_NO_TOUCH 0x00000002
+#define ITEM_TRIGGER_SPAWN SPAWNFLAG_ITEM_TRIGGER_SPAWN
+#define ITEM_NO_TOUCH SPAWNFLAG_ITEM_NO_TOUCH
 /* 6 bits reserved for editor flags */
 /* 8 bits used as power cube id bits for coop games */
 #define DROPPED_ITEM 0x00010000

@@ -28,6 +28,8 @@
 #include "../../header/local.h"
 #include "shambler.h"
 
+#define SPAWNFLAG_SHAMBLER_PRECISE 1
+
 static int sound_pain;
 static int sound_idle;
 static int sound_die;
@@ -688,7 +690,7 @@ SP_monster_shambler(edict_t* self)
 
 	gi.linkentity(self);
 
-	if (self->spawnflags & 1)
+	if (self->spawnflags & SPAWNFLAG_SHAMBLER_PRECISE)
 	{
 		self->monsterinfo.aiflags |= AI_IGNORE_SHOTS;
 	}

@@ -27,6 +27,9 @@
 
 #include "header/local.h"
 
+#define SPAWNFLAG_GRENADE_HAND 1
+#define SPAWNFLAG_GRENADE_HELD 2
+
 extern void SP_item_foodcube(edict_t *best);
 
 /*
@@ -726,7 +729,7 @@ Grenade_Explode(edict_t *ent)
 		points = ent->dmg - 0.5 * VectorLength(v);
 		VectorSubtract(ent->enemy->s.origin, ent->s.origin, dir);
 
-		if (ent->spawnflags & 1)
+		if (ent->spawnflags & SPAWNFLAG_GRENADE_HAND)
 		{
 			mod = MOD_HANDGRENADE;
 		}
@@ -739,11 +742,11 @@ Grenade_Explode(edict_t *ent)
 				(int)points, (int)points, DAMAGE_RADIUS, mod);
 	}
 
-	if (ent->spawnflags & 2)
+	if (ent->spawnflags & SPAWNFLAG_GRENADE_HELD)
 	{
 		mod = MOD_HELD_GRENADE;
 	}
-	else if (ent->spawnflags & 1)
+	else if (ent->spawnflags & SPAWNFLAG_GRENADE_HAND)
 	{
 		mod = MOD_HG_SPLASH;
 	}
@@ -808,7 +811,7 @@ Grenade_Touch(edict_t *ent, edict_t *other, const cplane_t *plane /* unused */, 
 
 	if (!other->takedamage)
 	{
-		if (ent->spawnflags & 1)
+		if (ent->spawnflags & SPAWNFLAG_GRENADE_HAND)
 		{
 			if (random() > 0.5)
 			{
@@ -930,11 +933,11 @@ fire_grenade2(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 
 	if (held)
 	{
-		grenade->spawnflags = 3;
+		grenade->spawnflags = SPAWNFLAG_GRENADE_HAND | SPAWNFLAG_GRENADE_HELD;
 	}
 	else
 	{
-		grenade->spawnflags = 1;
+		grenade->spawnflags = SPAWNFLAG_GRENADE_HAND;
 	}
 
 	grenade->s.sound = gi.soundindex("weapons/hgrenc1b.wav");
@@ -2051,11 +2054,11 @@ fire_trap(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 
 	if (held)
 	{
-		trap->spawnflags = 3;
+		trap->spawnflags = SPAWNFLAG_GRENADE_HAND | SPAWNFLAG_GRENADE_HELD;
 	}
 	else
 	{
-		trap->spawnflags = 1;
+		trap->spawnflags = SPAWNFLAG_GRENADE_HAND;
 	}
 
 	if (timer <= 0.0)

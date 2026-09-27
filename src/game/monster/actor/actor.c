@@ -23,6 +23,12 @@
 #include "../../header/local.h"
 #include "actor.h"
 
+#define SPAWNFLAG_TARGET_ACTOR_JUMP 1
+#define SPAWNFLAG_TARGET_ACTOR_SHOOT 2
+#define SPAWNFLAG_TARGET_ACTOR_ATTACK 4
+#define SPAWNFLAG_TARGET_ACTOR_HOLD 16
+#define SPAWNFLAG_TARGET_ACTOR_BRUTAL 32
+
 #define	MAX_ACTOR_NAMES		8
 static char *actor_names[MAX_ACTOR_NAMES] =
 {
@@ -603,7 +609,7 @@ target_actor_touch(edict_t *self, edict_t *other, const cplane_t *plane, const c
 		}
 	}
 
-	if (self->spawnflags & 1)		//jump
+	if (self->spawnflags & SPAWNFLAG_TARGET_ACTOR_JUMP)		//jump
 	{
 		other->velocity[0] = self->movedir[0] * self->speed;
 		other->velocity[1] = self->movedir[1] * self->speed;
@@ -616,18 +622,18 @@ target_actor_touch(edict_t *self, edict_t *other, const cplane_t *plane, const c
 		}
 	}
 
-	if (self->spawnflags & 2)	//shoot
+	if (self->spawnflags & SPAWNFLAG_TARGET_ACTOR_SHOOT)	//shoot
 	{
 	}
-	else if (self->spawnflags & 4)	//attack
+	else if (self->spawnflags & SPAWNFLAG_TARGET_ACTOR_ATTACK)	//attack
 	{
 		other->enemy = G_PickTarget(self->pathtarget);
 		if (other->enemy)
 		{
 			other->goalentity = other->enemy;
-			if (self->spawnflags & 32)
+			if (self->spawnflags & SPAWNFLAG_TARGET_ACTOR_BRUTAL)
 				other->monsterinfo.aiflags |= AI_BRUTAL;
-			if (self->spawnflags & 16)
+			if (self->spawnflags & SPAWNFLAG_TARGET_ACTOR_HOLD)
 			{
 				other->monsterinfo.aiflags |= AI_STAND_GROUND;
 				actor_stand (other);
@@ -639,7 +645,7 @@ target_actor_touch(edict_t *self, edict_t *other, const cplane_t *plane, const c
 		}
 	}
 
-	if (!(self->spawnflags & 6) && (self->pathtarget))
+	if (!(self->spawnflags & (SPAWNFLAG_TARGET_ACTOR_SHOOT | SPAWNFLAG_TARGET_ACTOR_ATTACK)) && (self->pathtarget))
 	{
 		char *savetarget;
 
@@ -683,7 +689,7 @@ SP_target_actor(edict_t *self)
 	VectorSet(self->maxs, 8, 8, 8);
 	self->svflags = SVF_NOCLIENT;
 
-	if (self->spawnflags & 1)
+	if (self->spawnflags & SPAWNFLAG_TARGET_ACTOR_JUMP)
 	{
 		if (!self->speed)
 			self->speed = 200;

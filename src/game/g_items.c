@@ -1926,7 +1926,7 @@ Use_Item(edict_t *ent, edict_t *other /* unused */, edict_t *activator /* unused
 	ent->svflags &= ~SVF_NOCLIENT;
 	ent->use = NULL;
 
-	if (ent->spawnflags & ITEM_NO_TOUCH)
+	if (ent->spawnflags & SPAWNFLAG_ITEM_NO_TOUCH)
 	{
 		ent->solid = SOLID_BBOX;
 		ent->touch = NULL;
@@ -2142,7 +2142,7 @@ droptofloor(edict_t *ent)
 		}
 	}
 
-	if (ent->spawnflags & ITEM_NO_TOUCH)
+	if (ent->spawnflags & SPAWNFLAG_ITEM_NO_TOUCH)
 	{
 		ent->solid = SOLID_BBOX;
 		ent->touch = NULL;
@@ -2150,7 +2150,7 @@ droptofloor(edict_t *ent)
 		ent->s.renderfx &= ~RF_GLOW;
 	}
 
-	if (ent->spawnflags & ITEM_TRIGGER_SPAWN)
+	if (ent->spawnflags & SPAWNFLAG_ITEM_TRIGGER_SPAWN)
 	{
 		ent->svflags |= SVF_NOCLIENT;
 		ent->solid = SOLID_NOT;
@@ -2453,7 +2453,7 @@ SpawnItem(edict_t *ent, gitem_t *item)
 
 	PrecacheItem(item);
 
-	if (coop->value && !(ent->spawnflags & ITEM_NO_TOUCH) && (strcmp(ent->classname, "key_power_cube") == 0))
+	if (coop->value && !(ent->spawnflags & SPAWNFLAG_ITEM_NO_TOUCH) && (strcmp(ent->classname, "key_power_cube") == 0))
 	{
 		ent->spawnflags |= (1 << (8 + level.power_cubes));
 		level.power_cubes++;
@@ -2491,7 +2491,7 @@ SpawnItem(edict_t *ent, gitem_t *item)
 		ent->think = CTFFlagSetup;
 	}
 
-	if (ent->spawnflags & 1)
+	if (ent->spawnflags & SPAWNFLAG_ITEM_TRIGGER_SPAWN)
 	{
 		SetTriggeredSpawn(ent);
 	}

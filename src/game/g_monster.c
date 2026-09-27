@@ -2467,7 +2467,7 @@ stationarymonster_triggered_spawn(edict_t *self)
 
 	monster_start_go(self);
 
-	if (self->enemy && !(self->spawnflags & 1) &&
+	if (self->enemy && !(self->spawnflags & SPAWNFLAG_MONSTER_AMBUSH) &&
 		!(self->enemy->flags & FL_NOTARGET))
 	{
 		if (!(self->enemy->flags & FL_DISGUISED))
@@ -2534,7 +2534,7 @@ stationarymonster_start_go(edict_t *self)
 		self->yaw_speed = 20;
 	}
 
-	if (self->spawnflags & 2)
+	if (self->spawnflags & SPAWNFLAG_MONSTER_TRIGGER_SPAWN)
 	{
 		stationarymonster_triggered_start(self);
 	}
