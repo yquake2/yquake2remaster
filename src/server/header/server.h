@@ -71,8 +71,9 @@ typedef struct
 	qboolean attractloop;           /* running cinematics and demos for the local system only */
 	qboolean loadgame;              /* client begins should reuse existing entity */
 
-	unsigned time;                  /* always sv.framenum * 100 msec */
+	unsigned time;                  /* sum of frame_msec over all frames */
 	int framenum;
+	int frame_msec;                 /* 0 means default 100 msec */
 
 	char name[MAX_QPATH];           /* map name, or cinematic name */
 	struct cmodel_s *models[MAX_MODELS];

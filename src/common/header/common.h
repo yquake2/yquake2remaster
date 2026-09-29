@@ -314,6 +314,9 @@ enum clc_ops_e
 #define PS_WEAPONINDEX (1 << 12)
 #define PS_WEAPONFRAME (1 << 13)
 #define PS_RDFLAGS (1 << 14)
+#define PS_MOREBITS (1 << 15)
+#define PS_KEX_DAMAGE_BLEND (1 << 16)
+#define PS_KEX_TEAM_ID (1 << 17)
 
 /*============================================== */
 
@@ -337,6 +340,7 @@ enum clc_ops_e
 #define SND_POS (1 << 2)            /* three coordinates */
 #define SND_ENT (1 << 3)            /* a short 0-2: channel, 3-12: entity */
 #define SND_OFFSET (1 << 4)         /* a byte, msec offset from frame start */
+#define SND_KEX_LARGE_ENT (1 << 6)   /* 32-bit entity/channel field */
 
 #define DEFAULT_SOUND_PACKET_VOLUME 1.0
 #define DEFAULT_SOUND_PACKET_ATTENUATION 1.0
@@ -379,6 +383,16 @@ enum clc_ops_e
 #define U_SKIN16 (1 << 25)
 #define U_SOUND (1 << 26)
 #define U_SOLID (1 << 27)
+#define U_MODEL16 (1 << 28)
+#define U_KEX_EFFECTS64 (1ULL << 29)
+#define U_ALPHA (1 << 30)
+#define U_MOREBITS4 (1ULL << 31)    /* read one additional byte */
+
+/* fifth byte */
+#define U_SCALE (1ULL << 32)
+#define U_KEX_INSTANCE (1ULL << 33)
+#define U_KEX_OWNER (1ULL << 34)
+#define U_KEX_OLDFRAME (1ULL << 35)
 
 /* CMD - Command text buffering and command execution */
 

@@ -627,6 +627,18 @@ SV_NextDemoChunk(byte **msgbuf)
 
 	r = FS_FRead(*msgbuf, n, 1, sv.demofile);
 
+	/* RR22 serverdata: op, protocol, servercount, attractloop, fps */
+	if (r == n && n > 10 && (*msgbuf)[0] == svc_serverdata)
+	{
+		int protocol;
+
+		memcpy(&protocol, *msgbuf + 1, sizeof(protocol));
+		if (LittleLong(protocol) == PROTOCOL_RR22_VERSION && (*msgbuf)[10] > 0)
+		{
+			sv.frame_msec = 1000 / (*msgbuf)[10];
+		}
+	}
+
 	return (r == n) ? n : -1;
 }
 
