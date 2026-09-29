@@ -73,6 +73,7 @@ typedef struct
 
 	unsigned time;                  /* always sv.framenum * 100 msec */
 	int framenum;
+	int frame_msec;                 /* 0 means default 100 msec */
 
 	char name[MAX_QPATH];           /* map name, or cinematic name */
 	struct cmodel_s *models[MAX_MODELS];

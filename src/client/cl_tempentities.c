@@ -697,6 +697,42 @@ static unsigned int splash_color[] = {
 	0xff001f9b, 0xff00001b,
 };
 
+static qboolean
+CL_ParseKexTEnt(int type)
+{
+	vec3_t pos, pos2;
+
+	switch (type)
+	{
+		case TE_BFG_ZAP:
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
+			MSG_ReadPos(&net_message, pos2, cls.serverProtocol);
+			break;
+
+		case TE_GRAPPLE_CABLE_2:
+		case TE_LIGHTNING_BEAM:
+			MSG_ReadShort(&net_message);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
+			MSG_ReadPos(&net_message, pos2, cls.serverProtocol);
+			break;
+
+		case TE_POWER_SPLASH:
+			MSG_ReadShort(&net_message);
+			MSG_ReadByte(&net_message);
+			break;
+
+		default:
+			return false;
+	}
+
+	if (net_message.readcount > net_message.cursize)
+	{
+		Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+	}
+
+	return true;
+}
+
 void
 CL_ParseTEnt(void)
 {
@@ -709,6 +745,10 @@ CL_ParseTEnt(void)
 	int magnitude;
 
 	type = MSG_ReadByte(&net_message);
+	if (cls.serverProtocol == PROTOCOL_RR22_VERSION && CL_ParseKexTEnt(type))
+	{
+		return;
+	}
 
 	switch (type)
 	{
@@ -1302,7 +1342,7 @@ CL_ParseTEnt(void)
 			break;
 
 		default:
-			Com_Error(ERR_DROP, "%s: bad type", __func__);
+			Com_Error(ERR_DROP, "%s: bad type %d", __func__, type);
 	}
 }
 
