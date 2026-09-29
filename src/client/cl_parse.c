@@ -991,8 +991,8 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 		{
 			state->viewoffset[0] = MSG_ReadShort(&net_message) / 16.0f;
 			state->viewoffset[1] = MSG_ReadShort(&net_message) / 16.0f;
-			state->viewoffset[2] = MSG_ReadShort(&net_message) / 16.0f;
-			MSG_ReadChar(&net_message);
+			MSG_ReadShort(&net_message); /* z offset, superseded by viewheight */
+			state->viewoffset[2] = MSG_ReadChar(&net_message);
 		}
 		else
 		{
