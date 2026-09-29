@@ -468,7 +468,7 @@ pistol_bolt_touch(edict_t *self, edict_t *other, const cplane_t *plane, const cs
 	gi.sound(self, CHAN_AUTO, gi.soundindex("weapons/lashit.wav"), 1, ATTN_NORM, 0);
 
 	/* Area of effect damage (90-unit radius, 30 damage) */
-	T_RadiusDamage(self, self->owner, self->dmg, other, 90, MOD_UNKNOWN);
+	T_RadiusDamage(self, self->owner, self->dmg, other, 90, MOD_MAGNETICPULSE);
 
 	/* Swap visual mesh to detonation/explosion model and trigger
 	 * animation / destruction */
