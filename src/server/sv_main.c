@@ -351,7 +351,7 @@ SV_RunGameFrame(void)
 		ge->RunFrame();
 
 		/* never get more than one tic behind */
-		if (sv.time < svs.realtime)
+		if (sv.time < svs.realtime && sv.state != ss_demo)
 		{
 			if (sv_showclamp->value)
 			{
@@ -451,6 +451,24 @@ SV_Frame(int usec)
 
 	/* send messages back to the clients that had packets read this frame */
 	SV_SendClientMessages();
+
+	if (sv.state == ss_demo)
+	{
+		int i;
+
+		/* high tickrate demos may need several frames per call, loopback holds 4 */
+		for (i = 1; i < 4 && sv.demofile && !sv_timedemo->value &&
+			svs.realtime >= sv.time; i++)
+		{
+			SV_RunGameFrame();
+			SV_SendClientMessages();
+		}
+
+		if (sv.time < svs.realtime)
+		{
+			svs.realtime = sv.time;
+		}
+	}
 
 	/* if not optimizing, send all messages here */
 	if (!opt_sendrate)
