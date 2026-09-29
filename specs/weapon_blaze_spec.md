@@ -8,6 +8,7 @@ The Blazer (`weapon_blaze`) is an energy charge and shockwave weapon ported from
 ## 2. Weapon Definition & Properties
 - **Classname:** `weapon_blaze`
 - **Source File:** `infinity/src/infinity/iw_blaze.c`
+- **Damage Modifier:** `MOD_FLAMETHROWER`
 - **Effects & Models:**
   - Charge sprite: `sprites/null.sp2` with `EF_BFG | EF_ANIM_ALLFAST`.
   - Flash model: `models/objects/boom/flash.md2`.
@@ -17,4 +18,4 @@ The Blazer (`weapon_blaze`) is an energy charge and shockwave weapon ported from
 
 ## 3. Mechanics & Firing Behavior
 - **Effect Spawning:** Dynamically instantiates visual shockwave and flash entities along the trajectory.
-- **Think Loop:** Manages expansion, translucency, and lifecycle cleanup through `blaze_think`.
+- **Think Loop:** Manages expansion, translucency, and lifecycle cleanup through `blaze_think`, triggering `T_RadiusDamage` with `MOD_FLAMETHROWER`.

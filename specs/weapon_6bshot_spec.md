@@ -10,6 +10,7 @@ The 6B Shotgun (`weapon_6bshot`) is ported from the Infinity mod (`infinity/src/
 - **Source File:** `infinity/src/infinity/iw_6bshot.c`
 - **Base Damage / Kick:** `damage` = 4 per pellet, `kick` = 8.
 - **Muzzle Flash:** `MZ_SSHOTGUN` (supershotgun style flash).
+- **Damage Modifier:** `MOD_RIOTGUN`
 
 ---
 

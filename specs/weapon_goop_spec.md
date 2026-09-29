@@ -9,7 +9,8 @@ The Goop Launcher (`weapon_goop`) is an explosive projectile weapon ported from 
 - **Classname:** `weapon_goop`
 - **Source File:** `infinity/src/infinity/iw_goop.c`
 - **Damage & Radius:** Uses radius damage (`T_RadiusDamage`) with damage mod `MOD_GOOPLAUNCHER`.
-- **Explosion Effects:** Supports underwater vs surface explosion temp entities (`TE_GRENADE_EXPLOSION`, `TE_ROCKET_EXPLOSION`, water variants).
+- **Explosion Effects:** Supports underwater vs surface explosion temp entities (`TE_GRENADE_EXPLOSION`, `TE_ROCKET_EXPLOSION`, and water variants).
+- **Sound:** `weapons/goop/gghit.wav`.
 
 ---
 
