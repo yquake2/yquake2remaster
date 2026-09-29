@@ -4331,7 +4331,7 @@ Goop_Explode(edict_t *ent)
 {
 	// Notify the engine and trigger explosion
 	PlayerNoise(ent->owner, ent->s.origin, PNOISE_IMPACT);
-	T_RadiusDamage(ent, ent->owner, ent->dmg, NULL, ent->dmg_radius, MOD_UNKNOWN);
+	T_RadiusDamage(ent, ent->owner, ent->dmg, NULL, ent->dmg_radius, MOD_GOOPLAUNCHER);
 
 	// Create visual effect multicast
 	gi.WriteByte(svc_temp_entity);
@@ -4474,7 +4474,7 @@ M26Shotgun_Fire(edict_t *ent)
 	P_ProjectSource(ent, offset, forward, right, start);
 
 	// Using the ported fire_m26shotgun logic
-	fire_m26shotgun(ent, start, forward, 8, 0, DEFAULT_SHOTGUN_HSPREAD, DEFAULT_SHOTGUN_VSPREAD, 12, MOD_SHOTGUN);
+	fire_m26shotgun(ent, start, forward, 8, 0, DEFAULT_SHOTGUN_HSPREAD, DEFAULT_SHOTGUN_VSPREAD, 12, MOD_RIOTGUN);
 
 	// Reuse the casing ejection logic
 	Eject_Casing(ent, start, forward);

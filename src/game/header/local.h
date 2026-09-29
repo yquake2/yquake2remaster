@@ -699,6 +699,13 @@ void M_WorldEffects(edict_t *ent);
 #define MOD_DOPPLE_HUNTER 56
 #define MOD_PLASMA_RIFLE 57
 #define MOD_PLASMA_PISTOL 58
+#define MOD_MAGNETICPULSE 59
+#define MOD_RIOTGUN 60
+#define MOD_RIFLE_AP 61
+#define MOD_RIFLE_HE 62
+#define MOD_FLAMETHROWER 63
+#define MOD_GOOPLAUNCHER 64
+#define MOD_BIGGUN 65
 #define MOD_FRIENDLY_FIRE 0x8000000
 
 /* Easier handling of AI skill levels */
