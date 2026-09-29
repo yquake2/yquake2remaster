@@ -1340,7 +1340,7 @@ MSG_ReadStringLine(sizebuf_t *msg_read)
 float
 MSG_ReadCoord(sizebuf_t *msg_read, int protocol)
 {
-	if (IS_QII97_PROTOCOL(protocol))
+	if (IS_QII97_PROTOCOL(protocol) || protocol == PROTOCOL_RR22_VERSION)
 	{
 		return MSG_ReadShort(msg_read) * (0.125f);
 	}

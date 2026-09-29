@@ -339,45 +339,20 @@ CL_AddMuzzleFlash(void)
 	}
 }
 
-void
-CL_AddMuzzleFlash2(void)
+static void
+CL_AddMuzzleFlash2Effect(int entnum, int flash_number)
 {
-	int entnum;
 	centity_t *ent;
 	vec3_t origin;
-	int flash_number;
 	cdlight_t *dl;
 	vec3_t forward, right;
 	char soundname[64];
-
-	entnum = MSG_ReadShort(&net_message);
 
 	if ((entnum < 1) || (entnum > MAX_CL_ENTNUM))
 	{
 		Com_Error(ERR_DROP, "%s: bad entity %d > %d\n",
 			__func__, entnum, MAX_CL_ENTNUM);
 		return;
-	}
-
-	flash_number = MSG_ReadByte(&net_message);
-	if (flash_number < 0)
-	{
-		Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
-		return;
-	}
-
-	if (flash_number == 255)
-	{
-		/* hact to support effects 255 .. 511 */
-		int flash_add;
-
-		flash_add = MSG_ReadByte(&net_message);
-		if (flash_add < 0)
-		{
-			Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
-			return;
-		}
-		flash_number += flash_add;
 	}
 
 	if (flash_number > MZ2_EFFECT_MAX)
@@ -921,6 +896,50 @@ CL_AddMuzzleFlash2(void)
 				S_RegisterSound("guncmdr/gcdratck3.wav"), 1, ATTN_NORM, 0);
 			break;
 	}
+}
+
+void
+CL_AddMuzzleFlash2(void)
+{
+	int entnum, flash_number;
+
+	entnum = MSG_ReadShort(&net_message);
+	flash_number = MSG_ReadByte(&net_message);
+	if (flash_number < 0)
+	{
+		Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+		return;
+	}
+
+	if (flash_number == 255)
+	{
+		int flash_add = MSG_ReadByte(&net_message);
+
+		if (flash_add < 0)
+		{
+			Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+			return;
+		}
+		flash_number += flash_add;
+	}
+
+	CL_AddMuzzleFlash2Effect(entnum, flash_number);
+}
+
+void
+CL_AddMuzzleFlash3(void)
+{
+	int entnum, flash_number;
+
+	entnum = MSG_ReadShort(&net_message);
+	flash_number = (unsigned short)MSG_ReadShort(&net_message);
+	if (net_message.readcount > net_message.cursize)
+	{
+		Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+		return;
+	}
+
+	CL_AddMuzzleFlash2Effect(entnum, flash_number);
 }
 
 static cparticle_t *

@@ -27,7 +27,9 @@
 #include "header/client.h"
 #include "input/header/input.h"
 
-static int bitcounts[32]; /* just for protocol profiling */
+static int bitcounts[64]; /* just for protocol profiling */
+
+#define RR22_MAX_LOCALIZATION_ARGS 8
 
 static const char *svc_strings[] = {
 	"svc_bad",
@@ -95,10 +97,10 @@ CL_RegisterSounds(void)
  * Returns the entity number and the header bits
  */
 static unsigned
-CL_ParseEntityBits(unsigned *bits)
+CL_ParseEntityBits(uint64_t *bits)
 {
 	int i, b, number;
-	unsigned total;
+	uint64_t total;
 
 	b = MSG_ReadByte(&net_message);
 	if (b < 0)
@@ -118,7 +120,7 @@ CL_ParseEntityBits(unsigned *bits)
 			return 0;
 		}
 
-		total |= (unsigned)b << 8;
+		total |= (uint64_t)(unsigned)b << 8;
 	}
 
 	if (total & U_MOREBITS2)
@@ -130,7 +132,7 @@ CL_ParseEntityBits(unsigned *bits)
 			return 0;
 		}
 
-		total |= (unsigned)b << 16;
+		total |= (uint64_t)(unsigned)b << 16;
 	}
 
 	if (total & U_MOREBITS3)
@@ -142,13 +144,25 @@ CL_ParseEntityBits(unsigned *bits)
 			return 0;
 		}
 
-		total |= (unsigned)b << 24;
+		total |= (uint64_t)(unsigned)b << 24;
+	}
+
+	if (total & U_MOREBITS4)
+	{
+		b = MSG_ReadByte(&net_message);
+		if (b < 0)
+		{
+			Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+			return 0;
+		}
+
+		total |= (uint64_t)(unsigned)b << 32;
 	}
 
 	/* count the bits for net profiling */
-	for (i = 0; i < 32; i++)
+	for (i = 0; i < 64; i++)
 	{
-		if (total & (1u << i))
+		if (total & (1ULL << i))
 		{
 			bitcounts[i]++;
 		}
@@ -179,7 +193,7 @@ CL_ParseEntityBits(unsigned *bits)
  * Can go from either a baseline or a previous packet_entity
  */
 static void
-CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, int bits)
+CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, uint64_t bits)
 {
 	static const entity_xstate_t es_nullstate = {0};
 	entity_xstate_t dummy;
@@ -243,24 +257,31 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, int 
 	}
 	else
 	{
+		qboolean model16 = (cls.serverProtocol == PROTOCOL_RR22_VERSION) &&
+			(bits & U_MODEL16);
+
 		if (bits & U_MODEL)
 		{
-			to->modelindex = MSG_ReadShort(&net_message);
+			to->modelindex = model16 ? MSG_ReadShort(&net_message) :
+				MSG_ReadByte(&net_message);
 		}
 
 		if (bits & U_MODEL2)
 		{
-			to->modelindex2 = MSG_ReadShort(&net_message);
+			to->modelindex2 = model16 ? MSG_ReadShort(&net_message) :
+				MSG_ReadByte(&net_message);
 		}
 
 		if (bits & U_MODEL3)
 		{
-			to->modelindex3 = MSG_ReadShort(&net_message);
+			to->modelindex3 = model16 ? MSG_ReadShort(&net_message) :
+				MSG_ReadByte(&net_message);
 		}
 
 		if (bits & U_MODEL4)
 		{
-			to->modelindex4 = MSG_ReadShort(&net_message);
+			to->modelindex4 = model16 ? MSG_ReadShort(&net_message) :
+				MSG_ReadByte(&net_message);
 		}
 	}
 
@@ -338,41 +359,64 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, int 
 		to->skinnum = MSG_ReadShort(&net_message);
 	}
 
-	if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16))
+	if (cls.serverProtocol == PROTOCOL_RR22_VERSION &&
+		(bits & U_KEX_EFFECTS64))
 	{
 		to->effects = MSG_ReadLong(&net_message);
-	}
-	else if (bits & U_EFFECTS8)
-	{
-		to->effects = MSG_ReadByte(&net_message);
-	}
-	else if (bits & U_EFFECTS16)
-	{
-		to->effects = MSG_ReadShort(&net_message);
-	}
 
-	/* ReRelease effects */
-	if (cls.serverProtocol != PROTOCOL_VERSION)
-	{
-		to->rr_effects = 0;
+		if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16))
+		{
+			to->rr_effects = MSG_ReadLong(&net_message);
+		}
+		else if (bits & U_EFFECTS8)
+		{
+			to->rr_effects = MSG_ReadByte(&net_message);
+		}
+		else if (bits & U_EFFECTS16)
+		{
+			to->rr_effects = MSG_ReadShort(&net_message);
+		}
+
 		to->rr_mesh = 0;
 	}
 	else
 	{
 		if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16))
 		{
-			to->rr_effects = MSG_ReadLong(&net_message);
-			to->rr_mesh = MSG_ReadLong(&net_message);
+			to->effects = MSG_ReadLong(&net_message);
 		}
 		else if (bits & U_EFFECTS8)
 		{
-			to->rr_effects = MSG_ReadByte(&net_message);
-			to->rr_mesh = MSG_ReadByte(&net_message);
+			to->effects = MSG_ReadByte(&net_message);
 		}
 		else if (bits & U_EFFECTS16)
 		{
-			to->rr_effects = MSG_ReadShort(&net_message);
-			to->rr_mesh = MSG_ReadShort(&net_message);
+			to->effects = MSG_ReadShort(&net_message);
+		}
+
+		/* ReRelease effects */
+		if (cls.serverProtocol != PROTOCOL_VERSION)
+		{
+			to->rr_effects = 0;
+			to->rr_mesh = 0;
+		}
+		else
+		{
+			if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16))
+			{
+				to->rr_effects = MSG_ReadLong(&net_message);
+				to->rr_mesh = MSG_ReadLong(&net_message);
+			}
+			else if (bits & U_EFFECTS8)
+			{
+				to->rr_effects = MSG_ReadByte(&net_message);
+				to->rr_mesh = MSG_ReadByte(&net_message);
+			}
+			else if (bits & U_EFFECTS16)
+			{
+				to->rr_effects = MSG_ReadShort(&net_message);
+				to->rr_mesh = MSG_ReadShort(&net_message);
+			}
 		}
 	}
 
@@ -389,19 +433,36 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, int 
 		to->renderfx = MSG_ReadShort(&net_message);
 	}
 
+	if (cls.serverProtocol == PROTOCOL_RR22_VERSION && (bits & U_SOLID))
+	{
+		to->solid = MSG_ReadLong(&net_message);
+	}
+
 	if (bits & U_ORIGIN1)
 	{
-		to->origin[0] = MSG_ReadCoord(&net_message, cls.serverProtocol);
+		if (cls.serverProtocol == PROTOCOL_RR22_VERSION)
+			to->origin[0] = to->solid ? MSG_ReadFloat(&net_message) :
+				MSG_ReadShort(&net_message) * 0.125f;
+		else
+			to->origin[0] = MSG_ReadCoord(&net_message, cls.serverProtocol);
 	}
 
 	if (bits & U_ORIGIN2)
 	{
-		to->origin[1] = MSG_ReadCoord(&net_message, cls.serverProtocol);
+		if (cls.serverProtocol == PROTOCOL_RR22_VERSION)
+			to->origin[1] = to->solid ? MSG_ReadFloat(&net_message) :
+				MSG_ReadShort(&net_message) * 0.125f;
+		else
+			to->origin[1] = MSG_ReadCoord(&net_message, cls.serverProtocol);
 	}
 
 	if (bits & U_ORIGIN3)
 	{
-		to->origin[2] = MSG_ReadCoord(&net_message, cls.serverProtocol);
+		if (cls.serverProtocol == PROTOCOL_RR22_VERSION)
+			to->origin[2] = to->solid ? MSG_ReadFloat(&net_message) :
+				MSG_ReadShort(&net_message) * 0.125f;
+		else
+			to->origin[2] = MSG_ReadCoord(&net_message, cls.serverProtocol);
 	}
 
 	if (bits & U_ANGLE1)
@@ -421,12 +482,44 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, int 
 
 	if (bits & U_OLDORIGIN)
 	{
-		MSG_ReadPos(&net_message, to->old_origin, cls.serverProtocol);
+		if (cls.serverProtocol == PROTOCOL_RR22_VERSION && !to->solid)
+		{
+			to->old_origin[0] = MSG_ReadShort(&net_message) * 0.125f;
+			to->old_origin[1] = MSG_ReadShort(&net_message) * 0.125f;
+			to->old_origin[2] = MSG_ReadShort(&net_message) * 0.125f;
+		}
+		else if (cls.serverProtocol == PROTOCOL_RR22_VERSION)
+		{
+			to->old_origin[0] = MSG_ReadFloat(&net_message);
+			to->old_origin[1] = MSG_ReadFloat(&net_message);
+			to->old_origin[2] = MSG_ReadFloat(&net_message);
+		}
+		else
+		{
+			MSG_ReadPos(&net_message, to->old_origin, cls.serverProtocol);
+		}
 	}
 
 	if (bits & U_SOUND)
 	{
-		to->sound = MSG_ReadByte(&net_message);
+		if (cls.serverProtocol == PROTOCOL_RR22_VERSION)
+		{
+			int sound_word = MSG_ReadShort(&net_message);
+
+			to->sound = sound_word & 0x3fff;
+			if (sound_word & (1 << 14))
+			{
+				MSG_ReadByte(&net_message);
+			}
+			if (sound_word & (1 << 15))
+			{
+				MSG_ReadByte(&net_message);
+			}
+		}
+		else
+		{
+			to->sound = MSG_ReadByte(&net_message);
+		}
 	}
 
 	if (bits & U_EVENT)
@@ -438,9 +531,37 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, int 
 		to->event = 0;
 	}
 
+	if (bits & U_ALPHA)
+	{
+		to->rr_alpha = MSG_ReadByte(&net_message) / 255.0f;
+	}
+
+	if (bits & U_SCALE)
+	{
+		MSG_ReadByte(&net_message);
+	}
+
+	if (bits & U_KEX_INSTANCE)
+	{
+		MSG_ReadByte(&net_message);
+	}
+
+	if (bits & U_KEX_OWNER)
+	{
+		MSG_ReadShort(&net_message);
+	}
+
+	if (bits & U_KEX_OLDFRAME)
+	{
+		MSG_ReadShort(&net_message);
+	}
+
 	if (bits & U_SOLID)
 	{
-		to->solid = MSG_ReadShort(&net_message);
+		if (cls.serverProtocol != PROTOCOL_RR22_VERSION)
+		{
+			to->solid = MSG_ReadShort(&net_message);
+		}
 	}
 
 	/* Revalidate model indexes limits */
@@ -555,7 +676,7 @@ CL_DeltaEntity(frame_t *frame, int newnum, const entity_xstate_t *old, int bits)
 static void
 CL_ParsePacketEntities(const frame_t *oldframe, frame_t *newframe)
 {
-	unsigned bits;
+	uint64_t bits;
 	centity_t *ent;
 	const entity_xstate_t *oldstate = NULL;
 	int oldindex, oldnum;
@@ -643,28 +764,21 @@ CL_ParsePacketEntities(const frame_t *oldframe, frame_t *newframe)
 				Com_Printf("   remove: %i\n", newnum);
 			}
 
-			if (oldnum != newnum)
+			if (oldnum == newnum)
 			{
-				Com_Printf("U_REMOVE: oldnum != newnum: %d %d\n", oldnum, newnum);
-			}
+				oldindex++;
 
-			oldindex++;
+				if (oldindex >= oldframe->num_entities)
+				{
+					oldnum = 99999;
+				}
 
-			if (!oldframe)
-			{
-				continue;
-			}
-
-			if (oldindex >= oldframe->num_entities)
-			{
-				oldnum = 99999;
-			}
-
-			else
-			{
-				oldstate = &cl_parse_entities[(oldframe->parse_entities +
+				else
+				{
+					oldstate = &cl_parse_entities[(oldframe->parse_entities +
 										oldindex) & (MAX_PARSE_ENTITIES - 1)];
-				oldnum = oldstate->number;
+					oldnum = oldstate->number;
+				}
 			}
 
 			continue;
@@ -745,7 +859,8 @@ CL_ParsePacketEntities(const frame_t *oldframe, frame_t *newframe)
 static void
 CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 {
-	int flags, i, statbits[8], stats_size;
+	unsigned int flags;
+	int i, group, statbits[8], stats_size;
 	player_state_t *state;
 
 	state = &newframe->playerstate;
@@ -763,7 +878,11 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 		memset(newframe->origin, 0, sizeof(newframe->origin));
 	}
 
-	flags = MSG_ReadShort(&net_message);
+	flags = (unsigned short)MSG_ReadShort(&net_message);
+	if (protocol == PROTOCOL_RR22_VERSION && (flags & PS_MOREBITS))
+	{
+		flags |= (unsigned int)(unsigned short)MSG_ReadShort(&net_message) << 16;
+	}
 
 	/* parse the pmove_state_t */
 	if (flags & PS_M_TYPE)
@@ -773,7 +892,15 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 
 	if (flags & PS_M_ORIGIN)
 	{
-		if (IS_QII97_PROTOCOL(protocol))
+		if (protocol == PROTOCOL_RR22_VERSION)
+		{
+			/* frame origin is kept in 28.3 fixed point */
+			for (i = 0; i < 3; i++)
+			{
+				newframe->origin[i] = (int)floorf(MSG_ReadFloat(&net_message) * 8.0f + 0.5f);
+			}
+		}
+		else if (IS_QII97_PROTOCOL(protocol))
 		{
 			newframe->origin[0] = MSG_ReadShort(&net_message);
 			newframe->origin[1] = MSG_ReadShort(&net_message);
@@ -794,12 +921,24 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 
 	if (flags & PS_M_TIME)
 	{
-		state->pmove.pm_time = MSG_ReadByte(&net_message);
+		if (protocol == PROTOCOL_RR22_VERSION)
+		{
+			/* KEX sends milliseconds, pmove_state_t uses 8 ms units */
+			int pm_time = (unsigned short)MSG_ReadShort(&net_message) / 8;
+
+			state->pmove.pm_time = pm_time > 255 ? 255 : pm_time;
+		}
+		else
+		{
+			state->pmove.pm_time = MSG_ReadByte(&net_message);
+		}
 	}
 
 	if (flags & PS_M_FLAGS)
 	{
-		state->pmove.pm_flags = MSG_ReadByte(&net_message);
+		/* KEX flags above PMF_NO_PREDICTION have no vanilla equivalent */
+		state->pmove.pm_flags = protocol == PROTOCOL_RR22_VERSION ?
+			(MSG_ReadShort(&net_message) & 0x7f) : MSG_ReadByte(&net_message);
 	}
 
 	if (flags & PS_M_GRAVITY)
@@ -809,9 +948,18 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 
 	if (flags & PS_M_DELTA_ANGLES)
 	{
-		state->pmove.delta_angles[0] = MSG_ReadShort(&net_message);
-		state->pmove.delta_angles[1] = MSG_ReadShort(&net_message);
-		state->pmove.delta_angles[2] = MSG_ReadShort(&net_message);
+		if (protocol == PROTOCOL_RR22_VERSION)
+		{
+			state->pmove.delta_angles[0] = ANGLE2SHORT(MSG_ReadFloat(&net_message));
+			state->pmove.delta_angles[1] = ANGLE2SHORT(MSG_ReadFloat(&net_message));
+			state->pmove.delta_angles[2] = ANGLE2SHORT(MSG_ReadFloat(&net_message));
+		}
+		else
+		{
+			state->pmove.delta_angles[0] = MSG_ReadShort(&net_message);
+			state->pmove.delta_angles[1] = MSG_ReadShort(&net_message);
+			state->pmove.delta_angles[2] = MSG_ReadShort(&net_message);
+		}
 	}
 
 	if (cl.attractloop)
@@ -822,23 +970,51 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 	/* parse the rest of the player_state_t */
 	if (flags & PS_VIEWOFFSET)
 	{
-		state->viewoffset[0] = MSG_ReadChar(&net_message) * 0.25f;
-		state->viewoffset[1] = MSG_ReadChar(&net_message) * 0.25f;
-		state->viewoffset[2] = MSG_ReadChar(&net_message) * 0.25f;
+		if (protocol == PROTOCOL_RR22_VERSION)
+		{
+			state->viewoffset[0] = MSG_ReadShort(&net_message) / 16.0f;
+			state->viewoffset[1] = MSG_ReadShort(&net_message) / 16.0f;
+			state->viewoffset[2] = MSG_ReadShort(&net_message) / 16.0f;
+			MSG_ReadChar(&net_message);
+		}
+		else
+		{
+			state->viewoffset[0] = MSG_ReadChar(&net_message) * 0.25f;
+			state->viewoffset[1] = MSG_ReadChar(&net_message) * 0.25f;
+			state->viewoffset[2] = MSG_ReadChar(&net_message) * 0.25f;
+		}
 	}
 
 	if (flags & PS_VIEWANGLES)
 	{
-		state->viewangles[0] = MSG_ReadAngle16(&net_message);
-		state->viewangles[1] = MSG_ReadAngle16(&net_message);
-		state->viewangles[2] = MSG_ReadAngle16(&net_message);
+		if (protocol == PROTOCOL_RR22_VERSION)
+		{
+			state->viewangles[0] = MSG_ReadFloat(&net_message);
+			state->viewangles[1] = MSG_ReadFloat(&net_message);
+			state->viewangles[2] = MSG_ReadFloat(&net_message);
+		}
+		else
+		{
+			state->viewangles[0] = MSG_ReadAngle16(&net_message);
+			state->viewangles[1] = MSG_ReadAngle16(&net_message);
+			state->viewangles[2] = MSG_ReadAngle16(&net_message);
+		}
 	}
 
 	if (flags & PS_KICKANGLES)
 	{
-		state->kick_angles[0] = MSG_ReadChar(&net_message) * 0.25f;
-		state->kick_angles[1] = MSG_ReadChar(&net_message) * 0.25f;
-		state->kick_angles[2] = MSG_ReadChar(&net_message) * 0.25f;
+		if (protocol == PROTOCOL_RR22_VERSION)
+		{
+			state->kick_angles[0] = MSG_ReadShort(&net_message) / 1024.0f;
+			state->kick_angles[1] = MSG_ReadShort(&net_message) / 1024.0f;
+			state->kick_angles[2] = MSG_ReadShort(&net_message) / 1024.0f;
+		}
+		else
+		{
+			state->kick_angles[0] = MSG_ReadChar(&net_message) * 0.25f;
+			state->kick_angles[1] = MSG_ReadChar(&net_message) * 0.25f;
+			state->kick_angles[2] = MSG_ReadChar(&net_message) * 0.25f;
+		}
 	}
 
 	if (flags & PS_WEAPONINDEX)
@@ -850,6 +1026,11 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 		else
 		{
 			state->gunindex = MSG_ReadShort(&net_message);
+			if (protocol == PROTOCOL_RR22_VERSION)
+			{
+				state->gunindex &= 0x1fff;
+			}
+
 			if (state->gunindex < 0 || state->gunindex >= MAX_MODELS)
 			{
 				Com_Error(ERR_DROP, "%s: bad gunindex %d", __func__, state->gunindex);
@@ -859,7 +1040,29 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 
 	if (flags & PS_WEAPONFRAME)
 	{
-		if (IS_QII97_PROTOCOL(protocol))
+		if (protocol == PROTOCOL_RR22_VERSION)
+		{
+			unsigned int gunbits = (unsigned short)MSG_ReadShort(&net_message);
+
+			state->gunframe = gunbits & 0x1ff;
+			gunbits >>= 9;
+
+			if (gunbits & (1 << 0))
+				state->gunoffset[0] = MSG_ReadFloat(&net_message);
+			if (gunbits & (1 << 1))
+				state->gunoffset[1] = MSG_ReadFloat(&net_message);
+			if (gunbits & (1 << 2))
+				state->gunoffset[2] = MSG_ReadFloat(&net_message);
+			if (gunbits & (1 << 3))
+				state->gunangles[0] = MSG_ReadFloat(&net_message);
+			if (gunbits & (1 << 4))
+				state->gunangles[1] = MSG_ReadFloat(&net_message);
+			if (gunbits & (1 << 5))
+				state->gunangles[2] = MSG_ReadFloat(&net_message);
+			if (gunbits & (1 << 6))
+				MSG_ReadByte(&net_message);
+		}
+		else if (IS_QII97_PROTOCOL(protocol))
 		{
 			state->gunframe = MSG_ReadByte(&net_message);
 		}
@@ -868,12 +1071,15 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 			state->gunframe = MSG_ReadShort(&net_message);
 		}
 
-		state->gunoffset[0] = MSG_ReadChar(&net_message) * 0.25f;
-		state->gunoffset[1] = MSG_ReadChar(&net_message) * 0.25f;
-		state->gunoffset[2] = MSG_ReadChar(&net_message) * 0.25f;
-		state->gunangles[0] = MSG_ReadChar(&net_message) * 0.25f;
-		state->gunangles[1] = MSG_ReadChar(&net_message) * 0.25f;
-		state->gunangles[2] = MSG_ReadChar(&net_message) * 0.25f;
+		if (protocol != PROTOCOL_RR22_VERSION)
+		{
+			state->gunoffset[0] = MSG_ReadChar(&net_message) * 0.25f;
+			state->gunoffset[1] = MSG_ReadChar(&net_message) * 0.25f;
+			state->gunoffset[2] = MSG_ReadChar(&net_message) * 0.25f;
+			state->gunangles[0] = MSG_ReadChar(&net_message) * 0.25f;
+			state->gunangles[1] = MSG_ReadChar(&net_message) * 0.25f;
+			state->gunangles[2] = MSG_ReadChar(&net_message) * 0.25f;
+		}
 	}
 
 	if (flags & PS_BLEND)
@@ -895,7 +1101,11 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 	}
 
 	/* parse stats */
-	if (IS_QII97_PROTOCOL(protocol))
+	if (protocol == PROTOCOL_RR22_VERSION)
+	{
+		stats_size = 64;
+	}
+	else if (IS_QII97_PROTOCOL(protocol))
 	{
 		stats_size = MAX_STATS;
 	}
@@ -907,32 +1117,77 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 	/* clear all before read real values */
 	memset(statbits, 0, sizeof(statbits));
 
-	/* Read stats bits */
-	for (i = 0; i < (int)((stats_size + 31) / 32); i++)
+	if (protocol == PROTOCOL_RR22_VERSION)
 	{
-		statbits[i] = MSG_ReadLong(&net_message);
-	}
-
-	for (i = 0; i < stats_size; i++)
-	{
-		if (statbits[(int)(i / 32)] & (1u << (i % 32)))
+		for (group = 0; group < stats_size / 32; group++)
 		{
-			if (i < MAX_STATS)
-			{
-				state->stats[i] = MSG_ReadShort(&net_message);
+			statbits[group] = MSG_ReadLong(&net_message);
 
-				if (i == STAT_PICKUP_STRING)
+			for (i = group * 32; i < (group + 1) * 32; i++)
+			{
+				if (statbits[group] & (1u << (i % 32)))
 				{
-					state->stats[i] = P_ConvertConfigStringFrom(state->stats[i],
-						protocol);
+					if (i < MAX_STATS)
+					{
+						state->stats[i] = MSG_ReadShort(&net_message);
+
+						if (i == STAT_PICKUP_STRING)
+						{
+							state->stats[i] = P_ConvertConfigStringFrom(state->stats[i],
+								protocol);
+						}
+					}
+					else
+					{
+						Com_DPrintf("%s: unknown stats %d: %d\n",
+							__func__, i, MSG_ReadShort(&net_message));
+					}
 				}
 			}
-			else
+		}
+	}
+	else
+	{
+		/* Read stats bits */
+		for (i = 0; i < (int)((stats_size + 31) / 32); i++)
+		{
+			statbits[i] = MSG_ReadLong(&net_message);
+		}
+
+		for (i = 0; i < stats_size; i++)
+		{
+			if (statbits[(int)(i / 32)] & (1u << (i % 32)))
 			{
-				Com_DPrintf("%s: unknown stats %d: %d\n",
-					__func__, i, MSG_ReadShort(&net_message));
+				if (i < MAX_STATS)
+				{
+					state->stats[i] = MSG_ReadShort(&net_message);
+
+					if (i == STAT_PICKUP_STRING)
+					{
+						state->stats[i] = P_ConvertConfigStringFrom(state->stats[i],
+							protocol);
+					}
+				}
+				else
+				{
+					Com_DPrintf("%s: unknown stats %d: %d\n",
+						__func__, i, MSG_ReadShort(&net_message));
+				}
 			}
 		}
+	}
+
+	if (protocol == PROTOCOL_RR22_VERSION && (flags & PS_KEX_DAMAGE_BLEND))
+	{
+		MSG_ReadByte(&net_message);
+		MSG_ReadByte(&net_message);
+		MSG_ReadByte(&net_message);
+		MSG_ReadByte(&net_message);
+	}
+
+	if (protocol == PROTOCOL_RR22_VERSION && (flags & PS_KEX_TEAM_ID))
+	{
+		MSG_ReadByte(&net_message);
 	}
 }
 
@@ -1008,7 +1263,7 @@ CL_ParseFrame(void)
 
 	cl.frame.serverframe = MSG_ReadLong(&net_message);
 	cl.frame.deltaframe = MSG_ReadLong(&net_message);
-	cl.frame.servertime = cl.frame.serverframe * 100;
+	cl.frame.servertime = cl.frame.serverframe * cl.frame_msec;
 
 	/* BIG HACK to let old demos continue to work */
 	if (cls.serverProtocol != PROTOCOL_RELEASE_VERSION)
@@ -1065,9 +1320,9 @@ CL_ParseFrame(void)
 		cl.time = cl.frame.servertime;
 	}
 
-	else if (cl.time < cl.frame.servertime - 100)
+	else if (cl.time < cl.frame.servertime - cl.frame_msec)
 	{
-		cl.time = cl.frame.servertime - 100;
+		cl.time = cl.frame.servertime - cl.frame_msec;
 	}
 
 	/* read areabits */
@@ -1236,6 +1491,17 @@ CL_ParseServerData(void)
 
 	cl.servercount = MSG_ReadLong(&net_message);
 	cl.attractloop = MSG_ReadByte(&net_message);
+	cl.frame_msec = 100;
+
+	if (i == PROTOCOL_RR22_VERSION)
+	{
+		int fps = MSG_ReadByte(&net_message);
+
+		if (fps > 0)
+		{
+			cl.frame_msec = 1000 / fps;
+		}
+	}
 
 	/* game directory */
 	str = MSG_ReadString(&net_message);
@@ -1275,7 +1541,7 @@ CL_ParseServerData(void)
 static void
 CL_ParseBaseline(void)
 {
-	unsigned bits;
+	uint64_t bits;
 	int newnum;
 	centity_t *ent;
 
@@ -1780,7 +2046,8 @@ CL_ParseStartSoundPacket(void)
 	if (flags & SND_ENT)
 	{
 		/* entity reletive */
-		channel = MSG_ReadShort(&net_message);
+		channel = (flags & SND_KEX_LARGE_ENT) ?
+			MSG_ReadLong(&net_message) : MSG_ReadShort(&net_message);
 		ent = channel >> 3;
 
 		if (ent < 0)
@@ -1825,6 +2092,31 @@ CL_ParseStartSoundPacket(void)
 
 	S_StartSound(pos, ent, channel, cl.sound_precache[sound_num],
 			volume, attenuation, ofs);
+}
+
+static void
+CL_ParseDamage(void)
+{
+	int count, i;
+	vec3_t direction;
+
+	count = MSG_ReadByte(&net_message);
+	if (count < 0)
+	{
+		Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+		return;
+	}
+
+	for (i = 0; i < count; i++)
+	{
+		if (MSG_ReadByte(&net_message) < 0)
+		{
+			Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+			return;
+		}
+
+		MSG_ReadDir(&net_message, direction);
+	}
 }
 
 void
@@ -1890,6 +2182,10 @@ CL_ParseServerMessage(void)
 			case svc_nop:
 				break;
 
+			case svc_splitclient:
+				MSG_ReadByte(&net_message);
+				break;
+
 			case svc_disconnect:
 				Com_Error(ERR_DISCONNECT, "Server disconnected\n");
 				return;
@@ -1927,6 +2223,38 @@ CL_ParseServerMessage(void)
 				con.ormask = 0;
 				break;
 
+			case svc_locprint:
+			{
+				char message[MAX_STRING_CHARS];
+				int num_args;
+
+				MSG_ReadByte(&net_message);	/* flags */
+				Q_strlcpy(message, MSG_ReadString(&net_message), sizeof(message));
+				num_args = MSG_ReadByte(&net_message);
+
+				if (num_args < 0 || num_args > RR22_MAX_LOCALIZATION_ARGS)
+				{
+					Com_Error(ERR_DROP, "%s: Invalid localized print argument count %d\n",
+						__func__, num_args);
+					return;
+				}
+
+				for (i = 0; i < num_args; i++)
+				{
+					MSG_ReadString(&net_message);
+				}
+
+				if (net_message.readcount > net_message.cursize)
+				{
+					Com_Error(ERR_DROP, "%s: Truncated localized print message\n",
+						__func__);
+					return;
+				}
+
+				Com_Printf("%s", SV_LocalizationMessage(message, NULL));
+				break;
+			}
+
 			case svc_centerprint:
 				SCR_CenterPrint(MSG_ReadString(&net_message));
 				break;
@@ -1950,6 +2278,10 @@ CL_ParseServerMessage(void)
 				CL_ParseStartSoundPacket();
 				break;
 
+			case svc_damage:
+				CL_ParseDamage();
+				break;
+
 			case svc_spawnbaseline:
 				CL_ParseBaseline();
 				break;
@@ -1964,6 +2296,10 @@ CL_ParseServerMessage(void)
 
 			case svc_muzzleflash2:
 				CL_AddMuzzleFlash2();
+				break;
+
+			case svc_muzzleflash3:
+				CL_AddMuzzleFlash3();
 				break;
 
 			case svc_download:

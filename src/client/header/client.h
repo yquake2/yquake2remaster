@@ -188,6 +188,7 @@ typedef struct
 	/* server state information */
 	qboolean	attractloop; /* running the attract loop, any key will menu */
 	int			servercount; /* server identification for prespawns */
+	int			frame_msec; /* server frame duration, 100 for 10 Hz servers */
 	char		gamedir[MAX_QPATH];
 	int			playernum;
 
@@ -465,6 +466,7 @@ void CL_ClearParticles(void);
 void CL_ParseTEnt(void);
 void CL_AddMuzzleFlash(void);
 void CL_AddMuzzleFlash2(void);
+void CL_AddMuzzleFlash3(void);
 void CL_AddFog(svc_fog_data_t *fog);
 
 void CL_SetLightstyle(int i);

@@ -1018,19 +1018,19 @@ CL_AddEntities(void)
 		cl.time = cl.frame.servertime;
 		cl.lerpfrac = 1.0;
 	}
-	else if (cl.time < cl.frame.servertime - 100)
+	else if (cl.time < cl.frame.servertime - cl.frame_msec)
 	{
 		if (cl_showclamp->value)
 		{
-			Com_Printf("low clamp %i\n", cl.frame.servertime - 100 - cl.time);
+			Com_Printf("low clamp %i\n", cl.frame.servertime - cl.frame_msec - cl.time);
 		}
 
-		cl.time = cl.frame.servertime - 100;
+		cl.time = cl.frame.servertime - cl.frame_msec;
 		cl.lerpfrac = 0;
 	}
 	else
 	{
-		cl.lerpfrac = 1.0 - (cl.frame.servertime - cl.time) * 0.01f;
+		cl.lerpfrac = 1.0 - (cl.frame.servertime - cl.time) / (float)cl.frame_msec;
 	}
 
 	if (cl_timedemo->value)
