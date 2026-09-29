@@ -686,7 +686,7 @@ SV_Map(qboolean attractloop, const char *levelstring, qboolean loadgame, qboolea
 		SV_BroadcastCommand("changing\n");
 		SV_SpawnServer(level, spawnpoint, ss_cinematic, attractloop, loadgame, isautosave);
 	}
-	else if (ext && !strcmp(ext, ".dm2"))
+	else if (ext && (!strcmp(ext, ".dm2") || !strcmp(ext, ".hd2")))
 	{
 #ifndef DEDICATED_ONLY
 		SCR_BeginLoadingPlaque(); /* for local system */
