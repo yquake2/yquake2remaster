@@ -153,7 +153,7 @@ SV_DemoMap_f(void)
 {
 	if (Cmd_Argc() != 2)
 	{
-		Com_Printf("USAGE: demomap <demoname.dm2>\n");
+		Com_Printf("USAGE: demomap <demoname.dm2|demoname.hd2>\n");
 		return;
 	}
 
