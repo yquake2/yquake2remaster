@@ -25,8 +25,9 @@ layout(set = 1, binding = 0) uniform UniformBufferObject
 
 struct DynLight
 {
-	vec4 origin; // world position, w unused
-	vec4 color;  // RGB + intensity in .a
+	vec4 originRadius; // world position + influence radius
+	vec4 colorIntensity; // RGB + intensity in .a
+	vec4 cone; // direction + cosine of the cone angle; > 1 means point light
 };
 
 layout(set = 3, binding = 0) uniform DynLightBufferObject
@@ -55,11 +56,22 @@ void main()
 			// dynamic light i does not reach this surface, skip it
 			if ((lightFlags & (1u << i)) == 0u)  continue;
 
-			float intens = lights.dynLights[i].color.a;
+			DynLight dynamicLight = lights.dynLights[i];
 
-			vec3 lightToPos = lights.dynLights[i].origin.xyz - worldCoord;
+			vec3 lightToPos = dynamicLight.originRadius.xyz - worldCoord;
 			float distLightToPos = length(lightToPos);
-			float fact = max(0.0, intens - distLightToPos - 52.0);
+			float radius = max(dynamicLight.originRadius.w, 1.0);
+			float fact = max(0.0, radius - distLightToPos - 52.0) / radius;
+			fact *= dynamicLight.colorIntensity.a;
+
+			if (dynamicLight.cone.w <= 1.0)
+			{
+				vec3 lightToFragment = (worldCoord - dynamicLight.originRadius.xyz)
+					/ max(distLightToPos, 1.0);
+				float coneFactor = (dot(lightToFragment, dynamicLight.cone.xyz) - dynamicLight.cone.w)
+					/ max(1.0 - dynamicLight.cone.w, 0.0001);
+				fact *= clamp(coneFactor, 0.0, 1.0);
+			}
 
 			// move the light source a bit further above the surface
 			// => helps if the lightsource is so close to the surface (e.g. grenades, rockets)
@@ -70,7 +82,7 @@ void main()
 			// also factor in angle between light and point on surface
 			fact *= max(0.0, dot(worldNormal, normalize(lightToPos)));
 
-			light.rgb += lights.dynLights[i].color.rgb * fact * (1.0 / 256.0);
+			light.rgb += dynamicLight.colorIntensity.rgb * fact;
 		}
 	}
 

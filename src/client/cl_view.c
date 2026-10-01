@@ -120,6 +120,10 @@ V_AddLight(vec3_t org, float intensity, float r, float g, float b)
 	dl = &r_dlights[r_numdlights++];
 	VectorCopy(org, dl->origin);
 	dl->intensity = intensity;
+	dl->light_scale = intensity / 256.0f;
+	dl->radius = intensity > 0 ? intensity : 0;
+	VectorClear(dl->cone);
+	dl->conecos = 2.0f;
 	dl->color[0] = r;
 	dl->color[1] = g;
 	dl->color[2] = b;
@@ -199,18 +203,24 @@ V_AddLightShadow(cl_shadow_light_t *light)
 	{
 		dl->intensity *= r_lightstyles[light->lightstyle].white;
 	}
+	dl->light_scale = dl->intensity;
 
 	*(int *) color = light->color;
 	dl->color[0] = color[0] / 255.f;
 	dl->color[1] = color[1] / 255.f;
 	dl->color[2] = color[2] / 255.f;
 
-	/* TODO: implement:
-	 *   radius,
-	 *   coneangle,
-	 *   conedirection,
-	 *   fade_start,
-	 *   fade_end */
+	dl->radius = light->radius;
+	VectorClear(dl->cone);
+	dl->conecos = 2.0f;
+	if (light->coneangle > 0.0f)
+	{
+		VectorCopy(light->conedirection, dl->cone);
+		if (VectorNormalize(dl->cone) > 0.0f)
+		{
+			dl->conecos = cosf(light->coneangle * 0.017453292519943295f);
+		}
+	}
 }
 
 void

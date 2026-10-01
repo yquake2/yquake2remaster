@@ -220,7 +220,7 @@ typedef enum
 /* number of image semaphores */
 #define NUM_IMG_SEMAPHORES (NUM_CMDBUFFERS * 2)
 /* bytes a single dynamic uniform buffer binding can address */
-#define UNIFORM_ALLOC_SIZE 1024
+#define UNIFORM_ALLOC_SIZE 2048
 #define PUSH_CONSTANT_VERTEX_SIZE 17
 // the last two floats are the world postprocess (see QVk_BindPipeline), they sit
 // past every shader's own fragment constants so a bind can never clobber them
