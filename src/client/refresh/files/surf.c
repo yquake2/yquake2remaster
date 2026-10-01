@@ -944,7 +944,8 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node, int clipflags,
 			continue;
 		}
 
-		if ((surf->flags & SURF_PLANEBACK) != sidebit)
+		if ((surf->plane == node->plane) &&
+			((surf->flags & SURF_PLANEBACK) != sidebit))
 		{
 			continue; /* wrong side */
 		}
