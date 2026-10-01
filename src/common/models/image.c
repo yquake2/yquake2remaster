@@ -754,12 +754,375 @@ WAL_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 	}
 }
 
+/*
+ * Doom flats have no header at all, just raw square (or rectangular)
+ * 8bpp pixel data, so the size alone has to reveal the dimensions.
+ */
+static void
+LMP_DecodeFlat(const char *name, const byte *raw, int len, byte **pic,
+	int *width, int *height)
+{
+	int w, h;
+
+	switch (len)
+	{
+		case 64 * 64: w = 64; h = 64; break;
+		case 64 * 128: w = 64; h = 128; break;
+		case 128 * 128: w = 128; h = 128; break;
+		case 256 * 256: w = 256; h = 256; break;
+		default:
+			Com_Printf("%s: can't load %s, unsupported flat size %d\n",
+				__func__, name, len);
+			return;
+	}
+
+	*pic = malloc(len);
+	YQ2_COM_CHECK_OOM(*pic, "malloc()", len)
+	if (*pic)
+	{
+		memcpy(*pic, raw, len);
+	}
+
+	if (width)
+	{
+		*width = w;
+	}
+
+	if (height)
+	{
+		*height = h;
+	}
+}
+
+typedef struct
+{
+	short width, height;
+	short leftoffset, topoffset;
+} doompatch_header_t;
+
+/*
+ * Draws the RLE encoded posts of a Doom patch column onto a canvas at
+ * the given offset, used both for standalone patches and for compositing
+ * multi-patch wall textures (TEXTURE1/TEXTURE2 + PNAMES).
+ */
+static void
+Doom_BlitPatchColumns(const byte *raw, int len, byte *canvas,
+	int canvas_w, int canvas_h, int origin_x, int origin_y)
+{
+	const doompatch_header_t *hdr;
+	const int *columnofs;
+	int w, x;
+
+	if (len < (int)sizeof(*hdr))
+	{
+		return;
+	}
+
+	hdr = (const doompatch_header_t *)raw;
+	w = LittleShort(hdr->width);
+
+	if ((w <= 0) || (w > 4096) ||
+		(len < (int)(sizeof(*hdr) + (size_t)w * sizeof(int))))
+	{
+		return;
+	}
+
+	columnofs = (const int *)(raw + sizeof(*hdr));
+
+	for (x = 0; x < w; x++)
+	{
+		int ofs, canvas_x;
+
+		canvas_x = origin_x + x;
+		if ((canvas_x < 0) || (canvas_x >= canvas_w))
+		{
+			continue;
+		}
+
+		ofs = LittleLong(columnofs[x]);
+		if ((ofs < 0) || (ofs >= len))
+		{
+			continue;
+		}
+
+		while ((ofs + 2) < len)
+		{
+			int topdelta, count, y;
+			const byte *post;
+
+			topdelta = raw[ofs];
+			if (topdelta == 0xFF)
+			{
+				break;
+			}
+
+			count = raw[ofs + 1];
+			if ((ofs + 3 + count) > len)
+			{
+				break;
+			}
+
+			post = raw + ofs + 3;
+			for (y = 0; y < count; y++)
+			{
+				int canvas_y;
+
+				canvas_y = origin_y + topdelta + y;
+				if ((canvas_y >= 0) && (canvas_y < canvas_h))
+				{
+					canvas[canvas_y * canvas_w + canvas_x] = post[y];
+				}
+			}
+
+			ofs += 4 + count;
+		}
+	}
+}
+
+/*
+ * Doom patches store columns of RLE encoded posts (topdelta, length,
+ * pixels) referenced by a per-column offset table, unlike the flat
+ * headerless format or the Quake width/height + raw pixels format.
+ */
+static void
+LMP_DecodePatch(const char *name, const byte *raw, int len, byte **pic,
+	int *width, int *height)
+{
+	const doompatch_header_t *hdr;
+	int w, h;
+	byte *out;
+
+	if (len < (int)sizeof(*hdr))
+	{
+		Com_Printf("%s: can't load %s, small header\n", __func__, name);
+		return;
+	}
+
+	hdr = (const doompatch_header_t *)raw;
+	w = LittleShort(hdr->width);
+	h = LittleShort(hdr->height);
+
+	if ((w <= 0) || (h <= 0) || (w > 4096) || (h > 4096) ||
+		(len < (int)(sizeof(*hdr) + (size_t)w * sizeof(int))))
+	{
+		Com_Printf("%s: can't load %s, bad patch dimensions %dx%d ? %d\n",
+			__func__, name, w, h, len);
+		return;
+	}
+
+	out = malloc((size_t)w * h);
+	YQ2_COM_CHECK_OOM(out, "malloc()", (size_t)w * h)
+	if (!out)
+	{
+		return;
+	}
+
+	/* 0xFF marks "no pixel here", used as transparency placeholder */
+	memset(out, 0xFF, (size_t)w * h);
+	Doom_BlitPatchColumns(raw, len, out, w, h, 0, 0);
+
+	*pic = out;
+
+	if (width)
+	{
+		*width = w;
+	}
+
+	if (height)
+	{
+		*height = h;
+	}
+}
+
+/*
+ * Looks up the name of patch 'index' inside a loaded PNAMES lump.
+ */
+static qboolean
+Doom_LoadPatchName(const byte *pnames, int pnames_len, int index, char name[9])
+{
+	int count;
+
+	if (pnames_len < 4)
+	{
+		return false;
+	}
+
+	count = LittleLong(((const int *)pnames)[0]);
+	if ((index < 0) || (index >= count) ||
+		(pnames_len < (int)(4 + (size_t)count * 8)))
+	{
+		return false;
+	}
+
+	memcpy(name, pnames + 4 + (size_t)index * 8, 8);
+	name[8] = 0;
+	return true;
+}
+
+typedef struct
+{
+	short originx, originy, patch, stepdir, colormap;
+} doommappatch_t;
+
+/*
+ * Wall textures referenced by Doom sidedefs are not raw patch lumps,
+ * they are composed at load time from one or more patches placed at
+ * given offsets, as described by the TEXTURE1/TEXTURE2 lumps and named
+ * via PNAMES.
+ */
+static byte *
+Doom_ComposeTexture(const char *texturelump, const byte *pnames, int pnames_len,
+	const char *name, int *out_w, int *out_h)
+{
+	byte *raw, *canvas = NULL;
+	int len, numtextures, i;
+
+	len = FS_LoadFile(texturelump, (void **)&raw);
+	if (!raw || (len < 4))
+	{
+		if (raw)
+		{
+			FS_FreeFile(raw);
+		}
+		return NULL;
+	}
+
+	numtextures = LittleLong(((const int *)raw)[0]);
+	if ((numtextures < 0) || (len < (int)(4 + (size_t)numtextures * 4)))
+	{
+		FS_FreeFile(raw);
+		return NULL;
+	}
+
+	for (i = 0; i < numtextures; i++)
+	{
+		int offset, width, height, patchcount, p;
+		const byte *tex;
+		const doommappatch_t *patches;
+		char texname[9];
+
+		offset = LittleLong(((const int *)(raw + 4))[i]);
+		if ((offset < 0) || ((offset + 22) > len))
+		{
+			continue;
+		}
+
+		tex = raw + offset;
+		memcpy(texname, tex, 8);
+		texname[8] = 0;
+
+		if (Q_strcasecmp(texname, name) != 0)
+		{
+			continue;
+		}
+
+		width = LittleShort(*(const short *)(tex + 12));
+		height = LittleShort(*(const short *)(tex + 14));
+		patchcount = LittleShort(*(const short *)(tex + 20));
+
+		if ((width <= 0) || (height <= 0) || (width > 4096) || (height > 4096) ||
+			(patchcount < 0) ||
+			((offset + 22 + patchcount * (int)sizeof(doommappatch_t)) > len))
+		{
+			continue;
+		}
+
+		canvas = malloc((size_t)width * height);
+		if (!canvas)
+		{
+			break;
+		}
+		memset(canvas, 0xFF, (size_t)width * height);
+
+		patches = (const doommappatch_t *)(tex + 22);
+		for (p = 0; p < patchcount; p++)
+		{
+			int originx, originy, patch_index, patchlen;
+			char patchname[9], patchpath[MAX_QPATH];
+			byte *patchraw;
+
+			originx = LittleShort(patches[p].originx);
+			originy = LittleShort(patches[p].originy);
+			patch_index = LittleShort(patches[p].patch);
+
+			if (!Doom_LoadPatchName(pnames, pnames_len, patch_index, patchname))
+			{
+				continue;
+			}
+
+			Com_sprintf(patchpath, sizeof(patchpath), "patches/%s.lmp", patchname);
+			patchlen = FS_LoadFile(patchpath, (void **)&patchraw);
+			if (patchraw && (patchlen > 0))
+			{
+				Doom_BlitPatchColumns(patchraw, patchlen, canvas, width, height,
+					originx, originy);
+			}
+
+			if (patchraw)
+			{
+				FS_FreeFile(patchraw);
+			}
+		}
+
+		*out_w = width;
+		*out_h = height;
+		break;
+	}
+
+	FS_FreeFile(raw);
+	return canvas;
+}
+
+/*
+ * Tries TEXTURE1 then TEXTURE2 to build a composed Doom wall texture.
+ */
+static byte *
+Doom_LoadComposedTexture(const char *name, int *out_w, int *out_h)
+{
+	byte *pnames, *pic;
+	int pnames_len;
+
+	pnames_len = FS_LoadFile("custom/PNAMES.lmp", (void **)&pnames);
+	if (!pnames || (pnames_len <= 0))
+	{
+		if (pnames)
+		{
+			FS_FreeFile(pnames);
+		}
+		return NULL;
+	}
+
+	pic = Doom_ComposeTexture("custom/TEXTURE1.lmp", pnames, pnames_len,
+		name, out_w, out_h);
+	if (!pic)
+	{
+		pic = Doom_ComposeTexture("custom/TEXTURE2.lmp", pnames, pnames_len,
+			name, out_w, out_h);
+	}
+
+	FS_FreeFile(pnames);
+	return pic;
+}
+
 static void
 LMP_Decode(const char *name, const byte *raw, int len, byte **pic,
 	int *width, int *height)
 {
 	unsigned lmp_width = 0, lmp_height = 0;
 	size_t lmp_size = 0;
+
+	if (!strncmp(name, "flat/", 5))
+	{
+		LMP_DecodeFlat(name, raw, len, pic, width, height);
+		return;
+	}
+
+	if (!strncmp(name, "patches/", 8))
+	{
+		LMP_DecodePatch(name, raw, len, pic, width, height);
+		return;
+	}
+
 	if (len < (sizeof(int) * 3))
 	{
 		/* looks too small */
@@ -963,6 +1326,20 @@ Mod_LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 		}
 
 		*pic = Mod_LoadEmbededLMP(filename, width, height, bitsPerPixel);
+
+		/*
+		 * Bare names (no directory) are Doom wall textures composed
+		 * from patches via TEXTURE1/TEXTURE2 + PNAMES, not raw lumps.
+		 */
+		if (!*pic && !strchr(filename, '/'))
+		{
+			*pic = Doom_LoadComposedTexture(filename, width, height);
+			if (*pic)
+			{
+				*bitsPerPixel = 8;
+			}
+		}
+
 		/* Get Quake palette */
 		if (palette && *pic && *bitsPerPixel == 8)
 		{
