@@ -4,8 +4,8 @@ layout(push_constant) uniform PostPushConstant
 {
 	// applied when the world is drawn straight into the swapchain image,
 	// otherwise the postprocess pass does it
-	layout(offset = 112) float postprocess;
-	layout(offset = 116) float postGamma;
+	layout(offset = 72) float postprocess;
+	layout(offset = 76) float postGamma;
 } pcPost;
 
 

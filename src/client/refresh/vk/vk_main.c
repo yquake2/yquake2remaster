@@ -646,7 +646,7 @@ R_SetupFrame(void)
 
 	R_SetClusters(r_worldmodel, r_origin);
 
-	R_CombineBlendWithFog(v_blend, false);
+	R_CombineBlendWithFog(v_blend, true);
 
 	if (r_speeds->value)
 	{

@@ -4,8 +4,9 @@ layout(push_constant) uniform PostPushConstant
 {
 	// applied when the world is drawn straight into the swapchain image,
 	// otherwise the postprocess pass does it
-	layout(offset = 112) float postprocess;
-	layout(offset = 116) float postGamma;
+	layout(offset = 80) vec4 fogColor;
+	layout(offset = 72) float postprocess;
+	layout(offset = 76) float postGamma;
 } pcPost;
 
 
@@ -23,6 +24,13 @@ void main()
         fragmentColor = texture(sTexture, texCoord) * clamp(color, 0.0, 1.0);
     else
         fragmentColor = color;
+	if (pcPost.fogColor.a > 0.0)
+	{
+		float depth = gl_FragCoord.z / gl_FragCoord.w;
+		float d = pcPost.fogColor.a * depth;
+		float fogFactor = 1.0 - exp(-(d * d));
+		fragmentColor.rgb = mix(fragmentColor.rgb, pcPost.fogColor.rgb, fogFactor);
+	}
 	if (pcPost.postprocess > 0.0)
 	{
 		fragmentColor.rgb = pow(fragmentColor.rgb * 1.5, vec3(pcPost.postGamma));

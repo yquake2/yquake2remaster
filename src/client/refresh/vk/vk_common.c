@@ -3295,23 +3295,34 @@ QVk_BindPipeline(qvkpipeline_t *pipeline)
 {
 	if (vk_state.current_pipeline != pipeline->pl)
 	{
-		float postConstants[2];
+		float fragmentConstants[PUSH_CONSTANT_FRAGMENT_SIZE] = {0};
 
 		vkCmdBindPipeline(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->pl);
 		vk_state.current_pipeline = pipeline->pl;
+		if (vk_state.current_renderpass != RP_WORLD_WARP &&
+			pipeline != &vk_postprocessPipeline)
+		{
+			if (vk_state.current_renderpass == RP_WORLD)
+			{
+				fragmentConstants[PUSH_CONSTANT_FOG_INDEX + 0] = r_newrefdef.fog.red / 255.f;
+				fragmentConstants[PUSH_CONSTANT_FOG_INDEX + 1] = r_newrefdef.fog.green / 255.f;
+				fragmentConstants[PUSH_CONSTANT_FOG_INDEX + 2] = r_newrefdef.fog.blue / 255.f;
+				fragmentConstants[PUSH_CONSTANT_FOG_INDEX + 3] = r_newrefdef.fog.density / 64.f;
+			}
 
-		/* the bind is the only place that knows the current renderpass, so
-		   the world shaders get told here whether they have to do the work
-		   the postprocess pass would otherwise do for them, which includes
-		   honouring vk_postprocess the way that pass does */
-		postConstants[0] = (vk_worldDirectRender &&
-			vk_postprocess->value &&
-			vk_state.current_renderpass == RP_WORLD) ? 1.0f : 0.0f;
-		postConstants[1] = 2.1f - vid_gamma->value;
+			/* the bind is the only place that knows the current renderpass, so
+			   the world shaders get told here whether they have to do the work
+			   the postprocess pass would otherwise do for them, which includes
+			   honouring vk_postprocess the way that pass does */
+			fragmentConstants[PUSH_CONSTANT_POSTPROCESS_INDEX] = (vk_worldDirectRender &&
+				vk_postprocess->value &&
+				vk_state.current_renderpass == RP_WORLD) ? 1.0f : 0.0f;
+			fragmentConstants[PUSH_CONSTANT_POSTPROCESS_INDEX + 1] = 2.1f - vid_gamma->value;
 
-		vkCmdPushConstants(vk_activeCmdbuffer, pipeline->layout,
-			VK_SHADER_STAGE_FRAGMENT_BIT, PUSH_CONSTANT_POSTPROCESS_OFFSET,
-			sizeof(postConstants), postConstants);
+			vkCmdPushConstants(vk_activeCmdbuffer, pipeline->layout,
+				VK_SHADER_STAGE_FRAGMENT_BIT, PUSH_CONSTANT_VERTEX_SIZE * sizeof(float),
+				sizeof(fragmentConstants), fragmentConstants);
+		}
 	}
 }
 
