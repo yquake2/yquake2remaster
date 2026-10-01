@@ -286,3 +286,17 @@ P_GetCountOfItems(int protocol)
 
 	return MAX_ITEMS;
 }
+
+int
+P_CmdConvert(int cmd, int protocol)
+{
+	if (protocol == PROTOCOL_Q2TEST_VERSION && cmd == 0x07)
+	{
+		return svc_serverdata;
+	}
+	else if (protocol == PROTOCOL_H2DEMO_VERSION && cmd == 0x0b)
+	{
+		return svc_serverdata;
+	}
+	return cmd;
+}

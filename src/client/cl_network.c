@@ -147,6 +147,7 @@ CL_CheckForResend(void)
 	if ((cls.state == ca_disconnected) && Com_ServerState())
 	{
 		cls.state = ca_connecting;
+		cls.serverProtocol = 0;
 		Q_strlcpy(cls.servername, "localhost", sizeof(cls.servername));
 		/* we don't need a challenge on the localhost */
 		CL_SendConnectPacket();
@@ -168,6 +169,7 @@ CL_CheckForResend(void)
 	{
 		Com_Printf("Bad server address\n");
 		cls.state = ca_disconnected;
+		cls.serverProtocol = 0;
 		return;
 	}
 
@@ -207,6 +209,7 @@ CL_Connect_f(void)
 	CL_Disconnect();
 
 	cls.state = ca_connecting;
+	cls.serverProtocol = 0;
 	Q_strlcpy(cls.servername, server, sizeof(cls.servername));
 	cls.connect_time = -99999; /* HACK: CL_CheckForResend() will fire immediately */
 }
@@ -349,6 +352,7 @@ CL_Disconnect(void)
 #endif
 
 	cls.state = ca_disconnected;
+	cls.serverProtocol = 0;
 
 	snd_is_underwater = false;
 
@@ -477,6 +481,7 @@ CL_Reconnect_f(void)
 	{
 		Com_Printf("reconnecting...\n");
 		cls.state = ca_connected;
+		cls.serverProtocol = 0;
 		MSG_WriteChar(&cls.netchan.message, clc_stringcmd);
 		MSG_WriteString(&cls.netchan.message, "new");
 		return;
@@ -496,6 +501,7 @@ CL_Reconnect_f(void)
 		}
 
 		cls.state = ca_connecting;
+		cls.serverProtocol = 0;
 
 		Com_Printf("reconnecting...\n");
 	}

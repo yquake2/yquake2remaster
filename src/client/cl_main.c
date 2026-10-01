@@ -599,6 +599,7 @@ static void
 CL_InitLocal(void)
 {
 	cls.state = ca_disconnected;
+	cls.serverProtocol = 0;
 	cls.realtime = Sys_Milliseconds();
 
 	CL_InitInput();
