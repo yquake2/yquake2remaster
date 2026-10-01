@@ -30,6 +30,8 @@
 static int bitcounts[64]; /* just for protocol profiling */
 
 #define RR22_MAX_LOCALIZATION_ARGS 8
+#define HERETIC2_PROTOCOL_VERSION 51
+#define HERETIC2_REMASTER_PROTOCOL_VERSION 55
 
 static const char *svc_strings[] = {
 	"svc_bad",
@@ -1448,6 +1450,10 @@ CL_GetProtocolName(int protocol)
 		/* Our new protocol */
 		case PROTOCOL_VERSION:
 			return "ReRelease Quake 2 Custom version";
+		case HERETIC2_PROTOCOL_VERSION:
+			return "Heretic II";
+		case HERETIC2_REMASTER_PROTOCOL_VERSION:
+			return "Heretic II Remaster";
 		default:
 			return "Unknown protocol version";
 	};
@@ -1478,6 +1484,8 @@ CL_ParseServerData(void)
 		IS_QII97_PROTOCOL(i) ||
 		(i == PROTOCOL_RR22_VERSION) ||
 		(i == PROTOCOL_RR23_VERSION) ||
+		(i == HERETIC2_PROTOCOL_VERSION) ||
+		(i == HERETIC2_REMASTER_PROTOCOL_VERSION) ||
 		(i == PROTOCOL_VERSION)))
 	{
 		Com_Printf("Network protocol: %s\n", CL_GetProtocolName(i));
@@ -1486,6 +1494,12 @@ CL_ParseServerData(void)
 	{
 		Com_Error(ERR_DROP, "Server returned version %i, not %i",
 				i, PROTOCOL_VERSION);
+		return;
+	}
+
+	if (i == HERETIC2_PROTOCOL_VERSION || i == HERETIC2_REMASTER_PROTOCOL_VERSION)
+	{
+		Com_Error(ERR_DROP, "Heretic II demo protocol %i is currently unsupported", i);
 		return;
 	}
 
@@ -2153,6 +2167,22 @@ CL_ParseServerMessage(void)
 		{
 			SHOWNET("END OF MESSAGE");
 			break;
+		}
+
+		if (Com_ServerState() && cmd == svc_stufftext &&
+			net_message.readcount == 9 &&
+			net_message.cursize - net_message.readcount >= sizeof(int))
+		{
+			int protocol;
+
+			memcpy(&protocol, net_message.data + net_message.readcount, sizeof(protocol));
+			protocol = LittleLong(protocol);
+			if (protocol == HERETIC2_PROTOCOL_VERSION ||
+				protocol == HERETIC2_REMASTER_PROTOCOL_VERSION)
+			{
+				CL_ParseServerData();
+				return;
+			}
 		}
 
 		CL_ShowNetCmd(cmd);
