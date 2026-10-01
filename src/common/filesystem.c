@@ -1592,6 +1592,10 @@ FS_LoadSINSRPK(FILE *handle, const char *packPath)
 	dsinrheader_t header; /* SIN file header. */
 	dsinrfile_t *info = NULL; /* SIN info. */
 	char *infostr = NULL, *infoname = NULL; /* SIN file names. */
+	long archiveLength;
+	size_t dirSize;
+	int64_t filepos, filelen;
+	char *nameEnd;
 
 	if (fread(&header, sizeof(dsinrheader_t), 1, handle) != 1)
 	{
@@ -1608,24 +1612,43 @@ FS_LoadSINSRPK(FILE *handle, const char *packPath)
 		return NULL;
 	}
 
-	header.dirofs = LittleLongLong(header.dirofs);
-	header.dirlen = LittleLongLong(header.dirlen);
-	header.strofs = LittleLongLong(header.strofs);
-	header.strlen = LittleLongLong(header.strlen);
-
-	if ((header.dirlen <= 0) ||
-		(header.dirofs < 0) ||
-		(header.strlen <= 0) ||
-		(header.strofs < 0))
+	if (fseek(handle, 0, SEEK_END) || (archiveLength = ftell(handle)) < 0 ||
+		fseek(handle, 0, SEEK_SET))
 	{
 		fclose(handle);
-		Com_Error(ERR_FATAL, "%s: '%s' is too short.",
+		Com_Error(ERR_FATAL, "%s: '%s' length check failed", __func__, packPath);
+		return NULL;
+	}
+
+	header.dirofs = LittleLongLong(header.dirofs);
+	header.strofs = LittleLongLong(header.strofs);
+	header.dirlen = LittleLong(header.dirlen);
+	header.strlen = LittleLong(header.strlen);
+
+	if ((header.dirlen <= 0) ||
+		(header.dirofs < (int64_t)sizeof(dsinrheader_t)) ||
+		(header.strlen <= 0) ||
+		(header.strofs < (int64_t)sizeof(dsinrheader_t)) ||
+		((size_t)header.dirlen > SIZE_MAX / sizeof(dsinrfile_t)))
+	{
+		fclose(handle);
+		Com_Error(ERR_FATAL, "%s: '%s' has an invalid directory or string table",
 				__func__, packPath);
 		return NULL;
 	}
 
 	numFiles = header.dirlen;
-
+	dirSize = numFiles * sizeof(dsinrfile_t);
+	if (header.dirofs > archiveLength ||
+		(int64_t)dirSize > (int64_t)archiveLength - header.dirofs ||
+		header.strofs > archiveLength ||
+		(int64_t)header.strlen > (int64_t)archiveLength - header.strofs)
+	{
+		fclose(handle);
+		Com_Error(ERR_FATAL, "%s: '%s' directory or string table exceeds file size",
+				__func__, packPath);
+		return NULL;
+	}
 	if (numFiles > MAX_FILES_IN_PACK)
 	{
 		Com_Printf("%s: '%s' has " YQ2_COM_PRIdS " > %i files\n",
@@ -1640,7 +1663,7 @@ FS_LoadSINSRPK(FILE *handle, const char *packPath)
 		return NULL;
 	}
 
-	info = malloc(header.dirlen * sizeof(dsinrfile_t));
+	info = malloc(dirSize);
 	if (!info)
 	{
 		fclose(handle);
@@ -1659,7 +1682,7 @@ FS_LoadSINSRPK(FILE *handle, const char *packPath)
 		return NULL;
 	}
 
-	if (fread(info, header.dirlen * sizeof(dsinrfile_t), 1, handle) != 1)
+	if (fread(info, dirSize, 1, handle) != 1)
 	{
 		free(info);
 		Z_Free(files);
@@ -1670,16 +1693,30 @@ FS_LoadSINSRPK(FILE *handle, const char *packPath)
 	/* Parse the directory. */
 	for (i = 0; i < numFiles; i++)
 	{
+		filepos = LittleLongLong(info[i].filepos);
+		filelen = LittleLongLong(info[i].filelen);
+		if (filepos < 0 || filelen < 0 || filepos > archiveLength ||
+			filelen > (int64_t)archiveLength - filepos ||
+			(uint64_t)filepos > SIZE_MAX || (uint64_t)filelen > SIZE_MAX)
+		{
+			free(info);
+			Z_Free(files);
+			fclose(handle);
+			Com_Error(ERR_FATAL, "%s: '%s' has an invalid file range",
+					__func__, packPath);
+			return NULL;
+		}
+
 		/* files.name: 128, info.name: 120 */
 		snprintf(files[i].name, sizeof(files[i].name), "SiN Reloaded #%i", i);
-		files[i].offset = LittleLongLong(info[i].filepos);
-		files[i].size = LittleLongLong(info[i].filelen);
+		files[i].offset = (size_t)filepos;
+		files[i].size = (size_t)filelen;
 		files[i].compressed_size = 0;
 		files[i].format = PAK_MODE_Q2;
 	}
 	free(info);
 
-	infostr = malloc(header.strlen + 1);
+	infostr = malloc((size_t)header.strlen + 1);
 	if (!infostr)
 	{
 		fclose(handle);
@@ -1696,7 +1733,7 @@ FS_LoadSINSRPK(FILE *handle, const char *packPath)
 		return NULL;
 	}
 
-	if (fread(infostr, header.strlen, 1, handle) != 1)
+	if (fread(infostr, (size_t)header.strlen, 1, handle) != 1)
 	{
 		free(infostr);
 		Z_Free(files);
@@ -1710,7 +1747,9 @@ FS_LoadSINSRPK(FILE *handle, const char *packPath)
 	/* Parse the file names. */
 	for (i = 0; i < numFiles; i++)
 	{
-		if (infoname >= infostr + header.strlen)
+		if (infoname >= infostr + header.strlen ||
+			(nameEnd = memchr(infoname, '\0', (size_t)header.strlen -
+				(size_t)(infoname - infostr))) == NULL)
 		{
 			free(infostr);
 			Z_Free(files);
@@ -1722,7 +1761,7 @@ FS_LoadSINSRPK(FILE *handle, const char *packPath)
 		/* files.name: 128 */
 		Q_strlcpy(files[i].name, infoname, sizeof(files[i].name));
 
-		infoname += strlen(infoname) + 1;
+		infoname = nameEnd + 1;
 	}
 	free(infostr);
 
