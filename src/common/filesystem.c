@@ -29,6 +29,8 @@
 #include <libgen.h>
 #endif
 
+#include <ctype.h>
+
 #include "header/common.h"
 #include "header/glob.h"
 
@@ -1250,6 +1252,20 @@ FS_LoadWAD(const char *packPath)
 				int path_len;
 
 				len -= 6;
+
+				/*
+				 * Doom II style sub-namespace markers (P1_START/P2_START,
+				 * F1_START/F2_START, ...) only split the WAD editor's view
+				 * of flats/patches, they don't add an actual subdirectory:
+				 * a lump between them is looked up the same as one between
+				 * the outer F_START/F_END or P_START/P_END markers.
+				 */
+				if ((len == 2) && isdigit((unsigned char)name[1]) &&
+					((name[0] == 'S') || (name[0] == 'F') || (name[0] == 'P')))
+				{
+					continue;
+				}
+
 				path_len = strlen(path);
 				if (path_len)
 				{
@@ -1274,6 +1290,13 @@ FS_LoadWAD(const char *packPath)
 			else if (len > 4 && !strcmp(name + len - 4, "_END"))
 			{
 				name[len - 4] = 0;
+
+				if ((strlen(name) == 2) && isdigit((unsigned char)name[1]) &&
+					((name[0] == 'S') || (name[0] == 'F') || (name[0] == 'P')))
+				{
+					/* closing a transparent sub-namespace marker, path unchanged */
+					continue;
+				}
 
 				if ((!strcmp(name, "S") && !strcmp(path, "sprites")) ||
 					(!strcmp(name, "F") && !strcmp(path, "flat")) ||
@@ -1324,6 +1347,8 @@ FS_LoadWAD(const char *packPath)
 
 		Q_strlcpy(files[curr].name, finalname,
 			Q_min(sizeof(files[curr].name), sizeof(finalname)));
+		Com_Printf("->%s\n", finalname);
+		
 		files[curr].offset = info[i].filepos;
 		files[curr].size = info[i].filelen;
 		files[curr].compressed_size = 0;

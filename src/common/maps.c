@@ -3085,7 +3085,7 @@ Mod_DoomAddPlane(doom_bsp_t *bsp, const vec3_t normal, float dist, size_t *index
 }
 
 static void
-Mod_DoomTextureName(char *out, size_t out_size, const char in[8])
+Mod_DoomTextureName(char *out, size_t out_size, const char in[8], const char *category)
 {
 	char name[9];
 	size_t len;
@@ -3100,6 +3100,11 @@ Mod_DoomTextureName(char *out, size_t out_size, const char in[8])
 	if (!len || ((len == 1) && (name[0] == '-')))
 	{
 		Q_strlcpy(out, "missing", out_size);
+	}
+	else if (category)
+	{
+		/* match the path Doom WAD flats/patches are extracted under */
+		snprintf(out, out_size, "%s/%s", category, name);
 	}
 	else
 	{
@@ -3365,7 +3370,8 @@ Mod_DoomAddWallFace(doom_bsp_t *bsp, size_t leaf_index,
 	{
 		return true;
 	}
-	Mod_DoomTextureName(texture_name, sizeof(texture_name), texture);
+	/* wall texture names refer to TEXTURE1/TEXTURE2 composed textures, not raw patches */
+	Mod_DoomTextureName(texture_name, sizeof(texture_name), texture, NULL);
 	if (!strcmp(texture_name, "missing"))
 	{
 		return true;
@@ -3862,8 +3868,8 @@ Mod_Load2QBSP_Doom(const char *name, const byte *inbuf, size_t filesize,
 		}
 		leaf->mins[2] = floor_height;
 		leaf->maxs[2] = ceiling_height;
-		Mod_DoomTextureName(floor_texture, sizeof(floor_texture), sectors[sector_index].floorpic);
-		Mod_DoomTextureName(ceiling_texture, sizeof(ceiling_texture), sectors[sector_index].ceilingpic);
+		Mod_DoomTextureName(floor_texture, sizeof(floor_texture), sectors[sector_index].floorpic, "flat");
+		Mod_DoomTextureName(ceiling_texture, sizeof(ceiling_texture), sectors[sector_index].ceilingpic, "flat");
 		floor_vecs[0][0] = 1.0f / 64.0f;
 		floor_vecs[1][1] = 1.0f / 64.0f;
 		ceiling_vecs[0][0] = 1.0f / 64.0f;
