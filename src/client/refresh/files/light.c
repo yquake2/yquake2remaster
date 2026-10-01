@@ -956,7 +956,7 @@ R_MarkLights(dlight_t *light, int bit, mnode_t *node, int lightframecount,
 {
 	cplane_t	*splitplane;
 	float		dist;
-	int			intensity;
+	float		radius;
 
 	if (node->contents != CONTENTS_NODE)
 	{
@@ -966,16 +966,16 @@ R_MarkLights(dlight_t *light, int bit, mnode_t *node, int lightframecount,
 	splitplane = node->plane;
 	dist = DotProduct(light->origin, splitplane->normal) - splitplane->dist;
 
-	intensity = light->intensity;
+	radius = light->radius > 0.0f ? light->radius : light->intensity;
 
-	if (dist > (intensity - DLIGHT_CUTOFF))	// (dist > light->intensity)
+	if (dist > (radius - DLIGHT_CUTOFF))	// (dist > light->radius)
 	{
 		R_MarkLights(light, bit, node->children[0], lightframecount,
 			surfaces);
 		return;
 	}
 
-	if (dist < (-intensity + DLIGHT_CUTOFF))	// (dist < -light->intensity)
+	if (dist < (-radius + DLIGHT_CUTOFF))	// (dist < -light->radius)
 	{
 		R_MarkLights(light, bit, node->children[1], lightframecount,
 			surfaces);

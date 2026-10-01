@@ -71,7 +71,7 @@ R_RenderDlights(void)
 	{
 		const dlight_t *light = &r_newrefdef.dlights[k];
 		lightVert_t *lv = vertData + k * 18;
-		float rad = light->intensity * 0.35;
+		float rad = light->radius * 0.35f;
 		int i, j;
 
 		for (i = 0; i < 3; i++)
@@ -129,10 +129,9 @@ Vk_UpdateDynamicLights(void)
 {
 	typedef struct
 	{
-		float origin[3];
-		float padding;
-		float color[3];
-		float intensity;
+		float origin_radius[4];
+		float color_intensity[4];
+		float cone[4];
 	} vkUniDynLight_t;
 
 	vkUniDynLight_t *udl;
@@ -159,10 +158,12 @@ Vk_UpdateDynamicLights(void)
 
 	for (i = 0, l = r_newrefdef.dlights; i < num_dlights; i++, l++)
 	{
-		VectorCopy(l->origin, udl[i].origin);
-		VectorCopy(l->color, udl[i].color);
-		udl[i].padding = 0;
-		udl[i].intensity = l->intensity;
+		VectorCopy(l->origin, udl[i].origin_radius);
+		udl[i].origin_radius[3] = l->radius;
+		VectorCopy(l->color, udl[i].color_intensity);
+		udl[i].color_intensity[3] = l->light_scale;
+		VectorCopy(l->cone, udl[i].cone);
+		udl[i].cone[3] = l->conecos;
 	}
 
 	/* surfaces only ever reference lights below num_dlights, but leave no
