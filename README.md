@@ -182,8 +182,6 @@ Checked with:
 * [ ] soft: support scalled textures for models and walls, and fix
     lighting with remastered maps,
 * [ ] soft: use separete texture hi-color buffer for ui in soft render,
-* [ ] vulkan: rearange surfaces before render,
-* [ ] vulkan: add fog distance effect,
 * [ ] soft: add fog distance effect (optional),
 * [ ] reuse memory from models cache in renders model list,
 * [ ] reuse memory from models cache for bsp,
@@ -201,6 +199,9 @@ Checked with:
 * [ ] ReRelease: support `tactile/*/*.bnvib/.wav` feedback load,
 * [ ] ReRelease: console `~` incorrectly show multibyte characters,
 * [ ] ReRelease: basicsjam1_detrohogga: fix droptofloor startsolid,
+* [ ] ReRelease: select start level through `mapddb.json`,
+* [ ] ReRelease: mgu5m2: glitch at `-773 -911 190`,
+* [ ] vk: cleanup `PUSH_CONSTANT_*`,
 * [ ] gl1, gl3, gl4, vk, soft: implement direction of `CS_SHADOWLIGHTS`,
 * [ ] gl3, gl4: implement color multiplication and alpha gradient for `misc_flare`,
 * [ ] gl3, gl4, vk: fix and port `r_bloom`,
@@ -259,6 +260,8 @@ Checked with:
 * [ ] Dynamic count of entities on client.
 
 ### Fixed:
+* [x] vulkan: rearange surfaces before render,
+* [x] vulkan: add fog distance effect,
 * [x] Oblivion: Finish support of `func_rotate_train`, add `speeds` for `path_corner`,
 * [x] Oblivion: Add support of `ammo_dod`.
 
