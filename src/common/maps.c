@@ -4063,6 +4063,8 @@ Mod_Load2QBSP_Doom(const char *name, const byte *inbuf, size_t filesize,
 			sizeof(failure_reason));
 		goto fail;
 	}
+	bsp.nodes[bsp.num_nodes - 1].firstface = 0;
+	bsp.nodes[bsp.num_nodes - 1].numfaces = bsp.num_faces;
 
 	Q_strlcpy(failure_reason, "converting Doom player starts", sizeof(failure_reason));
 	if (num_things > (((size_t)-1 - 128) / 128))
