@@ -2791,18 +2791,1512 @@ static const char *const doom_lumps[] = {
 
 /* Doom map conversion rules mapping nearest Doom lump types to Quake 2 BSP lump types */
 static const rule_t doombsplumps[11] = {
-	{LUMP_ENTITIES, sizeof(char), Mod_Load2QBSP_IBSP_Copy}, /* THINGS -> ENTITIES */
+	{-1, 0, NULL}, /* THINGS */
 	{-1, 0, NULL}, /* LINEDEFS */
 	{-1, 0, NULL}, /* SIDEDEFS */
-	{LUMP_VERTEXES, sizeof(short) * 2, Mod_Load2QBSP_IBSP_Copy}, /* VERTEXES (x, y shorts) -> VERTEXES */
+	{-1, 0, NULL}, /* VERTEXES */
 	{-1, 0, NULL}, /* SEGS */
 	{-1, 0, NULL}, /* SSECTORS */
-	{LUMP_NODES, sizeof(short), Mod_Load2QBSP_IBSP_Copy}, /* NODES -> NODES */
-	{LUMP_TEXINFO, sizeof(short), Mod_Load2QBSP_IBSP_Copy}, /* SECTORS -> TEXINFO */
-	{LUMP_VISIBILITY, sizeof(char), Mod_Load2QBSP_IBSP_Copy}, /* REJECT -> VISIBILITY */
+	{-1, 0, NULL}, /* NODES */
+	{-1, 0, NULL}, /* SECTORS */
+	{-1, 0, NULL}, /* REJECT */
 	{-1, 0, NULL}, /* BLOCKMAP */
 	{-1, 0, NULL}  /* BEHAVIOR */
 };
+
+typedef struct { short x, y; } doom_vertex_t;
+typedef struct
+{
+	short textureoffset, rowoffset;
+	char toptexture[8], bottomtexture[8], midtexture[8];
+	short sector;
+} doom_sidedef_t;
+typedef struct { short v1, v2, flags, special, tag, sidenum[2]; } doom_linedef_t;
+typedef struct
+{
+	short floorheight, ceilingheight;
+	char floorpic[8], ceilingpic[8];
+	short lightlevel, special, tag;
+} doom_sector_t;
+typedef struct { short numsegs, firstseg; } doom_subsector_t;
+typedef struct { short v1, v2, angle, linedef, side, offset; } doom_seg_t;
+typedef struct
+{
+	short x, y, dx, dy;
+	short bbox[2][4];
+	unsigned short children[2];
+} doom_node_t;
+typedef struct { short x, y, angle, type, options; } doom_thing_t;
+
+typedef struct
+{
+	dplane_t *planes;
+	size_t num_planes, planes_capacity;
+	size_t *plane_hash;
+	size_t plane_hash_capacity, plane_hash_count;
+	xtexinfo_t *texinfo;
+	size_t num_texinfo, texinfo_capacity;
+	dvertex_t *vertexes;
+	size_t num_vertexes, vertexes_capacity;
+	dqedge_t *edges;
+	size_t num_edges, edges_capacity;
+	int *surfedges;
+	size_t num_surfedges, surfedges_capacity;
+	dqface_t *faces;
+	size_t num_faces, faces_capacity;
+	dqleaf_t *leafs;
+	size_t num_leafs;
+	int *leaffaces;
+	size_t num_leaffaces, leaffaces_capacity;
+	int *leafbrushes;
+	size_t num_leafbrushes, leafbrushes_capacity;
+	dqnode_t *nodes;
+	size_t num_nodes;
+	dbrush_t *brushes;
+	size_t num_brushes, brushes_capacity;
+	dqbrushside_t *brushsides;
+	size_t num_brushsides, brushsides_capacity;
+} doom_bsp_t;
+
+static qboolean
+Mod_DoomAppend(void **items, size_t *count, size_t *capacity,
+	size_t item_size, const void *item, size_t *index)
+{
+	void *new_items;
+	size_t new_capacity;
+
+	if (*count == *capacity)
+	{
+		new_capacity = *capacity ? *capacity * 2 : 16;
+		if ((new_capacity < *capacity) || (new_capacity > ((size_t)-1 / item_size)))
+		{
+			return false;
+		}
+
+		new_items = realloc(*items, new_capacity * item_size);
+		if (!new_items)
+		{
+			return false;
+		}
+		*items = new_items;
+		*capacity = new_capacity;
+	}
+
+	if (index)
+	{
+		*index = *count;
+	}
+	memcpy((byte *)*items + *count * item_size, item, item_size);
+	(*count)++;
+	return true;
+}
+
+static void
+Mod_DoomFree(doom_bsp_t *bsp)
+{
+	free(bsp->planes);
+	free(bsp->plane_hash);
+	free(bsp->texinfo);
+	free(bsp->vertexes);
+	free(bsp->edges);
+	free(bsp->surfedges);
+	free(bsp->faces);
+	free(bsp->leafs);
+	free(bsp->leaffaces);
+	free(bsp->leafbrushes);
+	free(bsp->nodes);
+	free(bsp->brushes);
+	free(bsp->brushsides);
+	memset(bsp, 0, sizeof(*bsp));
+}
+
+static size_t
+Mod_DoomPlaneHash(const dplane_t *plane)
+{
+	size_t hash;
+	unsigned int bits;
+	int i;
+
+	hash = 2166136261u;
+	for (i = 0; i < 4; i++)
+	{
+		const float *value;
+
+		value = i < 3 ? &plane->normal[i] : &plane->dist;
+		memcpy(&bits, value, sizeof(bits));
+		hash = (hash ^ bits) * 16777619u;
+	}
+	return hash;
+}
+
+static qboolean
+Mod_DoomResizePlaneHash(doom_bsp_t *bsp, size_t capacity)
+{
+	size_t *hash_table;
+	size_t i;
+
+	hash_table = calloc(capacity, sizeof(*hash_table));
+	if (!hash_table)
+	{
+		return false;
+	}
+
+	for (i = 0; i < bsp->num_planes; i += 2)
+	{
+		size_t slot;
+
+		slot = Mod_DoomPlaneHash(&bsp->planes[i]) & (capacity - 1);
+		while (hash_table[slot])
+		{
+			slot = (slot + 1) & (capacity - 1);
+		}
+		hash_table[slot] = i + 1;
+	}
+
+	free(bsp->plane_hash);
+	bsp->plane_hash = hash_table;
+	bsp->plane_hash_capacity = capacity;
+	return true;
+}
+
+static qboolean
+Mod_DoomEnsurePlaneHash(doom_bsp_t *bsp)
+{
+	size_t capacity;
+
+	if (bsp->plane_hash_capacity &&
+		((bsp->plane_hash_count + 1) * 2 <= bsp->plane_hash_capacity))
+	{
+		return true;
+	}
+
+	capacity = bsp->plane_hash_capacity ? bsp->plane_hash_capacity * 2 : 256;
+	if (capacity < bsp->plane_hash_capacity)
+	{
+		return false;
+	}
+	return Mod_DoomResizePlaneHash(bsp, capacity);
+}
+
+static qboolean
+Mod_DoomReadLump(const char *mapname, const byte *inbuf, size_t filesize,
+	const lump_t *lumps, int lumpnum, const char *lumpname, size_t item_size,
+	const byte **data, size_t *count)
+{
+	if ((lumps[lumpnum].fileofs > filesize) ||
+		(lumps[lumpnum].filelen > filesize - lumps[lumpnum].fileofs))
+	{
+		Com_Printf("%s: Map %s Doom lump %s has invalid bounds (offset %u, length %u, file size "
+			YQ2_COM_PRIdS ")\n", __func__, mapname, lumpname,
+			lumps[lumpnum].fileofs, lumps[lumpnum].filelen, filesize);
+		return false;
+	}
+	if (item_size && (lumps[lumpnum].filelen % item_size))
+	{
+		Com_Printf("%s: Map %s Doom lump %s length %u is not a multiple of record size "
+			YQ2_COM_PRIdS "\n", __func__, mapname, lumpname,
+			lumps[lumpnum].filelen, item_size);
+		return false;
+	}
+
+	*data = inbuf + lumps[lumpnum].fileofs;
+	*count = item_size ? lumps[lumpnum].filelen / item_size : lumps[lumpnum].filelen;
+	return true;
+}
+
+static qboolean
+Mod_DoomAddPlane(doom_bsp_t *bsp, const vec3_t normal, float dist, size_t *index)
+{
+	dplane_t plane, opposite;
+	size_t plane_index, slot;
+	qboolean reverse;
+	int i;
+
+	memset(&plane, 0, sizeof(plane));
+	VectorCopy(normal, plane.normal);
+	plane.dist = dist;
+	plane.type = PLANE_ANYZ;
+	reverse = false;
+	for (i = 0; i < 3; i++)
+	{
+		if (plane.normal[i] != 0.0f)
+		{
+			reverse = plane.normal[i] < 0.0f;
+			break;
+	}
+	}
+	if (reverse)
+	{
+		VectorScale(plane.normal, -1.0f, plane.normal);
+		plane.dist = -plane.dist;
+	}
+	for (i = 0; i < 3; i++)
+	{
+		if (plane.normal[i] == 0.0f)
+		{
+			plane.normal[i] = 0.0f;
+		}
+	}
+	if (!Mod_DoomEnsurePlaneHash(bsp))
+	{
+		return false;
+	}
+
+	slot = Mod_DoomPlaneHash(&plane) & (bsp->plane_hash_capacity - 1);
+	while (bsp->plane_hash[slot])
+	{
+		const dplane_t *existing;
+
+		plane_index = bsp->plane_hash[slot] - 1;
+		existing = &bsp->planes[plane_index];
+		if ((existing->normal[0] == plane.normal[0]) &&
+			(existing->normal[1] == plane.normal[1]) &&
+			(existing->normal[2] == plane.normal[2]) &&
+			(existing->dist == plane.dist))
+		{
+			*index = plane_index + (reverse ? 1 : 0);
+			return true;
+		}
+		slot = (slot + 1) & (bsp->plane_hash_capacity - 1);
+	}
+
+	if (bsp->num_planes + 2 > MAX_MAP_PLANES)
+	{
+		return false;
+	}
+	plane_index = bsp->num_planes;
+	if (!Mod_DoomAppend((void **)&bsp->planes, &bsp->num_planes,
+		&bsp->planes_capacity, sizeof(plane), &plane, NULL))
+	{
+		return false;
+	}
+	opposite = plane;
+	VectorScale(plane.normal, -1.0f, opposite.normal);
+	opposite.dist = -plane.dist;
+	if (!Mod_DoomAppend((void **)&bsp->planes, &bsp->num_planes,
+		&bsp->planes_capacity, sizeof(opposite), &opposite, NULL))
+	{
+		return false;
+	}
+	bsp->plane_hash[slot] = plane_index + 1;
+	bsp->plane_hash_count++;
+	*index = plane_index + (reverse ? 1 : 0);
+	return true;
+}
+
+static void
+Mod_DoomTextureName(char *out, size_t out_size, const char in[8])
+{
+	char name[9];
+	size_t len;
+
+	memcpy(name, in, 8);
+	name[8] = 0;
+	len = 8;
+	while (len && (!name[len - 1] || (name[len - 1] == ' ')))
+	{
+		name[--len] = 0;
+	}
+	if (!len || ((len == 1) && (name[0] == '-')))
+	{
+		Q_strlcpy(out, "missing", out_size);
+	}
+	else
+	{
+		Q_strlcpy(out, name, out_size);
+	}
+}
+
+static qboolean
+Mod_DoomAddTexinfo(doom_bsp_t *bsp, const char *texture,
+	const float vecs[2][4], size_t *index)
+{
+	xtexinfo_t texinfo;
+
+	if (bsp->num_texinfo >= MAX_MAP_TEXINFO)
+	{
+		return false;
+	}
+	memset(&texinfo, 0, sizeof(texinfo));
+	memcpy(texinfo.vecs, vecs, sizeof(texinfo.vecs));
+	Q_strlcpy(texinfo.texture, texture, sizeof(texinfo.texture));
+	texinfo.nexttexinfo = -1;
+	return Mod_DoomAppend((void **)&bsp->texinfo, &bsp->num_texinfo,
+		&bsp->texinfo_capacity, sizeof(texinfo), &texinfo, index);
+}
+
+static qboolean
+Mod_DoomAddFace(doom_bsp_t *bsp, size_t leaf_index,
+	const float (*points)[3], size_t num_points, const char *texture,
+	const float vecs[2][4])
+{
+	dqface_t face;
+	dvertex_t vertex;
+	dqedge_t edge;
+	vec3_t edge1, edge2, normal;
+	float dist;
+	size_t texinfo_index, plane_index, face_index, point_index, first_vertex;
+
+	if ((leaf_index >= bsp->num_leafs) || (num_points < 3) ||
+		(num_points > 0xFFFFFFFFu) ||
+		(bsp->num_faces >= MAX_MAP_FACES) ||
+		(bsp->num_vertexes + num_points > MAX_MAP_VERTS) ||
+		(bsp->num_edges + num_points > MAX_MAP_EDGES) ||
+		(bsp->num_surfedges + num_points > MAX_MAP_SURFEDGES) ||
+		(bsp->num_leaffaces >= MAX_MAP_LEAFFACES))
+	{
+		return false;
+	}
+	VectorSubtract(points[1], points[0], edge1);
+	VectorSubtract(points[2], points[0], edge2);
+	CrossProduct(edge1, edge2, normal);
+	if (VectorNormalize(normal) == 0.0f)
+	{
+		return true;
+	}
+	dist = DotProduct(normal, points[0]);
+	if (!Mod_DoomAddPlane(bsp, normal, dist, &plane_index) ||
+		!Mod_DoomAddTexinfo(bsp, texture, vecs, &texinfo_index))
+	{
+		return false;
+	}
+
+	memset(&face, 0, sizeof(face));
+	face.planenum = plane_index;
+	face.firstedge = bsp->num_surfedges;
+	face.numedges = num_points;
+	face.texinfo = texinfo_index;
+	memset(face.styles, 255, sizeof(face.styles));
+	face.styles[0] = 0;
+	face.lightofs = -1;
+	first_vertex = bsp->num_vertexes;
+	for (point_index = 0; point_index < num_points; point_index++)
+	{
+		size_t vertex_index, edge_index;
+		int surfedge;
+
+		VectorCopy(points[point_index], vertex.point);
+		if (!Mod_DoomAppend((void **)&bsp->vertexes, &bsp->num_vertexes,
+			&bsp->vertexes_capacity, sizeof(vertex), &vertex, &vertex_index))
+		{
+			return false;
+		}
+		edge.v[0] = vertex_index;
+		edge.v[1] = first_vertex + ((point_index + 1) % num_points);
+		if (!Mod_DoomAppend((void **)&bsp->edges, &bsp->num_edges,
+			&bsp->edges_capacity, sizeof(edge), &edge, &edge_index))
+		{
+			return false;
+		}
+		surfedge = edge_index;
+		if (!Mod_DoomAppend((void **)&bsp->surfedges, &bsp->num_surfedges,
+			&bsp->surfedges_capacity, sizeof(surfedge), &surfedge, NULL))
+		{
+			return false;
+		}
+	}
+
+	if (!Mod_DoomAppend((void **)&bsp->faces, &bsp->num_faces,
+		&bsp->faces_capacity, sizeof(face), &face, &face_index))
+	{
+		return false;
+	}
+	{
+		int leafface;
+
+		leafface = face_index;
+		return Mod_DoomAppend((void **)&bsp->leaffaces, &bsp->num_leaffaces,
+			&bsp->leaffaces_capacity, sizeof(leafface), &leafface, NULL);
+	}
+}
+
+static qboolean
+Mod_DoomAddBrush(doom_bsp_t *bsp, size_t leaf_index,
+	const float (*points)[2], size_t num_points, float min_z, float max_z)
+{
+	dbrush_t brush;
+	dqbrushside_t brushside;
+	float area;
+	size_t point_index, firstside;
+
+	if ((leaf_index >= bsp->num_leafs) || (num_points < 3) ||
+		(max_z <= min_z) || (bsp->num_brushes >= MAX_MAP_BRUSHES) ||
+		(bsp->num_brushsides + num_points + 2 > MAX_MAP_BRUSHSIDES) ||
+		(bsp->num_leafbrushes >= MAX_MAP_LEAFBRUSHES))
+	{
+		return false;
+	}
+	area = 0.0f;
+	for (point_index = 0; point_index < num_points; point_index++)
+	{
+		size_t next;
+
+		next = (point_index + 1) % num_points;
+		area += points[point_index][0] * points[next][1] -
+			points[next][0] * points[point_index][1];
+	}
+	if (area == 0.0f)
+	{
+		return true;
+	}
+
+	firstside = bsp->num_brushsides;
+	for (point_index = 0; point_index < num_points; point_index++)
+	{
+		size_t start_index, end_index, plane_index;
+		vec3_t normal;
+		float length, dist;
+
+		if (area > 0.0f)
+		{
+			start_index = point_index;
+			end_index = (point_index + 1) % num_points;
+		}
+		else
+		{
+			start_index = num_points - 1 - point_index;
+			end_index = (start_index + num_points - 1) % num_points;
+		}
+		normal[0] = points[end_index][1] - points[start_index][1];
+		normal[1] = points[start_index][0] - points[end_index][0];
+		normal[2] = 0.0f;
+		length = VectorNormalize(normal);
+		if (length == 0.0f)
+		{
+			return false;
+		}
+		dist = normal[0] * points[start_index][0] +
+			normal[1] * points[start_index][1];
+		if (!Mod_DoomAddPlane(bsp, normal, dist, &plane_index))
+		{
+			return false;
+		}
+		brushside.planenum = plane_index;
+		brushside.texinfo = 0;
+		if (!Mod_DoomAppend((void **)&bsp->brushsides, &bsp->num_brushsides,
+			&bsp->brushsides_capacity, sizeof(brushside), &brushside, NULL))
+		{
+			return false;
+		}
+	}
+
+	{
+		vec3_t normal;
+		size_t plane_index;
+
+		VectorSet(normal, 0.0f, 0.0f, -1.0f);
+		if (!Mod_DoomAddPlane(bsp, normal, -min_z, &plane_index))
+		{
+			return false;
+		}
+		brushside.planenum = plane_index;
+		brushside.texinfo = 0;
+		if (!Mod_DoomAppend((void **)&bsp->brushsides, &bsp->num_brushsides,
+			&bsp->brushsides_capacity, sizeof(brushside), &brushside, NULL))
+		{
+			return false;
+		}
+		VectorSet(normal, 0.0f, 0.0f, 1.0f);
+		if (!Mod_DoomAddPlane(bsp, normal, max_z, &plane_index))
+		{
+			return false;
+		}
+		brushside.planenum = plane_index;
+		if (!Mod_DoomAppend((void **)&bsp->brushsides, &bsp->num_brushsides,
+			&bsp->brushsides_capacity, sizeof(brushside), &brushside, NULL))
+		{
+			return false;
+		}
+	}
+
+	brush.firstside = firstside;
+	brush.numsides = num_points + 2;
+	brush.contents = CONTENTS_SOLID;
+	if (!Mod_DoomAppend((void **)&bsp->brushes, &bsp->num_brushes,
+		&bsp->brushes_capacity, sizeof(brush), &brush, NULL))
+	{
+		return false;
+	}
+	{
+		int leafbrush;
+
+		leafbrush = bsp->num_brushes - 1;
+		return Mod_DoomAppend((void **)&bsp->leafbrushes, &bsp->num_leafbrushes,
+			&bsp->leafbrushes_capacity, sizeof(leafbrush), &leafbrush, NULL);
+	}
+}
+
+static qboolean
+Mod_DoomAddWallBrush(doom_bsp_t *bsp, size_t leaf_index,
+	float x1, float y1, float x2, float y2, float min_z, float max_z)
+{
+	float points[4][2];
+	float dx, dy, length, ox, oy;
+
+	dx = x2 - x1;
+	dy = y2 - y1;
+	length = sqrtf(dx * dx + dy * dy);
+	if ((length == 0.0f) || (max_z <= min_z))
+	{
+		return true;
+	}
+	ox = dy / length * 2.0f;
+	oy = -dx / length * 2.0f;
+	points[0][0] = x1 + ox; points[0][1] = y1 + oy;
+	points[1][0] = x2 + ox; points[1][1] = y2 + oy;
+	points[2][0] = x2 - ox; points[2][1] = y2 - oy;
+	points[3][0] = x1 - ox; points[3][1] = y1 - oy;
+	return Mod_DoomAddBrush(bsp, leaf_index,
+		(const float (*)[2])points, ARRLEN(points), min_z, max_z);
+}
+
+static qboolean
+Mod_DoomAddWallFace(doom_bsp_t *bsp, size_t leaf_index,
+	const char texture[8], short textureoffset, short rowoffset,
+	short segoffset, short side, float x1, float y1, float x2, float y2,
+	float min_z, float max_z)
+{
+	float points[4][3];
+	float vecs[2][4] = {{0}};
+	char texture_name[64];
+	float dx, dy, length, direction;
+
+	if (max_z <= min_z)
+	{
+		return true;
+	}
+	Mod_DoomTextureName(texture_name, sizeof(texture_name), texture);
+	if (!strcmp(texture_name, "missing"))
+	{
+		return true;
+	}
+	dx = x2 - x1;
+	dy = y2 - y1;
+	length = sqrtf(dx * dx + dy * dy);
+	if (length == 0.0f)
+	{
+		return true;
+	}
+
+	direction = side ? -1.0f : 1.0f;
+	vecs[0][0] = dx / length * direction;
+	vecs[0][1] = dy / length * direction;
+	vecs[0][3] = -(float)(textureoffset + segoffset);
+	vecs[1][2] = 1.0f;
+	vecs[1][3] = -(float)rowoffset;
+	if (side)
+	{
+		points[0][0] = x1; points[0][1] = y1; points[0][2] = min_z;
+		points[1][0] = x1; points[1][1] = y1; points[1][2] = max_z;
+		points[2][0] = x2; points[2][1] = y2; points[2][2] = max_z;
+		points[3][0] = x2; points[3][1] = y2; points[3][2] = min_z;
+	}
+	else
+	{
+		points[0][0] = x1; points[0][1] = y1; points[0][2] = min_z;
+		points[1][0] = x2; points[1][1] = y2; points[1][2] = min_z;
+		points[2][0] = x2; points[2][1] = y2; points[2][2] = max_z;
+		points[3][0] = x1; points[3][1] = y1; points[3][2] = max_z;
+	}
+	return Mod_DoomAddFace(bsp, leaf_index,
+		(const float (*)[3])points, ARRLEN(points), texture_name, vecs);
+}
+
+static int
+Mod_DoomChild(unsigned short child, size_t num_nodes, size_t num_subsectors,
+	qboolean *valid)
+{
+	if (child & 0x8000)
+	{
+		size_t subsector;
+
+		subsector = child & 0x7FFF;
+		if (subsector >= num_subsectors)
+		{
+			*valid = false;
+			return -1;
+		}
+		return -(int)(subsector + 2);
+	}
+	if (child >= num_nodes)
+	{
+		*valid = false;
+		return -1;
+	}
+	return child;
+}
+
+static void
+Mod_DoomSetLump(byte *outbuf, dheader_t *header, int lumpnum,
+	const void *data, size_t count, size_t item_size, size_t *offset)
+{
+	if (!count)
+	{
+		return;
+	}
+	*offset = (*offset + 3) & ~(size_t)3;
+	header->lumps[lumpnum].fileofs = *offset;
+	header->lumps[lumpnum].filelen = count * item_size;
+	memcpy(outbuf + *offset, data, count * item_size);
+	*offset += count * item_size;
+}
+
+static byte *
+Mod_Load2QBSP_Doom(const char *name, const byte *inbuf, size_t filesize,
+	const lump_t *lumps, size_t *out_len)
+{
+	const byte *raw_things, *raw_lines, *raw_sides, *raw_vertexes;
+	const byte *raw_segs, *raw_subsectors, *raw_nodes, *raw_sectors;
+	size_t num_things, num_lines, num_sides, num_vertexes;
+	size_t num_segs, num_subsectors, num_nodes, num_sectors;
+	const doom_thing_t *things;
+	const doom_linedef_t *lines;
+	const doom_sidedef_t *sides;
+	const doom_vertex_t *vertexes;
+	const doom_seg_t *segs;
+	const doom_subsector_t *subsectors;
+	const doom_node_t *nodes;
+	const doom_sector_t *sectors;
+	doom_bsp_t bsp;
+	dqedge_t edge_zero;
+	byte *entities = NULL, *outbuf = NULL;
+	size_t entity_len, entity_capacity, output_size, offset;
+	size_t subsector_index, node_index, thing_index;
+	float world_min[3], world_max[3], world_min_z, world_max_z;
+	qboolean valid;
+	char failure_reason[160];
+
+	memset(&bsp, 0, sizeof(bsp));
+	Q_strlcpy(failure_reason, "validating required Doom lumps", sizeof(failure_reason));
+	if (!Mod_DoomReadLump(name, inbuf, filesize, lumps, 0, "THINGS", sizeof(doom_thing_t),
+		&raw_things, &num_things) ||
+		!Mod_DoomReadLump(name, inbuf, filesize, lumps, 1, "LINEDEFS", sizeof(doom_linedef_t),
+		&raw_lines, &num_lines) ||
+		!Mod_DoomReadLump(name, inbuf, filesize, lumps, 2, "SIDEDEFS", sizeof(doom_sidedef_t),
+		&raw_sides, &num_sides) ||
+		!Mod_DoomReadLump(name, inbuf, filesize, lumps, 3, "VERTEXES", sizeof(doom_vertex_t),
+		&raw_vertexes, &num_vertexes) ||
+		!Mod_DoomReadLump(name, inbuf, filesize, lumps, 4, "SEGS", sizeof(doom_seg_t),
+		&raw_segs, &num_segs) ||
+		!Mod_DoomReadLump(name, inbuf, filesize, lumps, 5, "SSECTORS", sizeof(doom_subsector_t),
+		&raw_subsectors, &num_subsectors) ||
+		!Mod_DoomReadLump(name, inbuf, filesize, lumps, 6, "NODES", sizeof(doom_node_t),
+		&raw_nodes, &num_nodes) ||
+		!Mod_DoomReadLump(name, inbuf, filesize, lumps, 7, "SECTORS", sizeof(doom_sector_t),
+		&raw_sectors, &num_sectors))
+	{
+		goto fail;
+	}
+	if (!num_lines || !num_sides || !num_vertexes || !num_segs ||
+		!num_subsectors || !num_sectors || (num_nodes > MAX_MAP_NODES) ||
+		(!num_nodes && (num_subsectors != 1)) || (num_subsectors > 32768) ||
+		(num_subsectors + 1 > MAX_MAP_LEAFS))
+	{
+		snprintf(failure_reason, sizeof(failure_reason),
+			"required lump empty or map counts unsupported (lines %d, sides %d, vertexes %d, segs %d, subsectors %d, nodes %d, sectors %d)",
+			(int)num_lines, (int)num_sides, (int)num_vertexes, (int)num_segs,
+			(int)num_subsectors, (int)num_nodes, (int)num_sectors);
+		goto fail;
+	}
+
+	things = (const doom_thing_t *)raw_things;
+	lines = (const doom_linedef_t *)raw_lines;
+	sides = (const doom_sidedef_t *)raw_sides;
+	vertexes = (const doom_vertex_t *)raw_vertexes;
+	segs = (const doom_seg_t *)raw_segs;
+	subsectors = (const doom_subsector_t *)raw_subsectors;
+	nodes = (const doom_node_t *)raw_nodes;
+	sectors = (const doom_sector_t *)raw_sectors;
+
+	Q_strlcpy(failure_reason, "calculating map bounds", sizeof(failure_reason));
+	world_min[0] = world_min[1] = world_min[2] = 1.0e30f;
+	world_max[0] = world_max[1] = world_max[2] = -1.0e30f;
+	for (thing_index = 0; thing_index < num_vertexes; thing_index++)
+	{
+		float x, y;
+
+		x = LittleShort(vertexes[thing_index].x);
+		y = LittleShort(vertexes[thing_index].y);
+		world_min[0] = Q_min(world_min[0], x);
+		world_min[1] = Q_min(world_min[1], y);
+		world_max[0] = Q_max(world_max[0], x);
+		world_max[1] = Q_max(world_max[1], y);
+	}
+	world_min_z = 1.0e30f;
+	world_max_z = -1.0e30f;
+	for (thing_index = 0; thing_index < num_sectors; thing_index++)
+	{
+		float floor_height, ceiling_height;
+
+		floor_height = LittleShort(sectors[thing_index].floorheight);
+		ceiling_height = LittleShort(sectors[thing_index].ceilingheight);
+		world_min_z = Q_min(world_min_z, Q_min(floor_height, ceiling_height));
+		world_max_z = Q_max(world_max_z, Q_max(floor_height, ceiling_height));
+		if (ceiling_height <= floor_height)
+		{
+			continue;
+		}
+	}
+	if (world_min_z > world_max_z)
+	{
+		Q_strlcpy(failure_reason, "no sectors have an open floor-to-ceiling interval",
+			sizeof(failure_reason));
+		goto fail;
+	}
+	world_min[2] = world_min_z - 64.0f;
+	world_max[2] = world_max_z + 64.0f;
+
+	Q_strlcpy(failure_reason, "allocating BSP nodes and leaves", sizeof(failure_reason));
+	bsp.num_leafs = num_subsectors + 1;
+	bsp.num_nodes = num_nodes ? num_nodes : 1;
+	bsp.leafs = calloc(bsp.num_leafs, sizeof(*bsp.leafs));
+	bsp.nodes = calloc(bsp.num_nodes, sizeof(*bsp.nodes));
+	if (!bsp.leafs || !bsp.nodes)
+	{
+		Q_strlcpy(failure_reason, "allocating BSP node/leaf arrays", sizeof(failure_reason));
+		goto fail;
+	}
+	memset(&edge_zero, 0, sizeof(edge_zero));
+	if (!Mod_DoomAppend((void **)&bsp.edges, &bsp.num_edges,
+		&bsp.edges_capacity, sizeof(edge_zero), &edge_zero, NULL))
+	{
+		Q_strlcpy(failure_reason, "allocating BSP edge sentinel", sizeof(failure_reason));
+		goto fail;
+	}
+	bsp.leafs[0].contents = CONTENTS_SOLID;
+	bsp.leafs[0].cluster = -1;
+
+	Q_strlcpy(failure_reason, "converting Doom BSP nodes", sizeof(failure_reason));
+	for (node_index = 0; node_index < bsp.num_nodes; node_index++)
+	{
+		dqnode_t *out_node;
+		doom_node_t source_node;
+		vec3_t normal;
+		size_t plane_index;
+		int child;
+
+		out_node = &bsp.nodes[node_index];
+		if (num_nodes)
+		{
+			float x, y, dx, dy, length;
+
+			source_node = nodes[node_index];
+			x = LittleShort(source_node.x);
+			y = LittleShort(source_node.y);
+			dx = LittleShort(source_node.dx);
+			dy = LittleShort(source_node.dy);
+			normal[0] = dy;
+			normal[1] = -dx;
+			normal[2] = 0.0f;
+			length = VectorNormalize(normal);
+			if ((length == 0.0f) || !Mod_DoomAddPlane(&bsp, normal,
+				normal[0] * x + normal[1] * y, &plane_index))
+			{
+				snprintf(failure_reason, sizeof(failure_reason),
+					"node %d has an invalid partition or plane allocation failed",
+					(int)node_index);
+				goto fail;
+			}
+
+			valid = true;
+			child = Mod_DoomChild(LittleShort(source_node.children[0]),
+				num_nodes, num_subsectors, &valid);
+			if (!valid)
+			{
+				snprintf(failure_reason, sizeof(failure_reason),
+					"node %d has invalid child 0 (%u)", (int)node_index,
+					(unsigned)LittleShort(source_node.children[0]));
+				goto fail;
+			}
+			out_node->children[0] = child;
+			child = Mod_DoomChild(LittleShort(source_node.children[1]),
+				num_nodes, num_subsectors, &valid);
+			if (!valid)
+			{
+				snprintf(failure_reason, sizeof(failure_reason),
+					"node %d has invalid child 1 (%u)", (int)node_index,
+					(unsigned)LittleShort(source_node.children[1]));
+				goto fail;
+			}
+			out_node->children[1] = child;
+		}
+		else
+		{
+			VectorSet(normal, 0.0f, 0.0f, 1.0f);
+			if (!Mod_DoomAddPlane(&bsp, normal, 0.0f, &plane_index))
+			{
+				goto fail;
+			}
+			out_node->children[0] = -2;
+			out_node->children[1] = -2;
+		}
+		out_node->planenum = plane_index;
+		for (thing_index = 0; thing_index < 3; thing_index++)
+		{
+			out_node->mins[thing_index] = world_min[thing_index];
+			out_node->maxs[thing_index] = world_max[thing_index];
+		}
+	}
+
+	Q_strlcpy(failure_reason, "converting Doom subsectors", sizeof(failure_reason));
+	for (subsector_index = 0; subsector_index < num_subsectors; subsector_index++)
+	{
+		doom_subsector_t subsector;
+		dqleaf_t *leaf;
+		float (*polygon)[2];
+		size_t num_polygon_points, seg_index, leaf_index;
+		int firstseg, numsegs, sector_index;
+		float floor_height, ceiling_height, area_sum;
+		char floor_texture[64], ceiling_texture[64];
+		float floor_vecs[2][4] = {{0}}, ceiling_vecs[2][4] = {{0}};
+		qboolean has_polygon_area;
+
+		subsector = subsectors[subsector_index];
+		firstseg = LittleShort(subsector.firstseg);
+		numsegs = LittleShort(subsector.numsegs);
+		if ((firstseg < 0) || (numsegs < 1) ||
+			((size_t)firstseg + numsegs > num_segs))
+		{
+			snprintf(failure_reason, sizeof(failure_reason),
+				"subsector %d has invalid seg range %d + %d (count %d)",
+				(int)subsector_index, firstseg, numsegs, (int)num_segs);
+			goto fail;
+		}
+		polygon = malloc((size_t)numsegs * 2 * sizeof(*polygon));
+		if (!polygon)
+		{
+			goto fail;
+		}
+
+		sector_index = -1;
+		num_polygon_points = 0;
+		for (seg_index = (size_t)firstseg;
+			seg_index < (size_t)firstseg + numsegs; seg_index++)
+		{
+			doom_seg_t seg;
+			doom_linedef_t line;
+			doom_sidedef_t side;
+			int v1, v2, linedef_index, side_index, side_lump_index;
+			int current_sector;
+			size_t duplicate_index;
+			qboolean duplicate_point;
+
+			seg = segs[seg_index];
+			v1 = LittleShort(seg.v1);
+			v2 = LittleShort(seg.v2);
+			linedef_index = LittleShort(seg.linedef);
+			side_index = LittleShort(seg.side);
+			if ((v1 < 0) || (v2 < 0) || (v1 >= num_vertexes) ||
+				(v2 >= num_vertexes) || (linedef_index < 0) ||
+				(linedef_index >= num_lines) || (side_index < 0) || (side_index > 1))
+			{
+				snprintf(failure_reason, sizeof(failure_reason),
+					"subsector %d seg %d has invalid indices v=%d,%d line=%d side=%d",
+					(int)subsector_index, (int)seg_index, v1, v2,
+					linedef_index, side_index);
+				free(polygon);
+				goto fail;
+			}
+			line = lines[linedef_index];
+			side_lump_index = LittleShort(line.sidenum[side_index]);
+			if ((side_lump_index < 0) || (side_lump_index >= num_sides))
+			{
+				snprintf(failure_reason, sizeof(failure_reason),
+					"subsector %d seg %d references sidedef %d (count %d)",
+					(int)subsector_index, (int)seg_index, side_lump_index,
+					(int)num_sides);
+				free(polygon);
+				goto fail;
+			}
+			side = sides[side_lump_index];
+			current_sector = LittleShort(side.sector);
+			if ((current_sector < 0) || (current_sector >= num_sectors) ||
+				((sector_index >= 0) && (sector_index != current_sector)))
+			{
+				snprintf(failure_reason, sizeof(failure_reason),
+					"subsector %d has inconsistent sector %d (expected %d)",
+					(int)subsector_index, current_sector, sector_index);
+				free(polygon);
+				goto fail;
+			}
+			sector_index = current_sector;
+			{
+				int endpoints[2], endpoint_index;
+
+				endpoints[0] = v1;
+				endpoints[1] = v2;
+				for (endpoint_index = 0; endpoint_index < 2; endpoint_index++)
+				{
+					int vertex_index;
+
+					vertex_index = endpoints[endpoint_index];
+					duplicate_point = false;
+					for (duplicate_index = 0; duplicate_index < num_polygon_points;
+						duplicate_index++)
+					{
+						if ((polygon[duplicate_index][0] == LittleShort(vertexes[vertex_index].x)) &&
+							(polygon[duplicate_index][1] == LittleShort(vertexes[vertex_index].y)))
+						{
+							duplicate_point = true;
+							break;
+						}
+					}
+					if (!duplicate_point)
+					{
+						polygon[num_polygon_points][0] = LittleShort(vertexes[vertex_index].x);
+						polygon[num_polygon_points][1] = LittleShort(vertexes[vertex_index].y);
+						num_polygon_points++;
+					}
+				}
+			}
+		}
+		if ((num_polygon_points > 1) &&
+			(polygon[0][0] == polygon[num_polygon_points - 1][0]) &&
+			(polygon[0][1] == polygon[num_polygon_points - 1][1]))
+		{
+			num_polygon_points--;
+		}
+		if (!num_polygon_points || (sector_index < 0))
+		{
+			snprintf(failure_reason, sizeof(failure_reason),
+				"subsector %d has no polygon points or no sector",
+				(int)subsector_index);
+			free(polygon);
+			goto fail;
+		}
+
+		{
+			float center_x, center_y;
+			size_t point_index;
+
+			center_x = center_y = 0.0f;
+			for (point_index = 0; point_index < num_polygon_points; point_index++)
+			{
+				center_x += polygon[point_index][0];
+				center_y += polygon[point_index][1];
+			}
+			center_x /= num_polygon_points;
+			center_y /= num_polygon_points;
+
+			for (point_index = 1; point_index < num_polygon_points; point_index++)
+			{
+				float point_x, point_y, point_angle;
+				size_t sorted_index;
+
+				point_x = polygon[point_index][0];
+				point_y = polygon[point_index][1];
+				point_angle = atan2f(point_y - center_y, point_x - center_x);
+				sorted_index = point_index;
+				while (sorted_index > 0 &&
+					atan2f(polygon[sorted_index - 1][1] - center_y,
+						polygon[sorted_index - 1][0] - center_x) > point_angle)
+				{
+					polygon[sorted_index][0] = polygon[sorted_index - 1][0];
+					polygon[sorted_index][1] = polygon[sorted_index - 1][1];
+					sorted_index--;
+				}
+				polygon[sorted_index][0] = point_x;
+				polygon[sorted_index][1] = point_y;
+			}
+		}
+
+		area_sum = 0.0f;
+		for (seg_index = 0; seg_index < num_polygon_points; seg_index++)
+		{
+			size_t next;
+
+			next = (seg_index + 1) % num_polygon_points;
+			area_sum += polygon[seg_index][0] * polygon[next][1] -
+				polygon[next][0] * polygon[seg_index][1];
+		}
+		has_polygon_area = area_sum != 0.0f;
+		if (area_sum < 0.0f)
+		{
+			for (seg_index = 0; seg_index < num_polygon_points / 2; seg_index++)
+			{
+				float tmp[2];
+				size_t opposite;
+
+				opposite = num_polygon_points - 1 - seg_index;
+				tmp[0] = polygon[seg_index][0];
+				tmp[1] = polygon[seg_index][1];
+				polygon[seg_index][0] = polygon[opposite][0];
+				polygon[seg_index][1] = polygon[opposite][1];
+				polygon[opposite][0] = tmp[0];
+				polygon[opposite][1] = tmp[1];
+			}
+		}
+
+		leaf_index = subsector_index + 1;
+		leaf = &bsp.leafs[leaf_index];
+		if (!has_polygon_area)
+		{
+			leaf->contents = CONTENTS_SOLID;
+		}
+		leaf->cluster = -1;
+		leaf->area = 0;
+		leaf->firstleafface = bsp.num_leaffaces;
+		leaf->firstleafbrush = bsp.num_leafbrushes;
+		leaf->mins[0] = leaf->mins[1] = leaf->mins[2] = 1.0e30f;
+		leaf->maxs[0] = leaf->maxs[1] = leaf->maxs[2] = -1.0e30f;
+		for (seg_index = 0; seg_index < num_polygon_points; seg_index++)
+		{
+			leaf->mins[0] = Q_min(leaf->mins[0], polygon[seg_index][0]);
+			leaf->mins[1] = Q_min(leaf->mins[1], polygon[seg_index][1]);
+			leaf->maxs[0] = Q_max(leaf->maxs[0], polygon[seg_index][0]);
+			leaf->maxs[1] = Q_max(leaf->maxs[1], polygon[seg_index][1]);
+		}
+		floor_height = LittleShort(sectors[sector_index].floorheight);
+		ceiling_height = LittleShort(sectors[sector_index].ceilingheight);
+		if (ceiling_height < floor_height)
+		{
+			snprintf(failure_reason, sizeof(failure_reason),
+				"subsector %d references inverted sector %d (floor %.0f, ceiling %.0f)",
+				(int)subsector_index, sector_index, floor_height, ceiling_height);
+			free(polygon);
+			goto fail;
+		}
+		if (ceiling_height == floor_height)
+		{
+			leaf->contents = CONTENTS_SOLID;
+		}
+		leaf->mins[2] = floor_height;
+		leaf->maxs[2] = ceiling_height;
+		Mod_DoomTextureName(floor_texture, sizeof(floor_texture), sectors[sector_index].floorpic);
+		Mod_DoomTextureName(ceiling_texture, sizeof(ceiling_texture), sectors[sector_index].ceilingpic);
+		floor_vecs[0][0] = 1.0f / 64.0f;
+		floor_vecs[1][1] = 1.0f / 64.0f;
+		ceiling_vecs[0][0] = 1.0f / 64.0f;
+		ceiling_vecs[1][1] = -1.0f / 64.0f;
+
+		{
+			float (*floor_points)[3], (*ceiling_points)[3];
+
+			floor_points = malloc(num_polygon_points * sizeof(*floor_points));
+			ceiling_points = malloc(num_polygon_points * sizeof(*ceiling_points));
+			if (!floor_points || !ceiling_points)
+			{
+				snprintf(failure_reason, sizeof(failure_reason),
+					"allocating floor/ceiling polygons for subsector %d",
+					(int)subsector_index);
+				free(floor_points);
+				free(ceiling_points);
+				free(polygon);
+				goto fail;
+			}
+			for (seg_index = 0; seg_index < num_polygon_points; seg_index++)
+			{
+				size_t reverse_index;
+
+				reverse_index = num_polygon_points - 1 - seg_index;
+				floor_points[seg_index][0] = polygon[seg_index][0];
+				floor_points[seg_index][1] = polygon[seg_index][1];
+				floor_points[seg_index][2] = floor_height;
+				ceiling_points[seg_index][0] = polygon[reverse_index][0];
+				ceiling_points[seg_index][1] = polygon[reverse_index][1];
+				ceiling_points[seg_index][2] = ceiling_height;
+			}
+			if (has_polygon_area && (ceiling_height > floor_height) &&
+				(!Mod_DoomAddFace(&bsp, leaf_index,
+					(const float (*)[3])floor_points, num_polygon_points,
+					floor_texture, floor_vecs) ||
+					!Mod_DoomAddFace(&bsp, leaf_index,
+						(const float (*)[3])ceiling_points, num_polygon_points,
+						ceiling_texture, ceiling_vecs)))
+			{
+				snprintf(failure_reason, sizeof(failure_reason),
+					"generating floor/ceiling surfaces for subsector %d",
+					(int)subsector_index);
+				free(floor_points);
+				free(ceiling_points);
+				free(polygon);
+				goto fail;
+			}
+			if (has_polygon_area &&
+				(!Mod_DoomAddBrush(&bsp, leaf_index,
+				(const float (*)[2])polygon, num_polygon_points,
+				world_min_z - 64.0f, floor_height) ||
+				!Mod_DoomAddBrush(&bsp, leaf_index,
+					(const float (*)[2])polygon, num_polygon_points,
+					ceiling_height, world_max_z + 64.0f)))
+			{
+				snprintf(failure_reason, sizeof(failure_reason),
+					"generating floor/ceiling collision brushes for subsector %d",
+					(int)subsector_index);
+				free(floor_points);
+				free(ceiling_points);
+				free(polygon);
+				goto fail;
+			}
+			free(floor_points);
+			free(ceiling_points);
+		}
+
+		for (seg_index = (size_t)firstseg;
+			seg_index < (size_t)firstseg + numsegs; seg_index++)
+		{
+			doom_seg_t seg;
+			doom_linedef_t line;
+			doom_sidedef_t side;
+			int line_index, side_index, side_lump_index, back_side_index;
+			int back_sector_index;
+			float x1, y1, x2, y2, back_floor, back_ceiling;
+			float lower_top, upper_bottom, opening_floor, opening_ceiling;
+			qboolean two_sided;
+
+			seg = segs[seg_index];
+			line_index = LittleShort(seg.linedef);
+			side_index = LittleShort(seg.side);
+			line = lines[line_index];
+			side_lump_index = LittleShort(line.sidenum[side_index]);
+			side = sides[side_lump_index];
+			x1 = LittleShort(vertexes[LittleShort(seg.v1)].x);
+			y1 = LittleShort(vertexes[LittleShort(seg.v1)].y);
+			x2 = LittleShort(vertexes[LittleShort(seg.v2)].x);
+			y2 = LittleShort(vertexes[LittleShort(seg.v2)].y);
+			back_side_index = LittleShort(line.sidenum[side_index ^ 1]);
+			two_sided = ((LittleShort(line.flags) & 4) != 0) &&
+				(back_side_index >= 0) && (back_side_index < num_sides);
+			back_sector_index = two_sided ? LittleShort(sides[back_side_index].sector) : -1;
+			if (two_sided && ((back_sector_index < 0) || (back_sector_index >= num_sectors)))
+			{
+					snprintf(failure_reason, sizeof(failure_reason),
+						"subsector %d seg %d references back sector %d (count %d)",
+						(int)subsector_index, (int)seg_index, back_sector_index,
+						(int)num_sectors);
+				free(polygon);
+				goto fail;
+			}
+
+			back_floor = two_sided ? LittleShort(sectors[back_sector_index].floorheight) : floor_height;
+			back_ceiling = two_sided ? LittleShort(sectors[back_sector_index].ceilingheight) : ceiling_height;
+			opening_floor = Q_max(floor_height, back_floor);
+			opening_ceiling = Q_min(ceiling_height, back_ceiling);
+			lower_top = two_sided ? Q_min(back_floor, ceiling_height) : ceiling_height;
+			upper_bottom = two_sided ? Q_max(back_ceiling, floor_height) : floor_height;
+
+			if (!two_sided)
+			{
+				if (!Mod_DoomAddWallFace(&bsp, leaf_index, side.midtexture,
+					LittleShort(side.textureoffset), LittleShort(side.rowoffset),
+					LittleShort(seg.offset), side_index, x1, y1, x2, y2,
+					floor_height, ceiling_height) ||
+					!Mod_DoomAddWallBrush(&bsp, leaf_index, x1, y1, x2, y2,
+						floor_height, ceiling_height))
+				{
+					snprintf(failure_reason, sizeof(failure_reason),
+						"generating one-sided wall at subsector %d seg %d",
+						(int)subsector_index, (int)seg_index);
+					free(polygon);
+					goto fail;
+				}
+			}
+			else
+			{
+				if (back_floor > floor_height)
+				{
+					if (!Mod_DoomAddWallFace(&bsp, leaf_index, side.bottomtexture,
+						LittleShort(side.textureoffset), LittleShort(side.rowoffset),
+						LittleShort(seg.offset), side_index, x1, y1, x2, y2,
+						floor_height, lower_top) ||
+						!Mod_DoomAddWallBrush(&bsp, leaf_index, x1, y1, x2, y2,
+							floor_height, lower_top))
+					{
+						snprintf(failure_reason, sizeof(failure_reason),
+							"generating lower wall at subsector %d seg %d (faces %d, brushes %d, sides %d, planes %d, texinfo %d)",
+							(int)subsector_index, (int)seg_index,
+							(int)bsp.num_faces, (int)bsp.num_brushes,
+							(int)bsp.num_brushsides, (int)bsp.num_planes,
+							(int)bsp.num_texinfo);
+						free(polygon);
+						goto fail;
+					}
+				}
+				if (ceiling_height > back_ceiling)
+				{
+					if (!Mod_DoomAddWallFace(&bsp, leaf_index, side.toptexture,
+						LittleShort(side.textureoffset), LittleShort(side.rowoffset),
+						LittleShort(seg.offset), side_index, x1, y1, x2, y2,
+						upper_bottom, ceiling_height) ||
+						!Mod_DoomAddWallBrush(&bsp, leaf_index, x1, y1, x2, y2,
+							upper_bottom, ceiling_height))
+					{
+						snprintf(failure_reason, sizeof(failure_reason),
+							"generating upper wall at subsector %d seg %d (faces %d, brushes %d, sides %d, planes %d, texinfo %d)",
+							(int)subsector_index, (int)seg_index,
+							(int)bsp.num_faces, (int)bsp.num_brushes,
+							(int)bsp.num_brushsides, (int)bsp.num_planes,
+							(int)bsp.num_texinfo);
+						free(polygon);
+						goto fail;
+					}
+				}
+				if ((LittleShort(line.flags) & 1) && (opening_ceiling > opening_floor) &&
+					!Mod_DoomAddWallBrush(&bsp, leaf_index, x1, y1, x2, y2,
+						opening_floor, opening_ceiling))
+				{
+					snprintf(failure_reason, sizeof(failure_reason),
+						"generating blocking mid-wall at subsector %d seg %d",
+						(int)subsector_index, (int)seg_index);
+					free(polygon);
+					goto fail;
+				}
+			}
+		}
+
+		leaf->numleaffaces = bsp.num_leaffaces - leaf->firstleafface;
+		leaf->numleafbrushes = bsp.num_leafbrushes - leaf->firstleafbrush;
+		free(polygon);
+	}
+
+	if (!bsp.num_faces || !bsp.num_brushes || !bsp.num_brushsides ||
+		!bsp.num_texinfo || !bsp.num_planes)
+	{
+		Q_strlcpy(failure_reason,
+			"generated BSP is missing faces, brushes, texinfo, or planes",
+			sizeof(failure_reason));
+		goto fail;
+	}
+
+	Q_strlcpy(failure_reason, "converting Doom player starts", sizeof(failure_reason));
+	if (num_things > (((size_t)-1 - 128) / 128))
+	{
+		Q_strlcpy(failure_reason, "player-start entity buffer size overflow",
+			sizeof(failure_reason));
+		goto fail;
+	}
+	entity_capacity = 128 + num_things * 128;
+	entities = malloc(entity_capacity);
+	if (!entities)
+	{
+		Q_strlcpy(failure_reason, "allocating entity string", sizeof(failure_reason));
+		goto fail;
+	}
+	entity_len = (size_t)snprintf((char *)entities, entity_capacity,
+		"{\n\"classname\" \"worldspawn\"\n}\n");
+	for (thing_index = 0; thing_index < num_things; thing_index++)
+	{
+		int thing_type, x, y, angle, subsector_number, sector_number;
+		float z;
+
+		thing_type = LittleShort(things[thing_index].type);
+		if (thing_type != 1)
+		{
+			continue;
+		}
+		x = LittleShort(things[thing_index].x);
+		y = LittleShort(things[thing_index].y);
+		angle = LittleShort(things[thing_index].angle);
+		subsector_number = 0;
+		if (num_nodes)
+		{
+			int current_node;
+		size_t depth;
+
+			current_node = num_nodes - 1;
+			for (depth = 0; depth <= num_nodes; depth++)
+			{
+				const doom_node_t *node;
+				float dx, dy, line_dx, line_dy;
+				int child;
+
+				if ((current_node < 0) || ((size_t)current_node >= num_nodes))
+				{
+					snprintf(failure_reason, sizeof(failure_reason),
+						"player thing %d has invalid BSP node %d",
+						(int)thing_index, current_node);
+					goto fail;
+				}
+				node = &nodes[current_node];
+				dx = x - LittleShort(node->x);
+				dy = y - LittleShort(node->y);
+				line_dx = LittleShort(node->dx);
+				line_dy = LittleShort(node->dy);
+				child = LittleShort(node->children[(line_dx * dy - line_dy * dx) < 0.0f ? 0 : 1]);
+				if (child & 0x8000)
+				{
+					subsector_number = child & 0x7FFF;
+					break;
+				}
+				current_node = child;
+			}
+		}
+		if ((subsector_number < 0) || ((size_t)subsector_number >= num_subsectors))
+		{
+			snprintf(failure_reason, sizeof(failure_reason),
+				"player thing %d resolves to invalid subsector %d",
+				(int)thing_index, subsector_number);
+			goto fail;
+		}
+		{
+			int firstseg;
+			doom_seg_t spawn_seg;
+			doom_linedef_t spawn_line;
+			int spawn_side;
+
+			firstseg = LittleShort(subsectors[subsector_number].firstseg);
+			spawn_seg = segs[firstseg];
+			spawn_line = lines[LittleShort(spawn_seg.linedef)];
+			spawn_side = LittleShort(spawn_line.sidenum[LittleShort(spawn_seg.side)]);
+			sector_number = LittleShort(sides[spawn_side].sector);
+		}
+		z = LittleShort(sectors[sector_number].floorheight) + 24.0f;
+		if (entity_len >= entity_capacity)
+		{
+			snprintf(failure_reason, sizeof(failure_reason),
+				"entity string exceeds capacity at player thing %d",
+				(int)thing_index);
+			goto fail;
+		}
+		{
+			int written;
+
+			written = snprintf((char *)entities + entity_len,
+				entity_capacity - entity_len,
+				"{\n\"classname\" \"info_player_start\"\n"
+				"\"origin\" \"%d %d %.0f\"\n\"angle\" \"%d\"\n}\n",
+				x, y, z, angle);
+			if ((written < 0) || ((size_t)written >= entity_capacity - entity_len))
+			{
+				snprintf(failure_reason, sizeof(failure_reason),
+					"entity string overflow at player thing %d", (int)thing_index);
+				goto fail;
+			}
+			entity_len += written;
+		}
+	}
+	entity_len++;
+
+	Q_strlcpy(failure_reason, "serializing generated QBSP", sizeof(failure_reason));
+	{
+		darea_t area;
+		dareaportal_t portal;
+		dmodel_t model;
+		const void *lump_data[HEADER_LUMPS] = {0};
+		size_t lump_count[HEADER_LUMPS] = {0};
+		size_t lump_size[HEADER_LUMPS] = {0};
+		dheader_t *header;
+		int lump_index;
+
+		memset(&area, 0, sizeof(area));
+		memset(&portal, 0, sizeof(portal));
+		memset(&model, 0, sizeof(model));
+		for (thing_index = 0; thing_index < 3; thing_index++)
+		{
+			model.mins[thing_index] = world_min[thing_index];
+			model.maxs[thing_index] = world_max[thing_index];
+			model.origin[thing_index] = (world_min[thing_index] + world_max[thing_index]) * 0.5f;
+		}
+		model.headnode = bsp.num_nodes - 1;
+		model.numfaces = bsp.num_faces;
+
+		lump_data[LUMP_ENTITIES] = entities;
+		lump_count[LUMP_ENTITIES] = entity_len;
+		lump_size[LUMP_ENTITIES] = 1;
+		lump_data[LUMP_PLANES] = bsp.planes;
+		lump_count[LUMP_PLANES] = bsp.num_planes;
+		lump_size[LUMP_PLANES] = sizeof(dplane_t);
+		lump_data[LUMP_VERTEXES] = bsp.vertexes;
+		lump_count[LUMP_VERTEXES] = bsp.num_vertexes;
+		lump_size[LUMP_VERTEXES] = sizeof(dvertex_t);
+		lump_data[LUMP_NODES] = bsp.nodes;
+		lump_count[LUMP_NODES] = bsp.num_nodes;
+		lump_size[LUMP_NODES] = sizeof(dqnode_t);
+		lump_data[LUMP_TEXINFO] = bsp.texinfo;
+		lump_count[LUMP_TEXINFO] = bsp.num_texinfo;
+		lump_size[LUMP_TEXINFO] = sizeof(xtexinfo_t);
+		lump_data[LUMP_FACES] = bsp.faces;
+		lump_count[LUMP_FACES] = bsp.num_faces;
+		lump_size[LUMP_FACES] = sizeof(dqface_t);
+		lump_data[LUMP_LEAFS] = bsp.leafs;
+		lump_count[LUMP_LEAFS] = bsp.num_leafs;
+		lump_size[LUMP_LEAFS] = sizeof(dqleaf_t);
+		lump_data[LUMP_LEAFFACES] = bsp.leaffaces;
+		lump_count[LUMP_LEAFFACES] = bsp.num_leaffaces;
+		lump_size[LUMP_LEAFFACES] = sizeof(int);
+		lump_data[LUMP_LEAFBRUSHES] = bsp.leafbrushes;
+		lump_count[LUMP_LEAFBRUSHES] = bsp.num_leafbrushes;
+		lump_size[LUMP_LEAFBRUSHES] = sizeof(int);
+		lump_data[LUMP_EDGES] = bsp.edges;
+		lump_count[LUMP_EDGES] = bsp.num_edges;
+		lump_size[LUMP_EDGES] = sizeof(dqedge_t);
+		lump_data[LUMP_SURFEDGES] = bsp.surfedges;
+		lump_count[LUMP_SURFEDGES] = bsp.num_surfedges;
+		lump_size[LUMP_SURFEDGES] = sizeof(int);
+		lump_data[LUMP_MODELS] = &model;
+		lump_count[LUMP_MODELS] = 1;
+		lump_size[LUMP_MODELS] = sizeof(dmodel_t);
+		lump_data[LUMP_BRUSHES] = bsp.brushes;
+		lump_count[LUMP_BRUSHES] = bsp.num_brushes;
+		lump_size[LUMP_BRUSHES] = sizeof(dbrush_t);
+		lump_data[LUMP_BRUSHSIDES] = bsp.brushsides;
+		lump_count[LUMP_BRUSHSIDES] = bsp.num_brushsides;
+		lump_size[LUMP_BRUSHSIDES] = sizeof(dqbrushside_t);
+		lump_data[LUMP_AREAS] = &area;
+		lump_count[LUMP_AREAS] = 1;
+		lump_size[LUMP_AREAS] = sizeof(darea_t);
+		lump_data[LUMP_AREAPORTALS] = &portal;
+		lump_count[LUMP_AREAPORTALS] = 1;
+		lump_size[LUMP_AREAPORTALS] = sizeof(dareaportal_t);
+
+		output_size = sizeof(dheader_t);
+		for (lump_index = 0; lump_index < HEADER_LUMPS; lump_index++)
+		{
+			size_t bytes;
+
+			if (lump_count[lump_index] > ((size_t)-1 / (lump_size[lump_index] ? lump_size[lump_index] : 1)))
+			{
+				snprintf(failure_reason, sizeof(failure_reason),
+					"output lump %d size overflows", lump_index);
+				goto fail;
+			}
+			bytes = lump_count[lump_index] * lump_size[lump_index];
+			if (output_size > ((size_t)-1 - bytes - 3))
+			{
+				snprintf(failure_reason, sizeof(failure_reason),
+					"output lump %d exceeds addressable size", lump_index);
+				goto fail;
+			}
+			output_size = (output_size + 3) & ~(size_t)3;
+			output_size += bytes;
+		}
+		if (output_size > 0xFFFFFFFFu)
+		{
+			Q_strlcpy(failure_reason, "generated QBSP exceeds 32-bit lump offsets",
+				sizeof(failure_reason));
+			goto fail;
+		}
+		outbuf = calloc(1, output_size);
+		if (!outbuf)
+		{
+			Q_strlcpy(failure_reason, "allocating generated QBSP buffer",
+				sizeof(failure_reason));
+			goto fail;
+		}
+		header = (dheader_t *)outbuf;
+		header->ident = QBSPHEADER;
+		header->version = BSPVERSION;
+		offset = sizeof(*header);
+		for (lump_index = 0; lump_index < HEADER_LUMPS; lump_index++)
+		{
+			Mod_DoomSetLump(outbuf, header, lump_index, lump_data[lump_index],
+				lump_count[lump_index], lump_size[lump_index], &offset);
+		}
+	}
+
+	*out_len = output_size;
+	free(entities);
+	Mod_DoomFree(&bsp);
+	return outbuf;
+
+fail:
+	free(outbuf);
+	free(entities);
+	Mod_DoomFree(&bsp);
+	Com_Error(ERR_DROP, "%s: Map %s has invalid or unsupported Doom geometry: %s",
+		__func__, name, failure_reason);
+	return NULL;
+}
 
 static const char*
 Mod_MaptypeName(maptype_t maptype)
@@ -3180,6 +4674,12 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 
 	detected_maptype = Mod_LoadGetRules(ident, version, inbuf, lumps, filesize,
 		&rules, &numlumps, &numrules);
+	if (detected_maptype == map_doom)
+	{
+		*maptype = map_doom;
+		return Mod_Load2QBSP_Doom(name, inbuf, filesize, lumps, out_len);
+	}
+
 	if (detected_maptype != map_quake2rr)
 	{
 		/* Use detected maptype only if for sure know */
@@ -3420,7 +4920,7 @@ Mod_CombineLumps(const char *name, void **buffer)
 
 	if (num_found == 0 || !has_essential_lump)
 	{
-		for (i = 1; i < ARRLEN(doom_lumps); i++)
+		for (i = 0; i < ARRLEN(doom_lumps); i++)
 		{
 			if (lumpdata[i])
 			{
