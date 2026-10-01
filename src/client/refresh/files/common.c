@@ -203,15 +203,11 @@ R_CombineBlendWithFog(float *v_blend, qboolean native_fog)
 	R_CombineBlends(r_newrefdef.blend, v_blend);
 
 	/* fog */
-	if (r_newrefdef.fog.density)
+	if (!native_fog && r_newrefdef.fog.density)
 	{
 		float fog_density;
 
-		fog_density = r_newrefdef.fog.density * 5;
-		if (!native_fog)
-		{
-			fog_density *= 2;
-		}
+		fog_density = r_newrefdef.fog.density * 10;
 
 		v_blend[3]  += fog_density;
 
