@@ -171,12 +171,13 @@ void QVk_CreatePipeline(const VkDescriptorSetLayout *descriptorLayout,
 		.pDynamicStates = dynamicStates
 	};
 
-	// push constant sizes accomodate for maximum number of uploaded elements (should probably be checked against the hardware's maximum supported value)
+	/* push constant sizes accomodate for maximum number of uploaded elements
+	 * (should probably be checked against the hardware's maximum supported value) */
 	VkPushConstantRange pushConstantRange[] = {
 		{
 			.stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
 			.offset = 0,
-			.size = PUSH_CONSTANT_VERTEX_SIZE * sizeof(float)
+			.size = pipeline->vertexPushConstantSize
 		},
 		{
 			.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
