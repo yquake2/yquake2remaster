@@ -3514,12 +3514,36 @@ AddCampaign(const char *name)
 }
 
 static void
+LevelSelect_Free(void)
+{
+	int i;
+
+	for (i = 0; i < MAX_CAMPAIGNS; i++)
+	{
+		StrList_Free(&s_campaigns[i].names);
+		StrList_Free(&s_campaigns[i].cmds);
+	}
+
+	StrList_Free(&s_campaignnames);
+
+	for (i = 0; i < MAX_LEVELSTARTS; i++)
+	{
+		s_ls_starts[i].generic.name = NULL;
+	}
+
+	s_ls_campaign.itemnames = NULL;
+
+	s_ls_cmd = NULL;
+}
+
+static void
 LevelSelect_NamesInit(void)
 {
 	campaign_t *camp;
 	char *buffer, *bufpos;
 
-	StrList_Init(&s_campaignnames, 0);
+	/* not on game menu close, M_PushMenu may close it after this rebuild */
+	LevelSelect_Free();
 
 	if (FS_LoadFile("yq2_levelsel.lst", (void **)&buffer) <= 0)
 	{
@@ -3599,29 +3623,6 @@ CampaignListFunc(void *self)
 	{
 		s_ls_starts[i].generic.flags |= QMF_HIDDEN;
 	}
-}
-
-static void
-LevelSelect_Free(void)
-{
-	int i;
-
-	for (i = 0; i < MAX_CAMPAIGNS; i++)
-	{
-		StrList_Free(&s_campaigns[i].names);
-		StrList_Free(&s_campaigns[i].cmds);
-	}
-
-	StrList_Free(&s_campaignnames);
-
-	for (i = 0; i < MAX_LEVELSTARTS; i++)
-	{
-		s_ls_starts[i].generic.name = NULL;
-	}
-
-	s_ls_campaign.itemnames = NULL;
-
-	s_ls_cmd = NULL;
 }
 
 static const char *
@@ -3936,18 +3937,11 @@ Game_MenuInit(void)
 }
 
 static void
-Game_MenuClose(menuframework_s *unused)
-{
-	LevelSelect_Free();
-}
-
-static void
 M_Menu_Game_f(void)
 {
 	Game_MenuInit();
 	s_game_menu.draw  = Default_MenuDraw;
 	s_game_menu.key   = Default_MenuKey;
-	s_game_menu.close = Game_MenuClose;
 
 	M_PushMenu(&s_game_menu);
 	m_game_cursor = 1;
