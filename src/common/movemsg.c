@@ -697,11 +697,32 @@ MSG_WritePos(sizebuf_t *sb, const vec3_t pos, int protocol)
 }
 
 void
+MSG_WriteVel(sizebuf_t *sb, const short *vel, int protocol)
+{
+	if (protocol == PROTOCOL_RR22_VERSION)
+	{
+		MSG_WriteFloat(sb, vel[0] * 0.125f);
+		MSG_WriteFloat(sb, vel[1] * 0.125f);
+		MSG_WriteFloat(sb, vel[2] * 0.125f);
+	}
+	else
+	{
+		MSG_WriteShort(sb, vel[0]);
+		MSG_WriteShort(sb, vel[1]);
+		MSG_WriteShort(sb, vel[2]);
+	}
+}
+
+void
 MSG_WriteAngle(sizebuf_t *sb, float f, int protocol)
 {
 	if (IS_QII97_PROTOCOL(protocol))
 	{
 		MSG_WriteByte(sb, (int)(f * 256 / 360) & 255);
+	}
+	else if (protocol == PROTOCOL_RR22_VERSION)
+	{
+		MSG_WriteFloat(sb, f);
 	}
 	else
 	{
@@ -1337,12 +1358,33 @@ MSG_ReadPos(sizebuf_t *msg_read, vec3_t pos, int protocol)
 	pos[2] = MSG_ReadCoord(msg_read, protocol);
 }
 
+void
+MSG_ReadVel(sizebuf_t *msg_read, short *vel, int protocol)
+{
+	if (protocol == PROTOCOL_RR22_VERSION)
+	{
+		vel[0] = MSG_ReadFloat(msg_read) * 8.0f + 0.5f;
+		vel[1] = MSG_ReadFloat(msg_read) * 8.0f + 0.5f;
+		vel[2] = MSG_ReadFloat(msg_read) * 8.0f + 0.5f;
+	}
+	else
+	{
+		vel[0] = MSG_ReadShort(msg_read);
+		vel[1] = MSG_ReadShort(msg_read);
+		vel[2] = MSG_ReadShort(msg_read);
+	}
+}
+
 float
 MSG_ReadAngle(sizebuf_t *msg_read, int protocol)
 {
 	if (IS_QII97_PROTOCOL(protocol))
 	{
 		return MSG_ReadChar(msg_read) * 1.40625f;
+	}
+	else if (protocol == PROTOCOL_RR22_VERSION)
+	{
+		return MSG_ReadFloat(&net_message);
 	}
 	else
 	{

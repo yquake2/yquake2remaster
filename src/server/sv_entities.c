@@ -313,9 +313,7 @@ SV_WritePlayerstateToClient(client_frame_t *from, client_frame_t *to,
 
 	if (pflags & PS_M_VELOCITY)
 	{
-		MSG_WriteShort(msg, ps->pmove.velocity[0]);
-		MSG_WriteShort(msg, ps->pmove.velocity[1]);
-		MSG_WriteShort(msg, ps->pmove.velocity[2]);
+		MSG_WriteVel(msg, ps->pmove.velocity, protocol);
 	}
 
 	if (pflags & PS_M_TIME)
