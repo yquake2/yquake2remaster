@@ -1243,7 +1243,7 @@ SP_dynamic_light(edict_t *self)
  *
  * TRIGGER_SPAWN	the wall will not be present until triggered
  *                  it will then blink in to existance; it will
- *                  kill anything that was in it's way
+ *                  kill anything that was in its way
  *
  * TOGGLE			only valid for TRIGGER_SPAWN walls
  *                  this allows the wall to be turned on and off

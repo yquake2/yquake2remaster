@@ -436,7 +436,7 @@ CTFOtherTeam(int team)
 /*--------------------------------------------------------------------------*/
 
 void
-CTFAssignSkin(edict_t *ent, char *s)
+CTFAssignSkin(edict_t *ent, const char *s)
 {
 	int playernum = ent - g_edicts - 1;
 	char *p;
