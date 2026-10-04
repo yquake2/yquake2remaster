@@ -1587,11 +1587,12 @@ FS_LoadSINSRPK(FILE *handle, const char *packPath)
 {
 	int i; /* Loop counter. */
 	size_t numFiles; /* Number of files in SIN. */
+	size_t pakSize, dirSize; /* Size of original pak file */
 	fsPackFile_t *files; /* List of files in PAK. */
 	fsPack_t *pack; /* SIN file. */
 	dsinrheader_t header; /* SIN file header. */
 	dsinrfile_t *info = NULL; /* SIN info. */
-	char *infostr = NULL, *infoname = NULL; /* SIN file names. */
+	char *infostr = NULL; /* SIN file names. */
 
 	if (fread(&header, sizeof(dsinrheader_t), 1, handle) != 1)
 	{
@@ -1608,15 +1609,18 @@ FS_LoadSINSRPK(FILE *handle, const char *packPath)
 		return NULL;
 	}
 
+	pakSize = FS_FileLength(handle);
+
 	header.dirofs = LittleLongLong(header.dirofs);
-	header.dirlen = LittleLongLong(header.dirlen);
+	header.dirlen = LittleLong(header.dirlen);
 	header.strofs = LittleLongLong(header.strofs);
-	header.strlen = LittleLongLong(header.strlen);
+	header.strlen = LittleLong(header.strlen);
 
 	if ((header.dirlen <= 0) ||
-		(header.dirofs < 0) ||
+		(header.dirofs < sizeof(dsinrheader_t)) ||
 		(header.strlen <= 0) ||
-		(header.strofs < 0))
+		(header.strofs < sizeof(dsinrheader_t)) ||
+		((size_t)header.dirlen > SIZE_MAX / sizeof(dsinrfile_t)))
 	{
 		fclose(handle);
 		Com_Error(ERR_FATAL, "%s: '%s' is too short.",
@@ -1625,6 +1629,15 @@ FS_LoadSINSRPK(FILE *handle, const char *packPath)
 	}
 
 	numFiles = header.dirlen;
+	dirSize = numFiles * sizeof(dsinrfile_t);
+	if (header.dirofs > pakSize || dirSize > (pakSize - header.dirofs) ||
+		header.strofs > pakSize || header.strlen > (pakSize - header.strofs))
+	{
+		fclose(handle);
+		Com_Error(ERR_FATAL, "%s: '%s' directory or string table exceeds file size",
+				__func__, packPath);
+		return NULL;
+	}
 
 	if (numFiles > MAX_FILES_IN_PACK)
 	{
@@ -1640,7 +1653,7 @@ FS_LoadSINSRPK(FILE *handle, const char *packPath)
 		return NULL;
 	}
 
-	info = malloc(header.dirlen * sizeof(dsinrfile_t));
+	info = malloc(dirSize);
 	if (!info)
 	{
 		fclose(handle);
@@ -1659,7 +1672,7 @@ FS_LoadSINSRPK(FILE *handle, const char *packPath)
 		return NULL;
 	}
 
-	if (fread(info, header.dirlen * sizeof(dsinrfile_t), 1, handle) != 1)
+	if (fread(info, dirSize, 1, handle) != 1)
 	{
 		free(info);
 		Z_Free(files);
@@ -1667,21 +1680,10 @@ FS_LoadSINSRPK(FILE *handle, const char *packPath)
 		return NULL;
 	}
 
-	/* Parse the directory. */
-	for (i = 0; i < numFiles; i++)
-	{
-		/* files.name: 128, info.name: 120 */
-		snprintf(files[i].name, sizeof(files[i].name), "SiN Reloaded #%i", i);
-		files[i].offset = LittleLongLong(info[i].filepos);
-		files[i].size = LittleLongLong(info[i].filelen);
-		files[i].compressed_size = 0;
-		files[i].format = PAK_MODE_Q2;
-	}
-	free(info);
-
 	infostr = malloc(header.strlen + 1);
 	if (!infostr)
 	{
+		free(info);
 		fclose(handle);
 		Com_Error(ERR_FATAL, "%s: '%s' is to big for read %d",
 				__func__, packPath, header.dirlen);
@@ -1690,6 +1692,7 @@ FS_LoadSINSRPK(FILE *handle, const char *packPath)
 
 	if (fseek(handle, header.strofs, SEEK_SET))
 	{
+		free(info);
 		free(infostr);
 		Z_Free(files);
 		Com_Error(ERR_FATAL, "%s: '%s' seek failed", __func__, packPath);
@@ -1698,6 +1701,7 @@ FS_LoadSINSRPK(FILE *handle, const char *packPath)
 
 	if (fread(infostr, header.strlen, 1, handle) != 1)
 	{
+		free(info);
 		free(infostr);
 		Z_Free(files);
 		Com_Error(ERR_FATAL, "%s: '%s' is too short", __func__, packPath);
@@ -1705,25 +1709,45 @@ FS_LoadSINSRPK(FILE *handle, const char *packPath)
 	}
 
 	infostr[header.strlen] = 0;
-	infoname = infostr;
 
-	/* Parse the file names. */
+	/* Parse the directory. */
 	for (i = 0; i < numFiles; i++)
 	{
-		if (infoname >= infostr + header.strlen)
+		size_t nameoff;
+
+		nameoff = LittleLong(info[i].nameoff);
+		if (nameoff > header.strlen)
 		{
 			free(infostr);
+			free(info);
 			Z_Free(files);
-			Com_Error(ERR_FATAL, "%s: '%s' to short names list\n",
-				__func__, packPath);
+			fclose(handle);
+			Com_Error(ERR_FATAL, "%s: '%s' has an invalid files names range",
+					__func__, packPath);
 			return NULL;
 		}
 
-		/* files.name: 128 */
-		Q_strlcpy(files[i].name, infoname, sizeof(files[i].name));
+		/* files.name: 128, info.name: 120 */
+		Q_strlcpy(files[i].name, infostr + nameoff, sizeof(files[i].name));
+		files[i].offset = LittleLongLong(info[i].filepos);
+		files[i].size = LittleLong(info[i].filelen);
+		files[i].compressed_size = 0;
+		files[i].format = PAK_MODE_Q2;
 
-		infoname += strlen(infoname) + 1;
+		if (files[i].offset < 0 || files[i].size < 0 ||
+			files[i].offset > pakSize ||
+			files[i].size > (pakSize - files[i].offset))
+		{
+			free(infostr);
+			free(info);
+			Z_Free(files);
+			fclose(handle);
+			Com_Error(ERR_FATAL, "%s: '%s' has an invalid file range",
+					__func__, packPath);
+			return NULL;
+		}
 	}
+	free(info);
 	free(infostr);
 
 	pack = Z_Malloc(sizeof(fsPack_t));

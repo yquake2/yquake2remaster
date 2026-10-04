@@ -89,7 +89,9 @@ typedef struct
 
 typedef struct
 {
-	int64_t filepos, filelen;
+	int64_t filepos;
+	int filelen;
+	int nameoff;
 } dsinrfile_t;
 
 /* The .pak files are just a linear collapse of a directory tree */
