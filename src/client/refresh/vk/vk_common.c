@@ -1553,7 +1553,6 @@ CreatePipelines(void)
 
 	// draw sprite pipeline
 	VK_LOAD_VERTFRAG_SHADERS(shaders, sprite, basic);
-	vk_drawSpritePipeline.vertexPushConstantSize = sizeof(float) * 20;
 	vk_drawSpritePipeline.blendOpts.blendEnable = VK_TRUE;
 	QVk_CreatePipeline(&vk_samplerDescSetLayout, 1, &vertInfoRGB_RG, &vk_drawSpritePipeline, &vk_renderpasses[RP_WORLD], shaders, 2);
 	QVk_DebugSetObjectName((uint64_t)vk_drawSpritePipeline.layout, VK_OBJECT_TYPE_PIPELINE_LAYOUT, "Pipeline Layout: sprite");
@@ -1561,7 +1560,6 @@ CreatePipelines(void)
 
 	// draw sprite flares pipeline (additive blend)
 	VK_LOAD_VERTFRAG_SHADERS(shaders, sprite, basic);
-	vk_drawSpriteFlaresPipeline.vertexPushConstantSize = sizeof(float) * 20;
 	vk_drawSpriteFlaresPipeline.blendOpts.blendEnable = VK_TRUE;
 	vk_drawSpriteFlaresPipeline.blendOpts.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
 	vk_drawSpriteFlaresPipeline.blendOpts.dstColorBlendFactor = VK_BLEND_FACTOR_ONE;

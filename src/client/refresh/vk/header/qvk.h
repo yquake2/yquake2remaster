@@ -173,7 +173,6 @@ typedef struct
 	VkBool32 depthTestEnable;
 	VkBool32 depthWriteEnable;
 	VkBool32 depthBiasEnable;
-	uint32_t vertexPushConstantSize;
 } qvkpipeline_t;
 
 // Vulkan shader
@@ -201,8 +200,7 @@ typedef struct
 	}, \
 	.depthTestEnable = VK_TRUE, \
 	.depthWriteEnable = VK_TRUE, \
-	.depthBiasEnable = VK_FALSE, \
-	.vertexPushConstantSize = PUSH_CONSTANT_VERTEX_SIZE * sizeof(float) \
+	.depthBiasEnable = VK_FALSE \
 }
 
 // renderpass type

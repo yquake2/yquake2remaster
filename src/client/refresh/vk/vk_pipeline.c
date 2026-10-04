@@ -177,7 +177,7 @@ void QVk_CreatePipeline(const VkDescriptorSetLayout *descriptorLayout,
 		{
 			.stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
 			.offset = 0,
-			.size = pipeline->vertexPushConstantSize
+			.size = PUSH_CONSTANT_VERTEX_SIZE * sizeof(float)
 		},
 		{
 			.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,

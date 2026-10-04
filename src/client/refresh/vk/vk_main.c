@@ -126,7 +126,6 @@ R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 	dsprite_t *psprite;
 	image_t *skin = NULL;
 	vec3_t spriteQuad[4];
-	float spriteColor[4] = { 1.0f, 1.0f, 1.0f, alpha };
 	qvkpipeline_t *pipeline;
 
 	VectorCopy(currententity->scale, scale);
@@ -163,16 +162,9 @@ R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 						  spriteQuad[2][0], spriteQuad[2][1], spriteQuad[2][2], 1.f, 0.f,
 						  spriteQuad[3][0], spriteQuad[3][1], spriteQuad[3][2], 1.f, 1.f };
 
-	/* Handle RF_FLARE: additive blend with entity color */
+	/* Handle RF_FLARE: additive blend */
 	if (currententity->flags & RF_FLARE)
 	{
-		YQ2_ALIGNAS_TYPE(unsigned) byte color[4];
-
-		*(unsigned *)color = currententity->color;
-		spriteColor[0] = color[0] / 255.0f;
-		spriteColor[1] = color[1] / 255.0f;
-		spriteColor[2] = color[2] / 255.0f;
-
 		pipeline = &vk_drawSpriteFlaresPipeline;
 	}
 	else
@@ -181,7 +173,7 @@ R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 	}
 
 	vkCmdPushConstants(vk_activeCmdbuffer, pipeline->layout,
-		VK_SHADER_STAGE_VERTEX_BIT, sizeof(r_viewproj_matrix), sizeof(float) * 4, spriteColor);
+		VK_SHADER_STAGE_VERTEX_BIT, sizeof(r_viewproj_matrix), sizeof(alpha), &alpha);
 	QVk_BindPipeline(pipeline);
 
 	VkBuffer vbo;
