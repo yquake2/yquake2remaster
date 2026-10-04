@@ -583,7 +583,7 @@ VID_CheckChanges(void)
 				}
 			}
 
-			if (r_selected[i])	// all tested, none usable
+			if (r_selected[i] || (i == (R_ORDER_LEN - 1)))	// all tested, none usable
 			{
 				Com_Error(ERR_FATAL, "No usable renderer found!\n");
 				return;
