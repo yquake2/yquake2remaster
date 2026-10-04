@@ -789,9 +789,7 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 
 	if (flags & PS_M_VELOCITY)
 	{
-		state->pmove.velocity[0] = MSG_ReadShort(&net_message);
-		state->pmove.velocity[1] = MSG_ReadShort(&net_message);
-		state->pmove.velocity[2] = MSG_ReadShort(&net_message);
+		MSG_ReadVel(&net_message, state->pmove.velocity, protocol);
 	}
 
 	if (flags & PS_M_TIME)
@@ -1226,8 +1224,10 @@ CL_ParseServerData(void)
 		return;
 	}
 
-	if ((i == PROTOCOL_H2DEMO_VERSION) ||
-		(i == PROTOCOL_Q2TEST_VERSION))
+	if ((cl_shownet->value == 0) &&
+		((i == PROTOCOL_H2DEMO_VERSION) ||
+		 (i == PROTOCOL_Q2TEST_VERSION) ||
+		 (i == PROTOCOL_RR22_VERSION)))
 	{
 		Com_Error(ERR_DROP, "Network protocol '%s' is currently unsupported\n",
 			CL_GetProtocolName(i));
