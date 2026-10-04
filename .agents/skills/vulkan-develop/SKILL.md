@@ -24,6 +24,7 @@ If your changes involve modifying any shader source files:
   cd stuff/shaders && ./shaders.sh
   ```
 - Ensure that the compiled SPIR-V C headers under `src/client/refresh/vk/spirv/` are correctly updated before rebuilding and running the project.
+- For a complete specification of all pipeline shader combinations, push constant sizes, and offsets, see [.agents/docs/vulkan_shaders.md](../../docs/vulkan_shaders.md).
 
 ## 3. General Rules & Conventions
 - Adhere strictly to the existing codebase conventions and styling guidelines (`.agents/docs/code_style.md`).
