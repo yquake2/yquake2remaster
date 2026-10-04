@@ -737,6 +737,24 @@ MSG_WriteAngle16(sizebuf_t *sb, float f)
 }
 
 void
+MSG_WriteKickAngles(sizebuf_t *sb, const vec3_t kick_angles, int protocol)
+{
+	if ((protocol == PROTOCOL_RR22_VERSION) ||
+		(protocol == PROTOCOL_VERSION))
+	{
+		MSG_WriteShort(sb, kick_angles[0] * 1024);
+		MSG_WriteShort(sb, kick_angles[1] * 1024);
+		MSG_WriteShort(sb, kick_angles[2] * 1024);
+	}
+	else
+	{
+		MSG_WriteChar(sb, kick_angles[0] * 4);
+		MSG_WriteChar(sb, kick_angles[1] * 4);
+		MSG_WriteChar(sb, kick_angles[2] * 4);
+	}
+}
+
+void
 MSG_WriteConfigString(sizebuf_t *buf, short index, const char *s)
 {
 	MSG_WriteShort(buf, index);
@@ -1396,6 +1414,24 @@ float
 MSG_ReadAngle16(sizebuf_t *msg_read)
 {
 	return SHORT2ANGLE(MSG_ReadShort(msg_read));
+}
+
+void
+MSG_ReadKickAngles(sizebuf_t *msg_read, vec3_t kick_angles, int protocol)
+{
+	if ((protocol == PROTOCOL_RR22_VERSION) ||
+		(protocol == PROTOCOL_VERSION))
+	{
+		kick_angles[0] = MSG_ReadShort(msg_read) / 1024.0f;
+		kick_angles[1] = MSG_ReadShort(msg_read) / 1024.0f;
+		kick_angles[2] = MSG_ReadShort(msg_read) / 1024.0f;
+	}
+	else
+	{
+		kick_angles[0] = MSG_ReadChar(msg_read) * 0.25f;
+		kick_angles[1] = MSG_ReadChar(msg_read) * 0.25f;
+		kick_angles[2] = MSG_ReadChar(msg_read) * 0.25f;
+	}
 }
 
 void

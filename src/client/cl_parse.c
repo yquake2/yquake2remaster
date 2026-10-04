@@ -836,9 +836,7 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 
 	if (flags & PS_KICKANGLES)
 	{
-		state->kick_angles[0] = MSG_ReadChar(&net_message) * 0.25f;
-		state->kick_angles[1] = MSG_ReadChar(&net_message) * 0.25f;
-		state->kick_angles[2] = MSG_ReadChar(&net_message) * 0.25f;
+		MSG_ReadKickAngles(&net_message, state->kick_angles, protocol);
 	}
 
 	if (flags & PS_WEAPONINDEX)
