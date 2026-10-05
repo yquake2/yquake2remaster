@@ -1734,7 +1734,7 @@ FS_LoadSINSRPK(FILE *handle, const char *packPath)
 		files[i].compressed_size = 0;
 		files[i].format = PAK_MODE_Q2;
 
-		if (files[i].offset < 0 || files[i].size < 0 ||
+		if (files[i].offset < sizeof(dsinrheader_t) ||
 			files[i].offset > pakSize ||
 			files[i].size > (pakSize - files[i].offset))
 		{

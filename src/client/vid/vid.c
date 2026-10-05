@@ -512,6 +512,8 @@ void
 VID_CheckChanges(void)
 {
 	static const char *r_order[] = {
+		"vk",
+		"gl4",
 		"gl3",
 		"gles3",
 		"gl1",
@@ -560,16 +562,16 @@ VID_CheckChanges(void)
 		// Mkay, let's try our luck.
 		while (!VID_LoadRenderer())
 		{
-			qboolean r_selected[R_ORDER_LEN];
-			int i, sum = 0;
+			qboolean r_selected[R_ORDER_LEN], r_sum = false;
+			int i;
 
 			for (i = 0; i < R_ORDER_LEN; i++)
 			{
 				r_selected[i] = (strcmp(vid_renderer->string, r_order[i]) == 0);
-				sum += (int)r_selected[i];
+				r_sum |= r_selected[i];
 			}
 
-			if (sum == 0)	// custom - unrecognized renderer
+			if (!r_sum)	// custom - unrecognized renderer
 			{
 				i = -1;	// use first in list
 				goto change_renderer;
@@ -583,11 +585,8 @@ VID_CheckChanges(void)
 				}
 			}
 
-			if (r_selected[i] || (i == (R_ORDER_LEN - 1)))	// all tested, none usable
-			{
-				Com_Error(ERR_FATAL, "No usable renderer found!\n");
-				return;
-			}
+			Com_Error(ERR_FATAL, "No usable renderer found!\n");
+			return;
 
 change_renderer:
 			Com_Printf("Retrying with %s...\n", r_order[i + 1]);
