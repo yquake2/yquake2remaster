@@ -905,6 +905,7 @@ CL_ParseTEnt(void)
 			break;
 
 		case TE_EXPLOSION2:
+		case TE_EXPLOSION2_NL:
 		case TE_GRENADE_EXPLOSION:
 		case TE_GRENADE_EXPLOSION_WATER:
 			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
@@ -936,6 +937,7 @@ CL_ParseTEnt(void)
 
 		case TE_EXPLOSION1_BIG:
 		case TE_EXPLOSION1_NP:
+		case TE_EXPLOSION1_NL:
 		case TE_EXPLOSION1:
 		case TE_ROCKET_EXPLOSION:
 		case TE_ROCKET_EXPLOSION_WATER:
@@ -982,6 +984,20 @@ CL_ParseTEnt(void)
 				S_StartSound(pos, 0, 0, cl_sfx_rockexp, 1, ATTN_NORM, 0);
 			}
 
+			break;
+
+		case TE_BLUEHYPERBLASTER_2:
+		case TE_BERSERK_SLAM:
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
+			MSG_ReadDir(&net_message, dir);
+			if (type == TE_BLUEHYPERBLASTER_2)
+			{
+				CL_BlasterParticles2(pos, dir, 0xff07abff, 0xff002bab);
+			}
+			else
+			{
+				CL_ParticleEffect(pos, dir, 0xff000000, 0xff6b6b6b, 40);
+			}
 			break;
 
 		case TE_BFG_EXPLOSION:
