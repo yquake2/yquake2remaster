@@ -153,7 +153,7 @@ static void
 SV_WritePlayerstateToClient(client_frame_t *from, client_frame_t *to,
 		sizebuf_t *msg, int protocol)
 {
-	int statbits[8], stats_size, pflags, i, idummy[3];
+	int statbits[8], stats_size, pflags, group, idummy[3];
 	const player_state_t *ps, *ops;
 	const int *origin, *oorig;
 	player_state_t dummy;
@@ -411,35 +411,37 @@ SV_WritePlayerstateToClient(client_frame_t *from, client_frame_t *to,
 	stats_size = 0;
 	memset(statbits, 0, sizeof(statbits));
 
-	for (i = 0; i < MAX_STATS; i++)
+	for (group = 0; group < MAX_STATS; group++)
 	{
-		if (ps->stats[i] != ops->stats[i])
+		if (ps->stats[group] != ops->stats[group])
 		{
-			statbits[(int)(i / 32)] |= 1 << (i % 32);
-			stats_size = i + 1;
+			statbits[(int)(group / 32)] |= 1 << (group % 32);
+			stats_size = group + 1;
 		}
 	}
 
-	if (IS_QII97_PROTOCOL(protocol))
+	if (IS_QII97_PROTOCOL(protocol) ||
+		protocol == PROTOCOL_RR22_VERSION)
 	{
-		/* send all supported stats, hard code original 32? */
-		stats_size = MAX_STATS;
+		stats_size = Q_min(P_GetCountOfStats(protocol), MAX_STATS);
 	}
 	else
 	{
 		MSG_WriteByte(msg, stats_size);
 	}
 
-	for (i = 0; i < (int)((stats_size + 31) / 32); i++)
+	for (group = 0; group < (int)((stats_size + 31) / 32); group++)
 	{
-		MSG_WriteLong(msg, statbits[i]);
-	}
+		int i;
 
-	for (i = 0; i < stats_size; i++)
-	{
-		if (statbits[(int)(i / 32)] & (1u << (i % 32)))
+		MSG_WriteLong(msg, statbits[group]);
+
+		for (i = group * 32; i < (group + 1) * 32; i++)
 		{
-			MSG_WriteShort(msg, ps->stats[i]);
+			if (statbits[(int)(i / 32)] & (1u << (i % 32)))
+			{
+				MSG_WriteShort(msg, ps->stats[i]);
+			}
 		}
 	}
 }

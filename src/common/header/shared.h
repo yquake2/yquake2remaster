@@ -1284,6 +1284,9 @@ typedef enum
 #define STAT_CHASE 16
 #define STAT_SPECTATOR 17
 
+/* Extend to have more slots?
+ * Quake ReRelease has 64,
+ * Heretic 2 has 48 */
 #define MAX_STATS 32
 
 typedef enum

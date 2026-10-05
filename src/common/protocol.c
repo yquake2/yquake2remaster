@@ -49,6 +49,7 @@
 #define CS_PLAYERSKINS_Q2DEMO (CS_ITEMS_Q2DEMO + MAX_ITEMS_Q2DEMO)
 #define CS_GENERAL_Q2DEMO (CS_PLAYERSKINS_Q2DEMO + MAX_CLIENTS_Q2DEMO)
 #define MAX_CONFIGSTRINGS_Q2DEMO (CS_GENERAL_Q2DEMO + MAX_GENERAL_Q2DEMO)
+#define MAX_STATS_Q2DEMO 32
 
 /* per-level limits Quake 2 ReRelease Protocol version 2022 */
 #define MAX_CLIENTS_RR22DEMO 256             /* absolute limit */
@@ -61,6 +62,9 @@
 #define MAX_GENERAL_RR22DEMO (MAX_CLIENTS_RR22DEMO * 2)       /* general config strings */
 #define MAX_WHEEL_ITEMS_RR22DEMO 32
 #define MAX_SHADOW_LIGHTS_RR22DEMO 256
+
+/* Heretic 2 */
+#define MAX_STATS_H2DEMO 48
 
 /* CS structure Quake 2 ReRelease Protocol version 2022 */
 #define CS_AIRACCEL_RR22DEMO 59    /* air acceleration control */
@@ -82,6 +86,7 @@
 #define CS_CD_LOOP_COUNT_RR22DEMO (CS_WHEEL_POWERUPS_RR22DEMO + MAX_WHEEL_ITEMS_RR22DEMO)
 #define CS_GAME_STYLE_RR22DEMO (CS_CD_LOOP_COUNT_RR22DEMO + 1) /* see game_style_t */
 #define MAX_CONFIGSTRINGS_RR22DEMO (CS_GAME_STYLE_RR22DEMO + 1)
+#define MAX_STATS_RR22DEMO 64
 
 /* Convert from current protocol to internal */
 int
@@ -278,13 +283,31 @@ P_GetCountOfItems(int protocol)
 	{
 		return MAX_ITEMS_Q2DEMO;
 	}
-
-	if (protocol == PROTOCOL_RR22_VERSION)
+	else if (protocol == PROTOCOL_RR22_VERSION)
 	{
 		return MAX_ITEMS_RR22DEMO;
 	}
 
 	return MAX_ITEMS;
+}
+
+int
+P_GetCountOfStats(int protocol)
+{
+	if (IS_QII97_PROTOCOL(protocol))
+	{
+		return MAX_STATS_Q2DEMO;
+	}
+	else if (protocol == PROTOCOL_H2DEMO_VERSION)
+	{
+		return MAX_STATS_H2DEMO;
+	}
+	else if (protocol == PROTOCOL_RR22_VERSION)
+	{
+		return MAX_STATS_RR22DEMO;
+	}
+
+	return MAX_STATS;
 }
 
 int

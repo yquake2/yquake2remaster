@@ -745,7 +745,7 @@ CL_ParsePacketEntities(const frame_t *oldframe, frame_t *newframe)
 static void
 CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 {
-	int flags, i, statbits[8], stats_size;
+	int flags, group, stats_size;
 	player_state_t *state;
 
 	state = &newframe->playerstate;
@@ -893,42 +893,42 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 	}
 
 	/* parse stats */
-	if (IS_QII97_PROTOCOL(protocol))
+	if (IS_QII97_PROTOCOL(protocol) ||
+		protocol == PROTOCOL_RR22_VERSION)
 	{
-		stats_size = MAX_STATS;
+		stats_size = P_GetCountOfStats(protocol);
 	}
 	else
 	{
 		stats_size = MSG_ReadByte(&net_message);
 	}
 
-	/* clear all before read real values */
-	memset(statbits, 0, sizeof(statbits));
-
 	/* Read stats bits */
-	for (i = 0; i < (int)((stats_size + 31) / 32); i++)
+	for (group = 0; group < (int)((stats_size + 31) / 32); group++)
 	{
-		statbits[i] = MSG_ReadLong(&net_message);
-	}
+		int statbits, i;
 
-	for (i = 0; i < stats_size; i++)
-	{
-		if (statbits[(int)(i / 32)] & (1u << (i % 32)))
+		statbits = MSG_ReadLong(&net_message);
+
+		for (i = group * 32; i < (group + 1) * 32; i++)
 		{
-			if (i < MAX_STATS)
+			if (statbits & (1u << (i % 32)))
 			{
-				state->stats[i] = MSG_ReadShort(&net_message);
-
-				if (i == STAT_PICKUP_STRING)
+				if (i < MAX_STATS)
 				{
-					state->stats[i] = P_ConvertConfigStringFrom(state->stats[i],
-						protocol);
+					state->stats[i] = MSG_ReadShort(&net_message);
+
+					if (i == STAT_PICKUP_STRING)
+					{
+						state->stats[i] = P_ConvertConfigStringFrom(state->stats[i],
+							protocol);
+					}
 				}
-			}
-			else
-			{
-				Com_DPrintf("%s: unknown stats %d: %d\n",
-					__func__, i, MSG_ReadShort(&net_message));
+				else
+				{
+					Com_DPrintf("%s: unknown stats %d: %d\n",
+						__func__, i, MSG_ReadShort(&net_message));
+				}
 			}
 		}
 	}
