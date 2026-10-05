@@ -465,6 +465,7 @@ void CL_ClearParticles(void);
 void CL_ParseTEnt(void);
 void CL_AddMuzzleFlash(void);
 void CL_AddMuzzleFlash2(void);
+void CL_AddMuzzleFlash3(void);
 void CL_AddFog(svc_fog_data_t *fog);
 
 void CL_SetLightstyle(int i);

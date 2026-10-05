@@ -1964,6 +1964,10 @@ CL_ParseServerMessage(void)
 				CL_AddMuzzleFlash2();
 				break;
 
+			case svc_muzzleflash3:
+				CL_AddMuzzleFlash3();
+				break;
+
 			case svc_download:
 				CL_ParseDownload();
 				break;
