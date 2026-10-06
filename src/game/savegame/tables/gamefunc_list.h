@@ -1076,10 +1076,17 @@ static const fnlist_entry_t fnentries_mv_end[] =
 	{"door_secret_move1", (byte *)door_secret_move1},
 	{"door_secret_move3", (byte *)door_secret_move3},
 	{"door_secret_move5", (byte *)door_secret_move5},
+	{"fd_secret_done", (byte *)fd_secret_done},
+	{"fd_secret_move1", (byte *)fd_secret_move1},
+	{"fd_secret_move3", (byte *)fd_secret_move3},
+	{"fd_secret_move5", (byte *)fd_secret_move5},
+	{"fd_secret_move6", (byte *)fd_secret_move6},
+	{"plat_go_up", (byte *)plat_go_up},
 	{"plat_hit_bottom", (byte *)plat_hit_bottom},
 	{"plat_hit_top", (byte *)plat_hit_top},
 	{"rotate_train_wait", (byte *)rotate_train_wait},
 	{"train_wait", (byte *)train_wait},
+	{"turret_wake", (byte *)turret_wake},
 	{"wizard_finish_attack", (byte *)wizard_finish_attack},
 };
 static const functionList_t fnlist_mv_end =

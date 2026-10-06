@@ -82,6 +82,7 @@ fd_secret_killed(edict_t *self, edict_t *inflictor, edict_t *attacker,
 	}
 }
 
+/* ->moveinfo.endfunc = fd_secret_move1; */
 void
 fd_secret_move1(edict_t *self)
 {
@@ -111,6 +112,7 @@ fd_secret_move2(edict_t *self)
 /*
  * Wait here until time to go back...
  */
+/* ->moveinfo.endfunc = fd_secret_move3; */
 void
 fd_secret_move3(edict_t *self)
 {
@@ -143,6 +145,7 @@ fd_secret_move4(edict_t *self)
 /*
  * Wait 1 second...
  */
+/* ->moveinfo.endfunc = fd_secret_move5; */
 void
 fd_secret_move5(edict_t *self)
 {
@@ -155,6 +158,7 @@ fd_secret_move5(edict_t *self)
 	self->think = fd_secret_move6;
 }
 
+/* ->moveinfo.endfunc = fd_secret_move6; */
 void
 fd_secret_move6(edict_t *self)
 {
@@ -166,6 +170,7 @@ fd_secret_move6(edict_t *self)
 	Move_Calc(self, self->move_origin, fd_secret_done);
 }
 
+/* ->moveinfo.endfunc = fd_secret_done; */
 void
 fd_secret_done(edict_t *self)
 {

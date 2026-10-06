@@ -635,7 +635,8 @@ plat_go_down(edict_t *ent)
 	Move_Calc(ent, ent->moveinfo.end_origin, plat_hit_bottom);
 }
 
-static void
+/* ->moveinfo.endfunc = plat_go_up; */
+void
 plat_go_up(edict_t *ent)
 {
 	if (!ent)
