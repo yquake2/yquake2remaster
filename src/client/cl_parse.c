@@ -773,18 +773,7 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 
 	if (flags & PS_M_ORIGIN)
 	{
-		if (IS_QII97_PROTOCOL(protocol))
-		{
-			newframe->origin[0] = MSG_ReadShort(&net_message);
-			newframe->origin[1] = MSG_ReadShort(&net_message);
-			newframe->origin[2] = MSG_ReadShort(&net_message);
-		}
-		else
-		{
-			newframe->origin[0] = MSG_ReadLong(&net_message);
-			newframe->origin[1] = MSG_ReadLong(&net_message);
-			newframe->origin[2] = MSG_ReadLong(&net_message);
-		}
+		MSG_ReadOrigin(&net_message, newframe->origin, protocol);
 	}
 
 	if (flags & PS_M_VELOCITY)

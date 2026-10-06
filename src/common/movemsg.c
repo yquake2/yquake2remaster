@@ -689,6 +689,29 @@ MSG_WriteCoord(sizebuf_t *sb, float f, int protocol)
 }
 
 void
+MSG_WriteOrigin(sizebuf_t *sb, const int origin[3], int protocol)
+{
+	if (IS_QII97_PROTOCOL(protocol))
+	{
+		MSG_WriteShort(sb, origin[0]);
+		MSG_WriteShort(sb, origin[1]);
+		MSG_WriteShort(sb, origin[2]);
+	}
+	else if (protocol == PROTOCOL_RR22_VERSION)
+	{
+		MSG_WriteFloat(sb, origin[0] / 8.0f);
+		MSG_WriteFloat(sb, origin[1] / 8.0f);
+		MSG_WriteFloat(sb, origin[2] / 8.0f);
+	}
+	else
+	{
+		MSG_WriteLong(sb, origin[0]);
+		MSG_WriteLong(sb, origin[1]);
+		MSG_WriteLong(sb, origin[2]);
+	}
+}
+
+void
 MSG_WritePos(sizebuf_t *sb, const vec3_t pos, int protocol)
 {
 	MSG_WriteCoord(sb, pos[0], protocol);
@@ -1383,6 +1406,29 @@ MSG_ReadCoord(sizebuf_t *msg_read, int protocol)
 	else
 	{
 		return MSG_ReadFloat(msg_read);
+	}
+}
+
+void
+MSG_ReadOrigin(sizebuf_t *msg_read, int origin[3], int protocol)
+{
+	if (IS_QII97_PROTOCOL(protocol))
+	{
+		origin[0] = MSG_ReadShort(msg_read);
+		origin[1] = MSG_ReadShort(msg_read);
+		origin[2] = MSG_ReadShort(msg_read);
+	}
+	else if (protocol == PROTOCOL_RR22_VERSION)
+	{
+		origin[0] = MSG_ReadFloat(&net_message) * 8.0f + 0.5f;
+		origin[1] = MSG_ReadFloat(&net_message) * 8.0f + 0.5f;
+		origin[2] = MSG_ReadFloat(&net_message) * 8.0f + 0.5f;
+	}
+	else
+	{
+		origin[0] = MSG_ReadLong(msg_read);
+		origin[1] = MSG_ReadLong(msg_read);
+		origin[2] = MSG_ReadLong(msg_read);
 	}
 }
 

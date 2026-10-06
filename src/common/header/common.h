@@ -139,6 +139,7 @@ void MSG_WriteLong(sizebuf_t *sb, int c);
 void MSG_WriteFloat(sizebuf_t *sb, float f);
 void MSG_WriteString(sizebuf_t *sb, const char *s);
 void MSG_WriteCoord(sizebuf_t *sb, float f, int protocol);
+void MSG_WriteOrigin(sizebuf_t *sb, const int origin[3], int protocol);
 void MSG_WritePos(sizebuf_t *sb, const vec3_t pos, int protocol);
 void MSG_WriteVel(sizebuf_t *sb, const short *vel, int protocol);
 void MSG_WriteAngle(sizebuf_t *sb, float f, int protocol);
@@ -164,6 +165,7 @@ char *MSG_ReadString(sizebuf_t *msg_read);
 char *MSG_ReadStringLine(sizebuf_t *msg_read);
 
 float MSG_ReadCoord(sizebuf_t *msg_read, int protocol);
+void MSG_ReadOrigin(sizebuf_t *msg_read, int origin[3], int protocol);
 void MSG_ReadPos(sizebuf_t *msg_read, vec3_t pos, int protocol);
 void MSG_ReadVel(sizebuf_t *msg_read, short *vel, int protocol);
 float MSG_ReadAngle(sizebuf_t *msg_read, int protocol);

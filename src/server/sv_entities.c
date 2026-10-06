@@ -299,15 +299,17 @@ SV_WritePlayerstateToClient(client_frame_t *from, client_frame_t *to,
 	{
 		if (IS_QII97_PROTOCOL(protocol))
 		{
-			MSG_WriteShort(msg, ps->pmove.origin[0]);
-			MSG_WriteShort(msg, ps->pmove.origin[1]);
-			MSG_WriteShort(msg, ps->pmove.origin[2]);
+			int pm_origin[3];
+
+			pm_origin[0] = ps->pmove.origin[0];
+			pm_origin[1] = ps->pmove.origin[1];
+			pm_origin[2] = ps->pmove.origin[2];
+
+			MSG_WriteOrigin(msg, pm_origin, protocol);
 		}
 		else
 		{
-			MSG_WriteLong(msg, origin[0]);
-			MSG_WriteLong(msg, origin[1]);
-			MSG_WriteLong(msg, origin[2]);
+			MSG_WriteOrigin(msg, origin, protocol);
 		}
 	}
 
