@@ -737,6 +737,24 @@ MSG_WriteAngle16(sizebuf_t *sb, float f)
 }
 
 void
+MSG_WriteViewAngles(sizebuf_t *sb, const vec3_t viewangles, int protocol)
+{
+	if ((protocol == PROTOCOL_RR22_VERSION) ||
+		(protocol == PROTOCOL_VERSION))
+	{
+		MSG_WriteFloat(sb, viewangles[0]);
+		MSG_WriteFloat(sb, viewangles[1]);
+		MSG_WriteFloat(sb, viewangles[2]);
+	}
+	else
+	{
+		MSG_WriteAngle16(sb, viewangles[0]);
+		MSG_WriteAngle16(sb, viewangles[1]);
+		MSG_WriteAngle16(sb, viewangles[2]);
+	}
+}
+
+void
 MSG_WriteKickAngles(sizebuf_t *sb, const vec3_t kick_angles, int protocol)
 {
 	if ((protocol == PROTOCOL_RR22_VERSION) ||
@@ -1414,6 +1432,24 @@ float
 MSG_ReadAngle16(sizebuf_t *msg_read)
 {
 	return SHORT2ANGLE(MSG_ReadShort(msg_read));
+}
+
+void
+MSG_ReadViewAngles(sizebuf_t *msg_read, vec3_t viewangles, int protocol)
+{
+	if ((protocol == PROTOCOL_RR22_VERSION) ||
+		(protocol == PROTOCOL_VERSION))
+	{
+		viewangles[0] = MSG_ReadFloat(msg_read);
+		viewangles[1] = MSG_ReadFloat(msg_read);
+		viewangles[2] = MSG_ReadFloat(msg_read);
+	}
+	else
+	{
+		viewangles[0] = MSG_ReadAngle16(msg_read);
+		viewangles[1] = MSG_ReadAngle16(msg_read);
+		viewangles[2] = MSG_ReadAngle16(msg_read);
+	}
 }
 
 void

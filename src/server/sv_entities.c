@@ -348,9 +348,7 @@ SV_WritePlayerstateToClient(client_frame_t *from, client_frame_t *to,
 
 	if (pflags & PS_VIEWANGLES)
 	{
-		MSG_WriteAngle16(msg, ps->viewangles[0]);
-		MSG_WriteAngle16(msg, ps->viewangles[1]);
-		MSG_WriteAngle16(msg, ps->viewangles[2]);
+		MSG_WriteViewAngles(msg, ps->viewangles, protocol);
 	}
 
 	if (pflags & PS_KICKANGLES)

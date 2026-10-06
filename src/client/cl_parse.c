@@ -829,9 +829,7 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 
 	if (flags & PS_VIEWANGLES)
 	{
-		state->viewangles[0] = MSG_ReadAngle16(&net_message);
-		state->viewangles[1] = MSG_ReadAngle16(&net_message);
-		state->viewangles[2] = MSG_ReadAngle16(&net_message);
+		MSG_ReadViewAngles(&net_message, state->viewangles, protocol);
 	}
 
 	if (flags & PS_KICKANGLES)
