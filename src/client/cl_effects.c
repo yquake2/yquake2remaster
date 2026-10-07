@@ -1564,7 +1564,7 @@ CL_DiminishingTrail(const vec3_t start, const vec3_t end, centity_t *old, int fl
 	}
 }
 
-void
+static void
 MakeNormalVectors(vec3_t forward, vec3_t right, vec3_t up)
 {
 	float d;

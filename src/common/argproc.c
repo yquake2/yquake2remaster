@@ -121,22 +121,6 @@ COM_AddParm(char *parm)
 	com_argv[com_argc++] = parm;
 }
 
-int
-memsearch(const byte *start, int count, int search)
-{
-	int i;
-
-	for (i = 0; i < count; i++)
-	{
-		if (start[i] == search)
-		{
-			return i;
-		}
-	}
-
-	return -1;
-}
-
 char *
 CopyString(const char *in)
 {

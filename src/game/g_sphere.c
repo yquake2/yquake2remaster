@@ -18,7 +18,7 @@
 #define VENGEANCE_LIFESPAN 30
 #define MINIMUM_FLY_TIME 15
 
-void
+static void
 sphere_think_explode(edict_t *self)
 {
 	if (!self)
