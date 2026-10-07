@@ -389,19 +389,48 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, int 
 		to->renderfx = MSG_ReadShort(&net_message);
 	}
 
+	if (cls.serverProtocol == PROTOCOL_RR22_VERSION && (bits & U_SOLID))
+	{
+		to->solid = MSG_ReadLong(&net_message);
+	}
+
 	if (bits & U_ORIGIN1)
 	{
-		to->origin[0] = MSG_ReadCoord(&net_message, cls.serverProtocol);
+		if (cls.serverProtocol == PROTOCOL_RR22_VERSION && to->solid)
+		{
+			/* Read to float hack */
+			to->origin[0] = MSG_ReadCoord(&net_message, PROTOCOL_VERSION);
+		}
+		else
+		{
+			to->origin[0] = MSG_ReadCoord(&net_message, cls.serverProtocol);
+		}
 	}
 
 	if (bits & U_ORIGIN2)
 	{
-		to->origin[1] = MSG_ReadCoord(&net_message, cls.serverProtocol);
+		if (cls.serverProtocol == PROTOCOL_RR22_VERSION && to->solid)
+		{
+			/* Read to float hack */
+			to->origin[1] = MSG_ReadCoord(&net_message, PROTOCOL_VERSION);
+		}
+		else
+		{
+			to->origin[1] = MSG_ReadCoord(&net_message, cls.serverProtocol);
+		}
 	}
 
 	if (bits & U_ORIGIN3)
 	{
-		to->origin[2] = MSG_ReadCoord(&net_message, cls.serverProtocol);
+		if (cls.serverProtocol == PROTOCOL_RR22_VERSION && to->solid)
+		{
+			/* Read to float hack */
+			to->origin[2] = MSG_ReadCoord(&net_message, PROTOCOL_VERSION);
+		}
+		else
+		{
+			to->origin[2] = MSG_ReadCoord(&net_message, cls.serverProtocol);
+		}
 	}
 
 	if (bits & U_ANGLE1)
@@ -421,7 +450,15 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, int 
 
 	if (bits & U_OLDORIGIN)
 	{
-		MSG_ReadPos(&net_message, to->old_origin, cls.serverProtocol);
+		if (cls.serverProtocol == PROTOCOL_RR22_VERSION && to->solid)
+		{
+			/* read to float */
+			MSG_ReadPos(&net_message, to->old_origin, PROTOCOL_VERSION);
+		}
+		else
+		{
+			MSG_ReadPos(&net_message, to->old_origin, cls.serverProtocol);
+		}
 	}
 
 	if (bits & U_SOUND)
@@ -438,7 +475,7 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, int 
 		to->event = 0;
 	}
 
-	if (bits & U_SOLID)
+	if ((bits & U_SOLID) && (cls.serverProtocol != PROTOCOL_RR22_VERSION))
 	{
 		to->solid = MSG_ReadShort(&net_message);
 	}

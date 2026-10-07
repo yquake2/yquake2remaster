@@ -1184,19 +1184,48 @@ MSG_WriteDeltaEntity(const entity_xstate_t *from,
 		MSG_WriteShort(msg, to->renderfx);
 	}
 
+	if (protocol == PROTOCOL_RR22_VERSION)
+	{
+		MSG_WriteShort(msg, to->solid);
+	}
+
 	if (bits & U_ORIGIN1)
 	{
-		MSG_WriteCoord(msg, to->origin[0], protocol);
+		if (protocol == PROTOCOL_RR22_VERSION && to->solid)
+		{
+			/* Write to float hack */
+			MSG_WriteCoord(msg, to->origin[0], PROTOCOL_VERSION);
+		}
+		else
+		{
+			MSG_WriteCoord(msg, to->origin[0], protocol);
+		}
 	}
 
 	if (bits & U_ORIGIN2)
 	{
-		MSG_WriteCoord(msg, to->origin[1], protocol);
+		if (protocol == PROTOCOL_RR22_VERSION && to->solid)
+		{
+			/* Write to float hack */
+			MSG_WriteCoord(msg, to->origin[1], PROTOCOL_VERSION);
+		}
+		else
+		{
+			MSG_WriteCoord(msg, to->origin[1], protocol);
+		}
 	}
 
 	if (bits & U_ORIGIN3)
 	{
-		MSG_WriteCoord(msg, to->origin[2], protocol);
+		if (protocol == PROTOCOL_RR22_VERSION && to->solid)
+		{
+			/* Write to float hack */
+			MSG_WriteCoord(msg, to->origin[2], PROTOCOL_VERSION);
+		}
+		else
+		{
+			MSG_WriteCoord(msg, to->origin[2], protocol);
+		}
 	}
 
 	if (bits & U_ANGLE1)
@@ -1229,7 +1258,7 @@ MSG_WriteDeltaEntity(const entity_xstate_t *from,
 		MSG_WriteByte(msg, to->event);
 	}
 
-	if (bits & U_SOLID)
+	if ((bits & U_SOLID) && (protocol != PROTOCOL_RR22_VERSION))
 	{
 		MSG_WriteShort(msg, to->solid);
 	}
@@ -1416,14 +1445,13 @@ MSG_ReadStringLine(sizebuf_t *msg_read)
 float
 MSG_ReadCoord(sizebuf_t *msg_read, int protocol)
 {
-	if (IS_QII97_PROTOCOL(protocol))
+	if (IS_QII97_PROTOCOL(protocol) || protocol == PROTOCOL_RR22_VERSION)
 	{
 		return MSG_ReadShort(msg_read) * (0.125f);
 	}
 	else
 	{
 		/*
-		 * PROTOCOL_RR22_VERSION
 		 * PROTOCOL_VERSION
 		 */
 		return MSG_ReadFloat(msg_read);
