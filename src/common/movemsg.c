@@ -760,6 +760,23 @@ MSG_WriteAngle16(sizebuf_t *sb, float f)
 }
 
 void
+MSG_WriteDeltaAngles(sizebuf_t *sb, const short delta_angles[3], int protocol)
+{
+	if (protocol == PROTOCOL_RR22_VERSION)
+	{
+		MSG_WriteFloat(sb, SHORT2ANGLE(delta_angles[0]));
+		MSG_WriteFloat(sb, SHORT2ANGLE(delta_angles[1]));
+		MSG_WriteFloat(sb, SHORT2ANGLE(delta_angles[2]));
+	}
+	else
+	{
+		MSG_WriteShort(sb, delta_angles[0]);
+		MSG_WriteShort(sb, delta_angles[1]);
+		MSG_WriteShort(sb, delta_angles[2]);
+	}
+}
+
+void
 MSG_WriteViewAngles(sizebuf_t *sb, const vec3_t viewangles, int protocol)
 {
 	if ((protocol == PROTOCOL_RR22_VERSION) ||
@@ -1405,6 +1422,10 @@ MSG_ReadCoord(sizebuf_t *msg_read, int protocol)
 	}
 	else
 	{
+		/*
+		 * PROTOCOL_RR22_VERSION
+		 * PROTOCOL_VERSION
+		 */
 		return MSG_ReadFloat(msg_read);
 	}
 }
@@ -1478,6 +1499,23 @@ float
 MSG_ReadAngle16(sizebuf_t *msg_read)
 {
 	return SHORT2ANGLE(MSG_ReadShort(msg_read));
+}
+
+void
+MSG_ReadDeltaAngles(sizebuf_t *msg_read, short delta_angles[3], int protocol)
+{
+	if (protocol == PROTOCOL_RR22_VERSION)
+	{
+		delta_angles[0] = ANGLE2SHORT(MSG_ReadFloat(msg_read));
+		delta_angles[1] = ANGLE2SHORT(MSG_ReadFloat(msg_read));
+		delta_angles[2] = ANGLE2SHORT(MSG_ReadFloat(msg_read));
+	}
+	else
+	{
+		delta_angles[0] = MSG_ReadShort(msg_read);
+		delta_angles[1] = MSG_ReadShort(msg_read);
+		delta_angles[2] = MSG_ReadShort(msg_read);
+	}
 }
 
 void

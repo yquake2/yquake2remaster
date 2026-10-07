@@ -304,7 +304,6 @@ SV_WritePlayerstateToClient(client_frame_t *from, client_frame_t *to,
 			pm_origin[0] = ps->pmove.origin[0];
 			pm_origin[1] = ps->pmove.origin[1];
 			pm_origin[2] = ps->pmove.origin[2];
-
 			MSG_WriteOrigin(msg, pm_origin, protocol);
 		}
 		else
@@ -335,9 +334,7 @@ SV_WritePlayerstateToClient(client_frame_t *from, client_frame_t *to,
 
 	if (pflags & PS_M_DELTA_ANGLES)
 	{
-		MSG_WriteShort(msg, ps->pmove.delta_angles[0]);
-		MSG_WriteShort(msg, ps->pmove.delta_angles[1]);
-		MSG_WriteShort(msg, ps->pmove.delta_angles[2]);
+		MSG_WriteDeltaAngles(msg, ps->pmove.delta_angles, protocol);
 	}
 
 	/* write the rest of the player_state_t */

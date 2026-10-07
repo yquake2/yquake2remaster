@@ -798,9 +798,7 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 
 	if (flags & PS_M_DELTA_ANGLES)
 	{
-		state->pmove.delta_angles[0] = MSG_ReadShort(&net_message);
-		state->pmove.delta_angles[1] = MSG_ReadShort(&net_message);
-		state->pmove.delta_angles[2] = MSG_ReadShort(&net_message);
+		MSG_ReadDeltaAngles(&net_message, state->pmove.delta_angles, protocol);
 	}
 
 	if (cl.attractloop)

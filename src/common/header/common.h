@@ -144,6 +144,7 @@ void MSG_WritePos(sizebuf_t *sb, const vec3_t pos, int protocol);
 void MSG_WriteVel(sizebuf_t *sb, const short *vel, int protocol);
 void MSG_WriteAngle(sizebuf_t *sb, float f, int protocol);
 void MSG_WriteAngle16(sizebuf_t *sb, float f);
+void MSG_WriteDeltaAngles(sizebuf_t *sb, const short delta_angles[3], int protocol);
 void MSG_WriteViewAngles(sizebuf_t *sb, const vec3_t viewangles, int protocol);
 void MSG_WriteKickAngles(sizebuf_t *sb, const vec3_t kick_angles, int protocol);
 void MSG_WriteConfigString(sizebuf_t *buf, short index, const char *s);
@@ -170,6 +171,7 @@ void MSG_ReadPos(sizebuf_t *msg_read, vec3_t pos, int protocol);
 void MSG_ReadVel(sizebuf_t *msg_read, short *vel, int protocol);
 float MSG_ReadAngle(sizebuf_t *msg_read, int protocol);
 float MSG_ReadAngle16(sizebuf_t *msg_read);
+void MSG_ReadDeltaAngles(sizebuf_t *msg_read, short delta_angles[3], int protocol);
 void MSG_ReadViewAngles(sizebuf_t *msg_read, vec3_t viewangles, int protocol);
 void MSG_ReadKickAngles(sizebuf_t *msg_read, vec3_t kick_angles, int protocol);
 void MSG_ReadDeltaUsercmd(sizebuf_t *msg_read,
