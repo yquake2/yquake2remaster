@@ -730,6 +730,55 @@ Use_Double(edict_t *ent, const gitem_t *item)
 }
 
 static void
+Use_Radar(edict_t *ent, const gitem_t *item)
+{
+	gitem_t *energy_item;
+
+	if (!ent || !item || !ent->client)
+	{
+		return;
+	}
+
+	energy_item = FindItem("Energy");
+	if (ent->client->showradar)
+	{
+		/* Turning OFF */
+		ent->client->showradar = false;
+		gi.sound(ent, CHAN_ITEM, gi.soundindex("misc/power2.wav"), 1, ATTN_NORM, 0);
+	}
+	else
+	{
+		/* Turning ON */
+		if (energy_item && ent->client->pers.inventory[ITEM_INDEX(energy_item)] <= 0)
+		{
+			gi.cprintf(ent, PRINT_HIGH, "No energy for radar\n");
+			return;
+		}
+		ent->client->showradar = true;
+		gi.sound(ent, CHAN_ITEM, gi.soundindex("misc/power1.wav"), 1, ATTN_NORM, 0);
+	}
+}
+
+static void
+Drop_Radar(edict_t *ent, const gitem_t *item)
+{
+	if (!ent || !item || !ent->client)
+	{
+		return;
+	}
+
+	if (ent->client->showradar && ent->client->pers.inventory[ITEM_INDEX(item)] > 0)
+	{
+		ent->client->showradar = false;
+		gi.sound(ent, CHAN_ITEM, gi.soundindex("misc/power2.wav"), 1, ATTN_NORM, 0);
+	}
+
+	Drop_Item(ent, item);
+	ent->client->pers.inventory[ITEM_INDEX(item)] = 0;
+	ValidateSelectedItem(ent->client);
+}
+
+static void
 Use_Compass(edict_t *ent, const gitem_t *item)
 {
 	int ang;
@@ -4780,6 +4829,18 @@ InitItems(void)
 						itemlist[num_items].pickup = Pickup_General;
 						itemlist[num_items].drop = Drop_General;
 						itemlist[num_items].world_model_flags = EF_ROTATE;
+
+						/* Infinity */
+						if (!strcmp(itemlist[num_items].classname, "item_radar"))
+						{
+							itemlist[num_items].pickup = Pickup_Powerup;
+							itemlist[num_items].use = Use_Radar;
+							itemlist[num_items].drop = Drop_Radar;
+							itemlist[num_items].icon = "i_radar";
+							itemlist[num_items].count_width = 2;
+							itemlist[num_items].quantity = 1;
+							itemlist[num_items].flags = IT_POWERUP;
+						}
 					}
 					else if (!strncmp(itemlist[num_items].classname, "key_", 4))
 					{
@@ -4809,7 +4870,7 @@ InitItems(void)
 							itemlist[num_items].tag = AMMO_SLUGS;
 							itemlist[num_items].count_width = 3;
 							itemlist[num_items].icon = "a_energy";
-							itemlist[num_items].quantity = 50;
+							itemlist[num_items].quantity = 100;
 						}
 						/* Oblivion */
 						else if (!strcmp(itemlist[num_items].classname, "ammo_dod"))

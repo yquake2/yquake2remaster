@@ -240,7 +240,6 @@ Checked with:
 * [ ] Daikatana: Fix protopod animation,
 * [ ] Daikatana/SiN: Fix transparent textures in maps,
 * [ ] DoD: fix statusbar `roarke`,
-* [ ] Infinity: Add support of `item_radar`,
 * [ ] Infinity: Add support of `monster_alienship1`,
 * [ ] Infinity: Add support of `monster_grunt1v1`,
 * [ ] Infinity: Add support of `monster_grunt1v2`,
@@ -262,6 +261,7 @@ Checked with:
 * [ ] Dynamic count of entities on client.
 
 ### Fixed:
+* [x] Infinity: Add support of `item_radar`,
 * [x] vulkan: rearange surfaces before render,
 * [x] vulkan: add fog distance effect,
 * [x] Oblivion: Finish support of `func_rotate_train`, add `speeds` for `path_corner`,

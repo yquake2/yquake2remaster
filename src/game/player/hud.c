@@ -642,6 +642,119 @@ G_SetStats(edict_t *ent)
 	/* layouts */
 	ent->client->ps.stats[STAT_LAYOUTS] = 0;
 
+	/* radar layout */
+	if (ent->client->showradar)
+	{
+		gitem_t *radar_item = FindItem("Radar");
+		gitem_t *energy_item = FindItem("Energy");
+
+		if (radar_item && energy_item)
+		{
+			int r_index = ITEM_INDEX(radar_item);
+			int e_index = ITEM_INDEX(energy_item);
+
+			if (ent->client->pers.inventory[r_index] <= 0)
+			{
+				ent->client->showradar = false;
+			}
+			else
+			{
+				edict_t *head = NULL;
+				char layout[1400];
+				int len = 0;
+				vec3_t org;
+
+				ent->client->pers.inventory[e_index]--;
+				if (ent->client->pers.inventory[e_index] <= 0)
+				{
+					ent->client->pers.inventory[e_index] = 0;
+					ent->client->showradar = false;
+					gi.cprintf(ent, PRINT_HIGH, "Energy exhausted\n");
+					gi.sound(ent, CHAN_ITEM, gi.soundindex("misc/power2.wav"), 1, ATTN_NORM, 0);
+				}
+
+				ent->client->ps.stats[STAT_RADAR_ICON] = gi.imageindex("radar/radar");
+				ent->client->ps.stats[STAT_RADAR] = ent->client->pers.inventory[e_index];
+
+				Com_sprintf(layout, sizeof(layout), "xv 68 yv 168 picn radar/radar ",
+					100 - 32, 200 - 32);
+				len = strlen(layout);
+				VectorCopy(ent->s.origin, org);
+
+				while ((head = findradius(head, org, 500)) != NULL)
+				{
+					float dist, yaw, s, c, rx, ry;
+					const char *pic = "radar/dot";
+					char entry[64];
+					int px, py, j;
+					vec3_t v;
+
+					if (head == ent)
+					{
+						continue;
+					}
+
+					if (!head->client && !(head->svflags & SVF_MONSTER))
+					{
+						continue;
+					}
+
+					if (head->deadflag || head->health <= 0)
+					{
+						continue;
+					}
+
+					VectorSubtract(head->s.origin, org, v);
+					dist = VectorLength(v);
+					if (dist > 500)
+					{
+						continue;
+					}
+
+					yaw = ent->client->v_angle[1] * M_PI / 180.0f;
+					s = sin(yaw);
+					c = cos(yaw);
+
+					/* Rotate relative to player view yaw */
+					rx = (v[1] * c - v[0] * s) / 500.0f * 32.0f;
+					ry = (v[0] * c + v[1] * s) / 500.0f * 32.0f;
+
+					px = (int)(100 + rx);
+					py = (int)(200 + ry);
+
+					if (head->s.origin[2] > org[2] + 16)
+					{
+						pic = "radar/up";
+					}
+					else if (head->s.origin[2] < org[2] - 16)
+					{
+						pic = "radar/down";
+					}
+
+					Com_sprintf(entry, sizeof(entry), "xv %d yv %d picn %s ", px, py, pic);
+					j = strlen(entry);
+
+					if (len + j < sizeof(layout))
+					{
+						strcpy(layout + len, entry);
+						len += j;
+					}
+				}
+
+				gi.WriteByte(svc_layout);
+				gi.WriteString(layout);
+				gi.unicast(ent, true);
+
+				ent->client->ps.stats[STAT_LAYOUTS] |= LAYOUTS_LAYOUT;
+			}
+		}
+	}
+	else
+	{
+		ent->client->ps.stats[STAT_RADAR_ICON] = 0;
+		ent->client->ps.stats[STAT_RADAR] = 0;
+	}
+
 	if (deathmatch->value)
 	{
 		if ((ent->client->pers.health <= 0) || level.intermissiontime ||
