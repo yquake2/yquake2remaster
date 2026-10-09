@@ -474,8 +474,8 @@ Vk_DrawParticles_Worker(size_t start, size_t end, void *user)
 static void
 Vk_DrawParticles(int num_particles, const particle_t particles[])
 {
-	vec3_t			up, right;
-	vk_pvertex*	currentvertex;
+	vk_pvertex *currentvertex;
+	vec3_t up, right;
 
 	if (!num_particles)
 	{
@@ -498,7 +498,7 @@ Vk_DrawParticles(int num_particles, const particle_t particles[])
 	VectorCopy(up, job.up);
 	VectorCopy(right, job.right);
 
-	R_ParallelTasks(num_particles, 1024, Vk_DrawParticles_Worker, &job);
+	R_ParallelTasks(num_particles, 1024, Vk_DrawParticles_Worker, &job, __func__);
 
 	currentvertex = visibleParticles + num_particles * 3;
 

@@ -44,11 +44,18 @@ typedef struct
 	void *user;
 } rowjob_t;
 
+static int threads_num = -1;
+
 static unsigned
 R_NumHWThreads(void)
 {
 	unsigned u;
 	int n;
+
+	if (threads_num > 0)
+	{
+		return threads_num;
+	}
 
 #ifdef USE_SDL3
 	n = SDL_GetNumLogicalCPUCores();
@@ -61,6 +68,8 @@ R_NumHWThreads(void)
 	{
 		u = R_MAX_THREADS;
 	}
+
+	threads_num = u;
 
 	return u;
 }
@@ -75,7 +84,7 @@ R_RowWorker(void *p)
 
 void
 R_ParallelTasks(size_t rows, size_t min_rows_per_task,
-	void (*fn)(size_t, size_t, void *), void *user)
+	void (*fn)(size_t, size_t, void *), void *user, const char *func_name)
 {
 	size_t chunk, t, jobcount, threads;
 	SDL_Thread *th[R_MAX_THREADS];
@@ -120,12 +129,14 @@ R_ParallelTasks(size_t rows, size_t min_rows_per_task,
 		jobs[jobcount].fn = fn;
 		jobs[jobcount].user = user;
 
-		Com_sprintf(name, sizeof(name), "R_Worker_" YQ2_COM_PRIdS, jobcount);
+		Com_sprintf(name, sizeof(name), "%s_" YQ2_COM_PRIdS,
+			func_name, jobcount);
 		th[jobcount] = SDL_CreateThread(R_RowWorker, name, &jobs[jobcount]);
 
 		if (!th[jobcount])
 		{
-			Com_Printf("%s: Failed to create thread "YQ2_COM_PRIdS": %s\n", __func__, jobcount, SDL_GetError());
+			Com_Printf("%s: Failed to create thread "YQ2_COM_PRIdS": %s\n",
+				__func__, jobcount, SDL_GetError());
 			fn(start, rows, user);
 			break;
 		}
@@ -141,5 +152,6 @@ R_ParallelTasks(size_t rows, size_t min_rows_per_task,
 		}
 	}
 
-	Com_DPrintf("%s: threads " YQ2_COM_PRIdS "\n", __func__, jobcount);
+	Com_DPrintf("%s: %s threads " YQ2_COM_PRIdS " # " YQ2_COM_PRIdS " \n",
+		__func__, func_name, jobcount, min_rows_per_task);
 }

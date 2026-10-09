@@ -260,7 +260,7 @@ SmoothColorImage(unsigned *dst, size_t width, size_t height, size_t rstep)
 	job.width = width;
 	job.rstep = rstep;
 
-	R_ParallelTasks(height, 32, SmoothColorImageJob, &job);
+	R_ParallelTasks(height, 1024, SmoothColorImageJob, &job, __func__);
 }
 
 /* https://en.wikipedia.org/wiki/Pixel-art_scaling_algorithms */
@@ -1584,7 +1584,7 @@ R_Convert8to32(const byte *data, size_t width, size_t height, const unsigned *ta
 	job.width = width;
 	job.height = height;
 
-	R_ParallelTasks(height, 64, R_Convert8to32_Worker, &job);
+	R_ParallelTasks(height, 128, R_Convert8to32_Worker, &job, __func__);
 
 	return trans;
 }

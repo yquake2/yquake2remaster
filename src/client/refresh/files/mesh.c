@@ -198,7 +198,7 @@ R_StaticVerts(qboolean powerUpEffect, int nverts,
 	job.backv = backv;
 	job.scale = scale;
 
-	R_ParallelTasks(nverts, 256, R_StaticVerts_Worker, &job);
+	R_ParallelTasks(nverts, 2048, R_StaticVerts_Worker, &job, __func__);
 }
 
 /* quaternion slerp for bone interpolation; assumes unit quaternions */
@@ -367,7 +367,7 @@ R_SkeletalVerts(const dmdx_t *pheader, int frame, int oldframe, float frontlerp,
 	job.move = move;
 	job.scale = scale;
 
-	R_ParallelTasks(num_verts, 256, R_SkeletalVerts_Worker, &job);
+	R_ParallelTasks(num_verts, 1024, R_SkeletalVerts_Worker, &job, __func__);
 }
 
 void

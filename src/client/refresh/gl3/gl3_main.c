@@ -1207,7 +1207,7 @@ GL3_DrawParticles(void)
 		VectorCopy(viewOrg, job.viewOrg);
 		job.pointSize = pointSize;
 
-		R_ParallelTasks(numParticles, 1024, GL3_DrawParticles_Worker, &job);
+		R_ParallelTasks(numParticles, 1024, GL3_DrawParticles_Worker, &job, __func__);
 
 		GL3_BindVAO(gl3state.vaoParticle);
 		GL3_BindVBO(gl3state.vboParticle);

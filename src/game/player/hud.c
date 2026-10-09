@@ -676,7 +676,7 @@ G_SetStats(edict_t *ent)
 				ent->client->ps.stats[STAT_RADAR_ICON] = gi.imageindex("radar/radar");
 				ent->client->ps.stats[STAT_RADAR] = ent->client->pers.inventory[e_index];
 
-				Com_sprintf(layout, sizeof(layout), "xv 68 yv 168 picn radar/radar ",
+				Com_sprintf(layout, sizeof(layout), "xv %d yv %d picn radar/radar ",
 					100 - 32, 200 - 32);
 				len = strlen(layout);
 				VectorCopy(ent->s.origin, org);

@@ -504,7 +504,7 @@ R_DrawParticles2(int num_particles, const particle_t particles[])
 	VectorCopy(up, job.up);
 	VectorCopy(right, job.right);
 
-	R_ParallelTasks(num_particles, 1024, R_DrawParticles2_Worker, &job);
+	R_ParallelTasks(num_particles, 1024, R_DrawParticles2_Worker, &job, __func__);
 
 	glEnableClientState( GL_VERTEX_ARRAY );
 	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
@@ -592,7 +592,7 @@ R_DrawParticles(void)
 		job.vtx = vtx;
 		job.clr = clr;
 
-		R_ParallelTasks(num_particles, 1024, R_DrawParticlesPoint_Worker, &job);
+		R_ParallelTasks(num_particles, 1024, R_DrawParticlesPoint_Worker, &job, __func__);
 
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_COLOR_ARRAY );

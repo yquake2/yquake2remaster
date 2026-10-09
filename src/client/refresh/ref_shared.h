@@ -594,6 +594,6 @@ Q2_DLL_EXPORTED refexport_t GetRefAPI(refimport_t imp);
 extern void R_CombineBlendWithFog(float *v_blend, qboolean native_fog);
 extern void R_InitCvar(void);
 extern void R_ParallelTasks(size_t rows, size_t  min_rows_per_task,
-	void (*fn)(size_t, size_t, void*), void* user);
+	void (*fn)(size_t, size_t, void*), void* user, const char *func_name);
 
 #endif /* SRC_CLIENT_REFRESH_REF_SHARED_H_ */
