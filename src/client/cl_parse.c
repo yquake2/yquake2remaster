@@ -211,7 +211,8 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, int 
 		}
 	}
 
-	if (IS_QII97_PROTOCOL(cls.serverProtocol))
+	if (IS_QII97_PROTOCOL(cls.serverProtocol) ||
+		(cls.serverProtocol == PROTOCOL_RR22_VERSION && !(bits & U_MODEL16)))
 	{
 		if (bits & U_MODEL)
 		{

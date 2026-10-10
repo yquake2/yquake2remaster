@@ -393,6 +393,7 @@ enum clc_ops_e
 #define U_SKIN16 (1 << 25)
 #define U_SOUND (1 << 26)
 #define U_SOLID (1 << 27)
+#define U_MODEL16 (1 << 28)
 
 /* CMD - Command text buffering and command execution */
 
