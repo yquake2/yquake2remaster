@@ -1028,7 +1028,7 @@ CL_ParseFrame(void)
 
 	cl.frame.serverframe = MSG_ReadLong(&net_message);
 	cl.frame.deltaframe = MSG_ReadLong(&net_message);
-	cl.frame.servertime = cl.frame.serverframe * 100;
+	cl.frame.servertime = cl.frame.serverframe * cl.frame_msec;
 
 	/* BIG HACK to let old demos continue to work */
 	if (cls.serverProtocol != PROTOCOL_RELEASE_VERSION)
@@ -1244,6 +1244,24 @@ CL_ParseServerData(void)
 		return;
 	}
 
+	cl.servercount = MSG_ReadLong(&net_message);
+	cl.attractloop = MSG_ReadByte(&net_message);
+	cl.frame_msec = 100;
+
+	if (cls.serverProtocol == PROTOCOL_RR22_VERSION)
+	{
+		int fps;
+
+		fps = MSG_ReadByte(&net_message);
+
+		if (fps > 0)
+		{
+			cl.frame_msec = 1000 / fps;
+		}
+	}
+
+	Com_DPrintf("Used %d ms frame time\n", cl.frame_msec);
+
 	if ((cl_shownet->value == 0) &&
 		((i == PROTOCOL_H2DEMO_VERSION) ||
 		 (i == PROTOCOL_Q2TEST_VERSION) ||
@@ -1253,9 +1271,6 @@ CL_ParseServerData(void)
 			CL_GetProtocolName(i));
 		return;
 	}
-
-	cl.servercount = MSG_ReadLong(&net_message);
-	cl.attractloop = MSG_ReadByte(&net_message);
 
 	/* game directory */
 	str = MSG_ReadString(&net_message);
