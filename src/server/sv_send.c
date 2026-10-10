@@ -522,7 +522,7 @@ SV_SendClientDatagram(client_t *client)
 	   so that entity references will be current */
 	if (client->datagram.overflowed)
 	{
-		Com_Printf("WARNING: datagram overflowed for %s\n", client->name);
+		Com_DPrintf("WARNING: datagram overflowed for %s\n", client->name);
 	}
 	else
 	{
@@ -534,7 +534,7 @@ SV_SendClientDatagram(client_t *client)
 	if (msg.overflowed)
 	{
 		/* must have room left for the packet header */
-		Com_Printf("WARNING: msg overflowed for %s\n", client->name);
+		Com_DPrintf("WARNING: msg overflowed for %s\n", client->name);
 		SZ_Clear(&msg);
 	}
 

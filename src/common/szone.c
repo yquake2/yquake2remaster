@@ -64,7 +64,7 @@ SZ_GetSpace(sizebuf_t *buf, int length)
 
 		SZ_Clear(buf);
 		buf->overflowed = true;
-		Com_Printf("%s: overflow\n", __func__);
+		Com_DPrintf("%s: overflow\n", __func__);
 	}
 
 	data = buf->data + buf->cursize;
