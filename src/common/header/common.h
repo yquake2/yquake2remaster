@@ -364,26 +364,26 @@ enum clc_ops_e
 #define U_ORIGIN2 (1 << 1)
 #define U_ANGLE2 (1 << 2)
 #define U_ANGLE3 (1 << 3)
-#define U_FRAME8 (1 << 4)       /* frame is a byte */
+#define U_FRAME8 (1 << 4)         /* frame is a byte */
 #define U_EVENT (1 << 5)
-#define U_REMOVE (1 << 6)       /* REMOVE this entity, don't add it */
+#define U_REMOVE (1 << 6)         /* REMOVE this entity, don't add it */
 #define U_MOREBITS1 (1 << 7)      /* read one additional byte */
 
 /* second byte */
-#define U_NUMBER16 (1 << 8)      /* NUMBER8 is implicit if not set */
+#define U_NUMBER16 (1 << 8)       /* NUMBER8 is implicit if not set */
 #define U_ORIGIN3 (1 << 9)
 #define U_ANGLE1 (1 << 10)
 #define U_MODEL (1 << 11)
 #define U_RENDERFX8 (1 << 12)     /* fullbright, etc */
-#define U_EFFECTS8 (1 << 14)     /* autorotate, trails, etc */
+#define U_EFFECTS8 (1 << 14)      /* autorotate, trails, etc */
 #define U_MOREBITS2 (1 << 15)     /* read one additional byte */
 
 /* third byte */
 #define U_SKIN8 (1 << 16)
-#define U_FRAME16 (1 << 17)     /* frame is a short */
+#define U_FRAME16 (1 << 17)       /* frame is a short */
 #define U_RENDERFX16 (1 << 18)    /* 8 + 16 = 32 */
 #define U_EFFECTS16 (1 << 19)     /* 8 + 16 = 32 */
-#define U_MODEL2 (1 << 20)      /* weapons, flags, etc */
+#define U_MODEL2 (1 << 20)        /* weapons, flags, etc */
 #define U_MODEL3 (1 << 21)
 #define U_MODEL4 (1 << 22)
 #define U_MOREBITS3 (1 << 23)     /* read one additional byte */
@@ -393,7 +393,17 @@ enum clc_ops_e
 #define U_SKIN16 (1 << 25)
 #define U_SOUND (1 << 26)
 #define U_SOLID (1 << 27)
+/* Quake 2 ReRelease */
 #define U_MODEL16 (1 << 28)
+#define U_EFFECTS64 (1 << 29)
+#define U_ALPHA (1 << 30)
+#define U_MOREBITS4 (1 << 31)     /* read one additional byte */
+
+/* fifth byte */
+#define U_SCALE (1 << 32)
+#define U_INSTANCE  (1 << 33)
+#define U_OWNER  (1 << 34)
+#define U_OLDFRAME (1 << 35)
 
 /* CMD - Command text buffering and command execution */
 

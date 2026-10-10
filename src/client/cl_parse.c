@@ -326,8 +326,6 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, int 
 			{
 				to->scale[i] = MSG_ReadFloat(&net_message);
 			}
-
-			to->rr_alpha = MSG_ReadFloat(&net_message);
 		}
 	}
 	else if (bits & U_SKIN8)
@@ -339,7 +337,8 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, int 
 		to->skinnum = MSG_ReadShort(&net_message);
 	}
 
-	if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16))
+	if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16) ||
+		(bits & U_EFFECTS64))
 	{
 		to->effects = MSG_ReadLong(&net_message);
 	}
@@ -355,7 +354,27 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, int 
 	/* ReRelease effects */
 	if (cls.serverProtocol != PROTOCOL_VERSION)
 	{
-		to->rr_effects = 0;
+		if (bits & U_EFFECTS64)
+		{
+			/* RR22 */
+			if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16))
+			{
+				to->rr_effects = MSG_ReadLong(&net_message);
+			}
+			else if (bits & U_EFFECTS8)
+			{
+				to->rr_effects = MSG_ReadByte(&net_message);
+			}
+			else if (bits & U_EFFECTS16)
+			{
+				to->rr_effects = MSG_ReadShort(&net_message);
+			}
+		}
+		else
+		{
+			to->rr_effects = 0;
+		}
+
 		to->rr_mesh = 0;
 	}
 	else
@@ -474,6 +493,18 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, int 
 	else
 	{
 		to->event = 0;
+	}
+
+	if (bits & U_ALPHA)
+	{
+		if (cls.serverProtocol == PROTOCOL_VERSION)
+		{
+			to->rr_alpha = MSG_ReadFloat(&net_message);
+		}
+		else
+		{
+			to->rr_alpha = MSG_ReadByte(&net_message) / 255.0f;
+		}
 	}
 
 	if ((bits & U_SOLID) && (cls.serverProtocol != PROTOCOL_RR22_VERSION))
