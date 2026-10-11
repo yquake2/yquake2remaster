@@ -112,7 +112,6 @@ display ()
 
 	/* Draw the model */
 	RenderFrameItp(n, interp, mem_mod);
-	// my_stbtt_print(0, 0, "abcde ЀЀЃґуля, з'їсти, істота, Європа");
 
 	glutSwapBuffers ();
 	glutPostRedisplay ();
@@ -138,7 +137,6 @@ main(int argc, char *argv[])
 	atexit (cleanup);
 	init (argv[1]);
 
-	my_stbtt_initfont();
 	glutReshapeFunc(reshape);
 	glutDisplayFunc(display);
 	glutKeyboardFunc(keyboard);

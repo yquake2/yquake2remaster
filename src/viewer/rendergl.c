@@ -1,99 +1,9 @@
 #include "rendergl.h"
-#define STB_TRUETYPE_IMPLEMENTATION  // force following include to generate implementation
-#include "../client/refresh/files/stb_truetype.h"
 
-unsigned char ttf_buffer[1<<20];
-unsigned char temp_bitmap[1024*1024];
 cvar_t *r_skeletalanimation;
 
 static GLuint skins[16];
-stbtt_bakedchar cdata[0x500]; // ASCII 32..126 is 95 glyphs
 GLuint ftex;
-
-void
-my_stbtt_initfont(void)
-{
-	fread(ttf_buffer, 1, 1<<20, fopen("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", "rb"));
-	stbtt_BakeFontBitmap(ttf_buffer, 0, 16.0, temp_bitmap, 1024, 1024, 32, 0x500, cdata); // no guarantee this fits!
-
-	// can free ttf_buffer at this point
-	glGenTextures(1, &ftex);
-	glBindTexture(GL_TEXTURE_2D, ftex);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, 1024, 1024, 0, GL_ALPHA, GL_UNSIGNED_BYTE, temp_bitmap);
-	// can free temp_bitmap at this point
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-}
-
-static int
-TT_get_utf8(char **curr)
-{
-	unsigned value = 0, size = 0, i;
-
-	value = **curr;
-	if (!(value & 0x80))
-	{
-		size = 1;
-	}
-	else if ((value & 0xE0) == 0xC0)
-	{
-		size = 2;
-		value = (value & 0x1F) << 6;
-	}
-	else if ((value & 0xF0) == 0xE0)
-	{
-		size = 3;
-		value = (value & 0x0F) << 12;
-	}
-	else if ((value & 0xF8) == 0xF0)
-	{
-		size = 4;
-		value = (value & 0x07) << 18;
-	}
-
-	(*curr) ++;
-	size --;
-
-	for (i = 0; (i < size); i++)
-	{
-		int c;
-
-		c = **curr;
-		if ((c & 0xC0) != 0x80)
-		{
-			break;
-		}
-		value |= (c & 0x3F) << ((size - i - 1) * 6);
-		(*curr) ++;
-	}
-
-	return value;
-}
-
-void
-my_stbtt_print(float x, float y, char *curr)
-{
-	// assume orthographic projection with units = screen pixels, origin at top left
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, ftex);
-	glBegin(GL_QUADS);
-
-	while(*curr)
-	{
-		unsigned value = TT_get_utf8(&curr);
-
-		if (value >= 32 && value < 0x500) {
-			stbtt_aligned_quad q;
-			stbtt_GetBakedQuad(cdata, 1024, 1024, value - 32, &x, &y, &q, 1);//1=opengl & d3d10+,0=d3d9
-			glTexCoord2f(q.s0, q.t0); glVertex2f(q.x0, q.y0);
-			glTexCoord2f(q.s1, q.t0); glVertex2f(q.x1, q.y0);
-			glTexCoord2f(q.s1, q.t1); glVertex2f(q.x1, q.y1);
-			glTexCoord2f(q.s0, q.t1); glVertex2f(q.x0, q.y1);
-		}
-	}
-	glEnd();
-}
 
 void
 upload_texture(GLubyte *pixels, int width, int height)
@@ -132,8 +42,6 @@ static unsigned char colormap[256][3] = {
 void
 SCR_LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 	int *width, int *height, int *bitsPerPixel);
-void
-VID_ImageInit(void);
 
 byte *
 image_load(const char* name, int *w, int *h, int *b)

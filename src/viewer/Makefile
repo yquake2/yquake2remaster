@@ -67,9 +67,6 @@ COMMON_FILES = \
 COMMON_HEADERS =  \
 	../common/header/files.h \
 	../common/header/shared.h \
-	../client/refresh/files/stb_image.h \
-	../client/refresh/files/stb_truetype.h \
-	../client/refresh/files/stb_image_resize.h \
 	render.h
 
 all: view-quake
