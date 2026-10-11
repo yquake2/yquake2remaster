@@ -315,7 +315,37 @@ P_CmdConvert(int cmd, int protocol)
 {
 	if (protocol == PROTOCOL_Q2TEST_VERSION && cmd == 0x07)
 	{
-		return svc_serverdata;
+		static const int convert_cmd[] = {
+			svc_bad,
+			svc_nop,
+			svc_disconnect,
+			svc_reconnect,
+			svc_sound,
+			svc_print,
+			svc_stufftext,
+			svc_serverdata,
+			svc_configstring,
+			svc_spawnbaseline,
+			svc_temp_entity,
+			svc_centerprint,
+			svc_muzzleflash,
+			svc_download,
+			svc_playerinfo,
+			-1, /* svc_chokecount */
+			svc_packetentities,
+			svc_deltapacketentities,
+			svc_frame,
+			-1, /* svc_muzzlflash2 */
+			svc_inventory,
+			svc_layout,
+		};
+
+		if (cmd < 0 || cmd >= ARRLEN(convert_cmd))
+		{
+			return cmd;
+		}
+
+		return convert_cmd[cmd];
 	}
 	else if (protocol == PROTOCOL_H2DEMO_VERSION && cmd == 0x0b)
 	{
