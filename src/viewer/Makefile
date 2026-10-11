@@ -36,16 +36,32 @@ YQ2_ARCH ?= $(shell uname -m)
 endif
 endif
 
-CFLAGS = -g -Wall -lm -lGL -lGLU -lglut
+SDL_CFLAGS := $(shell pkg-config --cflags sdl2 2>/dev/null)
+SDL_LIBS := $(shell pkg-config --libs sdl2 2>/dev/null || echo -lSDL2)
+
+CFLAGS = -g -Wall $(SDL_CFLAGS)
+LDLIBS = -lm -lGL -lGLU -lglut $(SDL_LIBS)
 COMMON_FILES = \
 	../client/cl_image.c \
 	../common/md4.c \
 	../common/shared/shared.c \
+	../common/cmodels.c \
+	../common/threads.c \
 	../backends/unix/shared/hunk.c \
 	../client/refresh/files/mesh.c \
-	../client/refresh/files/models.c \
+	../common/models/image.c \
+	../common/models/loadfile.c \
+	../common/models/mesh.c \
+	../common/models/models.c \
+	../common/models/models_utils.c \
+	../common/models/models_hlmdl.c \
+	../common/models/models_image.c \
+	../common/models/models_mda.c \
+	../common/models/models_mdl.c \
 	../common/models/models_md5.c \
 	../common/models/models_mdr.c \
+	../common/models/models_sdef.c \
+	../common/models/sprites.c \
 	render.c
 
 COMMON_HEADERS =  \
@@ -61,4 +77,4 @@ clean:
 	rm -f *.o view-quake
 
 view-quake: mdlx.c ${COMMON_FILES} ${COMMON_HEADERS} rendergl.c
-	gcc -g -DYQ2OSTYPE=\"$(YQ2_OSTYPE)\" -DYQ2ARCH=\"$(YQ2_ARCH)\" ${COMMON_FILES} rendergl.c mdlx.c ${CFLAGS} -o view-quake
+	gcc -g -DYQ2OSTYPE=\"$(YQ2_OSTYPE)\" -DYQ2ARCH=\"$(YQ2_ARCH)\" ${CFLAGS} ${COMMON_FILES} rendergl.c mdlx.c ${LDLIBS} -o view-quake

@@ -4,6 +4,7 @@
 
 unsigned char ttf_buffer[1<<20];
 unsigned char temp_bitmap[1024*1024];
+cvar_t *r_skeletalanimation;
 
 static GLuint skins[16];
 stbtt_bakedchar cdata[0x500]; // ASCII 32..126 is 95 glyphs

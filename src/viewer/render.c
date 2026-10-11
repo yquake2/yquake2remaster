@@ -83,6 +83,19 @@ FS_LoadFile(const char *path, void **buffer)
 	return size;
 }
 
+void *
+Z_Malloc(size_t size)
+{
+	void *ptr = calloc(1, size ? size : 1);
+	return ptr;
+}
+
+int
+CM_LoadFile(const char *path, void **buffer)
+{
+	return FS_LoadFile(path, buffer);
+}
+
 void
 FS_FreeFile(void *buffer)
 {
@@ -92,13 +105,9 @@ FS_FreeFile(void *buffer)
 void
 model_load(const char *filename)
 {
-	struct image_s **skins;
-	modtype_t type;
 	byte *buffer;
-	int numskins;
 	clock_t starttime;
 	FILE *fp_mesh, *fp_anim;
-	vec3_t mins, maxs;
 	int mesh_size = 0, anim_size = 0, full_size = 0;
 
 	fp_mesh = fopen(filename, "rb");
@@ -159,8 +168,7 @@ model_load(const char *filename)
 	}
 
 	starttime = clock();
-	mem_mod = (dmdx_t *)Mod_LoadModel(filename, buffer, full_size,
-		mins, maxs, &skins, &numskins, find_image, insert_skin, FS_LoadFile, &type);
+	mem_mod = (dmdx_t *)Mod_LoadModelFile(filename, buffer, full_size);
 	printf("Load takes %.3fs\n", (double)(clock() - starttime) / CLOCKS_PER_SEC);
 	free(buffer);
 }

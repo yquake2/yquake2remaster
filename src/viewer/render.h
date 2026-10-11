@@ -1,5 +1,6 @@
 #include "../common/header/shared.h"
 #include "../common/header/files.h"
+#include "../common/models/models.h"
 #include "../client/refresh/ref_shared.h"
 
 /* GL command packet in memory */
