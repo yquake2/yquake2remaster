@@ -91,6 +91,10 @@ For complete technical specifications and compatibility tables, see [.agents/doc
 
 ### Games check videos:
 
+* 8.71RR16+:
+
+[![Check Infinity state](https://img.youtube.com/vi/2nHpWCUecYw/hqdefault.jpg)](https://www.youtube.com/watch?v=2nHpWCUecYw)
+
 * 8.71RR15+:
 
 [![Check Oblivion](https://img.youtube.com/vi/D_bWu4apLLg/hqdefault.jpg)](https://www.youtube.com/watch?v=D_bWu4apLLg)

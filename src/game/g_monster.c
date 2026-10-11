@@ -390,7 +390,7 @@ M_ProjectFlashSource(const edict_t *self, const vec3_t offset, const vec3_t forw
 		}
 	}
 
-	return G_ProjectSource(self->s.origin, scaled_offset, forward, right, result);
+	G_ProjectSource(self->s.origin, scaled_offset, forward, right, result);
 }
 
 /* ================================================================== */
