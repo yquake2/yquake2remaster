@@ -1962,6 +1962,39 @@ G_ScreenFade_Reset(void)
 	screenfader_active_list = NULL;
 }
 
+void
+G_ScreenFade_Remove(edict_t *ent)
+{
+	ScreenFader_RemoveActive(ent);
+}
+
+void
+G_ScreenFade_Relink(void)
+{
+	int i;
+
+	G_ScreenFade_Reset();
+
+	for (i = 0; i < globals.num_edicts; i++)
+	{
+		edict_t *ent = &g_edicts[i];
+
+		if (!ent->inuse || (ent->use != misc_screenfader_use))
+		{
+			continue;
+		}
+
+		ent->chain = NULL;
+
+		if ((ent->count == SCREENFADER_STATE_ACTIVE) ||
+			(ent->count == SCREENFADER_STATE_HOLD))
+		{
+			ent->chain = screenfader_active_list;
+			screenfader_active_list = ent;
+		}
+	}
+}
+
 static void
 G_ScreenFade_AddBlend(edict_t *client)
 {

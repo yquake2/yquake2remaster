@@ -1536,6 +1536,8 @@ ReadLevel(const char *filename)
 
 	fclose(f);
 
+	G_ScreenFade_Relink();
+
 	/* mark all clients as unconnected */
 	for (i = 0; i < maxclients->value; i++)
 	{

@@ -1234,6 +1234,7 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 
 	memset(&level, 0, sizeof(level));
 	memset(g_edicts, 0, game.maxentities * sizeof(g_edicts[0]));
+	G_ScreenFade_Reset();
 
 	Q_strlcpy(level.mapname, mapname, sizeof(level.mapname));
 	level.is_n64 = !strncmp(level.mapname, "q64/", 4);

@@ -1168,6 +1168,8 @@ qboolean SV_FilterPacket(const char *from);
 void G_SetClientFrame(edict_t *ent, float speed);
 void ClientEndServerFrame(edict_t *ent);
 void G_ScreenFade_Reset(void);
+void G_ScreenFade_Remove(edict_t *ent);
+void G_ScreenFade_Relink(void);
 
 /* p_hud.c */
 void MoveClientToIntermission(edict_t *ent);
