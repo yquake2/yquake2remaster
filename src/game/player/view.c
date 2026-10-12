@@ -38,7 +38,7 @@ static float bobmove;
 static int bobcycle; /* odd cycles are right foot going forward */
 static float bobfracsin; /* sin(bobfrac*M_PI) */
 
-static void G_ScreenFade_AddBlend(edict_t *client);
+static void G_ScreenFader_AddBlend(edict_t *client);
 
 static float
 SV_CalcRoll(vec3_t angles, vec3_t velocity)
@@ -794,7 +794,7 @@ SV_CalcBlend(edict_t *ent)
 				ent->client->ps.blend);
 	}
 
-	G_ScreenFade_AddBlend(ent);
+	G_ScreenFader_AddBlend(ent);
 
 	/* drop the damage value */
 	ent->client->damage_alpha -= 0.06;
@@ -1766,7 +1766,7 @@ ClientEndServerFrame(edict_t *ent)
 static edict_t *screenfader_active_list;
 
 static void
-ScreenFader_EnablePolyblend(void)
+G_ScreenFader_EnablePolyblend(void)
 {
 	int i;
 
@@ -1791,7 +1791,7 @@ ScreenFader_EnablePolyblend(void)
 }
 
 static void
-ScreenFader_AddActive(edict_t *ent)
+G_ScreenFader_AddActive(edict_t *ent)
 {
 	edict_t **link;
 
@@ -1807,8 +1807,8 @@ ScreenFader_AddActive(edict_t *ent)
 	screenfader_active_list = ent;
 }
 
-static void
-ScreenFader_RemoveActive(edict_t *ent)
+void
+G_ScreenFader_Remove(edict_t *ent)
 {
 	edict_t **link;
 
@@ -1838,7 +1838,7 @@ ValueClamp(float value)
 }
 
 static qboolean
-ScreenFader_ParseColor(const char *string, vec3_t rgb, float *alpha)
+G_ScreenFader_ParseColor(const char *string, vec3_t rgb, float *alpha)
 {
 	float r, g, b, a;
 
@@ -1862,14 +1862,14 @@ ScreenFader_ParseColor(const char *string, vec3_t rgb, float *alpha)
 void
 misc_screenfader_clearhold(edict_t *self)
 {
-	ScreenFader_RemoveActive(self);
+	G_ScreenFader_Remove(self);
 	self->think = NULL;
 	self->nextthink = 0;
 	self->count = SCREENFADER_STATE_IDLE;
 }
 
 static void
-ScreenFader_Finish(edict_t *self)
+G_ScreenFader_Finish(edict_t *self)
 {
 	float hold = self->random > 0.0f ? self->random : 0.0f;
 
@@ -1882,7 +1882,7 @@ ScreenFader_Finish(edict_t *self)
 	}
 	else
 	{
-		ScreenFader_RemoveActive(self);
+		G_ScreenFader_Remove(self);
 		self->think = NULL;
 		self->nextthink = 0;
 	}
@@ -1908,7 +1908,7 @@ misc_screenfader_update(edict_t *self)
 
 	if (elapsed >= self->wait)
 	{
-		ScreenFader_Finish(self);
+		G_ScreenFader_Finish(self);
 		return;
 	}
 
@@ -1918,8 +1918,8 @@ misc_screenfader_update(edict_t *self)
 void
 misc_screenfader_begin(edict_t *self)
 {
-	ScreenFader_RemoveActive(self);
-	ScreenFader_EnablePolyblend();
+	G_ScreenFader_Remove(self);
+	G_ScreenFader_EnablePolyblend();
 
 	if (self->wait <= 0.0f)
 	{
@@ -1931,7 +1931,7 @@ misc_screenfader_begin(edict_t *self)
 	self->think = misc_screenfader_update;
 	self->nextthink = level.time + FRAMETIME;
 
-	ScreenFader_AddActive(self);
+	G_ScreenFader_AddActive(self);
 }
 
 void
@@ -1957,23 +1957,17 @@ misc_screenfader_use(edict_t *self, edict_t *other, edict_t *activator)
 }
 
 void
-G_ScreenFade_Reset(void)
+G_ScreenFader_Reset(void)
 {
 	screenfader_active_list = NULL;
 }
 
 void
-G_ScreenFade_Remove(edict_t *ent)
-{
-	ScreenFader_RemoveActive(ent);
-}
-
-void
-G_ScreenFade_Relink(void)
+G_ScreenFader_Relink(void)
 {
 	int i;
 
-	G_ScreenFade_Reset();
+	G_ScreenFader_Reset();
 
 	for (i = 0; i < globals.num_edicts; i++)
 	{
@@ -1996,7 +1990,7 @@ G_ScreenFade_Relink(void)
 }
 
 static void
-G_ScreenFade_AddBlend(edict_t *client)
+G_ScreenFader_AddBlend(edict_t *client)
 {
 	edict_t *fader;
 
@@ -2064,14 +2058,14 @@ SP_misc_screenfader(edict_t *self)
 	start_string = self->pathtarget ? self->pathtarget : self->message;
 	end_string = self->deathtarget;
 
-	if (!ScreenFader_ParseColor(start_string, start_rgb, &start_alpha))
+	if (!G_ScreenFader_ParseColor(start_string, start_rgb, &start_alpha))
 	{
 		gi.dprintf("misc_screenfader missing valid start color\n");
 		G_FreeEdict(self);
 		return;
 	}
 
-	if (!ScreenFader_ParseColor(end_string, end_rgb, &end_alpha))
+	if (!G_ScreenFader_ParseColor(end_string, end_rgb, &end_alpha))
 	{
 		gi.dprintf("misc_screenfader missing valid end color\n");
 		G_FreeEdict(self);

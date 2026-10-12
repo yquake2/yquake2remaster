@@ -376,7 +376,7 @@ InitGame(void)
 	gi.dprintf("Game is starting up.\n");
 	gi.dprintf("Game is %s built on %s.\n", GAMEVERSION, BUILD_DATE);
 
-	G_ScreenFade_Reset();
+	G_ScreenFader_Reset();
 
 	gun_x = gi.cvar("gun_x", "0", 0);
 	gun_y = gi.cvar("gun_y", "0", 0);
@@ -1463,7 +1463,7 @@ ReadLevel(const char *filename)
 	int i;
 	edict_t *ent;
 
-	G_ScreenFade_Reset();
+	G_ScreenFader_Reset();
 
 	f = Q_fopen(filename, "rb");
 
@@ -1536,7 +1536,7 @@ ReadLevel(const char *filename)
 
 	fclose(f);
 
-	G_ScreenFade_Relink();
+	G_ScreenFader_Relink();
 
 	/* mark all clients as unconnected */
 	for (i = 0; i < maxclients->value; i++)

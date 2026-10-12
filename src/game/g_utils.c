@@ -757,7 +757,7 @@ G_FreeEdict(edict_t *ed)
 		}
 	}
 
-	G_ScreenFade_Remove(ed);
+	G_ScreenFader_Remove(ed);
 
 	memset(ed, 0, sizeof(*ed));
 	ed->classname = "freed";
