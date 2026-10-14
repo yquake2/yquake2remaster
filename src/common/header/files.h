@@ -339,6 +339,55 @@ typedef struct hlmdl_sequence_s
 #define MAX_MD2SKINS 32
 #define MAX_SKINNAME 64
 
+/* CTC model file format */
+#define CTCHEADER (('L' << 24) + ('D' << 16) + ('M' << 8) + 'S')
+
+typedef struct
+{
+	int ident;
+	int version;
+	int skinwidth;
+	int skinheight;
+	int unknown1;
+	int num_skins;
+	int num_xyz;
+	int num_st;
+	int num_tris;
+	int num_glcmds;
+	int num_frames;
+	int num_animations;
+	int num_bones;
+	int num_morphs;
+	int num_attachment_points;
+	int num_tri_list_sizes;
+	int num_unknown5;
+	float unknown6;
+	int num_vert_colors;
+	int ofs_skins;
+	int ofs_verts;
+	int ofs_output_verts;
+	int ofs_tri_xyzs;
+	int ofs_tri_texcoords;
+	int ofs_bones;
+	int ofs_skeletal_data;
+	int ofs_animations;
+	int ofs_frames;
+	int ofs_glcmds;
+	int ofs_morph_data;
+	int ofs_attachment_points;
+	int ofs_tri_list_sizes;
+	int ofs_unknown5;
+	int ofs_tris3;
+	int ofs_vert_colors;
+	int ofs_end;
+} dctc_header_t;
+
+typedef struct
+{
+	vec3_t xyz;
+	vec3_t normal;
+} dctc_vertex_t;
+
 typedef struct
 {
 	short s;
@@ -1695,4 +1744,3 @@ typedef struct {
 } dq3surface_t;
 
 #endif
-

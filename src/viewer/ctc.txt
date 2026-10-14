@@ -1,0 +1,152 @@
+https://github.com/elasota/anoxdocs/blob/main/ctc.txt
+
+CTC model format
+
+If a field is marked as INTERNAL USE then it means the data from the CTC file is ignored.
+Internal use fields are used for temporary data storage, e.g. for computing intermediate
+values when drawing the model.
+
+0x00	char[4] magic			- "SMDL"
+0x04	int version			- Always 11 in Anachronox data but code suggests it can be as low as 8
+0x08	int skinWidth			- Skin width
+0x0c	int skinHeight			- Skin height
+0x10	int unknown1
+0x14	int numSkins
+0x18	int numXYZ
+0x1c	int numTexCoords
+0x20	int numTris
+0x24	int numGLCommands?
+0x28	int numFrames
+0x2c	int numAnimations
+0x30	int numBones
+0x34	int numMorphs
+0x38	int numAttachmentPoints
+0x3c	int numTriListSizes
+0x40	int numUnknown5
+0x44	float unknown6			- INTERNAL USE
+0x48	int numVertColors
+0x4c	int offsetSkins			- Skin data (64 bytes)
+0x50	int offsetVerts			- Verts, data is 6 dwords per xyz (24 bytes)
+0x54	int offsetOutputVerts		- INTERNAL USE, output vert XYZs (24 bytes)
+0x58	int offsetTriXYZs		- Data is 3 words per tri (6 bytes)
+0x5c	int offsetTriTexCoords		- UV, 6 floats per tri (24 bytes)
+0x60	int offsetBones			- Bones?
+0x64	int offsetSkeletalData		- See notes
+0x68	int offsetAnimations
+0x6c	int offsetFrames
+0x70	int offsetGlCommands?
+0x74	int offsetMorphData		- Vertex morphs
+0x78	int offsetAttachmentPoints	- Attachment points (12 bytes)
+0x7c	int offsetTriListSizes		- Triangle list sizes stream, one dword each (4 bytes)
+0x80	int offsetUnknown5		- Unknown5 (28 bytes)
+0x84	int offsetTris3			- INTERNAL USE, only used if NumUnknown5 is > 0
+0x88	int offsetVertColors		- Vert color data (4 bytes)
+0x8c	int eofPos
+
+struct Bone
+{
+	int parentIndexPlusOne;
+	int childCount;
+	int childListPtr;		- INTERNAL USE
+
+	float[6] unknown
+	Matrix44f finalTransform	- INTERNAL USE
+	Matrix44f baseTransform
+}
+
+struct SkinnedVertBoneWeight
+{
+	int bone
+	float weight
+}
+
+struct SkinnedVert
+{
+	int numBones
+	SkinnedVertBoneWeight[numBones] boneWeights
+}
+
+struct SkeletalData
+{
+	char[4] magic				- "STGW"
+	SkinnedVert[model.numVerts] verts
+}
+
+struct FrameKey
+{
+	Vec3f translation
+	Vec3f angles			- In 360-degree YXZ transform order.  For the main key, this is lerped linearly instead of circularly
+}
+
+struct Frame
+{
+	FrameKey mainKey
+	FrameKey[numBones] boneKeys
+}
+
+struct FrameData
+{
+	Frame[numFrames] frames
+}
+
+struct Morph
+{
+	char[16] name
+	int numVertMorphs		- 0ffset 16
+	float lerpFactor		- Offset 20 - INTERNAL USE
+	int morphVertIndexPtr		- Offset 24 - INTERNAL USE
+	int morphDeltaPtr		- Offset 26 - INTERNAL USE
+}
+
+struct MorphDynamicData
+{
+	int[numVertMorphs] xyzIndexes
+	float[numVertMorphs][3] targetPosition
+}
+
+
+struct MorphData
+{
+	Morph[numMorphs] morphs
+	MorphDynamicData[numMorphs] morphDynamicData
+}
+
+struct AttachmentPoint
+{
+	char[8] name
+	int triIndex?		- Appears to be tri index.  In every case I can find, these correspond to the last triangles in the tri list
+}
+
+struct Unknown5
+{
+	int triVertIndex
+	int replacementIndex
+	int unknown		- Usually zero
+	int unknown		- Usually zero
+	int unknown
+	float[2] newTexCoords
+}
+
+struct Tri3
+{
+	int dwordTris1[3]	- Expanded from Tris1
+	int isUnmodified
+	float textureU[3]
+	float textureV[3]
+}
+
+
+"Unknown5" behavior:
+	Appears to be a vertex substitution mechanism based on some entity
+	property.  The entity property controls how many verts are
+	substituted.  In practice this is never used.
+
+Vert color behavior:
+
+If the transparency data for a tri-vert starts with the byte sequence 33 66 e5, then the color
+is ignored and the fourth byte is used as alpha.
+Otherwise, the entire 4-component color is used.
+
+
+Rendering is done entirely with tri lists.  Each tri list indicates a number of consecutive
+triangles from the tri list data.

@@ -2410,6 +2410,827 @@ Mod_LoadModel_OBJ(const char *mod_name, const void *buffer, int modfilelen)
 	return extradata;
 }
 
+static qboolean
+Mod_CTCValidRange(size_t file_size, int offset, size_t count,
+	size_t element_size)
+{
+	if (offset < 0 || (size_t)offset > file_size ||
+		(element_size && count > (size_t)-1 / element_size))
+	{
+		return false;
+	}
+
+	return count * element_size <= file_size - (size_t)offset;
+}
+
+typedef struct
+{
+	float m[16];
+} ctc_matrix_t;
+
+typedef struct
+{
+	int parent;
+	float base_transform[16];
+} ctc_bone_t;
+
+typedef struct
+{
+	int first;
+	int count;
+} ctc_vertex_weights_t;
+
+typedef struct
+{
+	int bone;
+	float weight;
+} ctc_weight_t;
+
+static int
+Mod_CTCReadInt(const byte *src)
+{
+	int value;
+
+	memcpy(&value, src, sizeof(value));
+	return LittleLong(value);
+}
+
+static float
+Mod_CTCReadFloat(const byte *src)
+{
+	float value;
+
+	memcpy(&value, src, sizeof(value));
+	return LittleFloat(value);
+}
+
+static void
+Mod_CTCMatrixMultiply(const float *a, const float *b, float *out)
+{
+	ctc_matrix_t result;
+	int row, col, k;
+
+	for (row = 0; row < 4; ++row)
+	{
+		for (col = 0; col < 4; ++col)
+		{
+			result.m[row * 4 + col] = 0.0f;
+			for (k = 0; k < 4; ++k)
+			{
+				result.m[row * 4 + col] +=
+					a[row * 4 + k] * b[k * 4 + col];
+			}
+		}
+	}
+	memcpy(out, result.m, sizeof(result.m));
+}
+
+static qboolean
+Mod_CTCKeyMatrix(const byte *src, float *matrix)
+{
+	float translation[3], angles[3];
+	float sx, cx, sy, cy, sz, cz;
+	int i;
+
+	for (i = 0; i < 3; ++i)
+	{
+		translation[i] = Mod_CTCReadFloat(src + i * sizeof(float));
+		angles[i] = Mod_CTCReadFloat(src + (i + 3) * sizeof(float));
+		if (!isfinite(translation[i]) || !isfinite(angles[i]))
+		{
+			return false;
+		}
+		angles[i] = angles[i] * (float)(M_PI / 180.0);
+	}
+
+	sx = sinf(angles[0]);
+	cx = cosf(angles[0]);
+	sy = sinf(angles[1]);
+	cy = cosf(angles[1]);
+	sz = sinf(angles[2]);
+	cz = cosf(angles[2]);
+
+	/* CTC applies Euler angles in Y-X-Z order. */
+	matrix[0] = cy * cz + sy * sx * sz;
+	matrix[1] = -cy * sz + sy * sx * cz;
+	matrix[2] = sy * cx;
+	matrix[3] = translation[0];
+	matrix[4] = cx * sz;
+	matrix[5] = cx * cz;
+	matrix[6] = -sx;
+	matrix[7] = translation[1];
+	matrix[8] = -sy * cz + cy * sx * sz;
+	matrix[9] = sy * sz + cy * sx * cz;
+	matrix[10] = cy * cx;
+	matrix[11] = translation[2];
+	matrix[12] = matrix[13] = matrix[14] = 0.0f;
+	matrix[15] = 1.0f;
+	return true;
+}
+
+static void
+Mod_CTCTransformPoint(const float *matrix, const vec3_t point, vec3_t out)
+{
+	int row;
+
+	for (row = 0; row < 3; ++row)
+	{
+		out[row] = matrix[row * 4] * point[0] +
+			matrix[row * 4 + 1] * point[1] +
+			matrix[row * 4 + 2] * point[2] +
+			matrix[row * 4 + 3];
+	}
+}
+
+static void
+Mod_CTCTransformNormal(const float *matrix, const vec3_t normal, vec3_t out)
+{
+	int row;
+
+	for (row = 0; row < 3; ++row)
+	{
+		out[row] = matrix[row * 4] * normal[0] +
+			matrix[row * 4 + 1] * normal[1] +
+			matrix[row * 4 + 2] * normal[2];
+	}
+}
+
+static void *
+Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
+{
+	dctc_header_t input;
+	dmdx_t dmdxheader;
+	dmdx_t *pheader = NULL;
+	dmdx_vert_t *vertices = NULL;
+	dmdx_vert_t *first_frame_vertices = NULL;
+	ctc_bone_t *bones = NULL;
+	ctc_vertex_weights_t *vertex_weights = NULL;
+	ctc_weight_t *weights = NULL;
+	float *bone_poses = NULL;
+	float *bone_transforms = NULL;
+	byte *bone_ready = NULL;
+	dstvert_t *st;
+	dtriangle_t *triangles;
+	dmdxmesh_t *mesh;
+	const byte *src = buffer;
+	void *extradata = NULL;
+	size_t file_size, frame_key_size, cursor, num_weights = 0;
+	int offsets[16];
+	int i, corner;
+	qboolean frames_differ = false;
+
+	if (modfilelen < (int)sizeof(input))
+	{
+		Com_Printf("%s: %s has a truncated CTC header\n", __func__, mod_name);
+		return NULL;
+	}
+
+	Mod_LittleHeader((const int *)buffer, sizeof(input) / sizeof(int),
+		(int *)&input);
+
+	if (input.ident != CTCHEADER || input.version < 8 || input.version > 11)
+	{
+		Com_Printf("%s: %s has an unsupported CTC header or version %d\n",
+			__func__, mod_name, input.version);
+		return NULL;
+	}
+
+	file_size = input.ofs_end;
+	if (input.ofs_end < (int)sizeof(input) || input.ofs_end > modfilelen)
+	{
+		Com_Printf("%s: %s has an invalid CTC end offset %d\n",
+			__func__, mod_name, input.ofs_end);
+		return NULL;
+	}
+
+	offsets[0] = input.ofs_skins;
+	offsets[1] = input.ofs_verts;
+	offsets[2] = input.ofs_output_verts;
+	offsets[3] = input.ofs_tri_xyzs;
+	offsets[4] = input.ofs_tri_texcoords;
+	offsets[5] = input.ofs_bones;
+	offsets[6] = input.ofs_skeletal_data;
+	offsets[7] = input.ofs_animations;
+	offsets[8] = input.ofs_frames;
+	offsets[9] = input.ofs_glcmds;
+	offsets[10] = input.ofs_morph_data;
+	offsets[11] = input.ofs_attachment_points;
+	offsets[12] = input.ofs_tri_list_sizes;
+	offsets[13] = input.ofs_unknown5;
+	offsets[14] = input.ofs_tris3;
+	offsets[15] = input.ofs_vert_colors;
+
+	for (i = 0; i < (int)(sizeof(offsets) / sizeof(offsets[0])); ++i)
+	{
+		if (offsets[i] < 0 || (size_t)offsets[i] > file_size)
+		{
+			Com_Printf("%s: %s has an out-of-file CTC section offset\n",
+				__func__, mod_name);
+			return NULL;
+		}
+	}
+
+	if (input.num_skins < 0 || input.num_xyz <= 0 ||
+		input.num_st <= 0 || input.num_tris <= 0 ||
+		input.num_glcmds < 0 || input.num_frames <= 0 ||
+		input.num_frames > MAX_FRAMES ||
+		input.num_animations < 0 || input.num_bones < 0 ||
+		input.num_morphs < 0 || input.num_attachment_points < 0 ||
+		input.num_tri_list_sizes < 0 || input.num_unknown5 < 0 ||
+		input.num_vert_colors < 0 ||
+		input.num_skins > MAX_MD2SKINS ||
+		input.num_xyz > MAX_VERTS ||
+		input.num_tris > MAX_TRIANGLES ||
+		input.num_st != input.num_tris * 3 ||
+		input.skinwidth <= 0 || input.skinheight <= 0 ||
+		!Mod_CTCValidRange(file_size, input.ofs_skins,
+			(size_t)input.num_skins, MAX_SKINNAME) ||
+		!Mod_CTCValidRange(file_size, input.ofs_verts,
+			(size_t)input.num_xyz, sizeof(dctc_vertex_t)) ||
+		!Mod_CTCValidRange(file_size, input.ofs_output_verts,
+			(size_t)input.num_xyz, sizeof(dctc_vertex_t)) ||
+		!Mod_CTCValidRange(file_size, input.ofs_tri_xyzs,
+			(size_t)input.num_tris, 3 * sizeof(short)) ||
+		!Mod_CTCValidRange(file_size, input.ofs_tri_texcoords,
+			(size_t)input.num_tris, 6 * sizeof(float)) ||
+		!Mod_CTCValidRange(file_size, input.ofs_bones,
+			(size_t)input.num_bones, 164) ||
+		!Mod_CTCValidRange(file_size, input.ofs_skeletal_data,
+			input.num_bones ? 1 : 0, 4) ||
+		!Mod_CTCValidRange(file_size, input.ofs_attachment_points,
+			(size_t)input.num_attachment_points, 12) ||
+		!Mod_CTCValidRange(file_size, input.ofs_tri_list_sizes,
+			(size_t)input.num_tri_list_sizes, sizeof(int)) ||
+		!Mod_CTCValidRange(file_size, input.ofs_unknown5,
+			(size_t)input.num_unknown5, 28) ||
+		!Mod_CTCValidRange(file_size, input.ofs_tris3,
+			(size_t)input.num_unknown5, 40) ||
+		!Mod_CTCValidRange(file_size, input.ofs_vert_colors,
+			(size_t)input.num_vert_colors, 4))
+	{
+		Com_Printf("%s: %s has invalid CTC counts or section ranges\n",
+			__func__, mod_name);
+		return NULL;
+	}
+
+	frame_key_size = 6 * sizeof(float);
+	if ((size_t)input.num_bones >
+		((size_t)-1 - frame_key_size) / frame_key_size)
+	{
+		Com_Printf("%s: %s has an invalid CTC frame size\n",
+			__func__, mod_name);
+		return NULL;
+	}
+	frame_key_size += (size_t)input.num_bones * 6 * sizeof(float);
+	if (!Mod_CTCValidRange(file_size, input.ofs_frames,
+		(size_t)input.num_frames, frame_key_size))
+	{
+		Com_Printf("%s: %s has truncated CTC frame data\n",
+			__func__, mod_name);
+		return NULL;
+	}
+
+	vertices = calloc((size_t)input.num_xyz, sizeof(*vertices));
+	if (!vertices)
+	{
+		YQ2_COM_CHECK_OOM(vertices, "calloc()",
+			(size_t)input.num_xyz * sizeof(*vertices))
+		goto failed;
+	}
+
+	for (i = 0; i < input.num_xyz; ++i)
+	{
+		dctc_vertex_t vertex;
+		int axis;
+
+		memcpy(&vertex, src + input.ofs_verts +
+			(size_t)i * sizeof(vertex), sizeof(vertex));
+		for (axis = 0; axis < 3; ++axis)
+		{
+			vertex.xyz[axis] = LittleFloat(vertex.xyz[axis]);
+			vertex.normal[axis] = LittleFloat(vertex.normal[axis]);
+			if (!isfinite(vertex.xyz[axis]) || !isfinite(vertex.normal[axis]))
+			{
+				Com_Printf("%s: %s contains a non-finite CTC vertex or normal\n",
+					__func__, mod_name);
+				goto failed;
+			}
+		}
+
+		VectorCopy(vertex.xyz, vertices[i].xyz);
+		VectorCopy(vertex.normal, vertices[i].norm);
+	}
+
+	if (input.num_bones)
+	{
+		bones = calloc((size_t)input.num_bones, sizeof(*bones));
+		bone_poses = calloc((size_t)input.num_bones * 16,
+			sizeof(*bone_poses));
+		bone_transforms = calloc((size_t)input.num_bones * 16,
+			sizeof(*bone_transforms));
+		bone_ready = calloc((size_t)input.num_bones, sizeof(*bone_ready));
+		vertex_weights = calloc((size_t)input.num_xyz,
+			sizeof(*vertex_weights));
+		if (!bones)
+		{
+			YQ2_COM_CHECK_OOM(bones, "calloc()", input.num_bones)
+			goto failed;
+		}
+		if (!bone_poses)
+		{
+			YQ2_COM_CHECK_OOM(bone_poses, "calloc()",
+				(size_t)input.num_bones * 16 * sizeof(*bone_poses))
+			goto failed;
+		}
+		if (!bone_transforms)
+		{
+			YQ2_COM_CHECK_OOM(bone_transforms, "calloc()",
+				(size_t)input.num_bones * 16 * sizeof(*bone_transforms))
+			goto failed;
+		}
+		if (!bone_ready)
+		{
+			YQ2_COM_CHECK_OOM(bone_ready, "calloc()", input.num_bones)
+			goto failed;
+		}
+		if (!vertex_weights)
+		{
+			YQ2_COM_CHECK_OOM(vertex_weights, "calloc()",
+				(size_t)input.num_xyz * sizeof(*vertex_weights))
+			goto failed;
+		}
+
+		for (i = 0; i < input.num_bones; ++i)
+		{
+			const byte *bone = src + input.ofs_bones + (size_t)i * 164;
+			int parent_plus_one = Mod_CTCReadInt(bone);
+			int j;
+
+			if (parent_plus_one < 0 || parent_plus_one > input.num_bones ||
+				parent_plus_one == i + 1)
+			{
+				Com_Printf("%s: %s contains an invalid CTC bone parent\n",
+					__func__, mod_name);
+				goto failed;
+			}
+			bones[i].parent = parent_plus_one - 1;
+			for (j = 0; j < 16; ++j)
+			{
+				bones[i].base_transform[j] =
+					Mod_CTCReadFloat(bone + 100 + j * sizeof(float));
+				if (!isfinite(bones[i].base_transform[j]))
+				{
+					Com_Printf("%s: %s contains a non-finite CTC bone transform\n",
+						__func__, mod_name);
+					goto failed;
+				}
+			}
+		}
+
+		cursor = (size_t)input.ofs_skeletal_data;
+		if (memcmp(src + cursor, "STGW", 4))
+		{
+			Com_Printf("%s: %s has invalid CTC skeletal data\n",
+				__func__, mod_name);
+			goto failed;
+		}
+		cursor += 4;
+		for (i = 0; i < input.num_xyz; ++i)
+		{
+			int count;
+
+			if (file_size - cursor < sizeof(int))
+			{
+				Com_Printf("%s: %s has truncated CTC skeletal data\n",
+					__func__, mod_name);
+				goto failed;
+			}
+			count = Mod_CTCReadInt(src + cursor);
+			cursor += sizeof(int);
+			if (count < 0 || count > input.num_bones ||
+				(size_t)count > (file_size - cursor) / (2 * sizeof(int)))
+			{
+				Com_Printf("%s: %s has invalid CTC vertex weights\n",
+					__func__, mod_name);
+				goto failed;
+			}
+			vertex_weights[i].first = (int)num_weights;
+			vertex_weights[i].count = count;
+			num_weights += (size_t)count;
+			cursor += (size_t)count * 2 * sizeof(int);
+		}
+		if (num_weights > (size_t)-1 / sizeof(*weights))
+		{
+			Com_Printf("%s: %s has too many CTC vertex weights\n",
+				__func__, mod_name);
+			goto failed;
+		}
+		weights = calloc(num_weights, sizeof(*weights));
+		if (!weights && num_weights)
+		{
+			YQ2_COM_CHECK_OOM(weights, "calloc()",
+				num_weights * sizeof(*weights))
+			goto failed;
+		}
+
+		cursor = (size_t)input.ofs_skeletal_data + 4;
+		num_weights = 0;
+		for (i = 0; i < input.num_xyz; ++i)
+		{
+			int count = Mod_CTCReadInt(src + cursor);
+			int j;
+
+			cursor += sizeof(int);
+			for (j = 0; j < count; ++j)
+			{
+				int bone = Mod_CTCReadInt(src + cursor);
+				float weight = Mod_CTCReadFloat(src + cursor + sizeof(int));
+
+				cursor += 2 * sizeof(int);
+				if (bone < 0 || bone >= input.num_bones ||
+					!isfinite(weight) || weight < 0.0f)
+				{
+					Com_Printf("%s: %s contains invalid CTC vertex weights\n",
+						__func__, mod_name);
+					goto failed;
+				}
+				weights[num_weights].bone = bone;
+				weights[num_weights].weight = weight;
+				++num_weights;
+			}
+		}
+	}
+
+	memset(&dmdxheader, 0, sizeof(dmdxheader));
+	dmdxheader.skinwidth = input.skinwidth;
+	dmdxheader.skinheight = input.skinheight;
+	dmdxheader.framesize = sizeof(daliasxframe_t) +
+		(input.num_xyz - 1) * sizeof(dxtrivertx_t);
+	dmdxheader.num_meshes = 1;
+	dmdxheader.num_skins = input.num_skins;
+	dmdxheader.num_xyz = input.num_xyz;
+	dmdxheader.num_st = input.num_st;
+	dmdxheader.num_tris = input.num_tris;
+	dmdxheader.num_glcmds = input.num_tris * 10 + 1;
+	dmdxheader.num_frames = input.num_frames;
+	dmdxheader.num_animgroup = 1;
+
+	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
+	first_frame_vertices = calloc((size_t)input.num_xyz,
+		sizeof(*first_frame_vertices));
+	if (!first_frame_vertices)
+	{
+		YQ2_COM_CHECK_OOM(first_frame_vertices, "calloc()",
+			(size_t)input.num_xyz * sizeof(*first_frame_vertices))
+		goto failed;
+	}
+
+	for (i = 0; i < input.num_frames; ++i)
+	{
+		const byte *frame_data = src + input.ofs_frames +
+			(size_t)i * frame_key_size;
+		ctc_matrix_t root_transform;
+		daliasxframe_t *frame = (daliasxframe_t *)((byte *)pheader +
+			pheader->ofs_frames + (size_t)i * pheader->framesize);
+		dmdx_vert_t *posed_vertices;
+		int j, axis, completed;
+
+		if (!Mod_CTCKeyMatrix(frame_data, root_transform.m))
+		{
+			Com_Printf("%s: %s contains an invalid CTC frame key\n",
+				__func__, mod_name);
+			goto failed;
+		}
+
+		if (input.num_bones)
+		{
+			memset(bone_ready, 0, (size_t)input.num_bones * sizeof(*bone_ready));
+			completed = 0;
+			while (completed < input.num_bones)
+			{
+				qboolean progress = false;
+
+				for (j = 0; j < input.num_bones; ++j)
+				{
+					ctc_matrix_t key_transform, pose_transform;
+					ctc_matrix_t skin_transform;
+					const byte *key = frame_data + (size_t)(j + 1) *
+						6 * sizeof(float);
+
+					if (bone_ready[j] ||
+						(bones[j].parent >= 0 && !bone_ready[bones[j].parent]))
+					{
+						continue;
+					}
+					if (!Mod_CTCKeyMatrix(key, key_transform.m))
+					{
+						Com_Printf("%s: %s contains an invalid CTC bone key\n",
+							__func__, mod_name);
+						goto failed;
+					}
+
+					if (bones[j].parent >= 0)
+					{
+						Mod_CTCMatrixMultiply(
+							bone_poses + (size_t)bones[j].parent * 16,
+							key_transform.m, pose_transform.m);
+					}
+					else
+					{
+						memcpy(pose_transform.m, key_transform.m,
+							sizeof(pose_transform.m));
+					}
+					memcpy(bone_poses + (size_t)j * 16,
+						pose_transform.m, sizeof(pose_transform.m));
+					Mod_CTCMatrixMultiply(root_transform.m,
+						pose_transform.m, skin_transform.m);
+					Mod_CTCMatrixMultiply(skin_transform.m,
+						bones[j].base_transform,
+						bone_transforms + (size_t)j * 16);
+					bone_ready[j] = 1;
+					++completed;
+					progress = true;
+				}
+				if (!progress)
+				{
+					Com_Printf("%s: %s contains a cyclic CTC bone hierarchy\n",
+						__func__, mod_name);
+					goto failed;
+				}
+			}
+		}
+
+		posed_vertices = calloc((size_t)input.num_xyz, sizeof(*posed_vertices));
+		if (!posed_vertices)
+		{
+			YQ2_COM_CHECK_OOM(posed_vertices, "calloc()",
+				(size_t)input.num_xyz * sizeof(*posed_vertices))
+			goto failed;
+		}
+
+		for (j = 0; j < input.num_xyz; ++j)
+		{
+			vec3_t position, normal;
+
+			VectorClear(position);
+			VectorClear(normal);
+			if (input.num_bones && vertex_weights[j].count)
+			{
+				float total_weight = 0.0f;
+				int k;
+
+				for (k = 0; k < vertex_weights[j].count; ++k)
+				{
+					const ctc_weight_t *weight =
+						&weights[vertex_weights[j].first + k];
+					const float *transform =
+						bone_transforms + (size_t)weight->bone * 16;
+					vec3_t transformed;
+
+					Mod_CTCTransformPoint(transform, vertices[j].xyz,
+						transformed);
+					VectorMA(position, weight->weight, transformed, position);
+					Mod_CTCTransformNormal(transform, vertices[j].norm,
+						transformed);
+					VectorMA(normal, weight->weight, transformed, normal);
+					total_weight += weight->weight;
+				}
+				if (!isfinite(total_weight))
+				{
+					free(posed_vertices);
+					Com_Printf("%s: %s contains invalid CTC vertex weights\n",
+						__func__, mod_name);
+					goto failed;
+				}
+
+				if (total_weight > 0.0f)
+				{
+					VectorScale(position, 1.0f / total_weight, position);
+					VectorScale(normal, 1.0f / total_weight, normal);
+				}
+				else
+				{
+					Mod_CTCTransformPoint(root_transform.m, vertices[j].xyz,
+						position);
+					Mod_CTCTransformNormal(root_transform.m, vertices[j].norm,
+						normal);
+				}
+			}
+			else
+			{
+				Mod_CTCTransformPoint(root_transform.m, vertices[j].xyz,
+					position);
+				Mod_CTCTransformNormal(root_transform.m, vertices[j].norm,
+					normal);
+			}
+
+			for (axis = 0; axis < 3; ++axis)
+			{
+				if (!isfinite(position[axis]) || !isfinite(normal[axis]))
+				{
+					free(posed_vertices);
+					Com_Printf("%s: %s contains invalid posed CTC vertices\n",
+						__func__, mod_name);
+					goto failed;
+				}
+			}
+			VectorCopy(position, posed_vertices[j].xyz);
+			VectorCopy(normal, posed_vertices[j].norm);
+		}
+
+		if (i == 0)
+		{
+			memcpy(first_frame_vertices, posed_vertices,
+				(size_t)input.num_xyz * sizeof(*first_frame_vertices));
+		}
+		else if (!frames_differ)
+		{
+			for (j = 0; j < input.num_xyz; ++j)
+			{
+				if (!VectorCompare(first_frame_vertices[j].xyz,
+						posed_vertices[j].xyz) ||
+					!VectorCompare(first_frame_vertices[j].norm,
+						posed_vertices[j].norm))
+				{
+					frames_differ = true;
+					break;
+				}
+			}
+		}
+
+		Q_strlcpy(frame->name, "ctc_frame", sizeof(frame->name));
+		frame->name[9] = '0' + i / 100;
+		frame->name[10] = '0' + (i / 10) % 10;
+		frame->name[11] = '0' + i % 10;
+		frame->name[12] = '\0';
+		{
+			vec3_t mins, maxs;
+
+			VectorCopy(posed_vertices[0].xyz, mins);
+			VectorCopy(posed_vertices[0].xyz, maxs);
+			for (j = 1; j < input.num_xyz; ++j)
+			{
+				for (axis = 0; axis < 3; ++axis)
+				{
+					if (posed_vertices[j].xyz[axis] < mins[axis])
+					{
+						mins[axis] = posed_vertices[j].xyz[axis];
+					}
+					if (posed_vertices[j].xyz[axis] > maxs[axis])
+					{
+						maxs[axis] = posed_vertices[j].xyz[axis];
+					}
+				}
+			}
+			for (axis = 0; axis < 3; ++axis)
+			{
+				frame->translate[axis] = mins[axis];
+				frame->scale[axis] = (maxs[axis] - mins[axis]) / 65535.0f;
+				if (!isfinite(frame->scale[axis]))
+				{
+					free(posed_vertices);
+					Com_Printf("%s: %s contains an invalid CTC vertex range\n",
+						__func__, mod_name);
+					goto failed;
+				}
+				if (frame->scale[axis] == 0.0f)
+				{
+					frame->scale[axis] = 1.0f;
+				}
+			}
+			for (j = 0; j < input.num_xyz; ++j)
+			{
+				for (axis = 0; axis < 3; ++axis)
+				{
+					float value = (posed_vertices[j].xyz[axis] -
+						frame->translate[axis]) / frame->scale[axis];
+					if (value < 0.0f)
+					{
+						value = 0.0f;
+					}
+					else if (value > 65535.0f)
+					{
+						value = 65535.0f;
+					}
+					frame->verts[j].v[axis] = (unsigned short)value;
+				}
+			}
+		}
+
+		for (j = 0; j < input.num_xyz; ++j)
+		{
+			vec3_t normal;
+			float length;
+
+			VectorCopy(posed_vertices[j].norm, normal);
+			length = VectorLength(normal);
+			if (length > 0.0f)
+			{
+				VectorScale(normal, 127.0f / length, normal);
+			}
+			for (axis = 0; axis < 3; ++axis)
+			{
+				float component = normal[axis];
+
+				if (component > 127.0f)
+				{
+					component = 127.0f;
+				}
+				else if (component < -127.0f)
+				{
+					component = -127.0f;
+				}
+				frame->verts[j].normal[axis] = (signed char)component;
+			}
+		}
+		free(posed_vertices);
+	}
+
+	if (input.num_skins)
+	{
+		char *skins = (char *)pheader + pheader->ofs_skins;
+		memcpy(skins, src + input.ofs_skins,
+			(size_t)input.num_skins * MAX_SKINNAME);
+		for (i = 0; i < input.num_skins; ++i)
+		{
+			skins[(size_t)i * MAX_SKINNAME + MAX_SKINNAME - 1] = '\0';
+		}
+	}
+
+	st = (dstvert_t *)((byte *)pheader + pheader->ofs_st);
+	triangles = (dtriangle_t *)((byte *)pheader + pheader->ofs_tris);
+	for (i = 0; i < input.num_tris; ++i)
+	{
+		const byte *in_xyz = src + input.ofs_tri_xyzs + (size_t)i * 6;
+		const byte *in_st = src + input.ofs_tri_texcoords + (size_t)i * 24;
+
+		for (corner = 0; corner < 3; ++corner)
+		{
+			const int vertex = LittleShort(*(const short *)(in_xyz + corner * 2));
+			const float s = Mod_CTCReadFloat(in_st + corner * 8);
+			const float t = Mod_CTCReadFloat(in_st + corner * 8 + 4);
+
+			if (vertex < 0 || vertex >= input.num_xyz ||
+				!isfinite(s) || !isfinite(t) ||
+				s * input.skinwidth < -32768.0f ||
+				s * input.skinwidth > 32767.0f ||
+				t * input.skinheight < -32768.0f ||
+				t * input.skinheight > 32767.0f)
+			{
+				Com_Printf("%s: %s contains invalid CTC triangle data\n",
+					__func__, mod_name);
+				goto failed;
+			}
+
+			triangles[i].index_xyz[corner] = vertex;
+			triangles[i].index_st[corner] = i * 3 + corner;
+			st[i * 3 + corner].s = (short)(s * input.skinwidth);
+			st[i * 3 + corner].t = (short)(t * input.skinheight);
+		}
+	}
+
+	mesh = (dmdxmesh_t *)((byte *)pheader + pheader->ofs_meshes);
+	mesh->ofs_tris = 0;
+	mesh->num_tris = input.num_tris;
+	mesh->ofs_glcmds = 0;
+	mesh->num_glcmds = pheader->num_glcmds;
+
+	Mod_LoadAnimGroupList(pheader, true);
+	Mod_LoadCmdGenerate(pheader);
+	Mod_LoadFixImages(mod_name, pheader, false);
+	if (input.num_frames > 1 && !frames_differ)
+	{
+		Com_Printf("%s: %s has %d CTC frames but no differences between them\n",
+			__func__, mod_name, input.num_frames);
+	}
+	Com_DPrintf("%s: loaded %s as %d-frame CTC geometry (%d vertices, %d triangles)\n",
+		__func__, mod_name, input.num_frames, input.num_xyz, input.num_tris);
+	free(vertices);
+	free(first_frame_vertices);
+	free(bones);
+	free(vertex_weights);
+	free(weights);
+	free(bone_poses);
+	free(bone_transforms);
+	free(bone_ready);
+	return extradata;
+
+failed:
+	free(vertices);
+	free(first_frame_vertices);
+	free(bones);
+	free(vertex_weights);
+	free(weights);
+	free(bone_poses);
+	free(bone_transforms);
+	free(bone_ready);
+	if (extradata)
+	{
+		Hunk_Free(extradata);
+	}
+	return NULL;
+}
+
 /*
 =================
 Mod_LoadModelFile
@@ -2428,6 +3249,10 @@ Mod_LoadModelFile(const char *mod_name, const void *buffer, int modfilelen)
 
 	switch (LittleLong(*(unsigned *)buffer))
 	{
+		case CTCHEADER:
+			extradata = Mod_LoadModel_CTC(mod_name, buffer, modfilelen);
+			break;
+
 		case MDAHEADER:
 			extradata = Mod_LoadModel_MDA(mod_name, buffer, modfilelen);
 			break;

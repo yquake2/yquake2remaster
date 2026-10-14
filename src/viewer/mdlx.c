@@ -55,6 +55,7 @@ show_frames(const dmdx_t *mod)
 static void
 init(const char *filename)
 {
+	R_VertBufferInit();
 	model_load(filename);
 	if (mem_mod)
 	{
@@ -109,6 +110,7 @@ display ()
 	glRotatef (xrotate, 1.0, 0.0, 0.0);
 	glRotatef (yrotate, 0.0, 1.0, 0.0);
 	glRotatef (zrotate, 0.0, 0.0, 1.0);
+	glTranslatef(-model_center[0], -model_center[1], -model_center[2]);
 
 	/* Draw the model */
 	RenderFrameItp(n, interp, mem_mod);
@@ -128,6 +130,7 @@ main(int argc, char *argv[])
 
 	// quake swap prepere
 	Swap_Init();
+	PaletteInit();
 
 	glutInit (&argc, argv);
 	glutInitDisplayMode (GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
