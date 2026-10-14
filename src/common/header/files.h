@@ -29,8 +29,8 @@
 
 /* The .wad files are just a linear collapse of a directory tree */
 
-#define IWADHEADER (('D' << 24) + ('A' << 16) + ('W' << 8) + 'I')
-#define PWADHEADER (('D' << 24) + ('A' << 16) + ('W' << 8) + 'P')
+#define IWADHEADER (('D' << 24) + ('A' << 16) + ('W' << 8) + 'I') /* little-endian "IWAD" */
+#define PWADHEADER (('D' << 24) + ('A' << 16) + ('W' << 8) + 'P') /* little-endian "PWAD" */
 
 typedef struct {
 	int ident;	 /* == IWADHEADER | PWADHEADER */
@@ -46,7 +46,7 @@ typedef struct {
 
 /* The .dat files are just a linear collapse of a directory tree */
 
-#define DATHEADER (('T' << 24) + ('A' << 16) + ('D' << 8) + 'A')
+#define DATHEADER (('T' << 24) + ('A' << 16) + ('D' << 8) + 'A') /* little-endian "ADAT" */
 #define DATVERSION 9
 
 typedef struct
@@ -68,9 +68,9 @@ typedef struct
 
 /* The .sin files are just a linear collapse of a directory tree */
 
-#define SINHEADER (('K' << 24) + ('A' << 16) + ('P' << 8) + 'S')
+#define SINHEADER (('K' << 24) + ('A' << 16) + ('P' << 8) + 'S') /* little-endian "SPAK" */
 /* Unsupported SiN Reloaded Assets format */
-#define SINRHEADER (('K' << 24) + ('P' << 16) + ('R' << 8) + 'S')
+#define SINRHEADER (('K' << 24) + ('P' << 16) + ('R' << 8) + 'S') /* little-endian "SRPK" */
 
 typedef struct {
 	int ident;
@@ -96,7 +96,7 @@ typedef struct
 
 /* The .pak files are just a linear collapse of a directory tree */
 
-#define IDPAKHEADER (('K' << 24) + ('C' << 16) + ('A' << 8) + 'P')
+#define IDPAKHEADER (('K' << 24) + ('C' << 16) + ('A' << 8) + 'P') /* little-endian "PACK" */
 
 typedef struct
 {
@@ -140,7 +140,7 @@ typedef struct
 
 /* .MDL triangle model file format */
 
-#define IDMDLHEADER (('O' << 24) + ('P' << 16) + ('D' << 8) + 'I')
+#define IDMDLHEADER (('O' << 24) + ('P' << 16) + ('D' << 8) + 'I') /* little-endian "IDPO" */
 #define MDL_VERSION 6
 
 /* Texture coords */
@@ -183,7 +183,7 @@ typedef struct mdl_header_s
 } mdl_header_t;
 
 /* .MDL (Half-Life) triangle model file format */
-#define IDHLMDLHEADER (('T' << 24) + ('S' << 16) + ('D' << 8) + 'I')
+#define IDHLMDLHEADER (('T' << 24) + ('S' << 16) + ('D' << 8) + 'I') /* little-endian "IDST" */
 #define HLMDL_VERSION 10
 
 typedef struct hlmdl_header_s
@@ -330,7 +330,7 @@ typedef struct hlmdl_sequence_s
 
 /* .MD2 triangle model file format */
 
-#define IDALIASHEADER (('2' << 24) + ('P' << 16) + ('D' << 8) + 'I')
+#define IDALIASHEADER (('2' << 24) + ('P' << 16) + ('D' << 8) + 'I') /* little-endian "IDP2" */
 #define ALIAS_VERSION 8
 
 #define MAX_TRIANGLES 4096
@@ -405,7 +405,7 @@ typedef struct
 
 /* .MD2 Anachronox triangle model file format */
 
-#define MDAHEADER (('1' << 24) + ('A' << 16) + ('D' << 8) + 'M')
+#define MDAHEADER (('1' << 24) + ('A' << 16) + ('D' << 8) + 'M') /* little-endian "MDA1" */
 #define ALIAS_ANACHRONOX_VERSION_OLD 14
 #define ALIAS_ANACHRONOX_VERSION 15
 
@@ -447,7 +447,7 @@ typedef struct
 
 /* .FM triangle model file format */
 
-#define RAVENFMHEADER		(('d' << 24) + ('a' << 16) + ('e' << 8) + 'h')
+#define RAVENFMHEADER		(('d' << 24) + ('a' << 16) + ('e' << 8) + 'h') /* little-endian "head" */
 
 typedef struct fmheader_s
 {
@@ -465,7 +465,7 @@ typedef struct fmheader_s
 } fmheader_t;
 
 /* Daikatana dkm format */
-#define DKMHEADER			(('D' << 24) + ('M' << 16) + ('K' << 8) + 'D')
+#define DKMHEADER			(('D' << 24) + ('M' << 16) + ('K' << 8) + 'D') /* little-endian "DKMD" */
 
 #define DKM1_VERSION		1
 #define DKM2_VERSION		2
@@ -507,7 +507,7 @@ typedef struct dkm_header_s
 } dkm_header_t;
 
 /* Kingpin mdx format */
-#define MDXHEADER			 (('X' << 24) + ('P' << 16) + ('D' << 8) + 'I')
+#define MDXHEADER			 (('X' << 24) + ('P' << 16) + ('D' << 8) + 'I') /* little-endian "IDPX" */
 #define MDX_VERSION		4
 
 typedef struct mdx_header_s
@@ -542,7 +542,7 @@ typedef struct mdx_header_s
 } mdx_header_t;
 
 /* .MD3 mesh/anim files */
-#define ID3HEADER (('3' << 24) + ('P' << 16) + ('D' << 8) + 'I')
+#define ID3HEADER (('3' << 24) + ('P' << 16) + ('D' << 8) + 'I') /* little-endian "IDP3" */
 #define ID3_VERSION 15
 
 typedef struct md3_vertex_s
@@ -616,7 +616,7 @@ typedef struct md3_header_s
 } md3_header_t;
 
 /* .MD5 model file format */
-#define IDMD5HEADER (('V' << 24) + ('5' << 16) + ('D' << 8) + 'M')
+#define IDMD5HEADER (('V' << 24) + ('5' << 16) + ('D' << 8) + 'M') /* little-endian "MD5V" */
 
 /* Internal model render format */
 typedef struct
@@ -713,7 +713,7 @@ typedef struct
 } dmdx_t;
 
 /* .OBJ Wavefront model file format */
-#define IDOBJHEADER (('J' << 24) + ('B' << 16) + ('O' << 8) + '#')
+#define IDOBJHEADER (('J' << 24) + ('B' << 16) + ('O' << 8) + '#') /* little-endian "#OBJ" */
 
 /* .ATD sprite file format */
 
