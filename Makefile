@@ -711,6 +711,7 @@ $(BUILDDIR)/pakextract/%.o: %.c
 	${Q}$(CC) -c $(CFLAGS) $(ZIPCFLAGS) $(INCLUDE) -o $@ $<
 
 $(BINDIR)/pakextract.exe : CFLAGS += -DDEDICATED_ONLY
+$(BINDIR)/pakextract.exe : LDLIBS += -lz
 
 else # not Windows
 
@@ -727,6 +728,7 @@ $(BUILDDIR)/pakextract/%.o: %.c
 	${Q}$(CC) -c $(CFLAGS) $(ZIPCFLAGS) $(INCLUDE) -o $@ $<
 
 $(BINDIR)/pakextract : CFLAGS += -DDEDICATED_ONLY -Wno-unused-result
+$(BINDIR)/pakextract : LDLIBS += -lz
 
 ifeq ($(YQ2_OSTYPE), FreeBSD)
 $(BINDIR)/pakextract : LDLIBS += -lexecinfo

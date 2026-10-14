@@ -28,6 +28,7 @@
 #include <errno.h>
 #include <unistd.h> // chdir()
 #include <sys/stat.h> // mkdir()
+#include <zlib.h>
 #include "../common/header/common.h"
 
 /* Copy of backend functions */
@@ -114,6 +115,7 @@ enum {
 	PAK_MODE_SIN,
 	PAK_MODE_DK,
 	PAK_MODE_SIN_RELODED,
+	PAK_MODE_DAT,
 
 	_NUM_PAK_MODES
 };
@@ -125,6 +127,7 @@ static const char* PAK_MODE_NAMES[_NUM_PAK_MODES] = {
 	"Sin",          // PAK_MODE_SIN
 	"Daikatana",    // PAK_MODE_DK
 	"Sin Reloaded", // PAK_MODE_SIN_RELOADED
+	"DAT",          // PAK_MODE_DAT
 };
 
 static const int HDR_LEN[_NUM_PAK_MODES] = {
@@ -132,30 +135,33 @@ static const int HDR_LEN[_NUM_PAK_MODES] = {
 	sizeof(dsinfile_t),    // PAK_MODE_SIN
 	sizeof(dpackdkfile_t), // PAK_MODE_DK
 	sizeof(dsinrfile_t),    // PAK_MODE_SIN_RELOADED
+	sizeof(ddatfile_t),    // PAK_MODE_DAT
 };
 
 static const int DIR_FILENAME_LEN[_NUM_PAK_MODES] = {
-	56,  // PAK_MODE_Q2
-	120, // PAK_MODE_SIN
-	56,  // PAK_MODE_DK
+	sizeof(((dpackfile_t *)0)->name),  // PAK_MODE_Q2
+	sizeof(((dsinfile_t *)0)->name), // PAK_MODE_SIN
+	sizeof(((dpackdkfile_t *)0)->name),  // PAK_MODE_DK
 	0,   // PAK_MODE_SIN_RELOADED
+	sizeof(((ddatfile_t *)0)->name), // PAK_MODE_DAT
 };
 
 /* Holds the pak header */
 struct
 {
-	char signature[4];
+	int ident;
 	int dir_offset;
 	int dir_length;
 	int str_offset;
 	int str_length;
 } header;
 
+static char dat_prefix[128];
 
 /* A directory entry */
 typedef struct
 {
-	char file_name[120];
+	char file_name[256];
 	int file_pos;
 	int file_length; // in case of is_compressed: size after decompression
 
@@ -175,7 +181,7 @@ typedef struct
 static void
 mktree(const char *s)
 {
-	char dir[128] = {0};
+	char dir[256] = {0};
 	int i;
 	int sLen = strlen(s);
 
@@ -203,17 +209,82 @@ mktree(const char *s)
  *         the pack to be read.
  */
 static qboolean
-read_header(FILE *fd)
+read_header(FILE *fd, const char *filename)
 {
 	size_t direntry_len;
 
-	if (fread(header.signature, 4, 1, fd) != 1)
+	if (fread(&header.ident, sizeof(header.ident), 1, fd) != 1)
 	{
 		perror("Could not read the pak file header");
 		return false;
 	}
 
-	if (strncmp(header.signature, "SRPK", 4) == 0)
+	if (LittleLong(header.ident) == DATHEADER)
+	{
+		ddatheader_t dat_header;
+		const char *base = filename;
+		const char *separator;
+		const char *backslash;
+		size_t prefix_length;
+
+		pak_mode = PAK_MODE_DAT;
+		if (fseek(fd, 0, SEEK_SET) ||
+			fread(&dat_header, sizeof(dat_header), 1, fd) != 1)
+		{
+			perror("Could not read the DAT file header");
+			return false;
+		}
+
+		if (LittleLong(dat_header.ident) != DATHEADER ||
+			LittleLong(dat_header.version) != DATVERSION)
+		{
+			fprintf(stderr, "Not a supported DAT file\n");
+			return false;
+		}
+
+		header.dir_offset = LittleLong(dat_header.dirofs);
+		header.dir_length = LittleLong(dat_header.dirlen);
+
+		if (header.dir_offset < 0 || header.dir_length <= 0 ||
+			(header.dir_length % sizeof(ddatfile_t)) != 0)
+		{
+			fprintf(stderr, "Corrupt DAT file directory\n");
+			return false;
+		}
+
+		separator = strrchr(filename, '/');
+		backslash = strrchr(filename, '\\');
+
+		if (backslash != NULL &&
+			(separator == NULL || backslash > separator))
+		{
+			separator = backslash;
+		}
+
+		if (separator != NULL)
+		{
+			base = separator + 1;
+		}
+
+		prefix_length = strlen(base);
+		if (prefix_length >= 4 &&
+			Q_stricmp(base + prefix_length - 4, ".dat") == 0)
+		{
+			prefix_length -= 4;
+		}
+
+		if (prefix_length >= sizeof(dat_prefix))
+		{
+			prefix_length = sizeof(dat_prefix) - 1;
+		}
+
+		memcpy(dat_prefix, base, prefix_length);
+		dat_prefix[prefix_length] = '\0';
+		Q_strlwr(dat_prefix);
+		return true;
+	}
+
+	else if (LittleLong(header.ident) == SINRHEADER)
 	{
 		dsinrheader_t sinr_header;
 
@@ -254,11 +325,11 @@ read_header(FILE *fd)
 
 	// TODO: we could convert the ints to platform endianess now
 
-	if (strncmp(header.signature, "SPAK", 4) == 0)
+	if (LittleLong(header.ident) == SINHEADER)
 	{
 		pak_mode = PAK_MODE_SIN;
 	}
-	else if (strncmp(header.signature, "PACK", 4) != 0)
+	else if (LittleLong(header.ident) != IDPAKHEADER)
 	{
 		fprintf(stderr, "Not a pak file\n");
 		return false;
@@ -272,6 +343,7 @@ read_header(FILE *fd)
 		const char* curmode = PAK_MODE_NAMES[pak_mode];
 		const char* othermode = (pak_mode != PAK_MODE_DK) ? "Daikatana" : "Quake(2)";
 		fprintf(stderr, "Corrupt pak file - maybe it's not %s format but %s format?\n", curmode, othermode);
+
 		if (pak_mode != PAK_MODE_DK)
 		{
 			fprintf(stderr, "If this is a Daikatana .pak file, try adding '-dk' to command-line!\n");
@@ -290,7 +362,26 @@ read_header(FILE *fd)
 static qboolean
 read_dir_entry(directory* entry, FILE* fd)
 {
-	if (pak_mode == PAK_MODE_SIN_RELODED)
+	if (pak_mode == PAK_MODE_DAT)
+	{
+		ddatfile_t dat_entry;
+
+		if (fread(&dat_entry, sizeof(dat_entry), 1, fd) != 1)
+		{
+			return false;
+		}
+
+		snprintf(entry->file_name, sizeof(entry->file_name), "%s/%.*s",
+			dat_prefix, (int)sizeof(dat_entry.name), dat_entry.name);
+		Q_replacebackslash(entry->file_name);
+		entry->file_pos = LittleLong(dat_entry.filepos);
+		entry->file_length = LittleLong(dat_entry.filelen);
+		entry->compressed_length = LittleLong(dat_entry.compressed_size);
+		entry->is_compressed = entry->compressed_length > 0;
+		return true;
+	}
+
+	else if (pak_mode == PAK_MODE_SIN_RELODED)
 	{
 		dsinrfile_t in_entry = {0};
 
@@ -322,11 +413,17 @@ read_dir_entry(directory* entry, FILE* fd)
 	{
 		return false;
 	}
-
-	if (pak_mode == PAK_MODE_DK)
+	else if (pak_mode == PAK_MODE_DK)
 	{
-		if (fread(&(entry->compressed_length), 4, 1, fd) != 1) return 0;
-		if (fread(&(entry->is_compressed), 4, 1, fd) != 1) return 0;
+		if (fread(&(entry->compressed_length), 4, 1, fd) != 1)
+		{
+			return 0;
+		}
+
+		if (fread(&(entry->is_compressed), 4, 1, fd) != 1)
+		{
+			return 0;
+		}
 	}
 	else
 	{
@@ -451,8 +548,11 @@ read_directory(FILE *fd, int listOnly, int* num_entries)
 			cur->file_name[sizeof(cur->file_name) - 1] = 0;
 			printf("%s (%d bytes", cur->file_name, cur->file_length);
 
-			if ((pak_mode == PAK_MODE_DK) && cur->is_compressed)
+			if (((pak_mode == PAK_MODE_DK) || (pak_mode == PAK_MODE_DAT)) &&
+				cur->is_compressed)
+			{
 				printf(", %d compressed", cur->compressed_length);
+			}
 
 			printf(")\n");
 		}
@@ -468,7 +568,7 @@ extract_compressed(FILE* in, const directory *d)
 	byte *in_buf, *out_buf;
 	FILE *out;
 
-	if ((out = fopen(d->file_name, "w")) == NULL)
+	if ((out = fopen(d->file_name, "wb")) == NULL)
 	{
 		perror("Couldn't open outputfile");
 		return;
@@ -565,9 +665,74 @@ extract_compressed(FILE* in, const directory *d)
 }
 
 static void
+extract_dat_compressed(FILE *in, const directory *d)
+{
+	byte *in_buf;
+	byte *out_buf;
+	uLongf out_length;
+	FILE *out;
+	int status;
+
+	if (d->file_pos < 0 || d->compressed_length <= 0 || d->file_length < 0)
+	{
+		fprintf(stderr, "Invalid compressed DAT entry '%s'\n", d->file_name);
+		return;
+	}
+
+	out = fopen(d->file_name, "wb");
+	if (out == NULL)
+	{
+		perror("Couldn't open outputfile");
+		return;
+	}
+
+	in_buf = malloc(d->compressed_length);
+	out_buf = malloc(d->file_length ? d->file_length : 1);
+	if (in_buf == NULL || out_buf == NULL)
+	{
+		perror("Couldn't allocate memory");
+		free(in_buf);
+		free(out_buf);
+		fclose(out);
+		return;
+	}
+
+	if (fseek(in, d->file_pos, SEEK_SET) != 0 ||
+		fread(in_buf, d->compressed_length, 1, in) != 1)
+	{
+		perror("Failed to read compressed DAT entry");
+		free(in_buf);
+		free(out_buf);
+		fclose(out);
+		return;
+	}
+
+	out_length = d->file_length ? d->file_length : 1;
+	status = uncompress(out_buf, &out_length, in_buf, d->compressed_length);
+	if (status != Z_OK || out_length != (uLongf)d->file_length)
+	{
+		fprintf(stderr, "Couldn't decompress DAT entry '%s'\n", d->file_name);
+		free(in_buf);
+		free(out_buf);
+		fclose(out);
+		return;
+	}
+
+	if (d->file_length > 0 &&
+		fwrite(out_buf, d->file_length, 1, out) != 1)
+	{
+		perror("Failed to write decompressed DAT entry");
+	}
+
+	free(in_buf);
+	free(out_buf);
+	fclose(out);
+}
+
+static void
 extract_raw(FILE* in, const directory *d)
 {
-	FILE* out = fopen(d->file_name, "w");
+	FILE* out = fopen(d->file_name, "wb");
 	if (out == NULL)
 	{
 		perror("Could open the outputfile");
@@ -643,7 +808,11 @@ extract_files(FILE *fd, directory *dirs, int num_entries)
 		const directory* d = &dirs[i];
 	    mktree(d->file_name);
 
-		if (d->is_compressed)
+		if (d->is_compressed && pak_mode == PAK_MODE_DAT)
+		{
+			extract_dat_compressed(fd, d);
+		}
+		else if (d->is_compressed)
 		{
 			assert((pak_mode == PAK_MODE_DK) && "Only Daikatana paks contain compressed files!");
 			extract_compressed(fd, d);
@@ -659,11 +828,11 @@ static void
 printUsage(const char* argv0)
 {
 
-	fprintf(stderr, "Extractor for Quake/Quake2 (and compatible) and Daikatana .pak and Sin .sin files\n");
+	fprintf(stderr, "Extractor for Quake/Quake2, Daikatana, Sin, and DAT archives\n");
 
-	fprintf(stderr, "Usage: %s [-l] [-dk] [-o output dir] pakfile\n", argv0);
+	fprintf(stderr, "Usage: %s [-l] [-dk] [-o output dir] archive\n", argv0);
 	fprintf(stderr, "       -l     don't extract, just list contents\n");
-	fprintf(stderr, "       -dk    Daikatana pak format (Quake is default, Sin is detected automatically)\n");
+	fprintf(stderr, "       -dk    Daikatana pak format (Quake is default; Sin and DAT are detected automatically)\n");
 	fprintf(stderr, "       -o     directory to extract to\n");
 }
 
@@ -728,8 +897,8 @@ main(int argc, char *argv[])
 		exit(-1);
 	}
 
-	/* Open the pak file */
-	fd = fopen(filename, "r");
+	/* Open the archive */
+	fd = fopen(filename, "rb");
 	if (fd == NULL)
 	{
 		fprintf(stderr, "Could not open the pak file '%s': %s\n", filename, strerror(errno));
@@ -737,7 +906,7 @@ main(int argc, char *argv[])
 	}
 
 	/* Read the header */
-    if (!read_header(fd))
+    if (!read_header(fd, filename))
 	{
 		fclose(fd);
 		exit(-1);
