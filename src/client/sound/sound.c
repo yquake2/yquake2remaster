@@ -1624,7 +1624,7 @@ S_SoundInfo_f(void)
 #if USE_OPENAL
 	if (sound_started == SS_OAL)
 	{
-		QAL_SoundInfo();
+		QAL_SoundInfo(true);
 	}
 	else
 #endif

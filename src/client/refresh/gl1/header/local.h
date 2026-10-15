@@ -182,7 +182,7 @@ extern byte gammatable[256];
 extern byte minlight[256];
 
 qboolean R_Bind(int texnum);
-void R_Strings(void);
+void R_Strings(qboolean show_ext);
 void LM_UploadBlock(qboolean dynamic);
 void R_SetDefaultState(void);
 void R_ResetGLBuffer(void);
@@ -325,6 +325,7 @@ typedef struct
 	const char *version_string;
 	const char *extensions_string;
 
+	int num_extensions;
 	int major_version;
 	int minor_version;
 

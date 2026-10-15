@@ -2515,7 +2515,7 @@ IN_Haptic_Prepare(void)
 
 #ifndef NO_SDL_GYRO
 
-static void
+static inline void
 IN_Joy_IMU_Treatment(SDL_Joystick *joystick, const char* joystick_name, SDL_JoystickID joy_id)
 {
 	SDL_CloseJoystick(joystick);
@@ -2523,7 +2523,7 @@ IN_Joy_IMU_Treatment(SDL_Joystick *joystick, const char* joystick_name, SDL_Joys
 	Com_Printf ("Skipping IMU device.\n");
 }
 
-static void
+static inline void
 IN_Gyro_and_LED_Enabling(void)
 {
 	if (!controller) return;
@@ -2547,17 +2547,13 @@ IN_Gyro_and_LED_Enabling(void)
 	}
 	else
 	{
-		if (!found_gyro)
-		{
-			Com_Printf("Gyro sensor not found.\n");
-		}
+		Com_Printf("Sensors not found:");
+		if (!found_gyro)	Com_Printf(" Gyro");
+		if (!found_gyro && !found_accel)	Com_Printf(",");
+		if (!found_accel)	Com_Printf(" Accelerometer");
+		Com_Printf("\n");
 
-		if (!found_accel)
-		{
-			Com_Printf("Accelerometer sensor not found.\n");
-		}
-
-		// Both were required for gyro support, so disable them completely.
+		// Both are required for gyro support, so disable them completely.
 		SDL_SetGamepadSensorEnabled(controller, SDL_SENSOR_GYRO, false);
 		SDL_SetGamepadSensorEnabled(controller, SDL_SENSOR_ACCEL, false);
 	}
@@ -2570,7 +2566,7 @@ IN_Gyro_and_LED_Enabling(void)
 	}
 }
 
-static qboolean
+static inline qboolean
 IN_GameController_Verify_Init_Complete(void)
 {
 	return show_gamepad;
@@ -2578,7 +2574,7 @@ IN_GameController_Verify_Init_Complete(void)
 
 #else	// with NO_SDL_GYRO
 
-static void
+static inline void
 IN_Joy_IMU_Treatment(SDL_Joystick *joystick, const char* joystick_name, SDL_JoystickID joy_id)
 {
 	// If it's not a Left JoyCon, use it as Gyro
@@ -2607,13 +2603,13 @@ IN_Joy_IMU_Treatment(SDL_Joystick *joystick, const char* joystick_name, SDL_Joys
 	}
 }
 
-static void
+static inline void
 IN_Gyro_and_LED_Enabling(void)
 {
 	// Unavailable in this case
 }
 
-static qboolean
+static inline qboolean
 IN_GameController_Verify_Init_Complete(void)
 {
 	return (show_gamepad && show_gyro);
@@ -2695,7 +2691,7 @@ IN_Controller_Init(qboolean notify_user)
 			goto next_joy;
 		}
 
-		Com_Printf ("Buttons = %d, Axes = %d, Hats = %d\n", SDL_GetNumJoystickButtons(joystick),
+		Com_DPrintf ("Buttons = %d, Axes = %d, Hats = %d\n", SDL_GetNumJoystickButtons(joystick),
 				SDL_GetNumJoystickAxes(joystick), SDL_GetNumJoystickHats(joystick));
 		is_controller = SDL_IsGamepad(joysticks[i]);
 
@@ -2724,7 +2720,8 @@ IN_Controller_Init(qboolean notify_user)
 			}
 
 			show_gamepad = true;
-			Com_Printf("Enabled as Gamepad, settings:\n%s\n", SDL_GetGamepadMapping(controller));
+			Com_Printf("Enabled as Gamepad.\n");
+			Com_DPrintf("SDL mapping: %s\n", SDL_GetGamepadMapping(controller));
 			IN_Gyro_and_LED_Enabling();
 
 			joystick_haptic = SDL_OpenHapticFromJoystick(SDL_GetGamepadJoystick(controller));
@@ -2740,6 +2737,11 @@ IN_Controller_Init(qboolean notify_user)
 			else
 			{
 				Com_Printf("Gamepad doesn't support rumble.\n");
+			}
+
+			if (show_gyro && IsCalibrationZero())
+			{
+				Com_Printf("NOTE: Gyro calibration might be required!\n");
 			}
 		}
 
