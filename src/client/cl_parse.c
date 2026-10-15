@@ -911,21 +911,8 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 
 	if (flags & PS_WEAPONFRAME)
 	{
-		if (IS_QII97_PROTOCOL(protocol))
-		{
-			state->gunframe = MSG_ReadByte(&net_message);
-		}
-		else
-		{
-			state->gunframe = MSG_ReadShort(&net_message);
-		}
-
-		state->gunoffset[0] = MSG_ReadChar(&net_message) * 0.25f;
-		state->gunoffset[1] = MSG_ReadChar(&net_message) * 0.25f;
-		state->gunoffset[2] = MSG_ReadChar(&net_message) * 0.25f;
-		state->gunangles[0] = MSG_ReadChar(&net_message) * 0.25f;
-		state->gunangles[1] = MSG_ReadChar(&net_message) * 0.25f;
-		state->gunangles[2] = MSG_ReadChar(&net_message) * 0.25f;
+		MSG_ReadWeaponFrameAngles(&net_message, state->gunoffset,
+			state->gunangles, &state->gunframe, protocol);
 	}
 
 	if (flags & PS_BLEND)

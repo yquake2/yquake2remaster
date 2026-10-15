@@ -369,21 +369,8 @@ SV_WritePlayerstateToClient(client_frame_t *from, client_frame_t *to,
 
 	if (pflags & PS_WEAPONFRAME)
 	{
-		if (IS_QII97_PROTOCOL(protocol))
-		{
-			MSG_WriteByte(msg, ps->gunframe);
-		}
-		else
-		{
-			MSG_WriteShort(msg, ps->gunframe);
-		}
-
-		MSG_WriteChar(msg, ps->gunoffset[0] * 4);
-		MSG_WriteChar(msg, ps->gunoffset[1] * 4);
-		MSG_WriteChar(msg, ps->gunoffset[2] * 4);
-		MSG_WriteChar(msg, ps->gunangles[0] * 4);
-		MSG_WriteChar(msg, ps->gunangles[1] * 4);
-		MSG_WriteChar(msg, ps->gunangles[2] * 4);
+		MSG_WriteWeaponFrameAngles(msg, ps->gunoffset, ps->gunangles,
+			ps->gunframe, protocol);
 	}
 
 	if (pflags & PS_BLEND)

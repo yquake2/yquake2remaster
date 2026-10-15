@@ -817,6 +817,62 @@ MSG_WriteKickAngles(sizebuf_t *sb, const vec3_t kick_angles, int protocol)
 }
 
 void
+MSG_WriteWeaponFrameAngles(sizebuf_t *sb, const vec3_t gunoffset, const vec3_t gunangles,
+	int gunframe, int protocol)
+{
+	if (protocol == PROTOCOL_RR22_VERSION)
+	{
+		unsigned gunbits, i;
+
+		gunbits = (0x7f << 9) + gunframe;
+
+		MSG_WriteShort(sb, gunbits);
+
+		gunbits >>= 9;
+
+		for (i = 0; i < 3; i++)
+		{
+			if (gunbits & (1 << i))
+			{
+				MSG_WriteFloat(sb, gunoffset[i]);
+			}
+		}
+
+		for (i = 0; i < 3; i++)
+		{
+			if (gunbits & (1 << (i + 3)))
+			{
+				MSG_WriteFloat(sb, gunangles[i]);
+			}
+		}
+
+		if (gunbits & (1 << 6))
+		{
+			/* write gunrate, unsupported in classic protocol */
+			MSG_WriteByte(sb, 0);
+		}
+	}
+	else
+	{
+		if (IS_QII97_PROTOCOL(protocol))
+		{
+			MSG_WriteByte(sb, gunframe);
+		}
+		else
+		{
+			MSG_WriteShort(sb, gunframe);
+		}
+
+		MSG_WriteChar(sb, gunoffset[0] * 4);
+		MSG_WriteChar(sb, gunoffset[1] * 4);
+		MSG_WriteChar(sb, gunoffset[2] * 4);
+		MSG_WriteChar(sb, gunangles[0] * 4);
+		MSG_WriteChar(sb, gunangles[1] * 4);
+		MSG_WriteChar(sb, gunangles[2] * 4);
+	}
+}
+
+void
 MSG_WriteConfigString(sizebuf_t *buf, short index, const char *s)
 {
 	MSG_WriteShort(buf, index);
@@ -1593,6 +1649,66 @@ MSG_ReadKickAngles(sizebuf_t *msg_read, vec3_t kick_angles, int protocol)
 		kick_angles[0] = MSG_ReadChar(msg_read) * 0.25f;
 		kick_angles[1] = MSG_ReadChar(msg_read) * 0.25f;
 		kick_angles[2] = MSG_ReadChar(msg_read) * 0.25f;
+	}
+}
+
+void
+MSG_ReadWeaponFrameAngles(sizebuf_t *msg_read, vec3_t gunoffset, vec3_t gunangles,
+	int *gunframe, int protocol)
+{
+	if (protocol == PROTOCOL_RR22_VERSION)
+	{
+		unsigned gunbits, i;
+
+		gunbits = MSG_ReadShort(msg_read);
+
+		*gunframe = gunbits & 0x1ff;
+		gunbits >>= 9;
+
+		for (i = 0; i < 3; i++)
+		{
+			if (gunbits & (1 << i))
+			{
+				gunoffset[i] = MSG_ReadFloat(msg_read);
+			}
+		}
+
+		for (i = 0; i < 3; i++)
+		{
+			if (gunbits & (1 << (i + 3)))
+			{
+				gunangles[i] = MSG_ReadFloat(msg_read);
+			}
+		}
+
+		if (gunbits & (1 << 6))
+		{
+			/* read gunrate, unsupported in classic protocol */
+			MSG_ReadByte(msg_read);
+		}
+	}
+	else
+	{
+		unsigned i;
+
+		if (IS_QII97_PROTOCOL(protocol))
+		{
+			*gunframe = MSG_ReadByte(msg_read);
+		}
+		else
+		{
+			*gunframe = MSG_ReadShort(msg_read);
+		}
+
+		for (i = 0; i < 3; i++)
+		{
+			gunoffset[i] = MSG_ReadChar(msg_read) * 0.25f;
+		}
+
+		for (i = 0; i < 3; i++)
+		{
+			gunangles[i] = MSG_ReadChar(msg_read) * 0.25f;
+		}
 	}
 }
 
