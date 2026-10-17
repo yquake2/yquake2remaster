@@ -1903,6 +1903,147 @@ CL_ParseStartSoundPacket(void)
 			volume, attenuation, ofs);
 }
 
+static void
+CL_ParseLocPrint(void)
+{
+	int num_args, seq_arg = 0, flags, i, formatted_len;
+	char **args, *dest, *message, *formatted;
+	const char *format, *p, *end;
+
+	flags = MSG_ReadByte(&net_message);	/* flags */
+	message = strdup(MSG_ReadString(&net_message));
+	num_args = MSG_ReadByte(&net_message);
+
+	if (num_args < 0)
+	{
+		free(message);
+		Com_Error(ERR_DROP, "%s: Invalid localized print argument count %d\n",
+			__func__, num_args);
+		return;
+	}
+
+	args = calloc(num_args, sizeof(*args));
+	if (!args)
+	{
+		free(message);
+		Com_Error(ERR_DROP, "%s: can't allocate args\n", __func__);
+		return;
+	}
+
+	/* allocate little bit bigger if arg has used several times */
+	formatted_len = 128;
+
+	for (i = 0; i < num_args; i++)
+	{
+		args[i] = strdup(SV_LocalizationMessage(
+			MSG_ReadString(&net_message), NULL));
+		formatted_len += strlen(args[i]);
+	}
+
+	format = SV_LocalizationMessage(message, NULL);
+	formatted_len += strlen(format);
+	formatted = malloc(formatted_len + 1);
+	if (!formatted)
+	{
+		for (i = 0; i < num_args; i++)
+		{
+			free(args[i]);
+		}
+
+		free(args);
+		free(message);
+		Com_Error(ERR_DROP, "%s: can't alloc formated message\n", __func__);
+		return;
+	}
+
+	p = format;
+	dest = formatted;
+	end = formatted + formatted_len;
+
+	while (*p && dest < end)
+	{
+		if (*p == '{')
+		{
+			const char *brace_start = p;
+			p++;
+			if (*p == '}')
+			{
+				p++;
+				if (seq_arg < num_args)
+				{
+					const char *arg = args[seq_arg++];
+					while (*arg && dest < end)
+					{
+						*dest++ = *arg++;
+					}
+				}
+			}
+			else if (*p >= '0' && *p <= '9')
+			{
+				int index = 0;
+				while (*p >= '0' && *p <= '9')
+				{
+					index = index * 10 + (*p - '0');
+					p++;
+				}
+				if (*p == '}')
+				{
+					p++;
+					if (index >= 0 && index < num_args)
+					{
+						const char *arg = args[index];
+						while (*arg && dest < end)
+						{
+							*dest++ = *arg++;
+						}
+					}
+				}
+				else
+				{
+					const char *src = brace_start;
+					while (src < p && dest < end)
+					{
+						*dest++ = *src++;
+					}
+				}
+			}
+			else
+			{
+				const char *src = brace_start;
+				while (src <= p && dest < end)
+				{
+					*dest++ = *src++;
+				}
+			}
+		}
+		else
+		{
+			*dest++ = *p++;
+		}
+	}
+	*dest = '\0';
+
+	if (flags == PRINT_CHAT)
+	{
+		S_StartLocalSound("misc/talk.wav");
+		con.ormask = 128;
+	}
+
+	Com_Printf("%s", formatted);
+	con.ormask = 0;
+
+	/* clean message */
+	free(formatted);
+	free(message);
+
+	/* clean arguments */
+	for (i = 0; i < num_args; i++)
+	{
+		free(args[i]);
+	}
+	free(args);
+}
+
 void
 CL_ParseServerMessage(void)
 {
@@ -2001,6 +2142,10 @@ CL_ParseServerMessage(void)
 
 				Com_Printf("%s", MSG_ReadString(&net_message));
 				con.ormask = 0;
+				break;
+
+			case svc_locprint:
+				CL_ParseLocPrint();
 				break;
 
 			case svc_centerprint:
