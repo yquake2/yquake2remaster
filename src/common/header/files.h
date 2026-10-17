@@ -335,7 +335,7 @@ typedef struct hlmdl_sequence_s
 
 #define MAX_TRIANGLES 4096
 #define MAX_VERTS 2048
-#define MAX_FRAMES 512
+#define MAX_FRAMES 2048
 #define MAX_MD2SKINS 32
 #define MAX_SKINNAME 64
 

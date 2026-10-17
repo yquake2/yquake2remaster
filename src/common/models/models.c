@@ -179,15 +179,15 @@ Load the Anachronox md2 format frame
 */
 static void
 Mod_LoadFrames_MD2A(dmdx_t *pheader, byte *src, size_t inframesize,
-	vec3_t translate, int resolution, vec3_t scale)
+	vec3_t translate, int resolution, vec3_t lod_scale)
 {
 	int i;
 
 	for (i = 0; i < 3; i++)
 	{
-		if (!scale[i])
+		if (!lod_scale[i])
 		{
-			scale[i] = 1.0;
+			lod_scale[i] = 1.0;
 		}
 	}
 
@@ -205,8 +205,8 @@ Mod_LoadFrames_MD2A(dmdx_t *pheader, byte *src, size_t inframesize,
 		memcpy(poutframe->name, pinframe->name, sizeof(poutframe->name));
 		for (j = 0; j < 3; j++)
 		{
-			poutframe->scale[j] = LittleFloat(pinframe->scale[j]) / scale[j];
-			poutframe->translate[j] = LittleFloat(pinframe->translate[j]) / scale[j];
+			poutframe->scale[j] = LittleFloat(pinframe->scale[j]) / lod_scale[j];
+			poutframe->translate[j] = LittleFloat(pinframe->translate[j]) / lod_scale[j];
 			poutframe->translate[j] += translate[j];
 		}
 
@@ -2414,6 +2414,11 @@ static qboolean
 Mod_CTCValidRange(size_t file_size, int offset, size_t count,
 	size_t element_size)
 {
+	if (!count)
+	{
+		return true;
+	}
+
 	if (offset < 0 || (size_t)offset > file_size ||
 		(element_size && count > (size_t)-1 / element_size))
 	{
@@ -2503,14 +2508,14 @@ Mod_CTCKeyMatrix(const byte *src, float *matrix)
 		angles[i] = angles[i] * (float)(M_PI / 180.0);
 	}
 
-	sx = sinf(angles[0]);
-	cx = cosf(angles[0]);
-	sy = sinf(angles[1]);
-	cy = cosf(angles[1]);
+	sy = sinf(angles[0]);
+	cy = cosf(angles[0]);
+	sx = sinf(angles[1]);
+	cx = cosf(angles[1]);
 	sz = sinf(angles[2]);
 	cz = cosf(angles[2]);
 
-	/* CTC applies Euler angles in Y-X-Z order. */
+	/* CTC stores and applies its Euler angles in Y-X-Z order. */
 	matrix[0] = cy * cz + sy * sx * sz;
 	matrix[1] = -cy * sz + sy * sx * cz;
 	matrix[2] = sy * cx;
@@ -2569,13 +2574,14 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 	float *bone_poses = NULL;
 	float *bone_transforms = NULL;
 	byte *bone_ready = NULL;
+	qboolean has_root_key;
 	dstvert_t *st;
 	dtriangle_t *triangles;
 	dmdxmesh_t *mesh;
 	const byte *src = buffer;
 	void *extradata = NULL;
-	size_t file_size, frame_key_size, cursor, num_weights = 0;
-	int offsets[16];
+	size_t file_size, frame_key_size, frame_key_count, cursor, num_weights = 0;
+	size_t animation_frame_count = 0;
 	int i, corner;
 	qboolean frames_differ = false;
 
@@ -2603,38 +2609,13 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 		return NULL;
 	}
 
-	offsets[0] = input.ofs_skins;
-	offsets[1] = input.ofs_verts;
-	offsets[2] = input.ofs_output_verts;
-	offsets[3] = input.ofs_tri_xyzs;
-	offsets[4] = input.ofs_tri_texcoords;
-	offsets[5] = input.ofs_bones;
-	offsets[6] = input.ofs_skeletal_data;
-	offsets[7] = input.ofs_animations;
-	offsets[8] = input.ofs_frames;
-	offsets[9] = input.ofs_glcmds;
-	offsets[10] = input.ofs_morph_data;
-	offsets[11] = input.ofs_attachment_points;
-	offsets[12] = input.ofs_tri_list_sizes;
-	offsets[13] = input.ofs_unknown5;
-	offsets[14] = input.ofs_tris3;
-	offsets[15] = input.ofs_vert_colors;
-
-	for (i = 0; i < (int)(sizeof(offsets) / sizeof(offsets[0])); ++i)
-	{
-		if (offsets[i] < 0 || (size_t)offsets[i] > file_size)
-		{
-			Com_Printf("%s: %s has an out-of-file CTC section offset\n",
-				__func__, mod_name);
-			return NULL;
-		}
-	}
-
 	if (input.num_skins < 0 || input.num_xyz <= 0 ||
 		input.num_st <= 0 || input.num_tris <= 0 ||
 		input.num_glcmds < 0 || input.num_frames <= 0 ||
 		input.num_frames > MAX_FRAMES ||
-		input.num_animations < 0 || input.num_bones < 0 ||
+		input.num_animations < 0 ||
+		input.num_animations > input.num_frames ||
+		input.num_bones < 0 ||
 		input.num_morphs < 0 || input.num_attachment_points < 0 ||
 		input.num_tri_list_sizes < 0 || input.num_unknown5 < 0 ||
 		input.num_vert_colors < 0 ||
@@ -2647,8 +2628,6 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 			(size_t)input.num_skins, MAX_SKINNAME) ||
 		!Mod_CTCValidRange(file_size, input.ofs_verts,
 			(size_t)input.num_xyz, sizeof(dctc_vertex_t)) ||
-		!Mod_CTCValidRange(file_size, input.ofs_output_verts,
-			(size_t)input.num_xyz, sizeof(dctc_vertex_t)) ||
 		!Mod_CTCValidRange(file_size, input.ofs_tri_xyzs,
 			(size_t)input.num_tris, 3 * sizeof(short)) ||
 		!Mod_CTCValidRange(file_size, input.ofs_tri_texcoords,
@@ -2657,31 +2636,82 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 			(size_t)input.num_bones, 164) ||
 		!Mod_CTCValidRange(file_size, input.ofs_skeletal_data,
 			input.num_bones ? 1 : 0, 4) ||
-		!Mod_CTCValidRange(file_size, input.ofs_attachment_points,
-			(size_t)input.num_attachment_points, 12) ||
-		!Mod_CTCValidRange(file_size, input.ofs_tri_list_sizes,
-			(size_t)input.num_tri_list_sizes, sizeof(int)) ||
-		!Mod_CTCValidRange(file_size, input.ofs_unknown5,
-			(size_t)input.num_unknown5, 28) ||
-		!Mod_CTCValidRange(file_size, input.ofs_tris3,
-			(size_t)input.num_unknown5, 40) ||
-		!Mod_CTCValidRange(file_size, input.ofs_vert_colors,
-			(size_t)input.num_vert_colors, 4))
+		!Mod_CTCValidRange(file_size, input.ofs_animations,
+			(size_t)input.num_animations, 24))
 	{
 		Com_Printf("%s: %s has invalid CTC counts or section ranges\n",
 			__func__, mod_name);
 		return NULL;
 	}
 
-	frame_key_size = 6 * sizeof(float);
-	if ((size_t)input.num_bones >
-		((size_t)-1 - frame_key_size) / frame_key_size)
+	for (i = 0; i < input.num_animations; ++i)
+	{
+		const byte *animation = src + input.ofs_animations + (size_t)i * 24;
+		int first_frame = Mod_CTCReadInt(animation + 16);
+		int last_frame = Mod_CTCReadInt(animation + 20);
+		size_t animation_frames;
+
+		if (!memchr(animation, '\0', 16) || animation[0] == '\0' ||
+			first_frame < 0 || last_frame < first_frame ||
+			(size_t)(last_frame - first_frame) >=
+				(size_t)input.num_frames)
+		{
+			Com_Printf("%s: %s contains an invalid CTC animation range\n",
+				__func__, mod_name);
+			return NULL;
+		}
+
+		animation_frames = (size_t)(last_frame - first_frame) + 1;
+		if (animation_frames > (size_t)input.num_frames -
+			animation_frame_count)
+		{
+			Com_Printf("%s: %s CTC animation ranges exceed the frame count\n",
+				__func__, mod_name);
+			return NULL;
+		}
+		animation_frame_count += animation_frames;
+	}
+	if (input.num_animations &&
+		animation_frame_count != (size_t)input.num_frames)
+	{
+		Com_Printf("%s: %s CTC animation ranges do not cover all frames\n",
+			__func__, mod_name);
+		return NULL;
+	}
+
+	if (input.ofs_frames < 0 || input.ofs_morph_data < 0 ||
+		input.ofs_morph_data < input.ofs_frames ||
+		(size_t)input.ofs_morph_data > file_size)
+	{
+		Com_Printf("%s: %s has an invalid CTC frame section range\n",
+			__func__, mod_name);
+		return NULL;
+	}
+	frame_key_size = (size_t)(input.ofs_morph_data - input.ofs_frames) /
+		(size_t)input.num_frames;
+	if ((size_t)(input.ofs_morph_data - input.ofs_frames) %
+			(size_t)input.num_frames ||
+		frame_key_size % (6 * sizeof(float)))
 	{
 		Com_Printf("%s: %s has an invalid CTC frame size\n",
 			__func__, mod_name);
 		return NULL;
 	}
-	frame_key_size += (size_t)input.num_bones * 6 * sizeof(float);
+	frame_key_count = frame_key_size / (6 * sizeof(float));
+	if (frame_key_count == (size_t)input.num_bones + 1)
+	{
+		has_root_key = true;
+	}
+	else if (frame_key_count == (size_t)input.num_bones)
+	{
+		has_root_key = false;
+	}
+	else
+	{
+		Com_Printf("%s: %s has an invalid CTC frame key count\n",
+			__func__, mod_name);
+		return NULL;
+	}
 	if (!Mod_CTCValidRange(file_size, input.ofs_frames,
 		(size_t)input.num_frames, frame_key_size))
 	{
@@ -2774,15 +2804,22 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 				goto failed;
 			}
 			bones[i].parent = parent_plus_one - 1;
-			for (j = 0; j < 16; ++j)
+			for (j = 0; j < 4; ++j)
 			{
-				bones[i].base_transform[j] =
-					Mod_CTCReadFloat(bone + 100 + j * sizeof(float));
-				if (!isfinite(bones[i].base_transform[j]))
+				int column;
+
+				for (column = 0; column < 4; ++column)
 				{
-					Com_Printf("%s: %s contains a non-finite CTC bone transform\n",
-						__func__, mod_name);
-					goto failed;
+					float value = Mod_CTCReadFloat(bone +
+						100 + (column * 4 + j) * sizeof(float));
+
+					if (!isfinite(value))
+					{
+						Com_Printf("%s: %s contains a non-finite CTC bone transform\n",
+							__func__, mod_name);
+						goto failed;
+					}
+					bones[i].base_transform[j * 4 + column] = value;
 				}
 			}
 		}
@@ -2873,7 +2910,8 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 	dmdxheader.num_tris = input.num_tris;
 	dmdxheader.num_glcmds = input.num_tris * 10 + 1;
 	dmdxheader.num_frames = input.num_frames;
-	dmdxheader.num_animgroup = 1;
+	dmdxheader.num_animgroup = input.num_animations ?
+		input.num_animations : 1;
 
 	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
 	first_frame_vertices = calloc((size_t)input.num_xyz,
@@ -2895,11 +2933,22 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 		dmdx_vert_t *posed_vertices;
 		int j, axis, completed;
 
-		if (!Mod_CTCKeyMatrix(frame_data, root_transform.m))
+		if (has_root_key)
 		{
-			Com_Printf("%s: %s contains an invalid CTC frame key\n",
-				__func__, mod_name);
-			goto failed;
+			if (!Mod_CTCKeyMatrix(frame_data, root_transform.m))
+			{
+				Com_Printf("%s: %s contains an invalid CTC frame key\n",
+					__func__, mod_name);
+				goto failed;
+			}
+		}
+		else
+		{
+			memset(root_transform.m, 0, sizeof(root_transform.m));
+			root_transform.m[0] = 1.0f;
+			root_transform.m[5] = 1.0f;
+			root_transform.m[10] = 1.0f;
+			root_transform.m[15] = 1.0f;
 		}
 
 		if (input.num_bones)
@@ -2914,7 +2963,8 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 				{
 					ctc_matrix_t key_transform, pose_transform;
 					ctc_matrix_t skin_transform;
-					const byte *key = frame_data + (size_t)(j + 1) *
+					const byte *key = frame_data +
+						(size_t)(j + (has_root_key ? 1 : 0)) *
 						6 * sizeof(float);
 
 					if (bone_ready[j] ||
@@ -3034,8 +3084,14 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 					goto failed;
 				}
 			}
-			VectorCopy(position, posed_vertices[j].xyz);
-			VectorCopy(normal, posed_vertices[j].norm);
+
+			/* Convert posed CTC coordinates to the Anachronox model basis. */
+			posed_vertices[j].xyz[0] = -position[2];
+			posed_vertices[j].xyz[1] = position[0];
+			posed_vertices[j].xyz[2] = position[1];
+			posed_vertices[j].norm[0] = -normal[2];
+			posed_vertices[j].norm[1] = normal[0];
+			posed_vertices[j].norm[2] = normal[1];
 		}
 
 		if (i == 0)
@@ -3195,7 +3251,38 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 	mesh->ofs_glcmds = 0;
 	mesh->num_glcmds = pheader->num_glcmds;
 
-	Mod_LoadAnimGroupList(pheader, true);
+	if (input.num_animations)
+	{
+		dmdxframegroup_t *framegroups = (dmdxframegroup_t *)
+			((byte *)pheader + pheader->ofs_animgroup);
+		int frame_offset = 0;
+
+		for (i = 0; i < input.num_animations; ++i)
+		{
+			const byte *animation = src + input.ofs_animations +
+				(size_t)i * 24;
+			int first_frame = Mod_CTCReadInt(animation + 16);
+			int last_frame = Mod_CTCReadInt(animation + 20);
+			char name[17];
+
+			memcpy(name, animation, 16);
+			name[16] = '\0';
+			Q_strlcpy(framegroups[i].name, name,
+				sizeof(framegroups[i].name));
+			Q_strlwr(framegroups[i].name);
+			framegroups[i].ofs = frame_offset;
+			framegroups[i].num = last_frame - first_frame + 1;
+			frame_offset += framegroups[i].num;
+			Mod_UpdateMinMaxByFrames(pheader, framegroups[i].ofs,
+				framegroups[i].ofs + framegroups[i].num,
+				framegroups[i].mins, framegroups[i].maxs);
+		}
+	}
+	else
+	{
+		Mod_LoadAnimGroupList(pheader, true);
+	}
+
 	Mod_LoadCmdGenerate(pheader);
 	Mod_LoadFixImages(mod_name, pheader, false);
 	if (input.num_frames > 1 && !frames_differ)
@@ -3203,8 +3290,10 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 		Com_Printf("%s: %s has %d CTC frames but no differences between them\n",
 			__func__, mod_name, input.num_frames);
 	}
-	Com_DPrintf("%s: loaded %s as %d-frame CTC geometry (%d vertices, %d triangles)\n",
-		__func__, mod_name, input.num_frames, input.num_xyz, input.num_tris);
+	Com_DPrintf("%s: loaded %s as %d-frame CTC geometry "
+		"(%d animation groups, %d vertices, %d triangles)\n",
+		__func__, mod_name, input.num_frames, pheader->num_animgroup,
+		input.num_xyz, input.num_tris);
 	free(vertices);
 	free(first_frame_vertices);
 	free(bones);
@@ -3226,6 +3315,7 @@ failed:
 	free(bone_ready);
 	if (extradata)
 	{
+		Hunk_End();
 		Hunk_Free(extradata);
 	}
 	return NULL;
