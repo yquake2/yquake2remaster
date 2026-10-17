@@ -27,7 +27,7 @@
 #include "header/client.h"
 #include "input/header/input.h"
 
-static int bitcounts[32]; /* just for protocol profiling */
+static int bitcounts[64]; /* just for protocol profiling */
 
 static const char *svc_strings[] = {
 	"svc_bad",
@@ -95,10 +95,10 @@ CL_RegisterSounds(void)
  * Returns the entity number and the header bits
  */
 static unsigned
-CL_ParseEntityBits(unsigned *bits)
+CL_ParseEntityBits(uint64_t *bits)
 {
 	int i, b, number;
-	unsigned total;
+	uint64_t total;
 
 	b = MSG_ReadByte(&net_message);
 	if (b < 0)
@@ -107,7 +107,7 @@ CL_ParseEntityBits(unsigned *bits)
 		return 0;
 	}
 
-	total = (unsigned)b;
+	total = (uint64_t)b;
 
 	if (total & U_MOREBITS1)
 	{
@@ -118,7 +118,7 @@ CL_ParseEntityBits(unsigned *bits)
 			return 0;
 		}
 
-		total |= (unsigned)b << 8;
+		total |= (uint64_t)b << 8;
 	}
 
 	if (total & U_MOREBITS2)
@@ -130,7 +130,7 @@ CL_ParseEntityBits(unsigned *bits)
 			return 0;
 		}
 
-		total |= (unsigned)b << 16;
+		total |= (uint64_t)b << 16;
 	}
 
 	if (total & U_MOREBITS3)
@@ -142,13 +142,25 @@ CL_ParseEntityBits(unsigned *bits)
 			return 0;
 		}
 
-		total |= (unsigned)b << 24;
+		total |= (uint64_t)b << 24;
+	}
+
+	if (total & U_MOREBITS4)
+	{
+		b = MSG_ReadByte(&net_message);
+		if (b < 0)
+		{
+			Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+			return 0;
+		}
+
+		total |= (uint64_t)b << 32;
 	}
 
 	/* count the bits for net profiling */
-	for (i = 0; i < 32; i++)
+	for (i = 0; i < ARRLEN(bitcounts); i++)
 	{
-		if (total & (1u << i))
+		if (total & (1ULL << i))
 		{
 			bitcounts[i]++;
 		}
@@ -179,7 +191,7 @@ CL_ParseEntityBits(unsigned *bits)
  * Can go from either a baseline or a previous packet_entity
  */
 static void
-CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, int bits)
+CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, uint64_t bits)
 {
 	static const entity_xstate_t es_nullstate = {0};
 	entity_xstate_t dummy;
@@ -200,7 +212,8 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, int 
 	VectorCopy(from->origin, to->old_origin);
 	to->number = number;
 
-	if (cls.serverProtocol != PROTOCOL_VERSION)
+	if (cls.serverProtocol != PROTOCOL_VERSION &&
+		cls.serverProtocol != PROTOCOL_RR22_VERSION)
 	{
 		int i;
 
@@ -316,17 +329,6 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, int 
 	if ((bits & U_SKIN8) && (bits & U_SKIN16))
 	{
 		to->skinnum = MSG_ReadLong(&net_message);
-
-		/* Additional scale with skinnum */
-		if (cls.serverProtocol == PROTOCOL_VERSION)
-		{
-			int i;
-
-			for (i = 0; i < 3; i++)
-			{
-				to->scale[i] = MSG_ReadFloat(&net_message);
-			}
-		}
 	}
 	else if (bits & U_SKIN8)
 	{
@@ -507,6 +509,26 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, int 
 		}
 	}
 
+	if (bits & U_SCALE)
+	{
+		if (cls.serverProtocol == PROTOCOL_VERSION)
+		{
+			int i;
+
+			for (i = 0; i < 3; i++)
+			{
+				to->scale[i] = MSG_ReadFloat(&net_message);
+			}
+		}
+		else
+		{
+			float scale;
+
+			scale = MSG_ReadByte(&net_message) / 255.0f;
+			VectorSet(to->scale, scale, scale, scale);
+		}
+	}
+
 	if ((bits & U_SOLID) && (cls.serverProtocol != PROTOCOL_RR22_VERSION))
 	{
 		to->solid = MSG_ReadShort(&net_message);
@@ -624,7 +646,7 @@ CL_DeltaEntity(frame_t *frame, int newnum, const entity_xstate_t *old, int bits)
 static void
 CL_ParsePacketEntities(const frame_t *oldframe, frame_t *newframe)
 {
-	unsigned bits;
+	uint64_t bits;
 	centity_t *ent;
 	const entity_xstate_t *oldstate = NULL;
 	int oldindex, oldnum;
@@ -1329,7 +1351,7 @@ CL_ParseServerData(void)
 static void
 CL_ParseBaseline(void)
 {
-	unsigned bits;
+	uint64_t bits;
 	int newnum;
 	centity_t *ent;
 

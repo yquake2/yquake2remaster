@@ -200,13 +200,13 @@ MSG_ConfigString_Size(const char *s)
 	return strlen(s) + 4; /* string length + null char + message type + index */
 }
 
-static int
+static uint64_t
 DeltaEntityBits(const entity_xstate_t *from,
 		const entity_xstate_t *to,
 		qboolean newentity,
 		int protocol)
 {
-	int bits = 0;
+	uint64_t bits = 0;
 
 	if (to->number >= 256)
 	{
@@ -262,15 +262,16 @@ DeltaEntityBits(const entity_xstate_t *from,
 	}
 
 	/* Scale with skins if force or different */
-	if ((protocol == PROTOCOL_VERSION) &&
+	if ((protocol == PROTOCOL_VERSION || protocol == PROTOCOL_RR22_VERSION) &&
 		((to->scale[0] != from->scale[0]) ||
 		 (to->scale[1] != from->scale[1]) ||
 		 (to->scale[2] != from->scale[2])))
 	{
-		bits |= (U_SKIN8 | U_SKIN16);
+		bits |= U_SCALE;
 	}
 
-	if ((protocol == PROTOCOL_VERSION) && (to->rr_alpha != from->rr_alpha))
+	if ((protocol == PROTOCOL_VERSION || protocol == PROTOCOL_RR22_VERSION) &&
+		(to->rr_alpha != from->rr_alpha))
 	{
 		bits |= U_ALPHA;
 	}
@@ -370,7 +371,12 @@ DeltaEntityBits(const entity_xstate_t *from,
 		bits |= U_OLDORIGIN;
 	}
 
-	if (bits & 0xff000000)
+	if (bits & 0xff00000000)
+	{
+		bits |= U_MOREBITS4 | U_MOREBITS3 | U_MOREBITS2 | U_MOREBITS1;
+	}
+
+	else if (bits & 0xff000000)
 	{
 		bits |= U_MOREBITS3 | U_MOREBITS2 | U_MOREBITS1;
 	}
@@ -393,7 +399,7 @@ MSG_DeltaEntity_Size(const entity_xstate_t *from, const entity_xstate_t *to,
 	qboolean force, qboolean newentity, int protocol)
 {
 	size_t sz;
-	int bits;
+	uint64_t bits;
 
 	if (!from)
 	{
@@ -414,7 +420,11 @@ MSG_DeltaEntity_Size(const entity_xstate_t *from, const entity_xstate_t *to,
 
 	sz = 1;
 
-	if (bits & 0xff000000)
+	if (bits & 0xff00000000)
+	{
+		sz += 4;
+	}
+	else if (bits & 0xff000000)
 	{
 		sz += 3;
 	}
@@ -494,14 +504,6 @@ MSG_DeltaEntity_Size(const entity_xstate_t *from, const entity_xstate_t *to,
 	if ((bits & U_SKIN8) && (bits & U_SKIN16)) /*used for laser colors */
 	{
 		sz += 4;
-
-		if (!IS_QII97_PROTOCOL(protocol))
-		{
-			/* 3 float for scale */
-			sz += 12;
-			/* alpha */
-			sz += 4;
-		}
 	}
 	else if (bits & U_SKIN8)
 	{
@@ -600,6 +602,31 @@ MSG_DeltaEntity_Size(const entity_xstate_t *from, const entity_xstate_t *to,
 	if (bits & U_EVENT)
 	{
 		sz++;
+	}
+
+	if (bits & U_ALPHA)
+	{
+		if (protocol == PROTOCOL_VERSION)
+		{
+			sz += 4;
+		}
+		else
+		{
+			sz += 1;
+		}
+	}
+
+	if (bits & U_SCALE)
+	{
+		if (protocol == PROTOCOL_VERSION)
+		{
+			/* 3 float for scale */
+			sz += 12;
+		}
+		else
+		{
+			sz += 1;
+		}
 	}
 
 	if (bits & U_SOLID)
@@ -1037,7 +1064,7 @@ MSG_WriteDeltaEntity(const entity_xstate_t *from,
 		qboolean newentity,
 		int protocol)
 {
-	int bits;
+	uint64_t bits;
 
 	if (!from)
 	{
@@ -1065,20 +1092,28 @@ MSG_WriteDeltaEntity(const entity_xstate_t *from,
 
 	MSG_WriteByte(msg, bits & 255);
 
-	if (bits & 0xff000000)
+	if (bits & 0xff00000000) /* U_MOREBITS4 */
+	{
+		MSG_WriteByte(msg, (bits >> 8) & 255);
+		MSG_WriteByte(msg, (bits >> 16) & 255);
+		MSG_WriteByte(msg, (bits >> 24) & 255);
+		MSG_WriteByte(msg, (bits >> 32) & 255);
+	}
+
+	else if (bits & 0xff000000) /* U_MOREBITS3 */
 	{
 		MSG_WriteByte(msg, (bits >> 8) & 255);
 		MSG_WriteByte(msg, (bits >> 16) & 255);
 		MSG_WriteByte(msg, (bits >> 24) & 255);
 	}
 
-	else if (bits & 0x00ff0000)
+	else if (bits & 0x00ff0000) /* U_MOREBITS2 */
 	{
 		MSG_WriteByte(msg, (bits >> 8) & 255);
 		MSG_WriteByte(msg, (bits >> 16) & 255);
 	}
 
-	else if (bits & 0x0000ff00)
+	else if (bits & 0x0000ff00) /* U_MOREBITS1 */
 	{
 		MSG_WriteByte(msg, (bits >> 8) & 255);
 	}
@@ -1164,20 +1199,9 @@ MSG_WriteDeltaEntity(const entity_xstate_t *from,
 		MSG_WriteShort(msg, to->frame);
 	}
 
-	if ((bits & U_SKIN8) && (bits & U_SKIN16)) /*used for laser colors */
+	if ((bits & U_SKIN8) && (bits & U_SKIN16)) /* used for laser colors */
 	{
 		MSG_WriteLong(msg, to->skinnum);
-
-		/* Send scale */
-		if (protocol == PROTOCOL_VERSION)
-		{
-			int i;
-
-			for (i = 0; i < 3; i++)
-			{
-				MSG_WriteFloat(msg, to->scale[i]);
-			}
-		}
 	}
 
 	else if (bits & U_SKIN8)
@@ -1325,6 +1349,28 @@ MSG_WriteDeltaEntity(const entity_xstate_t *from,
 		else
 		{
 			MSG_WriteByte(msg, to->rr_alpha * 255.0f);
+		}
+	}
+
+	if (bits & U_SCALE)
+	{
+		/* Send scale */
+		if (protocol == PROTOCOL_VERSION)
+		{
+			int i;
+
+			for (i = 0; i < 3; i++)
+			{
+				MSG_WriteFloat(msg, to->scale[i]);
+			}
+		}
+		else
+		{
+			MSG_WriteByte(msg, (
+				to->scale[0] +
+				to->scale[1] +
+				to->scale[2]
+			) / 3 * 255.0f);
 		}
 	}
 
