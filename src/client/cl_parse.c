@@ -2030,6 +2030,42 @@ CL_ParseStartSoundPacket(void)
 }
 
 static void
+CL_ParseDamage(void)
+{
+	int count, i;
+
+	count = MSG_ReadByte(&net_message);
+	if (count < 0)
+	{
+		Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+		return;
+	}
+
+	for (i = 0; i < count; i++)
+	{
+		vec3_t direction;
+		int damage_type;
+
+		damage_type = MSG_ReadByte(&net_message);
+		if (damage_type < 0)
+		{
+			Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+			return;
+		}
+
+		MSG_ReadDir(&net_message, direction);
+
+		Com_DPrintf("%s: %d: damage %d, health %d, armor %d, shield %d from %.2fx%.2fx%.2f\n",
+			__func__, i,
+			(damage_type & 0x1f) * 3,
+			(damage_type & 0x20) >> 5,
+			(damage_type & 0x40) >> 6,
+			(damage_type & 0x80) >> 7,
+			direction[0], direction[1], direction[2]);
+	}
+}
+
+static void
 CL_ParseLocPrint(void)
 {
 	int num_args, seq_arg = 0, flags, i, formatted_len;
@@ -2233,6 +2269,12 @@ CL_ParseServerMessage(void)
 			case svc_nop:
 				break;
 
+			case svc_splitclient:
+				/* next message for such split screen*/
+				Com_DPrintf("%s: package for split screen %d\n",
+					__func__, MSG_ReadByte(&net_message));
+				break;
+
 			case svc_disconnect:
 				Com_Error(ERR_DISCONNECT, "Server disconnected\n");
 				return;
@@ -2295,6 +2337,10 @@ CL_ParseServerMessage(void)
 
 			case svc_sound:
 				CL_ParseStartSoundPacket();
+				break;
+
+			case svc_damage:
+				CL_ParseDamage();
 				break;
 
 			case svc_spawnbaseline:
