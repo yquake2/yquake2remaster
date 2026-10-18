@@ -204,9 +204,7 @@ Checked with:
 * [ ] ReRelease: support `tactile/*/*.bnvib/.wav` feedback load,
 * [ ] ReRelease: console `~` incorrectly show multibyte characters,
 * [ ] ReRelease: basicsjam1_detrohogga: fix droptofloor startsolid,
-* [ ] ReRelease: select start level through `mapddb.json`,
 * [ ] ReRelease: mgu5m2: glitch at `-773 -911 190`,
-* [ ] renders: optimize count of threads,
 * [ ] vk: cleanup `PUSH_CONSTANT_*`,
 * [ ] gl1, gl3, gl4, vk, soft: implement direction of `CS_SHADOWLIGHTS`,
 * [ ] gl3, gl4: implement color multiplication and alpha gradient for `misc_flare`,
@@ -224,8 +222,6 @@ Checked with:
 * [ ] ReRelease: Add support of `trigger_health_relay`,
 * [ ] ReRelease: single player support,
 * [ ] ReRelease: support effects and additional flags when possible,
-* [ ] ReRelease: implement demo protocol based on https://github.com/res2k/q2proto
-      and https://github.com/Paril/quake2-rerelease-dll,
 * [ ] ReRelease: modified game code support with removed KEX only related code.
 
 ### Other games support goals:
@@ -264,7 +260,13 @@ Checked with:
 * [ ] game: share `ired_enforce_limit`, `mine_enforce_limit`, `detpack_enforce_limit`,
 * [ ] Dynamic count of entities on client.
 
+### Next release:
+* [ ] ReRelease: implement demo protocol based on https://github.com/res2k/q2proto
+      and https://github.com/Paril/quake2-rerelease-dll,
+* [ ] ReRelease: select start level through `mapddb.json`
+
 ### Fixed:
+* [x] renders: optimize count of threads,
 * [x] Infinity: Add support of `item_radar`,
 * [x] vulkan: rearange surfaces before render,
 * [x] vulkan: add fog distance effect,
@@ -273,7 +275,8 @@ Checked with:
 
 ### Not a goal:
 
-* [ ] Multiplayer protocol support with KEX engine,
+* [ ] Multiplayer protocol support with KEX engine based on https://github.com/res2k/q2proto
+      and https://github.com/Paril/quake2-rerelease-dll,
 * [ ] Support KEX engine features (inventory, compass and so on),
 * [ ] [KEX game library support](https://github.com/id-Software/quake2-rerelease-dll).
 

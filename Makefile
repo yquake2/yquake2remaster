@@ -485,12 +485,12 @@ endif
 # ----------
 
 # Phony targets
-.PHONY : all client game icon server ref_gl1 ref_gl3 ref_gles1 ref_gles3 ref_soft ref_vk ref_gl4 xatrix rogue ctf pakextract viewer
+.PHONY : all client game icon server ref_gl1 ref_gl3 ref_gles1 ref_gles3 ref_soft ref_vk ref_gl4 xatrix rogue ctf pakextract viewer assets
 
 # ----------
 
 # Builds everything but the GLES1 renderer
-all: config client server game ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4 xatrix rogue ctf pakextract viewer
+all: config client server game ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4 xatrix rogue ctf pakextract viewer assets
 
 # ----------
 
@@ -1088,6 +1088,18 @@ $(BUILDDIR)/ref_vk/%.o: %.c
 	fi
 	${Q}mkdir -p $(@D)
 	${Q}$(CC) -c $(CFLAGS) $(SDLCFLAGS) $(INCLUDE) -o $@ $<
+
+# ----------
+
+# The game assets
+assets:
+	@echo "===> Add required assets"
+	${Q}mkdir -p $(BINDIR)/baseq2
+	$(MAKE) $(BINDIR)/baseq2/models/entity.dat
+
+$(BINDIR)/baseq2/models/entity.dat: stuff/models/entity.dat
+	${Q}mkdir -p $(BINDIR)/baseq2/models
+	cp stuff/models/entity.dat $(BINDIR)/baseq2/models/entity.dat
 
 # ----------
 
