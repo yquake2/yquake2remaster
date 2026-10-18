@@ -596,7 +596,18 @@ MSG_DeltaEntity_Size(const entity_xstate_t *from, const entity_xstate_t *to,
 
 	if (bits & U_SOUND)
 	{
-		sz++;
+		if (protocol == PROTOCOL_RR22_VERSION)
+		{
+			sz += 4;
+		}
+		else if (protocol == PROTOCOL_VERSION)
+		{
+			sz += 2;
+		}
+		else
+		{
+			sz++;
+		}
 	}
 
 	if (bits & U_EVENT)
@@ -627,6 +638,21 @@ MSG_DeltaEntity_Size(const entity_xstate_t *from, const entity_xstate_t *to,
 		{
 			sz += 1;
 		}
+	}
+
+	if (bits & U_INSTANCE)
+	{
+		sz += 1;
+	}
+
+	if (bits & U_OWNER)
+	{
+		sz += 2;
+	}
+
+	if (bits & U_OLDFRAME)
+	{
+		sz += 2;
 	}
 
 	if (bits & U_SOLID)
@@ -1332,7 +1358,14 @@ MSG_WriteDeltaEntity(const entity_xstate_t *from,
 
 	if (bits & U_SOUND)
 	{
-		MSG_WriteByte(msg, to->sound);
+		if (protocol == PROTOCOL_VERSION || protocol == PROTOCOL_RR22_VERSION)
+		{
+			MSG_WriteShort(msg, to->sound);
+		}
+		else
+		{
+			MSG_WriteByte(msg, to->sound);
+		}
 	}
 
 	if (bits & U_EVENT)

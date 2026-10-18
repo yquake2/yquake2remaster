@@ -332,6 +332,9 @@ enum clc_ops_e
 #define PS_WEAPONINDEX (1 << 12)
 #define PS_WEAPONFRAME (1 << 13)
 #define PS_RDFLAGS (1 << 14)
+#define PS_MOREBITS (1 << 15)
+#define PS_DAMAGE_BLEND (1 << 16)
+#define PS_TEAM_ID (1 << 17)
 
 /*============================================== */
 
@@ -351,13 +354,18 @@ enum clc_ops_e
 
 /* a sound without an ent or pos will be a local only sound */
 #define SND_VOLUME (1 << 0)         /* a byte */
-#define SND_ATTENUATION (1 << 1)      /* a byte */
+#define SND_ATTENUATION (1 << 1)    /* a byte */
 #define SND_POS (1 << 2)            /* three coordinates */
 #define SND_ENT (1 << 3)            /* a short 0-2: channel, 3-12: entity */
 #define SND_OFFSET (1 << 4)         /* a byte, msec offset from frame start */
+#define SND_LARGE_ENT (1 << 6)      /* 32-bit entity/channel field */
 
 #define DEFAULT_SOUND_PACKET_VOLUME 1.0
 #define DEFAULT_SOUND_PACKET_ATTENUATION 1.0
+
+/* Additional flags */
+#define SOUND_RR22_ATTENUATION (1 << 14)
+#define SOUND_RR22_VOLUME (1 << 15)
 
 /*============================================== */
 
@@ -398,10 +406,10 @@ enum clc_ops_e
 #define U_SOUND (1 << 26)
 #define U_SOLID (1 << 27)
 /* Quake 2 ReRelease */
-#define U_MODEL16 (1 << 28)
-#define U_EFFECTS64 (1 << 29)
-#define U_ALPHA (1 << 30)
-#define U_MOREBITS4 (1 << 31)     /* read one additional byte */
+#define U_MODEL16 (1LL << 28)
+#define U_EFFECTS64 (1LL << 29)
+#define U_ALPHA (1LL << 30)
+#define U_MOREBITS4 (1LL << 31)     /* read one additional byte */
 
 /* fifth byte */
 #define U_SCALE (1LL << 32)

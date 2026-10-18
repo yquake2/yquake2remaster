@@ -485,7 +485,38 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, uint
 
 	if (bits & U_SOUND)
 	{
-		to->sound = MSG_ReadByte(&net_message);
+		if (cls.serverProtocol == PROTOCOL_RR22_VERSION)
+		{
+			int sound_word = MSG_ReadShort(&net_message);
+
+			to->sound = sound_word & 0x3fff;
+
+			if (sound_word & SOUND_RR22_ATTENUATION)
+			{
+				int attenuation;
+
+				attenuation = MSG_ReadByte(&net_message);
+				Com_DPrintf("%s: ReRelease attenuation %d",
+					__func__, attenuation);
+			}
+
+			if (sound_word & SOUND_RR22_VOLUME)
+			{
+				int volume;
+
+				volume = MSG_ReadByte(&net_message);
+				Com_DPrintf("%s: ReRelease volume %d",
+					__func__, volume);
+			}
+		}
+		else if (IS_QII97_PROTOCOL(cls.serverProtocol))
+		{
+			to->sound = MSG_ReadByte(&net_message);
+		}
+		else
+		{
+			to->sound = MSG_ReadShort(&net_message);
+		}
 	}
 
 	if (bits & U_EVENT)
@@ -527,6 +558,30 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, uint
 			scale = MSG_ReadByte(&net_message) / 255.0f;
 			VectorSet(to->scale, scale, scale, scale);
 		}
+	}
+
+	if (bits & U_INSTANCE)
+	{
+		int instance;
+
+		instance = MSG_ReadByte(&net_message);
+		Com_DPrintf("%s: ReRelease instance %d", __func__, instance);
+	}
+
+	if (bits & U_OWNER)
+	{
+		int owner;
+
+		owner = MSG_ReadShort(&net_message);
+		Com_DPrintf("%s: ReRelease owner %d", __func__, owner);
+	}
+
+	if (bits & U_OLDFRAME)
+	{
+		int oldframe;
+
+		oldframe = MSG_ReadShort(&net_message);
+		Com_DPrintf("%s: ReRelease oldframe %d", __func__, oldframe);
 	}
 
 	if ((bits & U_SOLID) && (cls.serverProtocol != PROTOCOL_RR22_VERSION))
@@ -573,7 +628,7 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, uint
  * the current frame
  */
 static void
-CL_DeltaEntity(frame_t *frame, int newnum, const entity_xstate_t *old, int bits)
+CL_DeltaEntity(frame_t *frame, int newnum, const entity_xstate_t *old, uint64_t bits)
 {
 	centity_t dummy, *ent;
 	entity_xstate_t *state;
@@ -646,7 +701,6 @@ CL_DeltaEntity(frame_t *frame, int newnum, const entity_xstate_t *old, int bits)
 static void
 CL_ParsePacketEntities(const frame_t *oldframe, frame_t *newframe)
 {
-	uint64_t bits;
 	centity_t *ent;
 	const entity_xstate_t *oldstate = NULL;
 	int oldindex, oldnum;
@@ -680,6 +734,7 @@ CL_ParsePacketEntities(const frame_t *oldframe, frame_t *newframe)
 	while (1)
 	{
 		unsigned int newnum;
+		uint64_t bits;
 
 		newnum = CL_ParseEntityBits(&bits);
 
@@ -836,8 +891,9 @@ CL_ParsePacketEntities(const frame_t *oldframe, frame_t *newframe)
 static void
 CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 {
-	int flags, group, stats_size;
+	unsigned flags, group, stats_size;
 	player_state_t *state;
+	int flag_short;
 
 	state = &newframe->playerstate;
 
@@ -854,7 +910,23 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 		memset(newframe->origin, 0, sizeof(newframe->origin));
 	}
 
-	flags = MSG_ReadShort(&net_message);
+	flag_short = MSG_ReadShort(&net_message);
+	if (flag_short == -1)
+	{
+		Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+	}
+
+	flags = (unsigned short)flag_short;
+	if (flags & PS_MOREBITS)
+	{
+		flag_short = MSG_ReadShort(&net_message);
+		if (flag_short == -1)
+		{
+			Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+		}
+
+		flags |= (unsigned short)flag_short << 16;
+	}
 
 	/* parse the pmove_state_t */
 	if (flags & PS_M_TYPE)
@@ -874,12 +946,31 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 
 	if (flags & PS_M_TIME)
 	{
-		state->pmove.pm_time = MSG_ReadByte(&net_message);
+		if (protocol == PROTOCOL_RR22_VERSION)
+		{
+			int pm_time;
+
+			/* KEX sends milliseconds, pmove_state_t uses 8 ms units */
+			pm_time = MSG_ReadShort(&net_message) / 8;
+			state->pmove.pm_time = pm_time > 255 ? 255 : pm_time;
+		}
+		else
+		{
+			state->pmove.pm_time = MSG_ReadByte(&net_message);
+		}
 	}
 
 	if (flags & PS_M_FLAGS)
 	{
-		state->pmove.pm_flags = MSG_ReadByte(&net_message);
+		if (protocol == PROTOCOL_RR22_VERSION)
+		{
+			/* KEX flags above PMF_NO_PREDICTION have no vanilla equivalent */
+			state->pmove.pm_flags = MSG_ReadShort(&net_message) & 0x7f;
+		}
+		else
+		{
+			state->pmove.pm_flags = MSG_ReadByte(&net_message);
+		}
 	}
 
 	if (flags & PS_M_GRAVITY)
@@ -963,7 +1054,14 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 	}
 	else
 	{
-		stats_size = MSG_ReadByte(&net_message);
+		int b;
+
+		b = MSG_ReadByte(&net_message);
+		if (b < 0)
+		{
+			Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+		}
+		stats_size = b;
 	}
 
 	/* Read stats bits */
@@ -994,6 +1092,29 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 				}
 			}
 		}
+	}
+
+	if (flags & PS_DAMAGE_BLEND)
+	{
+		byte color[4];
+		int i;
+
+		/* damage blend color */
+		for (i = 0; i < 4; i++)
+		{
+			color[i] = MSG_ReadByte(&net_message);
+		}
+
+		Com_DPrintf("%s: damage blend color 0x%2x%2x%2x%2x\n",
+			__func__, color[0], color[1], color[2], color[3]);
+	}
+
+	if (flags & PS_TEAM_ID)
+	{
+		int team_id;
+
+		team_id = MSG_ReadByte(&net_message);
+		Com_DPrintf("%s: team id %d\n", __func__, team_id);
 	}
 }
 
@@ -1855,8 +1976,15 @@ CL_ParseStartSoundPacket(void)
 
 	if (flags & SND_ENT)
 	{
-		/* entity reletive */
-		channel = MSG_ReadShort(&net_message);
+		/* entity relative */
+		if (flags & SND_LARGE_ENT)
+		{
+			channel = MSG_ReadLong(&net_message);
+		}
+		else
+		{
+			channel = MSG_ReadShort(&net_message);
+		}
 		ent = channel >> 3;
 
 		if (ent < 0)
