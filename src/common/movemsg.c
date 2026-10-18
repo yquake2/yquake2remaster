@@ -736,6 +736,7 @@ void
 MSG_WriteCoord(sizebuf_t *sb, float f, int protocol)
 {
 	if (IS_QII97_PROTOCOL(protocol) ||
+		(protocol == PROTOCOL_H2DEMO_VERSION) ||
 		(protocol == PROTOCOL_RR22_VERSION))
 	{
 		MSG_WriteShort(sb, (int)(f * 8));
@@ -1670,8 +1671,8 @@ float
 MSG_ReadCoord(sizebuf_t *msg_read, int protocol)
 {
 	if (IS_QII97_PROTOCOL(protocol) ||
-		(protocol == PROTOCOL_Q2TEST_VERSION) ||
 		(protocol == PROTOCOL_H2DEMO_VERSION) ||
+		(protocol == PROTOCOL_Q2TEST_VERSION) ||
 		(protocol == PROTOCOL_RR22_VERSION))
 	{
 		return MSG_ReadShort(msg_read) * (0.125f);
