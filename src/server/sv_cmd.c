@@ -557,6 +557,7 @@ SV_ServerRecord_f(void)
 	char name[MAX_OSPATH];
 	byte buf_data[32768];
 	sizebuf_t buf;
+	int protocol;
 	int len;
 	int i;
 
@@ -608,8 +609,9 @@ SV_ServerRecord_f(void)
 
 	/* serverdata needs to go over for all types of servers
 	   to make sure the protocol is right, and to set the gamedir */
+	protocol = SV_GetRecomendedProtocol();
 	MSG_WriteByte(&buf, svc_serverdata);
-	MSG_WriteLong(&buf, SV_GetRecomendedProtocol());
+	MSG_WriteLong(&buf, protocol);
 	MSG_WriteLong(&buf, svs.spawncount);
 
 	/* 2 means server demo */
@@ -628,7 +630,7 @@ SV_ServerRecord_f(void)
 
 			/* i in native server range */
 			MSG_WriteConfigString(&buf,
-				P_ConvertConfigStringTo(i, sv_client->protocol),
+				P_ConvertConfigStringTo(i, protocol),
 				sv.configstrings[i]);
 
 			if (buf.cursize + 67 >= buf.maxsize)
