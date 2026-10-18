@@ -1424,8 +1424,7 @@ CL_ParseServerData(void)
 
 	if ((cl_shownet->value == 0) &&
 		((i == PROTOCOL_H2DEMO_VERSION) ||
-		 (i == PROTOCOL_Q2TEST_VERSION) ||
-		 (i == PROTOCOL_RR22_VERSION)))
+		 (i == PROTOCOL_Q2TEST_VERSION)))
 	{
 		Com_Error(ERR_DROP, "Network protocol '%s' is currently unsupported\n",
 			CL_GetProtocolName(i));

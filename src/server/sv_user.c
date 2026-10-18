@@ -34,6 +34,38 @@
 edict_t *sv_player;
 
 static void
+SV_UpdateDemoFPS(void)
+{
+	fileHandle_t demofile;
+	char name[MAX_OSPATH];
+	byte msgbuf[32];
+
+	Com_sprintf(name, sizeof(name), "demos/%s", sv.name);
+	FS_FOpenFile(name, &demofile, false);
+	if (!demofile)
+	{
+		/* cant open */
+		return;
+	}
+
+	/* Reset to default 10 fps */
+	sv.frame_msec = 100;
+
+	if (FS_FRead(msgbuf, sizeof(msgbuf), 1, demofile) == sizeof(msgbuf))
+	{
+		if ((LittleLong(*((int*)msgbuf)) > 14) && /* message size */
+			(msgbuf[4] == svc_serverdata) && /* server data command */
+			(LittleLong(*((int*)(msgbuf + 5))) == PROTOCOL_RR22_VERSION) && /* only RR22 demo */
+			msgbuf[14] > 0)
+		{
+			sv.frame_msec = 1000 / msgbuf[14];
+		}
+	}
+
+	FS_FCloseFile(demofile);
+}
+
+static void
 SV_BeginDemoserver(void)
 {
 	char name[MAX_OSPATH];
@@ -45,6 +77,8 @@ SV_BeginDemoserver(void)
 	{
 		Com_Error(ERR_DROP, "Couldn't open %s\n", name);
 	}
+
+	SV_UpdateDemoFPS();
 }
 
 int
@@ -91,12 +125,19 @@ SV_New_f(void)
 	   to make sure the protocol is right, and to set the gamedir */
 	gamedir = (char *)Cvar_VariableString("gamedir");
 
+	/* use 10 fps by default */
+	sv.frame_msec = 100;
+
 	/* send the serverdata */
 	sv_client->protocol = SV_GetRecomendedProtocol();
 	MSG_WriteByte(&sv_client->netchan.message, svc_serverdata);
 	MSG_WriteLong(&sv_client->netchan.message, sv_client->protocol);
 	MSG_WriteLong(&sv_client->netchan.message, svs.spawncount);
 	MSG_WriteByte(&sv_client->netchan.message, sv.attractloop);
+	if (sv_client->protocol == PROTOCOL_RR22_VERSION)
+	{
+		MSG_WriteByte(&sv_client->netchan.message, 1000 / sv.frame_msec);
+	}
 	MSG_WriteString(&sv_client->netchan.message, gamedir);
 
 	if ((sv.state == ss_cinematic) || (sv.state == ss_pic))
