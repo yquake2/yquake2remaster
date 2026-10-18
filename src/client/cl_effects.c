@@ -3077,14 +3077,15 @@ void
 CL_WidowSplash(const vec3_t org)
 {
 	int i;
-	cparticle_t *p;
-	vec3_t dir;
 	float time;
 
 	time = (float)cl.time;
 
 	for (i = 0; i < 256; i++)
 	{
+		cparticle_t *p;
+		vec3_t dir;
+
 		p = CL_AllocParticle();
 		if (!p)
 		{
@@ -3104,6 +3105,70 @@ CL_WidowSplash(const vec3_t org)
 		p->alpha = 1.0;
 
 		p->alphavel = -0.8f / (0.5f + frandk() * 0.3f);
+	}
+}
+
+void
+CL_PowerSplash(void)
+{
+	static const unsigned colortable[4] = {
+		0xff00ff00,
+		0xff0fe723,
+		0xff1bd33f,
+		0xff27bb53
+	};
+	int entnum, type, i;
+	centity_t *ent;
+
+	entnum = MSG_ReadShort(&net_message);
+	type = MSG_ReadByte(&net_message);
+
+	if ((entnum < 1) || (entnum > MAX_CL_ENTNUM))
+	{
+		Com_Error(ERR_DROP, "%s: bad entity %d > %d\n",
+			__func__, entnum, MAX_CL_ENTNUM);
+		return;
+	}
+
+	ent = CL_AllocEntity(entnum);
+	if (!ent)
+	{
+		return;
+	}
+
+	for (i = 0; i < 256; i++)
+	{
+		cparticle_t *p;
+		vec3_t dir;
+
+		p = CL_AllocParticle();
+		if (!p)
+		{
+			return;
+		}
+
+		p->time = cl.time;
+		if (type)
+		{
+			p->color = colortable[randk() & 3];
+		}
+		else
+		{
+			p->color = default_colortable[randk() & 3];
+		}
+
+		dir[0] = crandk();
+		dir[1] = crandk();
+		dir[2] = crandk();
+		VectorNormalize(dir);
+		/* 20 radius of effect, should be model size */
+		VectorMA(ent->current.origin, 20, dir, p->org);
+		VectorScale(dir, 40.0f, p->vel);
+
+		VectorClear(p->accel);
+		p->alpha = 1.0f;
+
+		p->alphavel = -1.0f / (0.5f + frandk() * 0.3f);
 	}
 }
 

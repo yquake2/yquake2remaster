@@ -1023,6 +1023,7 @@ CL_ParseTEnt(void)
 			break;
 
 		case TE_BFG_LASER:
+		case TE_BFG_ZAP:
 			CL_ParseLaser(0xd0d1d2d3);
 			break;
 
@@ -1046,6 +1047,15 @@ CL_ParseTEnt(void)
 
 		case TE_GRAPPLE_CABLE:
 			CL_ParseBeam(cl_mod_grapple_cable, true);
+			break;
+
+		case TE_GRAPPLE_CABLE_2:
+		case TE_LIGHTNING_BEAM:
+			CL_ParseBeam(cl_mod_grapple_cable, false);
+			break;
+
+		case TE_POWER_SPLASH:
+			CL_PowerSplash();
 			break;
 
 		case TE_WELDING_SPARKS:
@@ -1302,7 +1312,7 @@ CL_ParseTEnt(void)
 			break;
 
 		default:
-			Com_Error(ERR_DROP, "%s: bad type", __func__);
+			Com_Error(ERR_DROP, "%s: bad effect type 0x%2x", __func__, type);
 	}
 }
 

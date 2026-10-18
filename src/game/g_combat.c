@@ -418,6 +418,15 @@ CheckPowerArmor(edict_t *ent, const vec3_t point, const vec3_t normal,
 	else
 	{
 		ent->monsterinfo.power_armor_power -= power_used;
+
+		if (ent->monsterinfo.power_armor_power <= 0)
+		{
+			gi.WriteByte(svc_temp_entity);
+			gi.WriteByte(TE_POWER_SPLASH);
+			gi.WriteShort(ent - g_edicts);
+			gi.WriteByte((power_armor_type == POWER_ARMOR_SCREEN) ? 1 : 0);
+			gi.multicast(ent->s.origin, MULTICAST_PHS);
+		}
 	}
 
 	return save;
