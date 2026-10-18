@@ -991,9 +991,7 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 	/* parse the rest of the player_state_t */
 	if (flags & PS_VIEWOFFSET)
 	{
-		state->viewoffset[0] = MSG_ReadChar(&net_message) * 0.25f;
-		state->viewoffset[1] = MSG_ReadChar(&net_message) * 0.25f;
-		state->viewoffset[2] = MSG_ReadChar(&net_message) * 0.25f;
+		MSG_ReadViewOffset(&net_message, state->viewoffset, protocol);
 	}
 
 	if (flags & PS_VIEWANGLES)

@@ -340,9 +340,7 @@ SV_WritePlayerstateToClient(client_frame_t *from, client_frame_t *to,
 	/* write the rest of the player_state_t */
 	if (pflags & PS_VIEWOFFSET)
 	{
-		MSG_WriteChar(msg, ps->viewoffset[0] * 4);
-		MSG_WriteChar(msg, ps->viewoffset[1] * 4);
-		MSG_WriteChar(msg, ps->viewoffset[2] * 4);
+		MSG_WriteViewOffset(msg, ps->viewoffset, protocol);
 	}
 
 	if (pflags & PS_VIEWANGLES)
