@@ -93,6 +93,7 @@ For complete technical specifications and compatibility tables, see [.agents/doc
 
 * 8.71RR16+:
 
+[![Check demo protocol](https://img.youtube.com/vi/_R7kf0anjng/hqdefault.jpg)](https://www.youtube.com/watch?v=_R7kf0anjng)
 [![Check Infinity state](https://img.youtube.com/vi/2nHpWCUecYw/hqdefault.jpg)](https://www.youtube.com/watch?v=2nHpWCUecYw)
 
 * 8.71RR15+:
@@ -261,7 +262,7 @@ Checked with:
 * [ ] Dynamic count of entities on client.
 
 ### Next release:
-* [ ] ReRelease: implement demo protocol based on https://github.com/res2k/q2proto
+* [x] ReRelease: implement demo protocol based on https://github.com/res2k/q2proto
       and https://github.com/Paril/quake2-rerelease-dll,
 * [ ] ReRelease: select start level through `mapddb.json`
 

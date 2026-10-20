@@ -246,6 +246,10 @@ void Info_Print(const char *s);
 	((x) == PROTOCOL_XATRIX_VERSION) || \
 	((x) == PROTOCOL_R97_VERSION))
 
+#define IS_QIIRR_PROTOCOL(x) ( \
+	((x) == PROTOCOL_RR22_VERSION) || \
+	((x) == PROTOCOL_RR23_VERSION))
+
 /* ========================================= */
 
 #define PORT_MASTER 27900

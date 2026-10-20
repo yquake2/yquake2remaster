@@ -403,7 +403,7 @@ SV_WritePlayerstateToClient(client_frame_t *from, client_frame_t *to,
 	}
 
 	if (IS_QII97_PROTOCOL(protocol) ||
-		protocol == PROTOCOL_RR22_VERSION)
+		IS_QIIRR_PROTOCOL(protocol))
 	{
 		stats_size = Q_min(P_GetCountOfStats(protocol), MAX_STATS);
 	}

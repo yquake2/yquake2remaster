@@ -1389,8 +1389,7 @@ CL_ParseServerData(void)
 	/* another demo hack */
 	if (Com_ServerState() && (
 		IS_QII97_PROTOCOL(i) ||
-		(i == PROTOCOL_RR22_VERSION) ||
-		(i == PROTOCOL_RR23_VERSION) ||
+		IS_QIIRR_PROTOCOL(i) ||
 		(i == PROTOCOL_Q2TEST_VERSION) ||
 		(i == PROTOCOL_H2DEMO_VERSION) ||
 		(i == PROTOCOL_VERSION)))
@@ -1408,7 +1407,7 @@ CL_ParseServerData(void)
 	cl.attractloop = MSG_ReadByte(&net_message);
 	cl.frame_msec = 100;
 
-	if (cls.serverProtocol == PROTOCOL_RR22_VERSION)
+	if (IS_QIIRR_PROTOCOL(cls.serverProtocol))
 	{
 		int fps;
 
@@ -1424,6 +1423,7 @@ CL_ParseServerData(void)
 
 	if ((cl_shownet->value == 0) &&
 		((i == PROTOCOL_H2DEMO_VERSION) ||
+		 (i == PROTOCOL_RR23_VERSION) ||
 		 (i == PROTOCOL_Q2TEST_VERSION)))
 	{
 		Com_Error(ERR_DROP, "Network protocol '%s' is currently unsupported\n",

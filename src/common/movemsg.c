@@ -739,9 +739,15 @@ MSG_WriteCoord(sizebuf_t *sb, float f, int protocol)
 	{
 		MSG_WriteShort(sb, (int)(f * 8));
 	}
-	else
+	else if ((protocol == PROTOCOL_VERSION) ||
+			 (protocol == PROTOCOL_RR22_VERSION))
 	{
 		MSG_WriteFloat(sb, f);
+	}
+	else
+	{
+		Com_Error(ERR_DROP, "%s: unexpected protocol %d",
+			__func__, protocol);
 	}
 }
 
@@ -760,11 +766,16 @@ MSG_WriteOrigin(sizebuf_t *sb, const int origin[3], int protocol)
 		MSG_WriteFloat(sb, origin[1] / 8.0f);
 		MSG_WriteFloat(sb, origin[2] / 8.0f);
 	}
-	else
+	else if (protocol == PROTOCOL_VERSION)
 	{
 		MSG_WriteLong(sb, origin[0]);
 		MSG_WriteLong(sb, origin[1]);
 		MSG_WriteLong(sb, origin[2]);
+	}
+	else
+	{
+		Com_Error(ERR_DROP, "%s: unexpected protocol %d",
+			__func__, protocol);
 	}
 }
 
@@ -785,11 +796,17 @@ MSG_WriteVel(sizebuf_t *sb, const short *vel, int protocol)
 		MSG_WriteFloat(sb, vel[1] * 0.125f);
 		MSG_WriteFloat(sb, vel[2] * 0.125f);
 	}
-	else
+	else if (IS_QII97_PROTOCOL(protocol) ||
+			(protocol == PROTOCOL_VERSION))
 	{
 		MSG_WriteShort(sb, vel[0]);
 		MSG_WriteShort(sb, vel[1]);
 		MSG_WriteShort(sb, vel[2]);
+	}
+	else
+	{
+		Com_Error(ERR_DROP, "%s: unexpected protocol %d",
+			__func__, protocol);
 	}
 }
 
@@ -804,9 +821,14 @@ MSG_WriteAngle(sizebuf_t *sb, float f, int protocol)
 	{
 		MSG_WriteFloat(sb, f);
 	}
-	else
+	else if (protocol == PROTOCOL_VERSION)
 	{
 		MSG_WriteAngle16(sb, f);
+	}
+	else
+	{
+		Com_Error(ERR_DROP, "%s: unexpected protocol %d",
+			__func__, protocol);
 	}
 }
 
@@ -825,11 +847,17 @@ MSG_WriteDeltaAngles(sizebuf_t *sb, const short delta_angles[3], int protocol)
 		MSG_WriteFloat(sb, SHORT2ANGLE(delta_angles[1]));
 		MSG_WriteFloat(sb, SHORT2ANGLE(delta_angles[2]));
 	}
-	else
+	else if (IS_QII97_PROTOCOL(protocol) ||
+			(protocol == PROTOCOL_VERSION))
 	{
 		MSG_WriteShort(sb, delta_angles[0]);
 		MSG_WriteShort(sb, delta_angles[1]);
 		MSG_WriteShort(sb, delta_angles[2]);
+	}
+	else
+	{
+		Com_Error(ERR_DROP, "%s: unexpected protocol %d",
+			__func__, protocol);
 	}
 }
 
@@ -843,11 +871,16 @@ MSG_WriteViewAngles(sizebuf_t *sb, const vec3_t viewangles, int protocol)
 		MSG_WriteFloat(sb, viewangles[1]);
 		MSG_WriteFloat(sb, viewangles[2]);
 	}
-	else
+	else if (IS_QII97_PROTOCOL(protocol))
 	{
 		MSG_WriteAngle16(sb, viewangles[0]);
 		MSG_WriteAngle16(sb, viewangles[1]);
 		MSG_WriteAngle16(sb, viewangles[2]);
+	}
+	else
+	{
+		Com_Error(ERR_DROP, "%s: unexpected protocol %d",
+			__func__, protocol);
 	}
 }
 
@@ -868,11 +901,16 @@ MSG_WriteViewOffset(sizebuf_t *sb, const vec3_t viewoffset, int protocol)
 		MSG_WriteChar(sb, viewoffset[1] * 4);
 		MSG_WriteChar(sb, viewoffset[2] * 4);
 	}
-	else
+	else if (protocol == PROTOCOL_VERSION)
 	{
 		MSG_WriteShort(sb, viewoffset[0] * 16);
 		MSG_WriteShort(sb, viewoffset[1] * 16);
 		MSG_WriteShort(sb, viewoffset[2] * 16);
+	}
+	else
+	{
+		Com_Error(ERR_DROP, "%s: unexpected protocol %d",
+			__func__, protocol);
 	}
 }
 
@@ -886,11 +924,16 @@ MSG_WriteKickAngles(sizebuf_t *sb, const vec3_t kick_angles, int protocol)
 		MSG_WriteShort(sb, kick_angles[1] * 1024);
 		MSG_WriteShort(sb, kick_angles[2] * 1024);
 	}
-	else
+	else if (IS_QII97_PROTOCOL(protocol))
 	{
 		MSG_WriteChar(sb, kick_angles[0] * 4);
 		MSG_WriteChar(sb, kick_angles[1] * 4);
 		MSG_WriteChar(sb, kick_angles[2] * 4);
+	}
+	else
+	{
+		Com_Error(ERR_DROP, "%s: unexpected protocol %d",
+			__func__, protocol);
 	}
 }
 
@@ -930,7 +973,8 @@ MSG_WriteWeaponFrameAngles(sizebuf_t *sb, const vec3_t gunoffset, const vec3_t g
 			MSG_WriteByte(sb, 0);
 		}
 	}
-	else
+	else if (IS_QII97_PROTOCOL(protocol) ||
+			(protocol == PROTOCOL_VERSION))
 	{
 		if (IS_QII97_PROTOCOL(protocol))
 		{
@@ -947,6 +991,11 @@ MSG_WriteWeaponFrameAngles(sizebuf_t *sb, const vec3_t gunoffset, const vec3_t g
 		MSG_WriteChar(sb, gunangles[0] * 4);
 		MSG_WriteChar(sb, gunangles[1] * 4);
 		MSG_WriteChar(sb, gunangles[2] * 4);
+	}
+	else
+	{
+		Com_Error(ERR_DROP, "%s: unexpected protocol %d",
+			__func__, protocol);
 	}
 }
 
@@ -1623,12 +1672,15 @@ MSG_ReadCoord(sizebuf_t *msg_read, int protocol)
 	{
 		return MSG_ReadShort(msg_read) * (0.125f);
 	}
+	else if (protocol == PROTOCOL_VERSION)
+	{
+		return MSG_ReadFloat(msg_read);
+	}
 	else
 	{
-		/*
-		 * PROTOCOL_VERSION
-		 */
-		return MSG_ReadFloat(msg_read);
+		Com_Error(ERR_DROP, "%s: unexpected protocol %d",
+			__func__, protocol);
+		return 0;
 	}
 }
 
@@ -1647,11 +1699,16 @@ MSG_ReadOrigin(sizebuf_t *msg_read, int origin[3], int protocol)
 		origin[1] = MSG_ReadFloat(&net_message) * 8.0f + 0.5f;
 		origin[2] = MSG_ReadFloat(&net_message) * 8.0f + 0.5f;
 	}
-	else
+	else if (protocol == PROTOCOL_VERSION)
 	{
 		origin[0] = MSG_ReadLong(msg_read);
 		origin[1] = MSG_ReadLong(msg_read);
 		origin[2] = MSG_ReadLong(msg_read);
+	}
+	else
+	{
+		Com_Error(ERR_DROP, "%s: unexpected protocol %d",
+			__func__, protocol);
 	}
 }
 
@@ -1672,11 +1729,17 @@ MSG_ReadVel(sizebuf_t *msg_read, short *vel, int protocol)
 		vel[1] = MSG_ReadFloat(msg_read) * 8.0f + 0.5f;
 		vel[2] = MSG_ReadFloat(msg_read) * 8.0f + 0.5f;
 	}
-	else
+	else if (IS_QII97_PROTOCOL(protocol) ||
+			(protocol == PROTOCOL_VERSION))
 	{
 		vel[0] = MSG_ReadShort(msg_read);
 		vel[1] = MSG_ReadShort(msg_read);
 		vel[2] = MSG_ReadShort(msg_read);
+	}
+	else
+	{
+		Com_Error(ERR_DROP, "%s: unexpected protocol %d",
+			__func__, protocol);
 	}
 }
 
@@ -1691,9 +1754,15 @@ MSG_ReadAngle(sizebuf_t *msg_read, int protocol)
 	{
 		return MSG_ReadFloat(&net_message);
 	}
-	else
+	else if (protocol == PROTOCOL_VERSION)
 	{
 		return MSG_ReadAngle16(msg_read);
+	}
+	else
+	{
+		Com_Error(ERR_DROP, "%s: unexpected protocol %d",
+			__func__, protocol);
+		return 0;
 	}
 }
 
@@ -1712,11 +1781,17 @@ MSG_ReadDeltaAngles(sizebuf_t *msg_read, short delta_angles[3], int protocol)
 		delta_angles[1] = ANGLE2SHORT(MSG_ReadFloat(msg_read));
 		delta_angles[2] = ANGLE2SHORT(MSG_ReadFloat(msg_read));
 	}
-	else
+	else if (IS_QII97_PROTOCOL(protocol) ||
+			(protocol == PROTOCOL_VERSION))
 	{
 		delta_angles[0] = MSG_ReadShort(msg_read);
 		delta_angles[1] = MSG_ReadShort(msg_read);
 		delta_angles[2] = MSG_ReadShort(msg_read);
+	}
+	else
+	{
+		Com_Error(ERR_DROP, "%s: unexpected protocol %d",
+			__func__, protocol);
 	}
 }
 
@@ -1730,11 +1805,16 @@ MSG_ReadViewAngles(sizebuf_t *msg_read, vec3_t viewangles, int protocol)
 		viewangles[1] = MSG_ReadFloat(msg_read);
 		viewangles[2] = MSG_ReadFloat(msg_read);
 	}
-	else
+	else if (IS_QII97_PROTOCOL(protocol))
 	{
 		viewangles[0] = MSG_ReadAngle16(msg_read);
 		viewangles[1] = MSG_ReadAngle16(msg_read);
 		viewangles[2] = MSG_ReadAngle16(msg_read);
+	}
+	else
+	{
+		Com_Error(ERR_DROP, "%s: unexpected protocol %d",
+			__func__, protocol);
 	}
 }
 
@@ -1755,11 +1835,16 @@ MSG_ReadViewOffset(sizebuf_t *msg_read, vec3_t viewoffset, int protocol)
 		viewoffset[1] = MSG_ReadChar(msg_read) * 0.25f;
 		viewoffset[2] = MSG_ReadChar(msg_read) * 0.25f;
 	}
-	else
+	else if (protocol == PROTOCOL_VERSION)
 	{
 		viewoffset[0] = MSG_ReadShort(msg_read) / 16.0f;
 		viewoffset[1] = MSG_ReadShort(msg_read) / 16.0f;
 		viewoffset[2] = MSG_ReadShort(msg_read) / 16.0f;
+	}
+	else
+	{
+		Com_Error(ERR_DROP, "%s: unexpected protocol %d",
+			__func__, protocol);
 	}
 }
 
@@ -1773,11 +1858,16 @@ MSG_ReadKickAngles(sizebuf_t *msg_read, vec3_t kick_angles, int protocol)
 		kick_angles[1] = MSG_ReadShort(msg_read) / 1024.0f;
 		kick_angles[2] = MSG_ReadShort(msg_read) / 1024.0f;
 	}
-	else
+	else if (IS_QII97_PROTOCOL(protocol))
 	{
 		kick_angles[0] = MSG_ReadChar(msg_read) * 0.25f;
 		kick_angles[1] = MSG_ReadChar(msg_read) * 0.25f;
 		kick_angles[2] = MSG_ReadChar(msg_read) * 0.25f;
+	}
+	else
+	{
+		Com_Error(ERR_DROP, "%s: unexpected protocol %d",
+			__func__, protocol);
 	}
 }
 
@@ -1816,7 +1906,8 @@ MSG_ReadWeaponFrameAngles(sizebuf_t *msg_read, vec3_t gunoffset, vec3_t gunangle
 			MSG_ReadByte(msg_read);
 		}
 	}
-	else
+	else if (IS_QII97_PROTOCOL(protocol) ||
+			(protocol == PROTOCOL_VERSION))
 	{
 		unsigned i;
 
@@ -1838,6 +1929,11 @@ MSG_ReadWeaponFrameAngles(sizebuf_t *msg_read, vec3_t gunoffset, vec3_t gunangle
 		{
 			gunangles[i] = MSG_ReadChar(msg_read) * 0.25f;
 		}
+	}
+	else
+	{
+		Com_Error(ERR_DROP, "%s: unexpected protocol %d",
+			__func__, protocol);
 	}
 }
 

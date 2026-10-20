@@ -134,7 +134,7 @@ SV_New_f(void)
 	MSG_WriteLong(&sv_client->netchan.message, sv_client->protocol);
 	MSG_WriteLong(&sv_client->netchan.message, svs.spawncount);
 	MSG_WriteByte(&sv_client->netchan.message, sv.attractloop);
-	if (sv_client->protocol == PROTOCOL_RR22_VERSION)
+	if (IS_QIIRR_PROTOCOL(sv_client->protocol))
 	{
 		MSG_WriteByte(&sv_client->netchan.message, 1000 / sv.frame_msec);
 	}
