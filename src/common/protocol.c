@@ -92,7 +92,8 @@
 int
 P_ConvertConfigStringFrom(int i, int protocol)
 {
-	if (IS_QII97_PROTOCOL(protocol))
+	if (IS_QII97_PROTOCOL(protocol) ||
+		(protocol == PROTOCOL_Q2TEST_VERSION))
 	{
 		if (i >= CS_AIRACCEL_Q2DEMO && i < CS_MODELS_Q2DEMO)
 		{
@@ -192,7 +193,8 @@ P_ConvertConfigStringFrom(int i, int protocol)
 int
 P_ConvertConfigStringTo(int i, int protocol)
 {
-	if (IS_QII97_PROTOCOL(protocol))
+	if (IS_QII97_PROTOCOL(protocol) ||
+		(protocol == PROTOCOL_Q2TEST_VERSION))
 	{
 		if (i >= CS_MODELS && i < CS_SOUNDS)
 		{
@@ -279,7 +281,8 @@ P_ConvertConfigStringTo(int i, int protocol)
 int
 P_GetCountOfItems(int protocol)
 {
-	if (IS_QII97_PROTOCOL(protocol))
+	if (IS_QII97_PROTOCOL(protocol) ||
+		(protocol == PROTOCOL_Q2TEST_VERSION))
 	{
 		return MAX_ITEMS_Q2DEMO;
 	}
