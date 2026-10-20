@@ -3536,6 +3536,28 @@ LevelSelect_Free(void)
 	s_ls_cmd = NULL;
 }
 
+typedef struct
+{
+	char id[32];
+	char name[64];
+	campaign_t *camp;
+} ls_episode_t;
+
+typedef struct
+{
+	char episode[32];
+	char title[64];
+	char bsp[64];
+	qboolean sp;
+} ls_map_t;
+
+typedef enum
+{
+	SECTION_NONE,
+	SECTION_EPISODES,
+	SECTION_MAPS
+} parse_section_t;
+
 static void
 LevelSelect_NamesInit(void)
 {
@@ -3545,6 +3567,164 @@ LevelSelect_NamesInit(void)
 	/* not on game menu close, M_PushMenu may close it after this rebuild */
 	LevelSelect_Free();
 
+	if (FS_LoadFile("mapdb.json", (void **)&buffer) > 0)
+	{
+		ls_episode_t episodes[16];
+		int num_episodes;
+		ls_map_t maps[128];
+		int num_maps;
+		parse_section_t section;
+		char current_key[64];
+		int i, j;
+
+		char *s;
+
+		s = buffer;
+		num_episodes = 0;
+		num_maps = 0;
+		section = SECTION_NONE;
+		current_key[0] = '\0';
+
+		memset(episodes, 0, sizeof(episodes));
+		memset(maps, 0, sizeof(maps));
+
+		while (1)
+		{
+			const char *token = COM_Parse(&s);
+			if (!token || !*token)
+			{
+				break;
+			}
+
+			if (!strcmp(token, "episodes"))
+			{
+				section = SECTION_EPISODES;
+				continue;
+			}
+			else if (!strcmp(token, "maps"))
+			{
+				section = SECTION_MAPS;
+				continue;
+			}
+
+			if (!strcmp(token, "{"))
+			{
+				continue;
+			}
+			else if (!strcmp(token, "}"))
+			{
+				if (section == SECTION_EPISODES)
+				{
+					if (episodes[num_episodes].id[0] && episodes[num_episodes].name[0])
+					{
+						if (num_episodes < 15)
+						{
+							num_episodes++;
+						}
+					}
+				}
+				else if (section == SECTION_MAPS)
+				{
+					if (maps[num_maps].episode[0] && maps[num_maps].title[0] && maps[num_maps].bsp[0] && maps[num_maps].sp)
+					{
+						if (num_maps < 127)
+						{
+							num_maps++;
+						}
+					}
+				}
+				continue;
+			}
+
+			if (!strcmp(token, ":") || !strcmp(token, ",") || !strcmp(token, "[") || !strcmp(token, "]"))
+			{
+				continue;
+			}
+
+			if (token[0] != '"' && token[0] != '\'')
+			{
+				Q_strlcpy(current_key, token, sizeof(current_key));
+			}
+			else
+			{
+				char val[256];
+				Q_strlcpy(val, token, sizeof(val));
+				if (val[0] == '"' || val[0] == '\'')
+				{
+					size_t len = strlen(val);
+					if (len >= 2 && val[len - 1] == val[0])
+					{
+						val[len - 1] = '\0';
+						memmove(val, val + 1, len - 1);
+					}
+				}
+
+				if (section == SECTION_EPISODES && num_episodes < 16)
+				{
+					if (!strcmp(current_key, "id"))
+					{
+						Q_strlcpy(episodes[num_episodes].id, val, sizeof(episodes[num_episodes].id));
+					}
+					else if (!strcmp(current_key, "name"))
+					{
+						Q_strlcpy(episodes[num_episodes].name, val, sizeof(episodes[num_episodes].name));
+					}
+				}
+				else if (section == SECTION_MAPS && num_maps < 128)
+				{
+					if (!strcmp(current_key, "episode"))
+					{
+						Q_strlcpy(maps[num_maps].episode, val, sizeof(maps[num_maps].episode));
+					}
+					else if (!strcmp(current_key, "title"))
+					{
+						Q_strlcpy(maps[num_maps].title, val, sizeof(maps[num_maps].title));
+					}
+					else if (!strcmp(current_key, "bsp"))
+					{
+						Q_strlcpy(maps[num_maps].bsp, val, sizeof(maps[num_maps].bsp));
+					}
+					else if (!strcmp(current_key, "sp"))
+					{
+						if (!Q_stricmp(val, "true"))
+						{
+							maps[num_maps].sp = true;
+						}
+					}
+				}
+				current_key[0] = '\0';
+			}
+		}
+
+		FS_FreeFile(buffer);
+
+		for (i = 0; i < num_episodes; i++)
+		{
+			camp = AddCampaign(episodes[i].name);
+			episodes[i].camp = camp;
+
+			if (!camp)
+			{
+				continue;
+			}
+
+			for (j = 0; j < num_maps; j++)
+			{
+				if (!strcmp(maps[j].episode, episodes[i].id) && maps[j].sp)
+				{
+					StrList_Append(&camp->names, maps[j].title);
+					StrList_Append(&camp->cmds, va("map %s", maps[j].bsp));
+				}
+			}
+		}
+
+		if (s_campaignnames.num > 0)
+		{
+			return;
+		}
+	}
+
+	/* Fallback to yq2_levelsel.lst if mapdb.json didn't work or didn't provide campaigns */
 	if (FS_LoadFile("yq2_levelsel.lst", (void **)&buffer) <= 0)
 	{
 		return;

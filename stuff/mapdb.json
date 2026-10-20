@@ -1,0 +1,1582 @@
+{
+  "episodes": [
+    {
+      "id": "baseq2",
+      "command": "newgame",
+      "name": "Quake II",
+      "activity": "start_quake",
+      "needsSkillSelect": true
+    },
+    {
+      "id": "mg2",
+      "command": "newgame_mg2",
+      "name": "Call of the Machine",
+      "activity": "start_mg2",
+      "needsSkillSelect": true
+    },
+    {
+      "id": "xatrix",
+      "command": "newgame_xatrix",
+      "name": "The Reckoning",
+      "activity": "start_xatrix",
+      "needsSkillSelect": true
+    },
+    {
+      "id": "rogue",
+      "command": "newgame_rogue",
+      "name": "Ground Zero",
+      "activity": "start_rogue",
+      "needsSkillSelect": true
+    },
+    {
+      "id": "n64",
+      "command": "newgame_n64",
+      "name": "Quake II 64",
+      "activity": "start_n64",
+      "needsSkillSelect": true
+    }
+  ],
+  "maps": [
+    {
+      "bsp": "q2dm1",
+      "title": "The Edge",
+      "episode": "baseq2",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "q2dm2",
+      "title": "Tokay's Towers",
+      "episode": "baseq2",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "q2dm3",
+      "title": "The Frag Pipe",
+      "episode": "baseq2",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "q2dm4",
+      "title": "Lost Hallways",
+      "episode": "baseq2",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "q2dm5",
+      "title": "The Pits",
+      "episode": "baseq2",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "q2dm6",
+      "title": "Lava Tomb",
+      "episode": "baseq2",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "q2dm7",
+      "title": "The Slimy Place",
+      "episode": "baseq2",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "q2dm8",
+      "title": "WareHouse",
+      "episode": "baseq2",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "mgdm1",
+      "title": "Misty Heights",
+      "episode": "mg2",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "q2ctf1",
+      "title": "McKinley Revival",
+      "episode": "baseq2",
+      "ctf": true,
+	  "tdm": false
+    },
+    {
+      "bsp": "q2ctf2",
+      "title": "Stronghold Opposition",
+      "episode": "baseq2",
+      "ctf": true,
+	  "tdm": false
+    },
+    {
+      "bsp": "q2ctf3",
+      "title": "The Smelter",
+      "episode": "baseq2",
+      "ctf": true,
+	  "tdm": false
+    },
+    {
+      "bsp": "q2ctf4",
+      "title": "Outlands II",
+      "episode": "baseq2",
+      "ctf": true,
+	  "tdm": false
+    },
+    {
+      "bsp": "q2ctf5",
+      "title": "Capture Showdown",
+      "episode": "baseq2",
+      "ctf": true,
+	  "tdm": false
+    },
+    {
+      "bsp": "ndctf0",
+      "title": "Something Epic",
+      "episode": "baseq2",
+      "ctf": true,
+	  "tdm": false
+    },
+    {
+      "bsp": "q2kctf1",
+      "title": "Captured Reckoning",
+      "episode": "baseq2",
+      "ctf": true,
+	  "tdm": false
+    },
+    {
+      "bsp": "q2kctf2",
+      "title": "Nexus CTF",
+      "episode": "baseq2",
+      "ctf": true,
+	  "tdm": false
+    },
+    {
+      "bsp": "*ntro.cin+base1",
+      "title": "Unit 1: Base",
+      "episode": "baseq2",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true,
+      "bot": true
+    },
+    {
+      "bsp": "ntro.cin",
+      "title": "Intro",
+      "episode": "baseq2",
+	  "unit": 1
+    },
+    {
+      "bsp": "base1",
+      "title": "Outer Base",
+      "episode": "baseq2",
+      "unit": 1,
+      "bot": true
+    },
+    {
+      "bsp": "base2",
+      "title": "Installation",
+      "episode": "baseq2",
+      "unit": 1,
+      "bot": true
+    },
+    {
+      "bsp": "base3",
+      "title": "Comm Center",
+      "episode": "baseq2",
+      "unit": 1,
+      "bot": true
+    },
+    {
+      "bsp": "train",
+      "title": "Lost Station",
+      "episode": "baseq2",
+      "unit": 1
+    },
+    {
+      "bsp": "eou1_.cin",
+      "title": "EOU1",
+      "episode": "baseq2",
+	  "unit": 1
+    },
+    {
+      "bsp": "eou1_.cin+*bunk1",
+      "title": "Unit 2: Warehouse",
+      "episode": "baseq2",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true,
+      "start_items": "weapon_shotgun;ammo_shells 20;weapon_machinegun;ammo_bullets 50;ammo_grenades 5"
+    },
+    {
+      "bsp": "bunk1",
+      "title": "Ammo Depot",
+      "episode": "baseq2",
+      "unit": 2
+    },
+    {
+      "bsp": "ware1",
+      "title": "Supply Station",
+      "episode": "baseq2",
+      "unit": 2
+    },
+    {
+      "bsp": "ware2",
+      "title": "Warehouse",
+      "episode": "baseq2",
+      "unit": 2
+    },
+    {
+      "bsp": "eou2_.cin",
+      "title": "EOU2",
+      "episode": "baseq2",
+	  "unit": 2
+    },
+    {
+      "bsp": "eou2_.cin+*jail1",
+      "title": "Unit 3: Jail",
+      "episode": "baseq2",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true,
+      "start_items": "weapon_shotgun;ammo_shells 40;weapon_machinegun;ammo_bullets 50;weapon_chaingun;weapon_supershotgun;ammo_grenades 5"
+    },
+    {
+      "bsp": "jail1",
+      "title": "Main Gate",
+      "episode": "baseq2",
+      "unit": 3
+    },
+    {
+      "bsp": "jail2",
+      "title": "Detention Center",
+      "episode": "baseq2",
+      "unit": 3
+    },
+    {
+      "bsp": "jail3",
+      "title": "Security Complex",
+      "episode": "baseq2",
+      "unit": 3
+    },
+    {
+      "bsp": "jail4",
+      "title": "Torture Chambers",
+      "episode": "baseq2",
+      "unit": 3
+    },
+    {
+      "bsp": "jail5",
+      "title": "Guard House",
+      "episode": "baseq2",
+      "unit": 3
+    },
+    {
+      "bsp": "security",
+      "title": "Grid Control",
+      "episode": "baseq2",
+      "unit": 3
+    },
+    {
+      "bsp": "eou3_.cin",
+      "title": "EOU3",
+      "episode": "baseq2",
+	  "unit": 3
+    },
+    {
+      "bsp": "eou3_.cin+*mintro",
+      "title": "Unit 4: Mines",
+      "episode": "baseq2",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true,
+      "start_items": "weapon_shotgun;ammo_shells 50;weapon_machinegun;ammo_bullets 150;weapon_supershotgun;weapon_chaingun;weapon_grenadelauncher;ammo_rockets 15;weapon_hyperblaster;ammo_cells 150;ammo_grenades 30"
+    },
+    {
+      "bsp": "mintro",
+      "title": "Mine Entrance",
+      "episode": "baseq2",
+      "unit": 4
+    },
+    {
+      "bsp": "mine1",
+      "title": "Upper Mines",
+      "episode": "baseq2",
+      "unit": 4
+    },
+    {
+      "bsp": "mine2",
+      "title": "Bore Hole",
+      "episode": "baseq2",
+      "unit": 4
+    },
+    {
+      "bsp": "mine3",
+      "title": "Drilling Area",
+      "episode": "baseq2",
+      "unit": 4
+    },
+    {
+      "bsp": "mine4",
+      "title": "Lower Mines",
+      "episode": "baseq2",
+      "unit": 4
+    },
+    {
+      "bsp": "eou4_.cin",
+      "title": "EOU4",
+      "episode": "baseq2",
+	  "unit": 4
+    },
+    {
+      "bsp": "eou4_.cin+*fact1",
+      "title": "Unit 5: Factory",
+      "episode": "baseq2",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true,
+      "start_items": "weapon_shotgun;ammo_shells 50;weapon_machinegun;ammo_bullets 150;weapon_supershotgun;weapon_chaingun;weapon_grenadelauncher;ammo_rockets 15;weapon_hyperblaster;ammo_cells 150;ammo_grenades 30;weapon_rocketlauncher"
+    },
+    {
+      "bsp": "fact1",
+      "title": "Receiving Center",
+      "episode": "baseq2",
+      "unit": 5
+    },
+    {
+      "bsp": "fact2",
+      "title": "Processing Plant",
+      "episode": "baseq2",
+      "unit": 5
+    },
+    {
+      "bsp": "fact3",
+      "title": "Sudden Death",
+      "episode": "baseq2",
+      "unit": 5
+    },
+    {
+      "bsp": "eou5_.cin",
+      "title": "EOU5",
+      "episode": "baseq2",
+	  "unit": 1
+    },
+    {
+      "bsp": "eou5_.cin+*power1",
+      "title": "Unit 6: Power & Cooling",
+      "episode": "baseq2",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true,
+      "start_items": "weapon_shotgun;ammo_shells 50;weapon_machinegun;ammo_bullets 200;weapon_supershotgun;weapon_chaingun;weapon_grenadelauncher;ammo_rockets 25;weapon_hyperblaster;ammo_cells 150;ammo_grenades 40;weapon_rocketlauncher;weapon_railgun;ammo_slugs 20"
+    },
+    {
+      "bsp": "power1",
+      "title": "Power Plant",
+      "episode": "baseq2",
+      "unit": 6
+    },
+    {
+      "bsp": "power2",
+      "title": "The Reactor",
+      "episode": "baseq2",
+      "unit": 6
+    },
+    {
+      "bsp": "cool1",
+      "title": "Cooling Facility",
+      "episode": "baseq2",
+      "unit": 6
+    },
+    {
+      "bsp": "waste1",
+      "title": "Toxic Waste Dump",
+      "episode": "baseq2",
+      "unit": 6
+    },
+    {
+      "bsp": "waste2",
+      "title": "Pumping Station 1",
+      "episode": "baseq2",
+      "unit": 6
+    },
+    {
+      "bsp": "waste3",
+      "title": "Pumping Station 2",
+      "episode": "baseq2",
+      "unit": 6
+    },
+    {
+      "bsp": "eou6_.cin",
+      "title": "EOU6",
+      "episode": "baseq2",
+	  "unit": 6
+    },
+    {
+      "bsp": "eou6_.cin+*biggun",
+      "title": "Unit 7: Big Gun",
+      "episode": "baseq2",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true,
+      "start_items": "weapon_shotgun;ammo_shells 50;weapon_machinegun;ammo_bullets 200;weapon_supershotgun;weapon_chaingun;weapon_grenadelauncher;ammo_rockets 25;weapon_hyperblaster;ammo_cells 200;ammo_grenades 50;weapon_rocketlauncher;weapon_railgun;ammo_slugs 30;weapon_bfg"
+    },
+    {
+      "bsp": "biggun",
+      "title": "Big Gun",
+      "episode": "baseq2",
+      "unit": 7
+    },
+    {
+      "bsp": "eou7_.cin",
+      "title": "EOU7",
+      "episode": "baseq2",
+	  "unit": 7
+    },
+    {
+      "bsp": "eou7_.cin+*hangar1",
+      "title": "Unit 8: Hangar",
+      "episode": "baseq2",
+      "unit": 8,
+      "display_bsp": false,
+      "sp": true,
+      "coop": true,
+      "start_items": "weapon_shotgun;ammo_shells 50;weapon_machinegun;ammo_bullets 200;weapon_supershotgun;weapon_chaingun;weapon_grenadelauncher;ammo_rockets 25;weapon_hyperblaster;ammo_cells 200;ammo_grenades 50;weapon_rocketlauncher;weapon_railgun;ammo_slugs 30;weapon_bfg"
+    },
+    {
+      "bsp": "hangar1",
+      "title": "Outer Hangar",
+      "episode": "baseq2",
+      "unit": 8
+    },
+    {
+      "bsp": "hangar2",
+      "title": "Inner Hangar",
+      "episode": "baseq2",
+      "unit": 8
+    },
+    {
+      "bsp": "lab",
+      "title": "Research Lab",
+      "episode": "baseq2",
+      "unit": 8
+    },
+    {
+      "bsp": "command",
+      "title": "Launch Command",
+      "episode": "baseq2",
+      "unit": 8
+    },
+    {
+      "bsp": "strike",
+      "title": "Outlands",
+      "episode": "baseq2",
+      "unit": 8
+    },
+    {
+      "bsp": "space",
+      "title": "Comm Satellite",
+      "episode": "baseq2",
+      "unit": 8
+    },
+    {
+      "bsp": "eou8_.cin",
+      "title": "EOU8",
+      "episode": "baseq2",
+	  "unit": 8
+    },
+    {
+      "bsp": "eou8_.cin+*city1",
+      "title": "Unit 9: City",
+      "episode": "baseq2",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true,
+      "start_items": "weapon_shotgun;ammo_shells 50;weapon_machinegun;ammo_bullets 200;weapon_supershotgun;weapon_chaingun;weapon_grenadelauncher;ammo_rockets 25;weapon_hyperblaster;ammo_cells 200;ammo_grenades 50;weapon_rocketlauncher;weapon_railgun;ammo_slugs 30;weapon_bfg"
+    },
+    {
+      "bsp": "city1",
+      "title": "Outer Courts",
+      "episode": "baseq2",
+      "unit": 9
+    },
+    {
+      "bsp": "city2",
+      "title": "Lower Palace",
+      "episode": "baseq2",
+      "unit": 9
+    },
+    {
+      "bsp": "city3",
+      "title": "Upper Palace",
+      "episode": "baseq2",
+      "unit": 9
+    },
+    {
+      "bsp": "*boss1",
+      "title": "Unit 10: Boss",
+      "episode": "baseq2",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true,
+      "start_items": "weapon_shotgun;ammo_shells 50;weapon_machinegun;ammo_bullets 200;weapon_supershotgun;weapon_chaingun;weapon_grenadelauncher;ammo_rockets 25;weapon_hyperblaster;ammo_cells 200;ammo_grenades 50;weapon_rocketlauncher;weapon_railgun;ammo_slugs 30;weapon_bfg"
+    },
+    {
+      "bsp": "boss1",
+      "title": "Inner Chamber",
+      "episode": "baseq2",
+      "unit": 10
+    },
+    {
+      "bsp": "boss2",
+      "title": "Final Showdown",
+      "episode": "baseq2",
+      "unit": 10
+    },
+    {
+      "bsp": "end.cin",
+      "title": "Outro",
+      "episode": "baseq2",
+	  "unit": 10
+    },
+    {
+      "bsp": "xdm1",
+      "title": "Munitions Dump",
+      "episode": "xatrix",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "xdm2",
+      "title": "Deadly Reckoning",
+      "episode": "xatrix",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "xdm3",
+      "title": "Reservoir Stroggs",
+      "episode": "xatrix",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "xdm4",
+      "title": "The Sludge Pit",
+      "episode": "xatrix",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "xdm5",
+      "title": "Stomping Grounds",
+      "episode": "xatrix",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "xdm6",
+      "title": "Hidden Agenda",
+      "episode": "xatrix",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "xdm7",
+      "title": "The XEdge",
+      "episode": "xatrix",
+      "dm": true
+    },
+    {
+      "bsp": "*xin.cin+xswamp",
+      "title": "Unit 1: Swamps",
+      "episode": "xatrix",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true
+    },
+    {
+      "bsp": "xin.cin",
+      "title": "XIntro",
+      "episode": "xatrix",
+	  "unit": 1
+    },
+    {
+      "bsp": "xswamp",
+      "title": "The Swamps",
+      "episode": "xatrix",
+      "unit": 1
+    },
+    {
+      "bsp": "xsewer1",
+      "title": "Sewers",
+      "episode": "xatrix",
+      "unit": 1
+    },
+    {
+      "bsp": "xsewer2",
+      "title": "Waste Sieve",
+      "episode": "xatrix",
+      "unit": 1
+    },
+    {
+      "bsp": "xu1.cin",
+      "title": "XEOU1",
+      "episode": "xatrix",
+	  "unit": 1
+    },
+    {
+      "bsp": "xu1.cin+*xcompnd1",
+      "title": "Unit 2: Compound",
+      "episode": "xatrix",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true,
+      "start_items": "item_flashlight;weapon_shotgun;weapon_supershotgun;ammo_shells 60;weapon_machinegun;ammo_bullets 150;ammo_grenades 20;item_armor_jacket"
+    },
+    {
+      "bsp": "xcompnd1",
+      "title": "Outer Compound",
+      "episode": "xatrix",
+      "unit": 2
+    },
+    {
+      "bsp": "xcompnd2",
+      "title": "Inner Compound",
+      "episode": "xatrix",
+      "unit": 2
+    },
+    {
+      "bsp": "xreactor",
+      "title": "Core Reactor",
+      "episode": "xatrix",
+      "unit": 2
+    },
+    {
+      "bsp": "xware",
+      "title": "The Warehouse",
+      "episode": "xatrix",
+      "unit": 2
+    },
+    {
+      "bsp": "xintell",
+      "title": "Intelligence Center",
+      "episode": "xatrix",
+      "unit": 2
+    },
+    {
+      "bsp": "xu2.cin",
+      "title": "XEOU2",
+      "episode": "xatrix",
+	  "unit": 2
+    },
+    {
+      "bsp": "xu2.cin+*industry",
+      "title": "Unit 3: Industry",
+      "episode": "xatrix",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true,
+      "start_items": "item_flashlight;weapon_shotgun;weapon_supershotgun;ammo_shells 50;weapon_machinegun;weapon_chaingun;ammo_bullets 150;weapon_boomer;ammo_cells 120;weapon_rocketlauncher;ammo_rockets 30;weapon_grenadelauncher;ammo_grenades 20;item_armor_combat"
+    },
+    {
+      "bsp": "industry",
+      "title": "Industrial Facility",
+      "episode": "xatrix",
+      "unit": 3
+    },
+    {
+      "bsp": "outbase",
+      "title": "Outer Base",
+      "episode": "xatrix",
+      "unit": 3
+    },
+    {
+      "bsp": "w_treat",
+      "title": "Water Treatment Plant",
+      "episode": "xatrix",
+      "unit": 3
+    },
+    {
+      "bsp": "badlands",
+      "title": "Badlands",
+      "episode": "xatrix",
+      "unit": 3
+    },
+    {
+      "bsp": "refinery",
+      "title": "Refinery",
+      "episode": "xatrix",
+      "unit": 3
+    },
+    {
+      "bsp": "xu3.cin",
+      "title": "XEOU3",
+      "episode": "xatrix",
+	  "unit": 3
+    },
+    {
+      "bsp": "xu3.cin+*xhangar1",
+      "title": "Unit 4: Hangar",
+      "episode": "xatrix",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true,
+      "start_items": "item_flashlight;item_pack;weapon_shotgun;weapon_supershotgun;ammo_shells 110;weapon_machinegun;weapon_chaingun;ammo_bullets 230;weapon_boomer;weapon_hyperblaster;ammo_cells 180;weapon_rocketlauncher;ammo_rockets 32;weapon_grenadelauncher;ammo_grenades 32;weapon_railgun;ammo_slugs 20;weapon_phalanx;ammo_magslug 30;item_armor_body"
+    },
+    {
+      "bsp": "xhangar1",
+      "title": "Lower Hangars",
+      "episode": "xatrix",
+      "unit": 4
+    },
+    {
+      "bsp": "xhangar2",
+      "title": "The Hangars",
+      "episode": "xatrix",
+      "unit": 4
+    },
+    {
+      "bsp": "*xship",
+      "title": "Unit 5: Ship",
+      "episode": "xatrix",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true,
+      "start_items": "item_flashlight;item_pack;weapon_shotgun;weapon_supershotgun;ammo_shells 110;weapon_machinegun;weapon_chaingun;ammo_bullets 230;weapon_boomer;weapon_hyperblaster;ammo_cells 180;weapon_rocketlauncher;ammo_rockets 32;weapon_grenadelauncher;ammo_grenades 32;weapon_railgun;ammo_slugs 20;weapon_phalanx;ammo_magslug 30;item_armor_body"
+    },
+    {
+      "bsp": "xship",
+      "title": "Strogg Freighter",
+      "episode": "xatrix",
+      "unit": 5
+    },
+    {
+      "bsp": "xu4.cin",
+      "title": "XEOU4",
+      "episode": "xatrix",
+	  "unit": 5
+    },
+    {
+      "bsp": "xu4.cin+*xmoon1",
+      "title": "Unit 6: Moon",
+      "episode": "xatrix",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true,
+      "start_items": "item_flashlight;item_pack;weapon_shotgun;weapon_supershotgun;ammo_shells 110;weapon_machinegun;weapon_chaingun;ammo_bullets 230;weapon_boomer;weapon_hyperblaster;ammo_cells 180;weapon_rocketlauncher;ammo_rockets 32;weapon_grenadelauncher;ammo_grenades 32;weapon_railgun;ammo_slugs 20;weapon_phalanx;ammo_magslug 30;ammo_trap 5;item_armor_body"
+    },
+    {
+      "bsp": "xmoon1",
+      "title": "Cargo Bay",
+      "episode": "xatrix",
+      "unit": 6
+    },
+    {
+      "bsp": "xmoon2",
+      "title": "Command Center",
+      "episode": "xatrix",
+      "unit": 6
+    },
+    {
+      "bsp": "xout.cin",
+      "title": "XOutro",
+      "episode": "xatrix",
+	  "unit": 6
+    },
+    {
+      "bsp": "rdm1",
+      "title": "The Low Road",
+      "episode": "rogue",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "rdm2",
+      "title": "The High Road",
+      "episode": "rogue",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "rdm3",
+      "title": "Boxed In",
+      "episode": "rogue",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "rdm4",
+      "title": "Razor's Edge",
+      "episode": "rogue",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "rdm5",
+      "title": "Stone Hinge",
+      "episode": "rogue",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "rdm6",
+      "title": "Nexus",
+      "episode": "rogue",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "rdm7",
+      "title": "Sewer Citadel",
+      "episode": "rogue",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "rdm8",
+      "title": "Styx & Stones",
+      "episode": "rogue",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "rdm9",
+      "title": "Scenic Overlook",
+      "episode": "rogue",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "rdm10",
+      "title": "Great Divide",
+      "episode": "rogue",
+      "dm": true
+    },
+    {
+      "bsp": "rdm11",
+      "title": "Dish It Out",
+      "episode": "rogue",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "rdm12",
+      "title": "Fall From Grace",
+      "episode": "rogue",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "rdm13",
+      "title": "Roads to Nowhere",
+      "episode": "rogue",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "rdm14",
+      "title": "Rogue's Edge",
+      "episode": "rogue",
+      "dm": true
+    },
+    {
+      "bsp": "*rintro.cin+rmine1",
+      "title": "Unit 1: Mines",
+      "episode": "rogue",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true
+    },
+    {
+      "bsp": "rintro.cin",
+      "title": "REOU1",
+      "episode": "rogue",
+	  "unit": 1
+    },
+    {
+      "bsp": "rmine1",
+      "title": "Lower Mines",
+      "episode": "rogue",
+      "unit": 1
+    },
+    {
+      "bsp": "rlava1",
+      "title": "Thaelite Mines",
+      "episode": "rogue",
+      "unit": 1
+    },
+    {
+      "bsp": "rlava2",
+      "title": "Tectonic Stabilizer",
+      "episode": "rogue",
+      "unit": 1
+    },
+    {
+      "bsp": "rmine2",
+      "title": "Mine Engineering",
+      "episode": "rogue",
+      "unit": 1
+    },
+    {
+      "bsp": "reu1_.cin",
+      "title": "REOU1",
+      "episode": "rogue",
+	  "unit": 1
+    },
+    {
+      "bsp": "reu1_.cin+*rware1",
+      "title": "Unit 2: Warehouse",
+      "episode": "rogue",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true,
+      "start_items": "weapon_shotgun;weapon_supershotgun;weapon_machinegun;weapon_chaingun;weapon_grenadelauncher;weapon_etf_rifle;weapon_proxlauncher;weapon_rocketlauncher;ammo_grenades 15;ammo_flechettes 125;ammo_prox 15;ammo_shells 40;ammo_bullets 125;ammo_rockets 15;ammo_tesla 10"
+    },
+    {
+      "bsp": "rware1",
+      "title": "Eastern Warehouse",
+      "episode": "rogue",
+      "unit": 2
+    },
+    {
+      "bsp": "rware2",
+      "title": "Waterfront Storage",
+      "episode": "rogue",
+      "unit": 2
+    },
+    {
+      "bsp": "rbase1",
+      "title": "Logistics Complex",
+      "episode": "rogue",
+      "unit": 2
+    },
+    {
+      "bsp": "rbase2",
+      "title": "Tactical Command",
+      "episode": "rogue",
+      "unit": 2
+    },
+    {
+      "bsp": "reu2_.cin",
+      "title": "REOU2",
+      "episode": "rogue",
+	  "unit": 2
+    },
+    {
+      "bsp": "reu2_.cin+*rhangar1",
+      "title": "Unit 3: Hangar",
+      "episode": "rogue",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true,
+      "start_items": "weapon_shotgun;weapon_supershotgun;weapon_machinegun;weapon_etf_rifle;weapon_chaingun;weapon_grenadelauncher;weapon_proxlauncher;weapon_rocketlauncher;weapon_hyperblaster;weapon_railgun;weapon_plasmabeam;weapon_chainfist;weapon_bfg;ammo_grenades 25;ammo_prox 15;ammo_shells 40;ammo_bullets 125;ammo_cells 75;ammo_flechettes 125;ammo_rockets 25;ammo_slugs 20;ammo_tesla 15"
+    },
+    {
+      "bsp": "rhangar1",
+      "title": "Research Hangar",
+      "episode": "rogue",
+      "unit": 3
+    },
+    {
+      "bsp": "rsewer1",
+      "title": "Waste Processing",
+      "episode": "rogue",
+      "unit": 3
+    },
+    {
+      "bsp": "rsewer2",
+      "title": "Waste Disposal",
+      "episode": "rogue",
+      "unit": 3
+    },
+    {
+      "bsp": "rhangar2",
+      "title": "Maintenance Hangar",
+      "episode": "rogue",
+      "unit": 3
+    },
+    {
+      "bsp": "reu3_.cin",
+      "title": "REOU3",
+      "episode": "rogue",
+	  "unit": 3
+    },
+    {
+      "bsp": "reu3_.cin+*rammo1",
+      "title": "Unit 4: Ammunitions",
+      "episode": "rogue",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true,
+      "start_items": "weapon_shotgun;weapon_supershotgun;weapon_machinegun;weapon_etf_rifle;weapon_chaingun;weapon_grenadelauncher;weapon_proxlauncher;weapon_rocketlauncher;weapon_hyperblaster;weapon_plasmabeam;weapon_chainfist;weapon_railgun;weapon_bfg;ammo_grenades 30;ammo_prox 20;ammo_shells 50;ammo_bullets 150;ammo_flechettes 125;ammo_rockets 25;ammo_cells 75;ammo_slugs 20;ammo_tesla 15;weapon_disintegrator;ammo_disruptor 9"
+    },
+    {
+      "bsp": "rammo1",
+      "title": "Munitions Plant",
+      "episode": "rogue",
+      "unit": 4
+    },
+    {
+      "bsp": "rammo2",
+      "title": "Ammo Depot",
+      "episode": "rogue",
+      "unit": 4
+    },
+    {
+      "bsp": "reu4_.cin",
+      "title": "REOU4",
+      "episode": "rogue",
+	  "unit": 4
+    },
+    {
+      "bsp": "reu4_.cin+*rboss",
+      "title": "Unit 5: Boss",
+      "episode": "rogue",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true,
+      "start_items": "weapon_shotgun;weapon_supershotgun;weapon_machinegun;weapon_chaingun;weapon_etf_rifle;weapon_grenadelauncher;weapon_proxlauncher;weapon_rocketlauncher;weapon_hyperblaster;weapon_plasmabeam;weapon_chainfist;weapon_railgun;weapon_bfg;ammo_grenades 30;ammo_prox 20;ammo_shells 50;ammo_bullets 150;ammo_flechettes 125;ammo_rockets 25;ammo_cells 75;ammo_slugs 20;ammo_tesla 15;weapon_disintegrator;ammo_disruptor 9"
+    },
+    {
+      "bsp": "rboss",
+      "title": "Widow's Lair",
+      "episode": "rogue",
+      "unit": 5
+    },
+    {
+      "bsp": "rend.cin",
+      "title": "ROutro",
+      "episode": "rogue",
+	  "unit": 5
+    },
+    {
+      "bsp": "q64/rtest",
+      "title": "Unit 1: Stroggos",
+      "episode": "n64",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true
+    },
+    {
+      "bsp": "q64/rtest",
+      "title": "Intro",
+      "episode": "n64",
+      "unit": 1
+    },
+    {
+      "bsp": "n64/n64l0t.cin",
+      "title": "NIntro",
+      "episode": "n64",
+      "unit": 1
+    },
+    {
+      "bsp": "q64/outpost",
+      "title": "Strogg Outpost",
+      "episode": "n64",
+      "unit": 1
+    },
+    {
+      "bsp": "q64/complex",
+      "title": "Central Complex",
+      "episode": "n64",
+      "unit": 1
+    },
+    {
+      "bsp": "q64/intel",
+      "title": "Intelligence Center",
+      "episode": "n64",
+      "unit": 1
+    },
+    {
+      "bsp": "q64/comm",
+      "title": "Communications Center",
+      "episode": "n64",
+      "unit": 1
+    },
+    {
+      "bsp": "n64/n64l4t.cin",
+      "title": "NEOU1",
+      "episode": "n64",
+      "unit": 1
+    },
+    {
+      "bsp": "n64/n64l4t.cin+*q64/orbit",
+      "title": "Unit 2: Orbital Station",
+      "episode": "n64",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true,
+      "start_items": "item_armor_jacket 50;weapon_shotgun;weapon_supershotgun;weapon_machinegun;weapon_chaingun;weapon_grenadelauncher;ammo_grenades 30;ammo_shells 40;ammo_bullets 150"
+    },
+    {
+      "bsp": "q64/orbit",
+      "title": "Orbital Defense",
+      "episode": "n64",
+      "unit": 2
+    },
+    {
+      "bsp": "q64/station",
+      "title": "Docking Station",
+      "episode": "n64",
+      "unit": 2
+    },
+    {
+      "bsp": "n64/n64l6t.cin",
+      "title": "NEOU2",
+      "episode": "n64",
+      "unit": 2
+    },
+    {
+      "bsp": "n64/n64l6t.cin+*q64/ship",
+      "title": "Unit 3: Strogg Ships",
+      "episode": "n64",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true,
+      "start_items": "item_armor_combat 60;weapon_shotgun;weapon_supershotgun;weapon_machinegun;weapon_chaingun;weapon_grenadelauncher;weapon_rocketlauncher;ammo_grenades 40;ammo_shells 35;ammo_bullets 100;ammo_rockets 15"
+    },
+    {
+      "bsp": "q64/ship",
+      "title": "Strogg Freighter",
+      "episode": "n64",
+      "unit": 3
+    },
+    {
+      "bsp": "q64/cargo",
+      "title": "Cargo Bay",
+      "episode": "n64",
+      "unit": 3
+    },
+    {
+      "bsp": "n64/n64l8t.cin",
+      "title": "NEOU3",
+      "episode": "n64",
+      "unit": 3
+    },
+    {
+      "bsp": "n64/n64l8t.cin+*q64/mines",
+      "title": "Unit 4: Mining Planet",
+      "episode": "n64",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true,
+      "start_items": "item_armor_combat 50;weapon_shotgun;weapon_supershotgun;weapon_machinegun;weapon_chaingun;weapon_grenadelauncher;weapon_rocketlauncher;weapon_hyperblaster;weapon_railgun;ammo_grenades 50;ammo_shells 40;ammo_bullets 150;ammo_rockets 25;ammo_cells 50;ammo_slugs 10"
+    },
+    {
+      "bsp": "q64/mines",
+      "title": "Zaxite Mines",
+      "episode": "n64",
+      "unit": 4
+    },
+    {
+      "bsp": "q64/storage",
+      "title": "Storage Facility",
+      "episode": "n64",
+      "unit": 4
+    },
+    {
+      "bsp": "n64/n64l10t.cin",
+      "title": "NEOU4",
+      "episode": "n64",
+      "unit": 4
+    },
+    {
+      "bsp": "n64/n64l10t.cin+*q64/organic",
+      "title": "Unit 5: Human Storage",
+      "episode": "n64",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true,
+      "start_items": "item_armor_combat 50;weapon_shotgun;weapon_supershotgun;weapon_machinegun;weapon_chaingun;weapon_grenadelauncher;weapon_rocketlauncher;weapon_hyperblaster;weapon_railgun;ammo_grenades 50;ammo_shells 50;ammo_bullets 200;ammo_rockets 25;ammo_cells 100;ammo_slugs 20"
+    },
+    {
+      "bsp": "q64/organic",
+      "title": "Organic Storage",
+      "episode": "n64",
+      "unit": 5
+    },
+    {
+      "bsp": "q64/process",
+      "title": "Processing Center",
+      "episode": "n64",
+      "unit": 5
+    },
+    {
+      "bsp": "q64/geo-stat",
+      "title": "Geothermal Station",
+      "episode": "n64",
+      "unit": 5
+    },
+    {
+      "bsp": "q64/jail",
+      "title": "Detention Center",
+      "episode": "n64",
+      "unit": 5
+    },
+    {
+      "bsp": "q64/lab",
+      "title": "Research Lab",
+      "episode": "n64",
+      "unit": 5
+    },
+    {
+      "bsp": "q64/bio",
+      "title": "Bio-waste Treatment",
+      "episode": "n64",
+      "unit": 5
+    },
+    {
+      "bsp": "q64/conduits",
+      "title": "Access Conduits",
+      "episode": "n64",
+      "unit": 5
+    },
+    {
+      "bsp": "n64/n64l7t.cin",
+      "title": "NEOU5",
+      "episode": "n64",
+      "unit": 6
+    },
+    {
+      "bsp": "n64/n64l17t.cin+*q64/core",
+      "title": "Unit 6: Command Core",
+      "episode": "n64",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true,
+      "start_items": "item_armor_combat 50;weapon_shotgun;weapon_supershotgun;weapon_machinegun;weapon_chaingun;weapon_grenadelauncher;weapon_rocketlauncher;weapon_hyperblaster;weapon_railgun;weapon_bfg;ammo_grenades 50;ammo_shells 50;ammo_bullets 200;ammo_rockets 25;ammo_cells 100;ammo_slugs 20"
+    },
+    {
+      "bsp": "q64/core",
+      "title": "Descent to Core",
+      "episode": "n64",
+      "unit": 6
+    },
+    {
+      "bsp": "q64/command",
+      "title": "Command Core",
+      "episode": "n64",
+      "unit": 6
+    },
+    {
+      "bsp": "q64/dm1",
+      "title": "Agony",
+      "episode": "n64",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "q64/dm2",
+      "title": "Corridors",
+      "episode": "n64",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "q64/dm3",
+      "title": "War Room",
+      "episode": "n64",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "q64/dm4",
+      "title": "Twists",
+      "episode": "n64",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "q64/dm5",
+      "title": "Fortress",
+      "episode": "n64",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "q64/dm6",
+      "title": "Cold Steel",
+      "episode": "n64",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "q64/dm7",
+      "title": "Mad Dash",
+      "episode": "n64",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "q64/dm8",
+      "title": "Dying Halls",
+      "episode": "n64",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "q64/dm9",
+      "title": "Empty Space",
+      "episode": "n64",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "q64/dm10",
+      "title": "Overflow",
+      "episode": "n64",
+      "dm": true,
+      "bot": true
+    },
+    {
+      "bsp": "*mguhub",
+      "title": "Gateway Station",
+      "episode": "mg2",
+      "display_bsp": false,
+      "coop": true,
+      "sp": true
+    },
+    {
+      "bsp": "*mgu1m1",
+      "title": "Operation Corpse Run",
+      "episode": "mg2",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true,
+      "bot": true
+    },
+    {
+      "bsp": "*mgu2m1",
+      "title": "Operation Laser Eyes",
+      "episode": "mg2",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true,
+      "bot": true
+    },
+    {
+      "bsp": "*mgu3m1",
+      "title": "Operation Ruined Earth",
+      "episode": "mg2",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true,
+      "bot": true
+    },
+    {
+      "bsp": "*mgu4m1",
+      "title": "Operation Wasteland",
+      "episode": "mg2",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true,
+      "bot": true
+    },
+    {
+      "bsp": "*mgu5m1",
+      "title": "Operation Firewall",
+      "episode": "mg2",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true,
+      "bot": true
+    },
+    {
+      "bsp": "*mgu6m1",
+      "title": "Operation Darkest Depths",
+      "episode": "mg2",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true,
+      "bot": true
+    },
+    {
+      "bsp": "*mguboss",
+      "title": "Temple of the Creator",
+      "episode": "mg2",
+      "display_bsp": false,
+      "sp": true,
+      "coop": true,
+      "bot": true
+    },
+    {
+      "bsp": "mgu1m1",
+      "title": "A Grave For Dead Gods",
+      "episode": "mg2",
+      "unit": 1
+    },
+    {
+      "bsp": "mgu1m2",
+      "title": "Megacorpse IV",
+      "episode": "mg2",
+      "unit": 1
+    },
+    {
+      "bsp": "mgu1m3",
+      "title": "The Death Gate",
+      "episode": "mg2",
+      "unit": 1
+    },
+    {
+      "bsp": "mgu1m4",
+      "title": "Give Me Back My Moon",
+      "episode": "mg2",
+      "unit": 1
+    },
+    {
+      "bsp": "mgu1m5",
+      "title": "Strogg Jammers",
+      "episode": "mg2",
+      "unit": 1
+    },
+    {
+      "bsp": "mgu1trial",
+      "title": "The Casali Effect",
+      "episode": "mg2",
+      "unit": 1
+    },
+    {
+      "bsp": "mgu2m1",
+      "title": "Outer Complex",
+      "episode": "mg2",
+      "unit": 2
+    },
+    {
+      "bsp": "mgu2m2",
+      "title": "Security Annex",
+      "episode": "mg2",
+      "unit": 2
+    },
+    {
+      "bsp": "mgu2m3",
+      "title": "Comms Bunker",
+      "episode": "mg2",
+      "unit": 2
+    },
+    {
+      "bsp": "mgu3m1",
+      "title": "Echoes of the Past",
+      "episode": "mg2",
+      "unit": 3
+    },
+    {
+      "bsp": "mgu3m2",
+      "title": "Ruined Earth",
+      "episode": "mg2",
+      "unit": 3
+    },
+    {
+      "bsp": "mgu3m3",
+      "title": "Strogg Mining Intake",
+      "episode": "mg2",
+      "unit": 3
+    },
+    {
+      "bsp": "mgu3m4",
+      "title": "Way of the Marine",
+      "episode": "mg2",
+      "unit": 3
+    },
+    {
+      "bsp": "mgu3secret",
+      "title": "Pumping Station III",
+      "episode": "mg2",
+      "unit": 3
+    },
+    {
+      "bsp": "mgu4m1",
+      "title": "Uplink Tower",
+      "episode": "mg2",
+      "unit": 4
+    },
+    {
+      "bsp": "mgu4m2",
+      "title": "Heavy Water",
+      "episode": "mg2",
+      "unit": 4
+    },
+    {
+      "bsp": "mgu4m3",
+      "title": "Junkyard",
+      "episode": "mg2",
+      "unit": 4
+    },
+    {
+      "bsp": "mgu4trial",
+      "title": "McGee Station",
+      "episode": "mg2",
+      "unit": 4
+    },
+    {
+      "bsp": "mgu5m1",
+      "title": "Surface Infiltration",
+      "episode": "mg2",
+      "unit": 5
+    },
+    {
+      "bsp": "mgu5m2",
+      "title": "Strogg Flesh Labs",
+      "episode": "mg2",
+      "unit": 5
+    },
+    {
+      "bsp": "mgu5m3",
+      "title": "The Mainframe",
+      "episode": "mg2",
+      "unit": 5
+    },
+    {
+      "bsp": "mgu5trial",
+      "title": "Baklava",
+      "episode": "mg2",
+      "unit": 5
+    },
+    {
+      "bsp": "mgu6m1",
+      "title": "Too Deep",
+      "episode": "mg2",
+      "unit": 6
+    },
+    {
+      "bsp": "mgu6m2",
+      "title": "Too Greedy",
+      "episode": "mg2",
+      "unit": 6
+    },
+    {
+      "bsp": "mgu6m3",
+      "title": "Fatalism",
+      "episode": "mg2",
+      "unit": 6
+    },
+    {
+      "bsp": "mgu6trial",
+      "title": "Turbine",
+      "episode": "mg2",
+      "unit": 6
+    },
+    {
+      "bsp": "mguboss",
+      "title": "Temple of the Creator",
+      "episode": "mg2",
+      "unit": 7
+    },
+    {
+      "bsp": "mguhub",
+      "title": "Strogg Gateway",
+      "episode": "mg2",
+      "unit": 1
+    },
+    {
+      "bsp": "tutorial",
+      "title": "Tutorial",
+      "episode": "mg2"
+    }
+  ]
+}
