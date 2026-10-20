@@ -127,7 +127,7 @@ P_ConvertConfigStringFrom(int i, int protocol)
 			i += CS_GENERAL - CS_GENERAL_Q2DEMO;
 		}
 	}
-	else if (protocol == PROTOCOL_RR22_VERSION)
+	else if (IS_QIIRR_PROTOCOL(protocol))
 	{
 		if (i >= CS_AIRACCEL && i < CS_AIRACCEL_RR22DEMO)
 		{
@@ -283,7 +283,7 @@ P_GetCountOfItems(int protocol)
 	{
 		return MAX_ITEMS_Q2DEMO;
 	}
-	else if (protocol == PROTOCOL_RR22_VERSION)
+	else if (IS_QIIRR_PROTOCOL(protocol))
 	{
 		return MAX_ITEMS_RR22DEMO;
 	}
@@ -302,7 +302,7 @@ P_GetCountOfStats(int protocol)
 	{
 		return MAX_STATS_H2DEMO;
 	}
-	else if (protocol == PROTOCOL_RR22_VERSION)
+	else if (IS_QIIRR_PROTOCOL(protocol))
 	{
 		return MAX_STATS_RR22DEMO;
 	}
