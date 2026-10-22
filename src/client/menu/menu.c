@@ -3633,6 +3633,7 @@ LevelSelect_NamesInit(void)
 						}
 					}
 				}
+				current_key[0] = '\0';
 				continue;
 			}
 
@@ -3641,7 +3642,7 @@ LevelSelect_NamesInit(void)
 				continue;
 			}
 
-			if (token[0] != '"' && token[0] != '\'')
+			if (current_key[0] == '\0')
 			{
 				Q_strlcpy(current_key, token, sizeof(current_key));
 			}
@@ -3649,15 +3650,6 @@ LevelSelect_NamesInit(void)
 			{
 				char val[256];
 				Q_strlcpy(val, token, sizeof(val));
-				if (val[0] == '"' || val[0] == '\'')
-				{
-					size_t len = strlen(val);
-					if (len >= 2 && val[len - 1] == val[0])
-					{
-						val[len - 1] = '\0';
-						memmove(val, val + 1, len - 1);
-					}
-				}
 
 				if (section == SECTION_EPISODES && num_episodes < 16)
 				{
