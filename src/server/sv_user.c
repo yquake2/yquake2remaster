@@ -84,7 +84,7 @@ SV_BeginDemoserver(void)
 int
 SV_GetRecomendedProtocol(void)
 {
-	if (ge->apiversion == GAME_API_R97_VERSION)
+	if (ge && ge->apiversion == GAME_API_R97_VERSION)
 	{
 		/* backward compatibility */
 		return PROTOCOL_R97_VERSION;

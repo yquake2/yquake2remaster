@@ -67,7 +67,7 @@ SV_FindIndex(const char *name, int start, int max, qboolean create)
 		return 0;
 	}
 
-	protocol = sv_client ? sv_client->protocol : PROTOCOL_VERSION;
+	protocol = sv_client ? sv_client->protocol : SV_GetRecomendedProtocol();
 
 	for (i = 1; i < max && sv.configstrings[start + i][0]; i++)
 	{

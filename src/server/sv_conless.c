@@ -61,10 +61,12 @@ SVC_Info(void)
 
 	version = (int)strtol(Cmd_Argv(1), (char **)NULL, 10);
 
-	if (version != PROTOCOL_VERSION)
+	if ((version != PROTOCOL_VERSION) &&
+		(version != PROTOCOL_RR23_VERSION) &&
+		(version != PROTOCOL_R97_VERSION))
 	{
-		Com_sprintf(string, sizeof(string), "%s: wrong version\n",
-				hostname->string);
+		Com_sprintf(string, sizeof(string), "%s: wrong %d version\n",
+				hostname->string, version);
 	}
 	else
 	{
@@ -165,9 +167,12 @@ SVC_DirectConnect(void)
 
 	version = (int)strtol(Cmd_Argv(1), (char **)NULL, 10);
 
-	if (version != PROTOCOL_VERSION)
+	if ((version != PROTOCOL_VERSION) &&
+		(version != PROTOCOL_RR23_VERSION) &&
+		(version != PROTOCOL_R97_VERSION))
 	{
-		Netchan_OutOfBandPrint(NS_SERVER, adr, "print\nServer is protocol version 34.\n");
+		Netchan_OutOfBandPrint(NS_SERVER, adr, "print\nServer is protocol version %d.\n",
+			SV_GetRecomendedProtocol());
 		Com_DPrintf("    rejected connect from version %i\n", version);
 		return;
 	}
@@ -311,6 +316,7 @@ gotnewcl:
 	Netchan_Setup(NS_SERVER, &newcl->netchan, adr, qport);
 
 	newcl->state = cs_connected;
+	newcl->protocol = SV_GetRecomendedProtocol();
 
 	SZ_Init(&newcl->datagram, newcl->datagram_buf, sizeof(newcl->datagram_buf));
 	newcl->datagram.allowoverflow = true;

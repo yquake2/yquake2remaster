@@ -307,7 +307,7 @@ SV_StartSound(const vec3_t origin, const edict_t *entity, int channel, int sound
 	qboolean use_phs;
 	multicast_t to;
 
-	protocol = sv_client ? sv_client->protocol : PROTOCOL_VERSION;
+	protocol = sv_client ? sv_client->protocol : SV_GetRecomendedProtocol();
 
 	if ((volume < 0.0f) || (volume > 1.0f))
 	{

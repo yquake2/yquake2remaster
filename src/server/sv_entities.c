@@ -779,7 +779,7 @@ SV_RecordDemoMessage(void)
 
 			SV_GetEntityState(ent, &state);
 			MSG_WriteDeltaEntity(&nostate, &state, &buf,
-				false, true, PROTOCOL_VERSION);
+				false, true, SV_GetRecomendedProtocol());
 		}
 
 		e++;
