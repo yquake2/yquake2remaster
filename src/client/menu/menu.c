@@ -3536,6 +3536,246 @@ LevelSelect_Free(void)
 	s_ls_cmd = NULL;
 }
 
+typedef struct
+{
+	char id[32];
+	char name[64];
+} mapdb_episode_t;
+
+typedef struct
+{
+	char episode[32];
+	char title[64];
+	char bsp[64];
+	qboolean sp;
+} mapdb_map_t;
+
+static char *
+LevelSelectParseMapDBEpisodes(char* s, mapdb_episode_t **episodes, int *count)
+{
+	int curr = 0;
+
+	*episodes = malloc(sizeof(**episodes));
+	YQ2_COM_CHECK_OOM(*episodes, "malloc()", sizeof(**episodes))
+	if (!*episodes)
+	{
+		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+		return NULL;
+	}
+
+	while (s)
+	{
+		const char *token;
+
+		token = COM_Parse(&s);
+		if (!strcmp(token, "]") || !strcmp(token, "],"))
+		{
+			*count = curr;
+			return s;
+		}
+		else if (!strcmp(token, ",") || !strcmp(token, "{"))
+		{
+			continue;
+		}
+		else if (!strcmp(token, "}") || !strcmp(token, "},"))
+		{
+			mapdb_episode_t *tmp;
+
+			curr++;
+			tmp = realloc(*episodes, sizeof(**episodes) * (curr + 1));
+			YQ2_COM_CHECK_OOM(tmp, "realloc()", sizeof(**episodes) * (curr + 1))
+			if (!tmp)
+			{
+				/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+				return NULL;
+			}
+
+			*episodes = tmp;
+		}
+		else if (!strcmp(token, "id") ||
+			!strcmp(token, "name"))
+		{
+			/* Ignored for now:
+			 * - "command"
+			 * - "activity"
+			 * - "needsSkillSelect"
+			 */
+			char key[16];
+
+			/* copy parent token */
+			Q_strlcpy(key, token, sizeof(key));
+
+			token = COM_Parse(&s);
+			if (strcmp(token, ":"))
+			{
+				/* should : */
+				return NULL;
+			}
+			token = COM_Parse(&s);
+
+			if (!strcmp(key, "id"))
+			{
+				Q_strlcpy((*episodes)[curr].id, token, sizeof((*episodes)[curr].id));
+			}
+			else if (!strcmp(key, "name"))
+			{
+				Q_strlcpy((*episodes)[curr].name, token, sizeof((*episodes)[curr].name));
+			}
+		}
+	}
+
+	return s;
+}
+
+static char*
+LevelSelectParseMapDBMaps(char* s, mapdb_map_t **maps, int *count)
+{
+	int curr = 0;
+
+	*maps = malloc(sizeof(**maps));
+	YQ2_COM_CHECK_OOM(*maps, "malloc()", sizeof(**maps))
+	if (!*maps)
+	{
+		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+		return NULL;
+	}
+	memset(*maps, 0, sizeof(**maps));
+
+	while (s)
+	{
+		const char *token;
+
+		token = COM_Parse(&s);
+		if (!strcmp(token, "]") || !strcmp(token, "],"))
+		{
+			*count = curr;
+			return s;
+		}
+		else if (!strcmp(token, ",") || !strcmp(token, "{"))
+		{
+			continue;
+		}
+		else if (!strcmp(token, "}") || !strcmp(token, "},"))
+		{
+			 mapdb_map_t *tmp;
+
+			curr++;
+			tmp = realloc(*maps, sizeof(**maps) * (curr + 1));
+			YQ2_COM_CHECK_OOM(tmp, "realloc()", sizeof(**maps) * (curr + 1))
+			if (!tmp)
+			{
+				/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+				return NULL;
+			}
+
+			*maps = tmp;
+			memset((*maps) + curr, 0, sizeof(**maps));
+		}
+		else if (!strcmp(token, "bsp") ||
+			!strcmp(token, "title") ||
+			!strcmp(token, "sp") ||
+			!strcmp(token, "episode"))
+		{
+			/* Ignored for now:
+			 * - "ctf"
+			 * - "tdm"
+			 * - "dm"
+			 * - "bot"
+			 */
+			char key[16];
+
+			/* copy parent token */
+			Q_strlcpy(key, token, sizeof(key));
+
+			token = COM_Parse(&s);
+			if (strcmp(token, ":"))
+			{
+				/* should : */
+				return NULL;
+			}
+			token = COM_Parse(&s);
+
+			if (!strcmp(key, "bsp"))
+			{
+				Q_strlcpy((*maps)[curr].bsp, token, sizeof((*maps)[curr].bsp));
+			}
+			else if (!strcmp(key, "title"))
+			{
+				Q_strlcpy((*maps)[curr].title, token, sizeof((*maps)[curr].title));
+			}
+			else if (!strcmp(key, "episode"))
+			{
+				Q_strlcpy((*maps)[curr].episode, token, sizeof((*maps)[curr].episode));
+			}
+			else if (!strcmp(key, "sp"))
+			{
+				if (!strcmp(token, "true") || !strcmp(token, "true,"))
+				{
+					(*maps)[curr].sp = true;
+				}
+				else
+				{
+					(*maps)[curr].sp = false;
+				}
+			}
+		}
+	}
+
+	return s;
+}
+
+static void
+LevelSelectParseMapDB(char* s, mapdb_episode_t **episodes, int *episodes_num,
+	mapdb_map_t **maps, int *maps_num)
+{
+	const char *token;
+
+	token = COM_Parse(&s);
+	if (!s || strcmp(token, "{"))
+	{
+		/* no open of { */
+		return;
+	}
+
+	while (s)
+	{
+		char parent_token[16];
+
+		token = COM_Parse(&s);
+		if (strcmp(token, "episodes") && strcmp(token, "maps"))
+		{
+			/* only episidos and maps supported on root level */
+			return;
+		}
+
+		/* copy parent token */
+		Q_strlcpy(parent_token, token, sizeof(parent_token));
+
+		token = COM_Parse(&s);
+		if (!s || strcmp(token, ":"))
+		{
+			/* no : */
+			return;
+		}
+
+		token = COM_Parse(&s);
+		if (!s || strcmp(token, "["))
+		{
+			/* no open [ */
+			return;
+		}
+
+		if (!strcmp(parent_token, "episodes"))
+		{
+			s = LevelSelectParseMapDBEpisodes(s, episodes, episodes_num);
+		}
+		else if (!strcmp(parent_token, "maps"))
+		{
+			s = LevelSelectParseMapDBMaps(s, maps, maps_num);
+		}
+	}
+}
+
 static void
 LevelSelect_NamesInit(void)
 {
@@ -3545,6 +3785,46 @@ LevelSelect_NamesInit(void)
 	/* not on game menu close, M_PushMenu may close it after this rebuild */
 	LevelSelect_Free();
 
+	if (FS_LoadFile("mapdb.json", (void **)&buffer) > 0)
+	{
+		int num_episodes = 0, num_maps = 0, i;
+		mapdb_episode_t *episodes = NULL;
+		mapdb_map_t *maps = NULL;
+
+		LevelSelectParseMapDB(buffer, &episodes, &num_episodes, &maps, &num_maps);
+
+		FS_FreeFile(buffer);
+
+		for (i = 0; i < num_episodes; i++)
+		{
+			int j;
+
+			camp = AddCampaign(episodes[i].name);
+
+			if (!camp)
+			{
+				continue;
+			}
+
+			for (j = 0; j < num_maps; j++)
+			{
+				if (maps[j].sp && !strcmp(maps[j].episode, episodes[i].id))
+				{
+					StrList_Append(&camp->names, maps[j].title);
+					StrList_Append(&camp->cmds, va("map %s", maps[j].bsp));
+				}
+			}
+		}
+		free(episodes);
+		free(maps);
+
+		if (s_campaignnames.num > 0)
+		{
+			return;
+		}
+	}
+
+	/* Fallback to yq2_levelsel.lst if mapdb.json didn't work or didn't provide campaigns */
 	if (FS_LoadFile("yq2_levelsel.lst", (void **)&buffer) <= 0)
 	{
 		return;
@@ -4768,58 +5048,38 @@ GetMapsDBList(void)
 
 	if (FS_LoadFile("mapdb.json", (void **)&buffer) > 0)
 	{
-		char *s = buffer;
-		char shortname[MAX_TOKEN_CHARS];
-		char longname[MAX_TOKEN_CHARS];
-		char scratch[200];
+		int num_episodes = 0, num_maps = 0, i;
+		mapdb_episode_t *episodes = NULL;
+		mapdb_map_t *maps = NULL;
 
-		/* We’ll scan through the JSON with COM_Parse, looking for "bsp" and "title" keys */
-		while (1)
+		LevelSelectParseMapDB(buffer, &episodes, &num_episodes, &maps, &num_maps);
+
+		for (i = 0; i < num_maps; i++)
 		{
-			const char *token = COM_Parse(&s);
-			if (!token || !*token)
+			char shortname[MAX_TOKEN_CHARS];
+			char longname[MAX_TOKEN_CHARS];
+			char scratch[200];
+
+			Q_strlcpy(shortname, maps[i].bsp, sizeof(shortname));
+			for (size_t j = 0; j < strlen(shortname); j++)
 			{
-				break;
+				shortname[j] = toupper((unsigned char)shortname[j]);
 			}
 
-			if (!strcmp(token, "bsp"))
-			{
-				/* skip ':' */
-				token = COM_Parse(&s);
-				/* next token is the bsp string */
-				token = COM_Parse(&s);
-				if (token && *token)
-				{
-					Q_strlcpy(shortname, token, sizeof(shortname));
-					for (size_t j = 0; j < strlen(shortname); j++)
-					{
-						shortname[j] = toupper((unsigned char)shortname[j]);
-					}
-				}
-			}
-			else if (!strcmp(token, "title"))
-			{
-				/* skip ':' */
-				token = COM_Parse(&s);
-				/* next token is the title string */
-				token = COM_Parse(&s);
-				if (token && *token)
-				{
-					Q_strlcpy(longname, token, sizeof(longname));
+			Q_strlcpy(longname, maps[i].title, sizeof(longname));
 
-					/* now we have both bsp and title, build entry */
-					if (snprintf(scratch, sizeof(scratch),
-						"%.*s\n%s",
-						63, longname, shortname) < sizeof(scratch))
-					{
-						StrList_Append(&list, scratch);
-					}
-				}
+			/* now we have both bsp and title, build entry */
+			if (snprintf(scratch, sizeof(scratch),
+				"%.*s\n%s", 63, longname, shortname) < sizeof(scratch))
+			{
+				StrList_Append(&list, scratch);
 			}
 		}
-	}
 
-	FS_FreeFile(buffer);
+		free(maps);
+		free(episodes);
+		FS_FreeFile(buffer);
+	}
 
 	return list;
 }

@@ -264,7 +264,7 @@ Checked with:
 ### Next release:
 * [x] ReRelease: implement demo protocol based on https://github.com/res2k/q2proto
       and https://github.com/Paril/quake2-rerelease-dll,
-* [ ] ReRelease: select start level through `mapddb.json`
+* [x] ReRelease: select start level through `mapddb.json`
 
 ### Fixed:
 * [x] renders: optimize count of threads,
