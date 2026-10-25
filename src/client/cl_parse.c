@@ -26,6 +26,7 @@
 
 #include "header/client.h"
 #include "input/header/input.h"
+#include "../common/unzip/miniz/miniz.h"
 
 static int bitcounts[64]; /* just for protocol profiling */
 
@@ -1019,6 +1020,11 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 		else
 		{
 			state->gunindex = MSG_ReadShort(&net_message);
+			if (IS_QIIRR_PROTOCOL(protocol))
+			{
+				state->gunindex &= 0x1fff;
+			}
+
 			if (state->gunindex < 0 || state->gunindex >= MAX_MODELS)
 			{
 				Com_Error(ERR_DROP, "%s: bad gunindex %d", __func__, state->gunindex);
@@ -1429,7 +1435,6 @@ CL_ParseServerData(void)
 
 	if ((cl_shownet->value == 0) &&
 		((i == PROTOCOL_H2DEMO_VERSION) ||
-		 (i == PROTOCOL_RR23_VERSION) ||
 		 (i == PROTOCOL_Q2TEST_VERSION)))
 	{
 		Com_Error(ERR_DROP, "Network protocol '%s' is currently unsupported\n",
@@ -1770,14 +1775,11 @@ CL_LoadShadowLight(int idx, const char *s)
 }
 
 static void
-CL_ParseConfigString(void)
+CL_ParseConfigStringValue(int orig_i, char *s)
 {
-	int i, orig_i, cs_changed;
+	int i, cs_changed;
 	size_t length, space;
-	char *s, *cs;
-
-	orig_i = MSG_ReadShort(&net_message) & 0xFFFF;
-	s = MSG_ReadString(&net_message);
+	char *cs;
 
 	i = P_ConvertConfigStringFrom(orig_i, cls.serverProtocol);
 
@@ -1889,6 +1891,172 @@ CL_ParseConfigString(void)
 	else if ((i >= CS_SHADOWLIGHTS) && (i < CS_SHADOWLIGHTS + MAX_SHADOW_LIGHTS))
 	{
 		CL_LoadShadowLight(i - CS_SHADOWLIGHTS, s);
+	}
+}
+
+static void
+CL_ParseConfigString(sizebuf_t *message)
+{
+	int orig_i;
+	char *s;
+
+	orig_i = MSG_ReadShort(message) & 0xFFFF;
+	s = MSG_ReadString(message);
+	CL_ParseConfigStringValue(orig_i, s);
+}
+
+static void
+CL_ParseLevelRestart(void)
+{
+	while (1)
+	{
+		int index;
+		char *value;
+
+		if (net_message.readcount > net_message.cursize ||
+			net_message.cursize - net_message.readcount < 2)
+		{
+			Com_Error(ERR_DROP, "%s: truncated configstring list", __func__);
+			return;
+		}
+
+		index = MSG_ReadShort(&net_message);
+		if (index == -1)
+		{
+			break;
+		}
+
+		value = MSG_ReadString(&net_message);
+		if (net_message.readcount > net_message.cursize)
+		{
+			Com_Error(ERR_DROP, "%s: truncated configstring value", __func__);
+			return;
+		}
+
+		CL_ParseConfigStringValue(index, value);
+	}
+}
+
+static void
+CL_InflateBlast(byte **data, int *data_len)
+{
+	int compressed_len, uncompressed_len;
+	mz_ulong actual_len;
+	byte *compressed_data, *uncompressed_data;
+	int result;
+
+	if (net_message.readcount > net_message.cursize ||
+		net_message.cursize - net_message.readcount < 4)
+	{
+		Com_Error(ERR_DROP, "%s: truncated blast header", __func__);
+		return;
+	}
+
+	compressed_len = MSG_ReadShort(&net_message) & 0xFFFF;
+	uncompressed_len = MSG_ReadShort(&net_message) & 0xFFFF;
+
+	if (!compressed_len || !uncompressed_len ||
+		compressed_len > net_message.cursize - net_message.readcount)
+	{
+		Com_Error(ERR_DROP, "%s: invalid blast sizes %d/%d",
+			__func__, compressed_len, uncompressed_len);
+		return;
+	}
+
+	compressed_data = malloc(compressed_len);
+	uncompressed_data = malloc(uncompressed_len);
+
+	if (!compressed_data || !uncompressed_data)
+	{
+		free(compressed_data);
+		free(uncompressed_data);
+		Com_Error(ERR_DROP, "%s: couldn't allocate blast buffers", __func__);
+		return;
+	}
+
+	MSG_ReadData(&net_message, compressed_data, compressed_len);
+	actual_len = uncompressed_len;
+	result = mz_uncompress(uncompressed_data, &actual_len,
+		compressed_data, compressed_len);
+	free(compressed_data);
+
+	if (result != MZ_OK || actual_len != (mz_ulong)uncompressed_len)
+	{
+		free(uncompressed_data);
+		Com_Error(ERR_DROP, "%s: couldn't inflate blast (miniz %d, size %lu/%d)",
+			__func__, result, (unsigned long)actual_len, uncompressed_len);
+		return;
+	}
+
+	*data = uncompressed_data;
+	*data_len = uncompressed_len;
+}
+
+static void
+CL_ParseConfigBlast(void)
+{
+	byte *uncompressed_data = NULL;
+	int uncompressed_len;
+	sizebuf_t inflated_message;
+
+	CL_InflateBlast(&uncompressed_data, &uncompressed_len);
+	if (!uncompressed_data)
+	{
+		return;
+	}
+
+	SZ_Init(&inflated_message, uncompressed_data, uncompressed_len);
+
+	while (inflated_message.readcount < inflated_message.cursize)
+	{
+		CL_ParseConfigString(&inflated_message);
+
+		if (inflated_message.readcount > inflated_message.cursize)
+		{
+			free(uncompressed_data);
+			Com_Error(ERR_DROP, "%s: malformed inflated config strings", __func__);
+			return;
+		}
+	}
+
+	free(uncompressed_data);
+}
+
+static void
+CL_ParseBaselineBlast(void)
+{
+	byte *uncompressed_data = NULL;
+	int uncompressed_len;
+	sizebuf_t inflated_message, original_message;
+	qboolean malformed = false;
+
+	CL_InflateBlast(&uncompressed_data, &uncompressed_len);
+	if (!uncompressed_data)
+	{
+		return;
+	}
+
+	SZ_Init(&inflated_message, uncompressed_data, uncompressed_len);
+	original_message = net_message;
+	net_message = inflated_message;
+
+	while (net_message.readcount < net_message.cursize)
+	{
+		CL_ParseBaseline();
+
+		if (net_message.readcount > net_message.cursize)
+		{
+			malformed = true;
+			break;
+		}
+	}
+
+	net_message = original_message;
+	free(uncompressed_data);
+
+	if (malformed)
+	{
+		Com_Error(ERR_DROP, "%s: malformed inflated baselines", __func__);
 	}
 }
 
@@ -2032,6 +2200,70 @@ CL_ParseStartSoundPacket(void)
 
 	S_StartSound(pos, ent, channel, cl.sound_precache[sound_num],
 			volume, attenuation, ofs);
+}
+
+static void
+CL_ParsePOI(void)
+{
+	int key, time, image, color, flags;
+	vec3_t pos;
+
+	key = MSG_ReadShort(&net_message);
+	time = MSG_ReadShort(&net_message);
+	pos[0] = MSG_ReadFloat(&net_message);
+	pos[1] = MSG_ReadFloat(&net_message);
+	pos[2] = MSG_ReadFloat(&net_message);
+	image = MSG_ReadShort(&net_message);
+	color = MSG_ReadByte(&net_message);
+	flags = MSG_ReadByte(&net_message);
+
+	Com_DPrintf("%s: key %d, time %d, image %d, color %d, flags %d at %.2fx%.2fx%.2f\n",
+		__func__, key, time, image, color, flags, pos[0], pos[1], pos[2]);
+}
+
+static void
+CL_ParseHelpPath(void)
+{
+	int start;
+	vec3_t pos, dir;
+
+	start = MSG_ReadByte(&net_message);
+	pos[0] = MSG_ReadFloat(&net_message);
+	pos[1] = MSG_ReadFloat(&net_message);
+	pos[2] = MSG_ReadFloat(&net_message);
+	MSG_ReadDir(&net_message, dir);
+
+	Com_DPrintf("%s: start %d at %.2fx%.2fx%.2f, direction %.2fx%.2fx%.2f\n",
+		__func__, start, pos[0], pos[1], pos[2], dir[0], dir[1], dir[2]);
+}
+
+static void
+CL_ParseWaitingForPlayers(void)
+{
+	int count;
+
+	count = MSG_ReadByte(&net_message);
+	if (count < 0)
+	{
+		Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+		return;
+	}
+
+	Com_DPrintf("%s: %d players waiting\n", __func__, count);
+}
+
+static void
+CL_ParseBotChat(void)
+{
+	char bot_name[2048], message[2048];
+	int client;
+
+	Q_strlcpy(bot_name, MSG_ReadString(&net_message), sizeof(bot_name));
+	client = MSG_ReadShort(&net_message);
+	Q_strlcpy(message, MSG_ReadString(&net_message), sizeof(message));
+
+	Com_DPrintf("%s: %s to client %d: %s\n",
+		__func__, bot_name, client, message);
 }
 
 static void
@@ -2337,7 +2569,15 @@ CL_ParseServerMessage(void)
 				break;
 
 			case svc_configstring:
-				CL_ParseConfigString();
+				CL_ParseConfigString(&net_message);
+				break;
+
+			case svc_configblast:
+				CL_ParseConfigBlast();
+				break;
+
+			case svc_level_restart:
+				CL_ParseLevelRestart();
 				break;
 
 			case svc_sound:
@@ -2350,6 +2590,10 @@ CL_ParseServerMessage(void)
 
 			case svc_spawnbaseline:
 				CL_ParseBaseline();
+				break;
+
+			case svc_spawnbaselineblast:
+				CL_ParseBaselineBlast();
 				break;
 
 			case svc_temp_entity:
@@ -2387,6 +2631,27 @@ CL_ParseServerMessage(void)
 
 			case svc_fog:
 				CL_AddFog(&cl.refdef.fog);
+				break;
+
+			case svc_waitingforplayers:
+				CL_ParseWaitingForPlayers();
+				break;
+
+			case svc_bot_chat:
+				CL_ParseBotChat();
+				break;
+
+			case svc_poi:
+				CL_ParsePOI();
+				break;
+
+			case svc_help_path:
+				CL_ParseHelpPath();
+				break;
+
+			case svc_achievement:
+				Com_DPrintf("%s: achievement %s\n",
+					__func__, MSG_ReadString(&net_message));
 				break;
 
 			case svc_playerinfo:

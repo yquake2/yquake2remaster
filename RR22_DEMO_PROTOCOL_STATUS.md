@@ -1,53 +1,51 @@
 # ReRelease Demo Protocol Status
 
-## Current State
+## RR22 and RR23 Differences
 
-RR22 demo protocol support is in progress. The current baseline is commit `2efb84dd` (`continue parse`), following the initial work in `0e4d54a3` (`RR22`). The parser changes are in [src/client/cl_parse.c](src/client/cl_parse.c); `q2proto/` is being used as a protocol reference and has not been modified for this work.
+The q2repro protocol reference distinguishes protocol `2022` (`PROTOCOL_VERSION_KEX_DEMOS`) from protocol `2023` (`PROTOCOL_VERSION_KEX`):
 
-## Implemented So Far
+- Both use 32-bit entity solid values, float entity angles, and float player movement origins, velocities, and angles.
+- RR22 demo recordings use compact 12.3 fixed-point entity coordinates when the entity solid is zero; nonzero solids use float coordinates. RR23 uses float entity coordinates for all entities.
+- Both protocols use the KEX player-state layout, including 16-bit movement time/flags, packed weapon-frame fields, and 64 stats.
+- RR23 recordings can include compressed config-string and baseline blasts, level-restart config-string lists, and additional KEX messages such as POI and help-path updates.
 
-- RR22 entity parsing handles `U_MODEL16`, the extended effects field, 32-bit solid values, compact coordinates for nonsolid entities, float angles, and packed sound fields.
-- RR22 player-state parsing handles float movement origins/velocities and angles, short view offsets, packed weapon-frame flags, and the 64-stat layout.
-- RR22 stats are read in wire order: each 32-bit stat mask is followed by that group's values.
-- KEX extended player-state flags, damage-blend and team-ID payloads are consumed; gun index/skin is masked to the 13-bit index.
-- Entity deltas support the fifth flag byte, KEX scale/instance/owner/oldframe fields, and RR22 solid-dependent coordinate precision.
-- `svc_splitclient`, `svc_locprint`, `svc_damage`, and `svc_muzzleflash3` are dispatched; sound entity/channel fields and positional coordinates use KEX demo encodings.
-- KEX temporary-entity additions are decoded without colliding with the RTX `TE_FLARE` value.
-- RR22 gun-frame flags are kept unsigned, and legacy gun offset/angle bytes are not consumed for RR22.
+The key RR23 desynchronization was reading `U_SOLID` as a 16-bit value even though q2repro reads it as 32-bit for both protocols. RR23 entity angles and several player-state fields were also being rejected or decoded with legacy formats.
 
-All seven bundled demos have been replayed with `timedemo` enabled and no parser errors. They produced frame summaries from 962 frames (`demo2.dm2`) to 2,040 frames (`rdemo1.dm2`).
+## Implemented
 
-## Current Validation Frontier
+- RR22 and RR23 entity deltas read 32-bit solid values. RR22 keeps solid-dependent coordinate precision; RR23 reads float coordinates throughout.
+- RR23 entity angles, player movement origins/velocities, movement time/flags, view offsets/angles, kick angles, weapon-frame data, and stats use the KEX encodings.
+- ReRelease gun index/skin is masked to its 13-bit model index.
+- Compressed KEX config-string and baseline blasts are inflated with the bundled miniz library and decoded through the existing config-string and baseline parsers.
+- KEX level-restart config-string lists, POI, help-path, waiting-for-players, bot-chat, and achievement payloads are consumed so playback remains synchronized.
+- RR22 and RR23 player-state and entity parsing share the encodings that q2repro defines identically; RR22-only coordinate compression remains isolated to protocol 2022.
 
-No parser failure is currently known in the bundled RR22 demos. Continue by replaying all seven after changes to shared frame, player-state, sound, or temporary-entity decoding.
+`q2repro/q2proto` was used as a protocol reference and was not modified.
 
-## Reproduction
+## Validation
 
-From the repository root, build with the native Makefile (CMake Tools has no configured CMake cache here):
+Build from the repository root:
 
 ```sh
 make -j2 DEBUG=1
 ```
 
-Run one demo with protocol tracing:
+Run a requested recording with protocol tracing and bounded playback:
 
 ```sh
-./debug/quake2 -datadir rerelease-assets +set cl_shownet 2 +demomap demo1.dm2
+timeout --signal=TERM 240s ./debug/quake2 -datadir rerelease-assets \
+  +set vid_renderer gl3 +set vid_pauseonfocuslost 1 +set cl_shownet 2 \
+  +set timedemo 1 +set nextdemo quit +demomap tutorial.dm2
 ```
 
-`demomap` prepends `demos/` itself, so pass the filename only. The bundled files are `demo1.dm2`, `demo2.dm2`, `rdemo1.dm2`, `rdemo2.dm2`, `xdemo1.dm2`, `xdemo2.dm2`, and `xdemo3.dm2` in `rerelease-assets/baseq2/demos/`.
+`demomap` prepends `demos/`. The checked-in asset is named `tutorial-nongod.dm2` (not `tutorial-nogod.dm2`).
 
-To bound a headless/automated replay and keep the trace for inspection:
+| Recording | Result |
+| --- | --- |
+| `tutorial.dm2` | 14,389 frames; no parser errors |
+| `tutorial-nongod.dm2` | 6,142 frames; no parser errors |
+| `q64.dm2` | 28,009 `svc_frame` messages decoded; compressed config/baseline blasts and both level restarts parsed; no parser errors |
 
-```sh
-timeout --signal=TERM 40s ./debug/quake2 -datadir rerelease-assets +set vid_renderer gl3 +set vid_pauseonfocuslost 1 +set cl_shownet 2 +demomap demo1.dm2 > /tmp/rr22-demo1.log 2>&1
-```
+`q64.dm2` changes maps during playback, so the final timedemo summary reports zero frames after the last disconnect even though the trace contains 28,009 decoded frame messages. The game exits cleanly with `nextdemo` set to `quit`.
 
-Set `vid_pauseonfocuslost` to `1` for headless or background playback; otherwise losing window focus pauses the local demo server. The bounded trace may exit 124 by design. The timedemo must run to its `nextdemo quit` completion to produce a valid benchmark.
-
-## Build And Worktree Notes
-
-- `make -j2 DEBUG=1` successfully compiled and linked the current client and renderer modules.
-- `Build_CMakeTools` was attempted but could not load a CMake cache; use the native Makefile unless a CMake build is configured.
-- Source diagnostics for the touched parser, effects, temp-entity, and protocol files reported no errors.
-- The worktree also contains untracked `DoomViewer/`, `bsp_viewer/`, `q2proto/`, `rerelease-assets/`, and `rerelease/` directories. These were present during this work and should be preserved.
+RR23 playback also succeeds with `cl_shownet 0`; tracing is only needed when inspecting message-by-message output.
