@@ -296,6 +296,7 @@ SV_SpawnServer(char *server, char *spawnpoint, server_state_t serverstate,
 	SV_ClearBaselines();
 	memset(&sv, 0, sizeof(sv));
 	svs.realtime = 0;
+	sv.frame_msec = 100;
 	sv.loadgame = loadgame;
 	sv.attractloop = attractloop;
 
