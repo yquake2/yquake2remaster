@@ -355,6 +355,43 @@ format. Visual omission and wire consumption should therefore be separate:
 an initial implementation may ignore rendering only after it can consume the
 complete payload correctly.
 
+### Reusable Quake II effect building blocks
+
+Heretic II's named effects are registered in
+[`ce_Effects.c`](<hereticII/src/client effects/src/ce_Effects.c>) and implemented
+across its `Effects` directory. Several effect *primitives* have close Quake II
+counterparts and can be rendered with existing client facilities after the H2
+effect ID and its arguments have been decoded:
+
+| Heretic II effect family | Quake II building block | Reuse boundary |
+| --- | --- | --- |
+| `FX_EXPLOSION1/2`, `FX_ARMOR_HIT`, impact puffs | Explosion entities and impact particles (`TE_*` cases in `cl_tempentities.c`) | Reuse transient sprites/models, particles, and light presentation; H2 effect timing, models, and spell-specific visuals are not equivalent. |
+| `FX_BLOOD`, `FX_BLOOD_TRAIL`, `FX_GIB_TRAIL`, `FX_DEBRIS` | Blood/spark temp entities and particle effects | Reuse particle allocation, motion, and rendering. Material-specific H2 debris and blood decals/splats need H2 data and behavior. |
+| `FX_SPARKS`, `FX_DUST`, `FX_DUST_PUFF`, `FX_MIST`, smoke/fire-like bursts | Q2 spark, steam, and generic particle effects | Reuse transient particle mechanics and optionally generic appearances; H2 colors, scale, lifetime, and persistent emitters must come from H2 state. |
+| Player teleport effects | `CL_TeleportParticles()` and teleport temp-entity rendering | Reuse a generic teleport burst only; H2 portal/persistent effects and their attachment/lifetime are not represented by the Q2 event. |
+| Water splash, entry splash, and bubbles | Splash temp entities and `CL_BubbleTrail()` / `CL_BubbleTrail2()` | Reuse splash/bubble particles. H2 ripples, wakes, and surface-following effects need H2-specific logic. |
+| `FX_LIGHTNING` and `FX_ROPE` | Q2 beam and lightning rendering in `cl_tempentities.c` | Reuse beam geometry/rendering only. H2 endpoint IDs, update rules, width, models, and ownership must be decoded and maintained separately. |
+| Effects with attached colored/decaying lights | Q2 dynamic-light allocation and rendering in `cl_effects.c` | Reuse the generic light facility where its color/intensity/lifetime model suffices; H2 light fades and effect ownership may require adapting the H2 values. |
+
+Q2 provides useful lower-level facilities in
+[`cl_particles.c`](src/client/cl_particles.c),
+[`cl_tempentities.c`](src/client/cl_tempentities.c), and
+[`cl_effects.c`](src/client/cl_effects.c). H2's particle representation and
+effect lifecycle are richer and distinct (see
+[`ce_Particles.c`](<hereticII/src/client effects/src/ce_Particles.c>) and
+[`ce_DLight.c`](<hereticII/src/client effects/src/ce_DLight.c>)); this is a
+mapping of rendering capabilities, not a claim that the implementations or
+wire formats are interchangeable.
+
+Do not map H2 spell, monster, pickup, player-persistent, or environmental
+effects directly to similarly shaped Q2 temp entities. Their models, assets,
+parameters, and entity relationships are game-specific. Also, this source
+inventory does not establish which named effects occur in `loop.hd2`: the
+demo's ordinary client-effect payloads must first be decoded using the H2
+effect registry and argument formats. Even when a visual is omitted or
+replaced, its H2 payload must still be fully consumed to preserve message
+alignment.
+
 ## Observations from `loop.hd2`
 
 The following values were read directly from the example file, without using
@@ -391,32 +428,60 @@ These are payload-leading counts, not total command counts, because one
 payload can contain multiple commands. The first payload starts with
 serverdata and continues immediately with `svc_configstring` commands.
 
-## Playback Requirements in This Fork
+## Playback Support in This Fork
 
-Support can be divided into independently testable layers:
+Protocol-51 parsing is implemented in
+[`src/client/cl_parse.c`](src/client/cl_parse.c), with coordinate and angle
+decoding in [`src/common/movemsg.c`](src/common/movemsg.c), configstring
+translation in [`src/common/protocol.c`](src/common/protocol.c), and the H2
+sound limit in [`src/common/header/shared.h`](src/common/header/shared.h).
+The implementation currently:
 
-1. Recognize `.hd2` as a demo file and preserve its extension. This only
-   selects `ss_demo`; it does not make the Q2 parser compatible.
-2. Detect protocol 51 from H2 serverdata and select a separate H2 opcode
-   table before normal message dispatch.
-3. Parse the two extra serverdata fields and map H2 configstring indices into
-   the target's internal ranges.
-4. Add an H2 frame decoder with its sparse player-state flags, fixed
-   `leveltime`, and H2 packet-entity decoder.
-5. Preserve enough H2 state for FlexModel node visibility/frame/skin/color,
-   skeletal joints, remote camera, view height, and animation sequences.
-6. Consume all H2 effect and message payloads. Unsupported visuals may be
-   ignored only when their complete wire payload has been decoded or safely
-   skipped.
-7. Validate incrementally against `loop.hd2`: serverdata, complete startup
-   payload, first baseline, first frame, all 514 payloads, then rendered
-   playback.
+- detects H2 serverdata, consumes its extra fields, and translates H2
+  configstring ranges;
+- consumes H2 sound prediction metadata and uses H2 coordinate/angle
+  encodings;
+- parses the H2 frame envelope, sparse player-state flags, sparse entity
+  headers, common entity fields, and baseline deltas;
+- consumes client-effect argument formats for all 145 registered effect IDs,
+  renders coarse Quake II analogues for explosions, blood, sparks, teleport,
+  and water-like effects, and logs decoded effects without an analogue;
+- consumes FlexModel, joint, and attached entity-effect payloads while
+  reporting that their rendering is unavailable; and
+- decodes/logs H2 message-table notifications that cannot be translated to
+  Quake II text.
 
-The safest architecture is protocol-specific wire decoding into the existing
-client's internal state, rather than adding protocol-51 conditions throughout
-the Quake II decoder. The two formats share concepts, but their opcode tables
-and state masks are different enough that a single interleaved parser would
-be difficult to audit for byte alignment.
+This is wire-format support, not a Heretic II renderer. H2 FlexModel
+animations, skeletal joints, attached and persistent client effects, message
+tables, inventories, and game-specific player-state fields are not presented
+as native H2 visuals or UI. Protocol 55-only `U_BBOX` is consumed defensively
+but has no supported rendering path.
+
+The implementation has been compiled, and the effect name/format tables have
+been checked to contain 145 entries each. A runtime test of `loop.hd2` with
+the software renderer loaded `maps/ssdocks.bsp` and decoded frames through
+server frame 888. The earlier `unknown fileid` error did not indicate an
+unsupported BSP: renderer registration ran before the collision loader had
+loaded and converted the map.
+
+Unlike `map ssdocks`, which loads the collision map on the server first,
+demo playback initially has no world map cached. H2 attract-loop precaching
+now uses the local-demo path: load the collision map, register sounds, then
+prepare the renderer, without waiting for downloads of H2 resources through
+Quake II filename conventions. H2 configstrings 30 and 31 retain their
+max-client and checksum meanings instead of being shifted with statusbar
+strings.
+
+The test used `+set paused 0 +set cl_loadpaused 0 +demomap loop.hd2`.
+After the demo server shut down, the client reported
+`CL_ParseStartSoundPacket: unexpected message end` while parsing subsequent
+server messages. End-of-demo handling remains unvalidated, as does visual
+fidelity; successful map loading does not establish complete H2 rendering.
+
+The parser keeps protocol-specific wire decoding separate from the Quake II
+field decoders where their layouts differ. This helps preserve byte alignment
+while allowing common state and transient visual primitives to reuse existing
+Quake II facilities.
 
 ## Primary Source Map
 

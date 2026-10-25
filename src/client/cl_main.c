@@ -575,7 +575,8 @@ static void
 CL_Precache_f(void)
 {
 	/* Yet another hack to let old demos work */
-	if (Cmd_Argc() < 2)
+	if (Cmd_Argc() < 2 ||
+		(cl.attractloop && cls.serverProtocol == PROTOCOL_H2DEMO_VERSION))
 	{
 		unsigned map_checksum;    /* for detecting cheater maps */
 

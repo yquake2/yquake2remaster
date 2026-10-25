@@ -70,6 +70,286 @@ static const char *svc_strings[] = {
 	"svc_achievement",
 };
 
+static const char *h2_effect_names[] = {
+	"FX_REMOVE_EFFECTS", "FX_TEST", "FX_EXPLOSION1", "FX_EXPLOSION2", "FX_SPLASH",
+	"FX_GIB_TRAIL", "FX_BLOOD", "FX_BLOOD_TRAIL", "FX_LINKEDBLOOD", "FX_SPARKS",
+	"FX_PLAYER_TELEPORT_IN", "FX_PICKUP_HEALTH", "FX_PICKUP_WEAPON", "FX_PICKUP_DEFENSE", "FX_PICKUP_PUZZLE",
+	"FX_PICKUP_AMMO", "FX_WEAPON_FLYINGFIST", "FX_WEAPON_FLYINGFISTEXPLODE", "FX_SPELL_BLUERING", "FX_SPELL_METEORBARRIER",
+	"FX_SPELL_METEORBARRIER1", "FX_SPELL_METEORBARRIER2", "FX_SPELL_METEORBARRIER3", "FX_SPELL_METEORBARRIER_TRAVEL", "FX_SPELL_METEORBARRIEREXPLODE",
+	"FX_SPELL_LIGHTNINGSHIELD", "FX_WEAPON_SPHERE", "FX_WEAPON_SPHEREGLOWBALLS", "FX_WEAPON_SPHEREEXPLODE", "FX_WEAPON_SPHEREPOWER",
+	"FX_WEAPON_SPHEREPLAYEREXPLODE", "FX_WEAPON_MAGICMISSILE", "FX_WEAPON_MAGICMISSILEEXPLODE", "FX_WEAPON_BLAST", "FX_WEAPON_REDRAINMISSILE",
+	"FX_WEAPON_REDRAIN", "FX_WEAPON_REDRAINGLOW", "FX_WEAPON_MACEBALL", "FX_WEAPON_MACEBALLBOUNCE", "FX_WEAPON_MACEBALLEXPLODE",
+	"FX_WEAPON_PHOENIXMISSILE", "FX_WEAPON_PHOENIXEXPLODE", "FX_SPELL_MORPHMISSILE", "FX_SPELL_MORPHMISSILE_INITIAL", "FX_SPELL_MORPHEXPLODE",
+	"FX_WEAPON_FIREWAVE", "FX_WEAPON_FIREWAVEWORM", "FX_WEAPON_FIREBURST", "FX_WEAPON_RIPPEREXPLODE", "FX_WATER_ENTRYSPLASH",
+	"FX_WATER_RIPPLES", "FX_WATER_WAKE", "FX_BUBBLER", "FX_SCORCHMARK", "FX_DEBRIS",
+	"FX_FLESH_DEBRIS", "FX_SHADOW", "FX_ANIMATE", "FX_FOUNTAIN", "FX_WATERFALLBASE",
+	"FX_DRIPPER", "FX_MIST", "FX_PLAGUEMIST", "FX_PLAGUEMISTEXPLODE", "FX_SPELLHANDS",
+	"FX_LENSFLARE", "FX_STAFF", "FX_SPOO", "FX_HALO", "FX_REMOTE_CAMERA",
+	"FX_WEAPON_HELLBOLT", "FX_WEAPON_HELLBOLTEXPLODE", "FX_WEAPON_HELLSTAFF_POWER", "FX_WEAPON_HELLSTAFF_POWER_BURN", "FX_SPELL_CHANGE",
+	"FX_STAFF_CREATE", "FX_STAFF_CREATEPOOF", "FX_STAFF_REMOVE", "FX_DUST_PUFF", "FX_FIRE",
+	"FX_SOUND", "FX_PICKUP", "FX_HITPUFF", "FX_DUST", "FX_ENVSMOKE",
+	"FX_SPOO_SPLAT", "FX_BODYPART", "FX_PLAYER_TELEPORT_OUT", "FX_PLAYER_PERSISTANT", "FX_PLAYER_TORCH",
+	"FX_TOME_OF_POWER", "FX_FIRE_ON_ENTITY", "FX_FLAREUP", "FX_SHRINE_PLAYER", "FX_SHRINE_MANA",
+	"FX_SHRINE_LUNGS", "FX_SHRINE_LIGHT", "FX_SHRINE_REFLECT", "FX_SHRINE_ARMOR", "FX_SHRINE_HEALTH",
+	"FX_SHRINE_STAFF", "FX_SHRINE_GHOST", "FX_SHRINE_SPEED", "FX_SHRINE_POWERUP", "FX_ROPE",
+	"FX_FIREHANDS", "FX_SHRINE_BALL", "FX_SHRINE_BALL_EXPLODE", "FX_OGLE_HITPUFF", "FX_HP_MISSILE",
+	"FX_I_EFFECTS", "FX_CHICKEN_EXPLODE", "FX_FLAMETHROWER", "FX_TELEPORT_PAD", "FX_QUAKE",
+	"FX_LIGHTNING", "FX_POWER_LIGHTNING", "FX_BUBBLE", "FX_TPORTSMOKE", "FX_WATER_PARTICLES",
+	"FX_M_EFFECTS", "FX_HP_STAFF", "FX_WATER_BUBBLE", "FX_MAGIC_PORTAL", "FX_TB_EFFECTS",
+	"FX_TEST_BBOX", "FX_THROWWEAPON", "FX_SSITHRA_ARROW", "FX_PE_SPELL", "FX_LIGHTNING_HIT",
+	"FX_FOOTSTEP", "FX_FALLSHORT", "FX_WEAPON_STAFF_STRIKE", "FX_ARMOR_HIT", "FX_BARREL_EXPLODE",
+	"FX_CWATCHER", "FX_CORPSE_REMOVE", "FX_SHOW_LEADER", "FX_TORNADO", "FX_TORNADO_BALL",
+	"FX_TORNADO_BALL_EXPLODE", "FX_FOOT_TRAIL", "FX_BLOCK_SPARKS", "FX_CROSSHAIR", "FX_COMPASS",
+};
+
+static const char *h2_effect_formats[] = {
+	"s", NULL, NULL, NULL, "b", NULL, "ub", "d",
+	"bb", "d", NULL, NULL, "b", "b", "bv", "b",
+	"t", "d", NULL, NULL, NULL, NULL, NULL, NULL,
+	"d", NULL, "s", "s", "db", "xbb", "db", "ss",
+	"d", "sssssss", "t", NULL, "b", NULL, "d", "d",
+	"t", "td", "bb", "bssssss", "d", "ss", "t", "ss",
+	"vbssssssss", "bd", NULL, "sbv", "b", "d", "bbdb", "bdb",
+	"f", "bbbv", "vsb", "bbb", "bb", "b", "vb", "b",
+	"b", "bbbf", "bb", NULL, NULL, "s", "t", "d",
+	"tb", "t", "db", NULL, NULL, NULL, NULL, "b",
+	"bbbb", NULL, "db", "bdb", "bdbbb", "d", "ssbbb", NULL,
+	NULL, NULL, NULL, "bbb", NULL, "b", NULL, NULL,
+	NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+	"ssbvvv", "b", "db", "db", "v", "vb", "bv", NULL,
+	"df", NULL, "bbb", "vbb", "vb", NULL, NULL, NULL,
+	"bv", "bs", NULL, "vbb", "bv", "fff", "ssbbb", "bv",
+	"bv", "t", NULL, NULL, "db", "d", NULL, "bv",
+	NULL, NULL, NULL, NULL, NULL, NULL, "d", NULL, NULL,
+};
+
+static uint64_t h2_logged_unsupported_effects[3];
+extern void CL_ExplosionParticles(const vec3_t org);
+extern void CL_TeleportParticles(const vec3_t org);
+
+static qboolean
+H2_ReadEffectArguments(sizebuf_t *message, const char *format)
+{
+	int bytes = 0;
+	const char *p;
+
+	if (format)
+	{
+		for (p = format; *p; p++)
+		{
+			switch (*p)
+			{
+				case 'b':
+				case 'd':
+					bytes += 1;
+					break;
+				case 's':
+				case 'u':
+				case 'x':
+					bytes += 2;
+					break;
+				case 'i':
+				case 'f':
+				case 't':
+					bytes += 4;
+					break;
+				case 'p':
+				case 'v':
+					bytes += 6;
+					break;
+				default:
+					Com_Error(ERR_DROP, "%s: unknown H2 effect argument type '%c'",
+						__func__, *p);
+					return false;
+			}
+
+			if (bytes > message->cursize - message->readcount)
+			{
+				Com_Error(ERR_DROP, "%s: truncated H2 effect arguments", __func__);
+				return false;
+			}
+		}
+	}
+
+	message->readcount += bytes;
+	return true;
+}
+
+static void
+CL_ParseH2ClientEffects(sizebuf_t *message)
+{
+	int count = MSG_ReadByte(message);
+	int i;
+
+	if (count < 0 || count > 128)
+	{
+		Com_Error(ERR_DROP, "%s: invalid H2 effect count %d", __func__, count);
+		return;
+	}
+
+	for (i = 0; i < count; i++)
+	{
+		const int effect_low = MSG_ReadByte(message);
+		const int effect_high = MSG_ReadByte(message);
+		int effect;
+		int flags = 0;
+		int event_id;
+		vec3_t origin = {0.0f, 0.0f, 0.0f};
+		vec3_t direction = {0.0f, 0.0f, 1.0f};
+		const char *name;
+
+		if (effect_low < 0 || effect_high < 0)
+		{
+			Com_Error(ERR_DROP, "%s: truncated H2 effect id", __func__);
+			return;
+		}
+		effect = effect_low | (effect_high << 8);
+
+		if (effect & 0x4000)
+		{
+			event_id = MSG_ReadByte(message);
+			effect &= ~0x4000;
+			if (event_id < 0)
+			{
+				Com_Error(ERR_DROP, "%s: truncated H2 effect event id", __func__);
+				return;
+			}
+		}
+
+		if (effect & 0x8000)
+		{
+			flags = MSG_ReadByte(message);
+			effect &= ~0x8000;
+			if (flags < 0)
+			{
+				Com_Error(ERR_DROP, "%s: truncated H2 effect flags", __func__);
+				return;
+			}
+		}
+
+		if (flags & 0x0a)
+		{
+			const int owner = (flags & 0x04) ? MSG_ReadShort(message) :
+				MSG_ReadByte(message);
+			if (owner < 0)
+			{
+				Com_Error(ERR_DROP, "%s: truncated H2 effect owner", __func__);
+				return;
+			}
+			(void)owner;
+		}
+
+		if (!(flags & 0x01))
+		{
+			MSG_ReadPos(message, origin, cls.serverProtocol);
+		}
+
+		if (message->readcount > message->cursize)
+		{
+			Com_Error(ERR_DROP, "%s: truncated H2 effect origin", __func__);
+			return;
+		}
+
+		if (effect < 0 || effect >= ARRLEN(h2_effect_formats))
+		{
+			Com_Error(ERR_DROP, "%s: unsupported H2 effect id %d; cannot decode payload",
+				__func__, effect);
+			return;
+		}
+
+		if (!H2_ReadEffectArguments(message, h2_effect_formats[effect]))
+		{
+			return;
+		}
+
+		name = h2_effect_names[effect];
+		switch (effect)
+		{
+			case 2:
+			case 3:
+			case 134:
+				CL_ExplosionParticles(origin);
+				break;
+			case 5:
+			case 6:
+			case 7:
+			case 8:
+				CL_ParticleEffect(origin, direction, 0xff2020ff, 0xff8020ff, 16);
+				break;
+			case 82:
+			case 9:
+			case 142:
+			case 133:
+				CL_ParticleEffect(origin, direction, 0xffffff00, 0xffffa000, 16);
+				break;
+			case 10:
+			case 87:
+			case 113:
+			case 118:
+				CL_TeleportParticles(origin);
+				break;
+			case 4:
+			case 49:
+			case 52:
+			case 117:
+			case 119:
+			case 122:
+				CL_ParticleEffect(origin, direction, 0xffa06040, 0xffe0c080, 12);
+				break;
+			default:
+				if (!(h2_logged_unsupported_effects[effect >> 6] &
+					(1ULL << (effect & 63))))
+				{
+					h2_logged_unsupported_effects[effect >> 6] |=
+						1ULL << (effect & 63);
+					Com_Printf("Heretic II demo: decoded %s; no Quake II visual analogue\n",
+						name);
+				}
+				break;
+		}
+
+		if (message->readcount > message->cursize)
+		{
+			Com_Error(ERR_DROP, "%s: malformed H2 effect %s", __func__, name);
+			return;
+		}
+	}
+}
+
+static void
+CL_ParseH2SizedEffects(void)
+{
+	sizebuf_t effects;
+	int size = MSG_ReadShort(&net_message);
+
+	if (size < 0 || size > net_message.cursize - net_message.readcount)
+	{
+		Com_Error(ERR_DROP, "%s: invalid H2 effect block size %d", __func__, size);
+		return;
+	}
+
+	effects.data = net_message.data + net_message.readcount;
+	effects.maxsize = size;
+	effects.cursize = size;
+	effects.readcount = 0;
+
+	CL_ParseH2ClientEffects(&effects);
+
+	if (effects.readcount > effects.cursize)
+	{
+		Com_Error(ERR_DROP, "%s: H2 effect block overread", __func__);
+		return;
+	}
+
+	if (effects.readcount != effects.cursize)
+	{
+		Com_Printf("Heretic II demo: skipped %d trailing bytes in a sized client-effect block\n",
+			effects.cursize - effects.readcount);
+	}
+
+	net_message.readcount += size;
+}
+
 void
 CL_RegisterSounds(void)
 {
@@ -630,6 +910,279 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, uint
 	}
 }
 
+static qboolean
+H2_EntityBit(uint64_t bits, int bit)
+{
+	return (bits & (1ULL << bit)) != 0;
+}
+
+static int
+CL_ParseH2EntityBits(uint64_t *bits)
+{
+	const int mask = MSG_ReadByte(&net_message);
+	uint64_t total = 0;
+	int i, number;
+
+	if (mask < 0)
+	{
+		Com_Error(ERR_DROP, "%s: truncated Heretic II entity header", __func__);
+		return 0;
+	}
+
+	for (i = 0; i < 5; i++)
+	{
+		if (mask & (1 << i))
+		{
+			const int value = MSG_ReadByte(&net_message);
+			if (value < 0)
+			{
+				Com_Error(ERR_DROP, "%s: truncated Heretic II entity flags", __func__);
+				return 0;
+			}
+			total |= (uint64_t)(byte)value << (i * 8);
+		}
+	}
+
+	number = H2_EntityBit(total, 30) ?
+		MSG_ReadShort(&net_message) : MSG_ReadByte(&net_message);
+	if (number < 0)
+	{
+		Com_Error(ERR_DROP, "%s: truncated Heretic II entity number", __func__);
+		return 0;
+	}
+	*bits = total;
+	return number;
+}
+
+static qboolean
+H2_SkipEntityBytes(int count)
+{
+	if (count < 0 || count > net_message.cursize - net_message.readcount)
+	{
+		Com_Error(ERR_DROP, "%s: truncated Heretic II entity data", __func__);
+		return false;
+	}
+	net_message.readcount += count;
+	return true;
+}
+
+static qboolean
+H2_ReadClientEffects(void)
+{
+	int count = MSG_ReadByte(&net_message);
+	int size;
+
+	if (count < 0)
+	{
+		Com_Error(ERR_DROP, "%s: truncated Heretic II entity effects", __func__);
+		return false;
+	}
+	if (count & 0x80)
+	{
+		count &= ~0x80;
+		size = MSG_ReadShort(&net_message);
+	}
+	else
+	{
+		size = MSG_ReadByte(&net_message);
+	}
+	if (count == 0)
+		return true;
+	if (size <= 0)
+	{
+		Com_Error(ERR_DROP, "%s: invalid Heretic II entity effects length", __func__);
+		return false;
+	}
+	return H2_SkipEntityBytes(size);
+}
+
+static qboolean
+H2_ReadFlexModelInfo(void)
+{
+	int usage = MSG_ReadByte(&net_message);
+	int i;
+
+	if (usage < 0)
+	{
+		Com_Error(ERR_DROP, "%s: truncated Heretic II FlexModel state", __func__);
+		return false;
+	}
+	if (usage & 0x80)
+	{
+		const int high = MSG_ReadByte(&net_message);
+		if (high < 0)
+		{
+			Com_Error(ERR_DROP, "%s: truncated Heretic II FlexModel state", __func__);
+			return false;
+		}
+		usage += high << 8;
+	}
+	for (i = 1; i < 16; i++)
+	{
+		const int bit = i < 8 ? i - 1 : i;
+		int fields, j;
+
+		if (!(usage & (1 << bit)))
+			continue;
+		fields = MSG_ReadByte(&net_message);
+		if (fields < 0)
+		{
+			Com_Error(ERR_DROP, "%s: truncated Heretic II FlexModel node", __func__);
+			return false;
+		}
+		for (j = 0; j < 8; j++)
+		{
+			if ((fields & (1 << j)) && !H2_SkipEntityBytes(1))
+				return false;
+		}
+	}
+	return net_message.readcount <= net_message.cursize;
+}
+
+static qboolean
+H2_ReadJoints(void)
+{
+	int flags;
+
+	do
+	{
+		flags = MSG_ReadByte(&net_message);
+		if (flags < 0)
+		{
+			Com_Error(ERR_DROP, "%s: truncated Heretic II joint data", __func__);
+			return false;
+		}
+		if (flags)
+		{
+			if (MSG_ReadByte(&net_message) < 0)
+			{
+				Com_Error(ERR_DROP, "%s: truncated Heretic II joint index", __func__);
+				return false;
+			}
+			if (!H2_SkipEntityBytes(((flags & 1) != 0) +
+				((flags & 2) != 0) + ((flags & 4) != 0)))
+				return false;
+		}
+	} while (flags);
+	return true;
+}
+
+static void
+CL_ParseH2Delta(const entity_xstate_t *from, entity_xstate_t *to,
+	int number, uint64_t bits)
+{
+	static qboolean logged_extended_entity;
+	int i;
+
+	if (from)
+		*to = *from;
+	else
+	{
+		memset(to, 0, sizeof(*to));
+		to->scale[0] = to->scale[1] = to->scale[2] = 1.0f;
+	}
+	to->number = number;
+
+	if (H2_EntityBit(bits, 22))
+		to->modelindex = MSG_ReadByte(&net_message);
+	if (H2_EntityBit(bits, 31))
+		H2_SkipEntityBytes(6);
+	if (H2_EntityBit(bits, 0))
+		to->frame = MSG_ReadByte(&net_message);
+	if (H2_EntityBit(bits, 1))
+		to->frame = MSG_ReadShort(&net_message);
+	if (H2_EntityBit(bits, 20) || H2_EntityBit(bits, 21))
+	{
+		if (H2_EntityBit(bits, 20) && H2_EntityBit(bits, 21))
+			to->skinnum = MSG_ReadLong(&net_message);
+		else if (H2_EntityBit(bits, 21))
+			to->skinnum = MSG_ReadShort(&net_message);
+		else
+			to->skinnum = MSG_ReadByte(&net_message);
+	}
+	if (H2_EntityBit(bits, 32))
+		(void)MSG_ReadByte(&net_message);
+	if (H2_EntityBit(bits, 23))
+	{
+		const float scale = MSG_ReadByte(&net_message) * 0.01f;
+		to->scale[0] = to->scale[1] = to->scale[2] = scale;
+	}
+	if (H2_EntityBit(bits, 8) || H2_EntityBit(bits, 9))
+	{
+		if (H2_EntityBit(bits, 8) && H2_EntityBit(bits, 9))
+			(void)MSG_ReadLong(&net_message);
+		else if (H2_EntityBit(bits, 9))
+			(void)MSG_ReadShort(&net_message);
+		else
+			(void)MSG_ReadByte(&net_message);
+		to->effects = 0;
+	}
+	if (H2_EntityBit(bits, 10) || H2_EntityBit(bits, 11))
+	{
+		if (H2_EntityBit(bits, 10) && H2_EntityBit(bits, 11))
+			(void)MSG_ReadLong(&net_message);
+		else if (H2_EntityBit(bits, 11))
+			(void)MSG_ReadShort(&net_message);
+		else
+			(void)MSG_ReadByte(&net_message);
+		to->renderfx = 0;
+	}
+	if (H2_EntityBit(bits, 2))
+	{
+		to->origin[0] = MSG_ReadCoord(&net_message, cls.serverProtocol);
+		to->origin[1] = MSG_ReadCoord(&net_message, cls.serverProtocol);
+	}
+	if (H2_EntityBit(bits, 3))
+		to->origin[2] = MSG_ReadCoord(&net_message, cls.serverProtocol);
+	for (i = 0; i < 3; i++)
+	{
+		if (H2_EntityBit(bits, 4 + i))
+			to->angles[i] = MSG_ReadAngle(&net_message, cls.serverProtocol);
+	}
+	if (H2_EntityBit(bits, 28))
+	{
+		for (i = 0; i < 3; i++)
+			to->old_origin[i] = MSG_ReadCoord(&net_message, cls.serverProtocol);
+	}
+	if (H2_EntityBit(bits, 24))
+	{
+		to->sound = MSG_ReadByte(&net_message);
+		(void)MSG_ReadByte(&net_message);
+	}
+	if (H2_EntityBit(bits, 25))
+		to->solid = MSG_ReadShort(&net_message);
+	if (H2_EntityBit(bits, 33))
+		H2_SkipEntityBytes(12);
+	if (H2_EntityBit(bits, 13))
+		H2_ReadFlexModelInfo();
+	if (H2_EntityBit(bits, 12))
+		H2_ReadClientEffects();
+	if (H2_EntityBit(bits, 26))
+		H2_ReadJoints();
+	if (H2_EntityBit(bits, 7))
+		H2_SkipEntityBytes(2);
+	for (i = 16; i <= 19; i++)
+	{
+		if (H2_EntityBit(bits, i))
+			H2_SkipEntityBytes(1);
+	}
+	if (H2_EntityBit(bits, 27))
+		H2_SkipEntityBytes(3);
+	if (H2_EntityBit(bits, 29))
+		H2_SkipEntityBytes(1);
+
+	if (net_message.readcount > net_message.cursize)
+	{
+		Com_Error(ERR_DROP, "%s: truncated Heretic II entity delta", __func__);
+		return;
+	}
+	if (!logged_extended_entity)
+	{
+		Com_Printf("Heretic II demo: FlexModel, joint, entity-effect, and lighting fields are decoded but not rendered by Quake II\n");
+		logged_extended_entity = true;
+	}
+}
+
 /*
  * Parses deltas from the given base and adds the resulting entity to
  * the current frame
@@ -651,7 +1204,14 @@ CL_DeltaEntity(frame_t *frame, int newnum, const entity_xstate_t *old, uint64_t 
 	cl.parse_entities++;
 	frame->num_entities++;
 
-	CL_ParseDelta(old, state, newnum, bits);
+	if (cls.serverProtocol == PROTOCOL_H2DEMO_VERSION)
+	{
+		CL_ParseH2Delta(old, state, newnum, bits);
+	}
+	else
+	{
+		CL_ParseDelta(old, state, newnum, bits);
+	}
 
 	/* some data changes will force no lerping */
 	if ((state->modelindex != ent->current.modelindex) ||
@@ -743,7 +1303,14 @@ CL_ParsePacketEntities(const frame_t *oldframe, frame_t *newframe)
 		unsigned int newnum;
 		uint64_t bits;
 
-		newnum = CL_ParseEntityBits(&bits);
+		if (cls.serverProtocol == PROTOCOL_H2DEMO_VERSION)
+		{
+			newnum = CL_ParseH2EntityBits(&bits);
+		}
+		else
+		{
+			newnum = CL_ParseEntityBits(&bits);
+		}
 
 		if (newnum > MAX_CL_ENTNUM)
 		{
@@ -788,7 +1355,10 @@ CL_ParsePacketEntities(const frame_t *oldframe, frame_t *newframe)
 			}
 		}
 
-		if (bits & U_REMOVE)
+		if ((cls.serverProtocol == PROTOCOL_H2DEMO_VERSION &&
+				H2_EntityBit(bits, 14)) ||
+			(cls.serverProtocol != PROTOCOL_H2DEMO_VERSION &&
+				(bits & U_REMOVE)))
 		{
 			/* the entity present in oldframe is not in the current frame */
 			if (cl_shownet->value == 3)
@@ -799,6 +1369,12 @@ CL_ParsePacketEntities(const frame_t *oldframe, frame_t *newframe)
 			if (oldnum != newnum)
 			{
 				Com_Printf("U_REMOVE: oldnum != newnum: %d %d\n", oldnum, newnum);
+			}
+
+			if (cls.serverProtocol == PROTOCOL_H2DEMO_VERSION &&
+				oldnum != newnum)
+			{
+				continue;
 			}
 
 			oldindex++;
@@ -892,6 +1468,258 @@ CL_ParsePacketEntities(const frame_t *oldframe, frame_t *newframe)
 									oldindex) & (MAX_PARSE_ENTITIES - 1)];
 			oldnum = oldstate->number;
 		}
+	}
+}
+
+static qboolean
+H2_PlayerStateFlag(const byte *flags, int bit)
+{
+	return (flags[bit >> 3] & (1 << (bit & 7))) != 0;
+}
+
+static qboolean
+H2_SkipPlayerStateBytes(int count)
+{
+	if (count < 0 || count > net_message.cursize - net_message.readcount)
+	{
+		Com_Error(ERR_DROP, "%s: truncated Heretic II player state", __func__);
+		return false;
+	}
+
+	net_message.readcount += count;
+	return true;
+}
+
+static void
+CL_ParseH2Playerstate(frame_t *oldframe, frame_t *newframe)
+{
+	static qboolean logged_extended_state;
+	byte nonzero[3] = {0};
+	byte flags[17] = {0};
+	player_xstate_t *state = &newframe->playerstate;
+	int i;
+
+	if (oldframe)
+	{
+		*state = oldframe->playerstate;
+		VectorCopy(oldframe->origin, newframe->origin);
+	}
+	else
+	{
+		memset(state, 0, sizeof(*state));
+		memset(newframe->origin, 0, sizeof(newframe->origin));
+	}
+
+	for (i = 0; i < 3; i++)
+	{
+		int value = MSG_ReadByte(&net_message);
+		if (value < 0)
+		{
+			Com_Error(ERR_DROP, "%s: truncated Heretic II player-state mask", __func__);
+			return;
+		}
+		nonzero[i] = (byte)value;
+	}
+
+	for (i = 0; i < 17; i++)
+	{
+		if (nonzero[i >> 3] & (1 << (i & 7)))
+		{
+			int value = MSG_ReadByte(&net_message);
+			if (value < 0)
+			{
+				Com_Error(ERR_DROP, "%s: truncated Heretic II player-state flags", __func__);
+				return;
+			}
+			flags[i] = (byte)value;
+		}
+	}
+
+	if (H2_PlayerStateFlag(flags, 16))
+		state->pmove.pm_type = MSG_ReadByte(&net_message);
+	if (cl.attractloop)
+		state->pmove.pm_type = PM_FREEZE;
+
+	if (H2_PlayerStateFlag(flags, 3))
+	{
+		state->pmove.origin[0] = MSG_ReadShort(&net_message);
+		state->pmove.origin[1] = MSG_ReadShort(&net_message);
+	}
+	if (H2_PlayerStateFlag(flags, 4))
+		state->pmove.origin[2] = MSG_ReadShort(&net_message);
+	if (H2_PlayerStateFlag(flags, 5))
+	{
+		state->pmove.velocity[0] = MSG_ReadShort(&net_message);
+		state->pmove.velocity[1] = MSG_ReadShort(&net_message);
+	}
+	if (H2_PlayerStateFlag(flags, 6))
+		state->pmove.velocity[2] = MSG_ReadShort(&net_message);
+	if (H2_PlayerStateFlag(flags, 17))
+		state->pmove.pm_time = MSG_ReadByte(&net_message);
+	if (H2_PlayerStateFlag(flags, 18))
+		state->pmove.pm_flags = MSG_ReadByte(&net_message);
+	if (H2_PlayerStateFlag(flags, 19))
+		(void)MSG_ReadByte(&net_message);
+	if (H2_PlayerStateFlag(flags, 20))
+		state->pmove.gravity = MSG_ReadShort(&net_message);
+	if (H2_PlayerStateFlag(flags, 21))
+	{
+		MSG_ReadDeltaAngles(&net_message, state->pmove.delta_angles, PROTOCOL_H2DEMO_VERSION);
+	}
+	if (H2_PlayerStateFlag(flags, 125))
+		H2_SkipPlayerStateBytes(6);
+
+	if (H2_PlayerStateFlag(flags, 0))
+	{
+		MSG_ReadViewAngles(&net_message, state->viewangles, PROTOCOL_H2DEMO_VERSION);
+	}
+	if (H2_PlayerStateFlag(flags, 22))
+		H2_SkipPlayerStateBytes(6);
+	if (H2_PlayerStateFlag(flags, 23))
+		H2_SkipPlayerStateBytes(6);
+	if (H2_PlayerStateFlag(flags, 24))
+		(void)MSG_ReadLong(&net_message);
+	if (H2_PlayerStateFlag(flags, 25))
+		(void)MSG_ReadShort(&net_message);
+	if (H2_PlayerStateFlag(flags, 26))
+		H2_SkipPlayerStateBytes(6);
+	if (H2_PlayerStateFlag(flags, 27))
+		state->fov = (float)MSG_ReadByte(&net_message);
+	if (H2_PlayerStateFlag(flags, 28))
+		state->rdflags = MSG_ReadByte(&net_message);
+	if (H2_PlayerStateFlag(flags, 10))
+		(void)MSG_ReadShort(&net_message);
+	if (H2_PlayerStateFlag(flags, 30))
+		(void)MSG_ReadByte(&net_message);
+	if (H2_PlayerStateFlag(flags, 29))
+		(void)MSG_ReadFloat(&net_message);
+	if (H2_PlayerStateFlag(flags, 31))
+		(void)MSG_ReadShort(&net_message);
+	if (H2_PlayerStateFlag(flags, 32))
+		(void)MSG_ReadShort(&net_message);
+
+	for (i = 0; i < 48; i++)
+	{
+		if (H2_PlayerStateFlag(flags, 73 + i))
+			state->stats[i] = MSG_ReadShort(&net_message);
+	}
+
+	if (H2_PlayerStateFlag(flags, 33))
+		H2_SkipPlayerStateBytes(12);
+	if (H2_PlayerStateFlag(flags, 34))
+	{
+		const int item_count = MSG_ReadByte(&net_message);
+		if (item_count < 0 || !H2_SkipPlayerStateBytes(item_count * 2))
+		{
+			Com_Error(ERR_DROP, "%s: invalid Heretic II inventory delta", __func__);
+			return;
+		}
+	}
+	if (H2_PlayerStateFlag(flags, 35))
+		(void)MSG_ReadByte(&net_message);
+	if (H2_PlayerStateFlag(flags, 11) && H2_PlayerStateFlag(flags, 12))
+		H2_SkipPlayerStateBytes(12);
+	if (H2_PlayerStateFlag(flags, 36))
+		(void)MSG_ReadByte(&net_message);
+	if (H2_PlayerStateFlag(flags, 37))
+		(void)MSG_ReadLong(&net_message);
+	if (H2_PlayerStateFlag(flags, 39))
+		(void)MSG_ReadLong(&net_message);
+	if (H2_PlayerStateFlag(flags, 38))
+		(void)MSG_ReadLong(&net_message);
+	if (H2_PlayerStateFlag(flags, 40))
+		(void)MSG_ReadFloat(&net_message);
+	for (i = 41; i <= 44; i++)
+	{
+		if (H2_PlayerStateFlag(flags, i))
+			(void)MSG_ReadFloat(&net_message);
+	}
+	if (H2_PlayerStateFlag(flags, 7))
+		(void)MSG_ReadFloat(&net_message);
+	if (H2_PlayerStateFlag(flags, 45) || H2_PlayerStateFlag(flags, 46))
+	{
+		if (H2_PlayerStateFlag(flags, 45))
+			(void)MSG_ReadFloat(&net_message);
+		if (H2_PlayerStateFlag(flags, 46))
+			(void)MSG_ReadFloat(&net_message);
+	}
+	if (H2_PlayerStateFlag(flags, 47))
+		(void)MSG_ReadByte(&net_message);
+	if (H2_PlayerStateFlag(flags, 48))
+		(void)MSG_ReadLong(&net_message);
+	if (H2_PlayerStateFlag(flags, 72))
+		(void)MSG_ReadFloat(&net_message);
+
+	if (H2_PlayerStateFlag(flags, 14))
+		(void)MSG_ReadByte(&net_message);
+	if (H2_PlayerStateFlag(flags, 8))
+		(void)MSG_ReadByte(&net_message);
+	if (H2_PlayerStateFlag(flags, 1))
+		H2_SkipPlayerStateBytes(2);
+	if (H2_PlayerStateFlag(flags, 2))
+		H2_SkipPlayerStateBytes(2);
+	if (H2_PlayerStateFlag(flags, 49) || H2_PlayerStateFlag(flags, 50))
+	{
+		if (H2_PlayerStateFlag(flags, 49))
+			(void)MSG_ReadByte(&net_message);
+		if (H2_PlayerStateFlag(flags, 50))
+			(void)MSG_ReadByte(&net_message);
+	}
+	if (H2_PlayerStateFlag(flags, 15))
+		(void)MSG_ReadByte(&net_message);
+	if (H2_PlayerStateFlag(flags, 9))
+		(void)MSG_ReadByte(&net_message);
+
+	for (i = 51; i <= 63; i++)
+	{
+		if (H2_PlayerStateFlag(flags, i))
+			H2_SkipPlayerStateBytes(1);
+	}
+	if (H2_PlayerStateFlag(flags, 124))
+		(void)MSG_ReadByte(&net_message);
+	for (i = 64; i <= 66; i++)
+	{
+		if (H2_PlayerStateFlag(flags, i))
+			H2_SkipPlayerStateBytes(i == 66 ? 2 : 1);
+	}
+	if (H2_PlayerStateFlag(flags, 67))
+		(void)MSG_ReadLong(&net_message);
+	if (H2_PlayerStateFlag(flags, 68))
+		(void)MSG_ReadByte(&net_message);
+	if (H2_PlayerStateFlag(flags, 69))
+		(void)MSG_ReadLong(&net_message);
+	if (H2_PlayerStateFlag(flags, 70))
+		(void)MSG_ReadFloat(&net_message);
+
+	(void)MSG_ReadFloat(&net_message); /* leveltime is always present */
+	if (H2_PlayerStateFlag(flags, 13))
+		(void)MSG_ReadFloat(&net_message);
+	if (H2_PlayerStateFlag(flags, 126))
+		(void)MSG_ReadFloat(&net_message);
+	if (H2_PlayerStateFlag(flags, 127))
+		(void)MSG_ReadFloat(&net_message);
+	if (H2_PlayerStateFlag(flags, 71))
+		(void)MSG_ReadLong(&net_message);
+	if (H2_PlayerStateFlag(flags, 128))
+		(void)MSG_ReadByte(&net_message);
+	if (H2_PlayerStateFlag(flags, 122))
+		(void)MSG_ReadByte(&net_message);
+	if (H2_PlayerStateFlag(flags, 123))
+		(void)MSG_ReadLong(&net_message);
+
+	for (i = 0; i < 3; i++)
+		newframe->origin[i] = state->pmove.origin[i];
+
+	if (net_message.readcount > net_message.cursize)
+	{
+		Com_Error(ERR_DROP, "%s: truncated Heretic II player state payload", __func__);
+		return;
+	}
+
+	if (!logged_extended_state)
+	{
+		Com_Printf("Heretic II demo: player animation, inventory, camera, and game-specific fields are decoded but not represented in Quake II\n");
+		logged_extended_state = true;
 	}
 }
 
@@ -1200,10 +2028,12 @@ CL_ParseFrame(void)
 
 	cl.frame.serverframe = MSG_ReadLong(&net_message);
 	cl.frame.deltaframe = MSG_ReadLong(&net_message);
-	cl.frame.servertime = cl.frame.serverframe * cl.frame_msec;
+	cl.frame.servertime = cl.frame.serverframe *
+		(cls.serverProtocol == PROTOCOL_H2DEMO_VERSION ? 100 : cl.frame_msec);
 
 	/* BIG HACK to let old demos continue to work */
-	if (cls.serverProtocol != PROTOCOL_RELEASE_VERSION)
+	if (cls.serverProtocol != PROTOCOL_RELEASE_VERSION &&
+		cls.serverProtocol != PROTOCOL_H2DEMO_VERSION)
 	{
 		cl.surpressCount = MSG_ReadByte(&net_message);
 	}
@@ -1285,10 +2115,23 @@ CL_ParseFrame(void)
 		return;
 	}
 
-	CL_ParsePlayerstate(old, &cl.frame, cls.serverProtocol);
+	if (cls.serverProtocol == PROTOCOL_H2DEMO_VERSION)
+	{
+		CL_ParseH2Playerstate(old, &cl.frame);
+	}
+	else
+	{
+		CL_ParsePlayerstate(old, &cl.frame, cls.serverProtocol);
+	}
 
 	/* read packet entities */
 	cmd = P_CmdConvert(MSG_ReadByte(&net_message), cls.serverProtocol);
+	if (cmd != svc_packetentities &&
+		cls.serverProtocol == PROTOCOL_H2DEMO_VERSION)
+	{
+		Com_Printf("Heretic II frame %d: expected packet-entity opcode at byte %d, got %d\n",
+			cl.frame.serverframe, net_message.readcount - 1, cmd);
+	}
 	CL_ShowNetCmd(cmd);
 
 	if (cmd != svc_packetentities)
@@ -1434,8 +2277,7 @@ CL_ParseServerData(void)
 	Com_DPrintf("Used %d ms frame time\n", cl.frame_msec);
 
 	if ((cl_shownet->value == 0) &&
-		((i == PROTOCOL_H2DEMO_VERSION) ||
-		 (i == PROTOCOL_Q2TEST_VERSION)))
+		(i == PROTOCOL_Q2TEST_VERSION))
 	{
 		Com_Error(ERR_DROP, "Network protocol '%s' is currently unsupported\n",
 			CL_GetProtocolName(i));
@@ -1446,12 +2288,20 @@ CL_ParseServerData(void)
 	str = MSG_ReadString(&net_message);
 	Q_strlcpy(cl.gamedir, str, sizeof(cl.gamedir));
 
-	/* set gamedir */
-	if ((*str && (!fs_gamedirvar->string || !*fs_gamedirvar->string ||
-		  strcmp(fs_gamedirvar->string, str))) ||
-		(!*str && (fs_gamedirvar->string && !*fs_gamedirvar->string)))
+	if (cls.serverProtocol == PROTOCOL_H2DEMO_VERSION)
 	{
-		Cvar_Set("game", str);
+		const int download_type = MSG_ReadByte(&net_message);
+		const char *effects_version = MSG_ReadString(&net_message);
+		Com_DPrintf("%s: Heretic II download type %d, client effects '%s'\n",
+			__func__, download_type, effects_version);
+	}
+
+	/* set gamedir */
+	if ((*cl.gamedir && (!fs_gamedirvar->string || !*fs_gamedirvar->string ||
+		  strcmp(fs_gamedirvar->string, cl.gamedir))) ||
+		(!*cl.gamedir && (fs_gamedirvar->string && !*fs_gamedirvar->string)))
+	{
+		Cvar_Set("game", cl.gamedir);
 	}
 
 	/* parse player entity number */
@@ -1484,10 +2334,25 @@ CL_ParseBaseline(void)
 	int newnum;
 	centity_t *ent;
 
-	newnum = CL_ParseEntityBits(&bits);
+	if (cls.serverProtocol == PROTOCOL_H2DEMO_VERSION)
+	{
+		newnum = CL_ParseH2EntityBits(&bits);
+	}
+	else
+	{
+		newnum = CL_ParseEntityBits(&bits);
+	}
 	ent = CL_AllocEntity(newnum);
 
-	CL_ParseDelta(NULL, ent ? &ent->baseline : NULL, newnum, bits);
+	if (cls.serverProtocol == PROTOCOL_H2DEMO_VERSION)
+	{
+		entity_xstate_t dummy;
+		CL_ParseH2Delta(NULL, ent ? &ent->baseline : &dummy, newnum, bits);
+	}
+	else
+	{
+		CL_ParseDelta(NULL, ent ? &ent->baseline : NULL, newnum, bits);
+	}
 }
 
 void
@@ -2071,6 +2936,8 @@ CL_ParseStartSoundPacket(void)
 	float attenuation;
 	int flags;
 	float ofs;
+	int h2_event_id = 0;
+	float h2_leveltime = 0.0f;
 
 	flags = MSG_ReadByte(&net_message);
 	if (flags < 0)
@@ -2093,6 +2960,20 @@ CL_ParseStartSoundPacket(void)
 		Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
 		return;
 	}
+
+	if (cls.serverProtocol == PROTOCOL_H2DEMO_VERSION && (flags & 0x20))
+	{
+		h2_event_id = MSG_ReadByte(&net_message);
+		h2_leveltime = MSG_ReadFloat(&net_message);
+		if (h2_event_id < 0 || net_message.readcount > net_message.cursize)
+		{
+			Com_Error(ERR_DROP, "%s: truncated H2 sound prediction data", __func__);
+			return;
+		}
+	}
+
+	(void)h2_event_id;
+	(void)h2_leveltime;
 
 	if (flags & SND_VOLUME)
 	{
@@ -2488,6 +3369,88 @@ CL_ParseServerMessage(void)
 			else if (cmd == 0x0b)
 			{
 				cls.serverProtocol = PROTOCOL_H2DEMO_VERSION;
+			}
+		}
+
+		if (cls.serverProtocol == PROTOCOL_H2DEMO_VERSION)
+		{
+			switch (cmd)
+			{
+				case 3: /* svc_client_effect */
+					CL_ParseH2ClientEffects(&net_message);
+					continue;
+
+				case 28: /* svc_demo_client_effect */
+				case 29: /* svc_special_client_effect */
+					CL_ParseH2SizedEffects();
+					continue;
+
+				case 9: /* svc_gamemsg_print */
+				case 15: /* svc_gamemsg_centerprint */
+				case 17: /* svc_levelmsg_centerprint */
+				case 18: /* svc_captionprint */
+				{
+					const int message_id = MSG_ReadShort(&net_message);
+					Com_Printf("Heretic II demo: message id %d has no Quake II message-table equivalent\n",
+						message_id);
+					continue;
+				}
+
+				case 16: /* svc_gamemsgvar_centerprint */
+				{
+					const int message_id = MSG_ReadShort(&net_message);
+					const int value = MSG_ReadLong(&net_message);
+					Com_Printf("Heretic II demo: message id %d (value %d) has no Quake II message-table equivalent\n",
+						message_id, value);
+					continue;
+				}
+
+				case 19: /* svc_obituary */
+				{
+					const int message_id = MSG_ReadShort(&net_message);
+					const int killer = MSG_ReadByte(&net_message);
+					const int victim = MSG_ReadByte(&net_message);
+					Com_Printf("Heretic II demo: obituary %d, clients %d/%d (not mapped to Quake II obituary text)\n",
+						message_id, killer, victim);
+					continue;
+				}
+
+				case 26: /* svc_changeCDtrack */
+				{
+					const int track = MSG_ReadByte(&net_message);
+					const int looping = MSG_ReadByte(&net_message);
+					Com_Printf("Heretic II demo: CD track %d, looping %d\n", track, looping);
+					continue;
+				}
+
+				case 27: /* svc_framenum */
+					cl.frame.serverframe = MSG_ReadLong(&net_message);
+					cl.frame.servertime = cl.frame.serverframe * 100;
+					cl.time = cl.frame.servertime;
+					continue;
+
+				case 25: /* svc_removeentities (reserved, not emitted by protocol 51) */
+					Com_Printf("Heretic II demo: ignored reserved svc_removeentities opcode\n");
+					continue;
+
+				case 30: /* svc_gamemsgdual_centerprint */
+				{
+					const int first_id = MSG_ReadShort(&net_message);
+					const int second_id = MSG_ReadShort(&net_message);
+					Com_Printf("Heretic II demo: combined message ids %d/%d have no Quake II message-table equivalent\n",
+						first_id, second_id);
+					continue;
+				}
+
+				case 31: /* svc_nameprint */
+				{
+					const int client = MSG_ReadByte(&net_message);
+					const int team = MSG_ReadByte(&net_message);
+					const char *text = MSG_ReadString(&net_message);
+					Com_Printf("Heretic II demo: %s chat from client %d: %s\n",
+						team ? "team" : "player", client, text);
+					continue;
+				}
 			}
 		}
 
