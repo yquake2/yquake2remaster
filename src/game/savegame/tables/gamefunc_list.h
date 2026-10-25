@@ -29,6 +29,7 @@ static const fnlist_entry_t fnentries_die[] =
 {
 	{"DBall_BallDie", (byte *)DBall_BallDie},
 	{"actor_die", (byte *)actor_die},
+	{"alienship_die", (byte *)alienship_die},
 	{"arachnid_die", (byte *)arachnid_die},
 	{"army_die", (byte *)army_die},
 	{"badass_die", (byte *)badass_die},
@@ -88,7 +89,10 @@ static const fnlist_entry_t fnentries_die[] =
 	{"rotfish_die", (byte *)rotfish_die},
 	{"shalrath_die", (byte *)shalrath_die},
 	{"shambler_die", (byte *)shambler_die},
+	{"screamer_die", (byte *)screamer_die},
 	{"soldier_die", (byte *)soldier_die},
+	{"grunt_die", (byte *)grunt_die},
+	{"grunt2_die", (byte *)grunt2_die},
 	{"soldierh_die", (byte *)soldierh_die},
 	{"sphere_explode", (byte *)sphere_explode},
 	{"sphere_if_idle_die", (byte *)sphere_if_idle_die},
@@ -115,6 +119,7 @@ static const fnlist_entry_t fnentries_pain[] =
 {
 	{"DBall_BallPain", (byte *)DBall_BallPain},
 	{"actor_pain", (byte *)actor_pain},
+	{"alienship_pain", (byte *)alienship_pain},
 	{"arachnid_pain", (byte *)arachnid_pain},
 	{"army_pain", (byte *)army_pain},
 	{"badass_pain", (byte *)badass_pain},
@@ -158,6 +163,9 @@ static const fnlist_entry_t fnentries_pain[] =
 	{"player_pain", (byte *)player_pain},
 	{"rotfish_pain", (byte *)rotfish_pain},
 	{"shalrath_pain", (byte *)shalrath_pain},
+	{"screamer_pain", (byte *)screamer_pain},
+	{"grunt_pain", (byte *)grunt_pain},
+	{"grunt2_pain", (byte *)grunt2_pain},
 	{"shambler_pain", (byte *)shambler_pain},
 	{"soldier_pain", (byte *)soldier_pain},
 	{"soldierh_pain", (byte *)soldierh_pain},
@@ -440,6 +448,7 @@ static const fnlist_entry_t fnentries_touch[] =
 	{"rotating_touch", (byte *)rotating_touch},
 	{"secret_touch", (byte *)secret_touch},
 	{"shalrath_pod_touch", (byte *)shalrath_pod_touch},
+	{"screamer_touch", (byte *)screamer_touch},
 	{"spider_charge_think", (byte *)spider_charge_think},
 	{"spit_touch", (byte *)spit_touch},
 	{"tarbaby_touch", (byte *)tarbaby_touch},
@@ -591,6 +600,8 @@ static const functionList_t fnlist_blocked =
 static const fnlist_entry_t fnentries_mi_stand[] =
 {
 	{"actor_stand", (byte *)actor_stand},
+	{"alienship_stand", (byte *)alienship_stand},
+	{"alienship_birth", (byte *)alienship_birth},
 	{"badass_stand", (byte *)badass_stand},
 	{"berserk_stand", (byte *)berserk_stand},
 	{"boss2_stand", (byte *)boss2_stand},
@@ -606,6 +617,9 @@ static const fnlist_entry_t fnentries_mi_stand[] =
 	{"gekk_stand", (byte *)gekk_stand},
 	{"gladb_stand", (byte *)gladb_stand},
 	{"gladiator_stand", (byte *)gladiator_stand},
+	{"grunt_stand", (byte *)grunt_stand},
+	{"grunt2_stand", (byte *)grunt2_stand},
+	{"screamer_stand", (byte *)screamer_stand},
 	{"guardian_stand", (byte *)guardian_stand},
 	{"gunner_stand", (byte *)gunner_stand},
 	{"hover_stand", (byte *)hover_stand},
@@ -641,6 +655,10 @@ static const functionList_t fnlist_mi_stand =
 static const fnlist_entry_t fnentries_mi_walk[] =
 {
 	{"actor_walk", (byte *)actor_walk},
+	{"alienship_run", (byte *)alienship_run},
+	{"grunt_run", (byte *)grunt_run},
+	{"grunt2_run", (byte *)grunt2_run},
+	{"screamer_run", (byte *)screamer_run},
 	{"arachnid_walk", (byte *)arachnid_walk},
 	{"army_run", (byte *)army_run},
 	{"badass_walk", (byte *)badass_walk},
@@ -697,6 +715,10 @@ static const functionList_t fnlist_mi_walk =
 static const fnlist_entry_t fnentries_mi_run[] =
 {
 	{"actor_run", (byte *)actor_run},
+	{"alienship_run", (byte *)alienship_run},
+	{"grunt_run", (byte *)grunt_run},
+	{"grunt2_run", (byte *)grunt2_run},
+	{"screamer_run", (byte *)screamer_run},
 	{"arachnid_run", (byte *)arachnid_run},
 	{"army_run", (byte *)army_run},
 	{"badass_run", (byte *)badass_run},
@@ -755,6 +777,8 @@ static const functionList_t fnlist_mi_run =
 static const fnlist_entry_t fnentries_mi_melee[] =
 {
 	{"badass_attack", (byte *)badass_attack},
+	{"grunt_melee", (byte *)grunt_melee},
+	{"screamer_attack", (byte *)screamer_attack},
 	{"berserk_melee", (byte *)berserk_melee},
 	{"brain_melee", (byte *)brain_melee},
 	{"chick_melee", (byte *)chick_melee},
@@ -789,6 +813,10 @@ static const functionList_t fnlist_mi_melee =
 static const fnlist_entry_t fnentries_mi_attack[] =
 {
 	{"actor_attack", (byte *)actor_attack},
+	{"alienship_attack", (byte *)alienship_attack},
+	{"grunt_attack", (byte *)grunt_attack},
+	{"grunt2_attack", (byte *)grunt2_attack},
+	{"screamer_attack", (byte *)screamer_attack},
 	{"arachnid_attack", (byte *)arachnid_attack},
 	{"army_attack", (byte *)army_attack},
 	{"badass_attack", (byte *)badass_attack},
@@ -848,6 +876,10 @@ static const fnlist_entry_t fnentries_mi_checkattack[] =
 	{"Carrier_CheckAttack", (byte *)Carrier_CheckAttack},
 	{"Jorg_CheckAttack", (byte *)Jorg_CheckAttack},
 	{"M_CheckAttack", (byte *)M_CheckAttack},
+	{"alienship_checkattack", (byte *)alienship_checkattack},
+	{"grunt_checkattack", (byte *)grunt_checkattack},
+	{"grunt2_checkattack", (byte *)grunt2_checkattack},
+	{"screamer_checkattack", (byte *)screamer_checkattack},
 	{"Makron_CheckAttack", (byte *)Makron_CheckAttack},
 	{"Widow2_CheckAttack", (byte *)Widow2_CheckAttack},
 	{"Widow_CheckAttack", (byte *)Widow_CheckAttack},
@@ -868,6 +900,7 @@ static const functionList_t fnlist_mi_checkattack =
 static const fnlist_entry_t fnentries_mi_dodge[] =
 {
 	{"M_MonsterDodge", (byte *)M_MonsterDodge},
+	{"grunt2_dodge", (byte *)grunt2_dodge},
 	{"brain_dodge", (byte *)brain_dodge},
 	{"chick_dodge", (byte *)chick_dodge},
 	{"gekk_dodge", (byte *)gekk_dodge},
@@ -888,6 +921,10 @@ static const functionList_t fnlist_mi_dodge =
 static const fnlist_entry_t fnentries_mi_idle[] =
 {
 	{"badass_idle", (byte *)badass_idle},
+	{"alienship_idle", (byte *)alienship_idle},
+	{"grunt_idle", (byte *)grunt_idle},
+	{"grunt2_idle", (byte *)grunt2_idle},
+	{"screamer_idle", (byte *)screamer_idle},
 	{"brain_idle", (byte *)brain_idle},
 	{"cyborg_idle", (byte *)cyborg_idle},
 	{"flipper_idle", (byte *)flipper_idle},
@@ -958,6 +995,10 @@ static const functionList_t fnlist_mi_search =
 static const fnlist_entry_t fnentries_mi_sight[] =
 {
 	{"arachnid_sight", (byte *)arachnid_sight},
+	{"alienship_sight", (byte *)alienship_sight},
+	{"grunt_sight", (byte *)grunt_sight},
+	{"grunt2_sight", (byte *)grunt2_sight},
+	{"screamer_sight", (byte *)screamer_sight},
 	{"army_sight", (byte *)army_sight},
 	{"badass_sight", (byte *)badass_sight},
 	{"berserk_sight", (byte *)berserk_sight},
@@ -1094,4 +1135,3 @@ static const functionList_t fnlist_mv_end =
 	"mv_end",
 	fnentries_mv_end, ARREND(fnentries_mv_end),
 };
-

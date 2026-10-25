@@ -401,6 +401,7 @@ set(Game-Source
 	${GAME_SRC_DIR}/g_weapon.c
 	${GAME_SRC_DIR}/menu/menu.c
 	${GAME_SRC_DIR}/monster/actor/actor.c
+	${GAME_SRC_DIR}/monster/alienship/alienship.c
 	${GAME_SRC_DIR}/monster/arachnid/arachnid.c
 	${GAME_SRC_DIR}/monster/army/army.c
 	${GAME_SRC_DIR}/monster/badass/badass.c
@@ -424,6 +425,8 @@ set(Game-Source
 	${GAME_SRC_DIR}/monster/gekk/gekk.c
 	${GAME_SRC_DIR}/monster/gladiator/gladb.c
 	${GAME_SRC_DIR}/monster/gladiator/gladiator.c
+	${GAME_SRC_DIR}/monster/grunt/grunt.c
+	${GAME_SRC_DIR}/monster/grunt/grunt2.c
 	${GAME_SRC_DIR}/monster/guardian/guardian.c
 	${GAME_SRC_DIR}/monster/gunner/gunner.c
 	${GAME_SRC_DIR}/monster/hknight/hknight.c
@@ -441,6 +444,7 @@ set(Game-Source
 	${GAME_SRC_DIR}/monster/shalrath/shalrath.c
 	${GAME_SRC_DIR}/monster/shambler/shambler.c
 	${GAME_SRC_DIR}/monster/soldier/soldier.c
+	${GAME_SRC_DIR}/monster/screamer/screamer.c
 	${GAME_SRC_DIR}/monster/stalker/stalker.c
 	${GAME_SRC_DIR}/monster/spider/spider.c
 	${GAME_SRC_DIR}/monster/supertank/supertank.c
@@ -463,6 +467,7 @@ set(Game-Source
 set(Game-Header
 	${GAME_SRC_DIR}/header/game.h
 	${GAME_SRC_DIR}/header/local.h
+	${GAME_SRC_DIR}/monster/alienship/alienship.h
 	${GAME_SRC_DIR}/monster/berserker/berserker.h
 	${GAME_SRC_DIR}/monster/boss2/boss2.h
 	${GAME_SRC_DIR}/monster/boss3/boss31.h
@@ -470,6 +475,8 @@ set(Game-Header
 	${GAME_SRC_DIR}/monster/brain/brain.h
 	${GAME_SRC_DIR}/monster/chick/chick.h
 	${GAME_SRC_DIR}/monster/flipper/flipper.h
+	${GAME_SRC_DIR}/monster/grunt/grunt1.h
+	${GAME_SRC_DIR}/monster/grunt/grunt2.h
 	${GAME_SRC_DIR}/monster/float/float.h
 	${GAME_SRC_DIR}/monster/flyer/flyer.h
 	${GAME_SRC_DIR}/monster/gladiator/gladiator.h
@@ -482,6 +489,7 @@ set(Game-Header
 	${GAME_SRC_DIR}/monster/mutant/mutant.h
 	${GAME_SRC_DIR}/monster/parasite/parasite.h
 	${GAME_SRC_DIR}/monster/soldier/soldier.h
+	${GAME_SRC_DIR}/monster/screamer/screamer.h
 	${GAME_SRC_DIR}/monster/supertank/supertank.h
 	${GAME_SRC_DIR}/monster/tank/tank.h
 	${GAME_SRC_DIR}/savegame/tables/clientfields.h

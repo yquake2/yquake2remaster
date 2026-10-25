@@ -1554,6 +1554,9 @@ struct gclient_s
 	int breather_sound;
 
 	int machinegun_shots;           /* for weapon raising */
+	int infinity_blaze_charge;
+	int infinity_rifle_mode;
+	int infinity_rifle_recoil;
 
 	/* animation vars */
 	int anim_end;
