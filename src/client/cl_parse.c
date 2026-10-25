@@ -418,10 +418,10 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, uint
 
 	if (bits & U_ORIGIN1)
 	{
-		if (IS_QIIRR_PROTOCOL(cls.serverProtocol) && to->solid)
+		if ((cls.serverProtocol == PROTOCOL_RR22_VERSION) && to->solid)
 		{
 			/* Read to float hack */
-			to->origin[0] = MSG_ReadCoord(&net_message, PROTOCOL_VERSION);
+			to->origin[0] = MSG_ReadCoord(&net_message, PROTOCOL_RR23_VERSION);
 		}
 		else
 		{
@@ -431,10 +431,10 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, uint
 
 	if (bits & U_ORIGIN2)
 	{
-		if (IS_QIIRR_PROTOCOL(cls.serverProtocol) && to->solid)
+		if ((cls.serverProtocol == PROTOCOL_RR22_VERSION) && to->solid)
 		{
 			/* Read to float hack */
-			to->origin[1] = MSG_ReadCoord(&net_message, PROTOCOL_VERSION);
+			to->origin[1] = MSG_ReadCoord(&net_message, PROTOCOL_RR23_VERSION);
 		}
 		else
 		{
@@ -444,10 +444,10 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, uint
 
 	if (bits & U_ORIGIN3)
 	{
-		if (IS_QIIRR_PROTOCOL(cls.serverProtocol) && to->solid)
+		if ((cls.serverProtocol == PROTOCOL_RR22_VERSION) && to->solid)
 		{
 			/* Read to float hack */
-			to->origin[2] = MSG_ReadCoord(&net_message, PROTOCOL_VERSION);
+			to->origin[2] = MSG_ReadCoord(&net_message, PROTOCOL_RR23_VERSION);
 		}
 		else
 		{
@@ -589,7 +589,7 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, uint
 		Com_DPrintf("%s: ReRelease oldframe %d", __func__, oldframe);
 	}
 
-	if ((bits & U_SOLID) && (!IS_QIIRR_PROTOCOL(cls.serverProtocol)))
+	if ((bits & U_SOLID) && !IS_QIIRR_PROTOCOL(cls.serverProtocol))
 	{
 		to->solid = MSG_ReadShort(&net_message);
 	}
@@ -951,7 +951,7 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 
 	if (flags & PS_M_TIME)
 	{
-		if (protocol == PROTOCOL_RR22_VERSION)
+		if (IS_QIIRR_PROTOCOL(protocol))
 		{
 			int pm_time;
 
@@ -967,7 +967,7 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 
 	if (flags & PS_M_FLAGS)
 	{
-		if (protocol == PROTOCOL_RR22_VERSION)
+		if (IS_QIIRR_PROTOCOL(protocol))
 		{
 			/* KEX flags above PMF_NO_PREDICTION have no vanilla equivalent */
 			state->pmove.pm_flags = MSG_ReadShort(&net_message) & 0x7f;
@@ -1051,7 +1051,7 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 
 	/* parse stats */
 	if (IS_QII97_PROTOCOL(protocol) ||
-		protocol == PROTOCOL_RR22_VERSION)
+		IS_QIIRR_PROTOCOL(protocol))
 	{
 		stats_size = P_GetCountOfStats(protocol);
 	}
@@ -2405,4 +2405,3 @@ CL_ParseServerMessage(void)
 		CL_WriteDemoMessage();
 	}
 }
-

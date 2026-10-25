@@ -735,12 +735,13 @@ MSG_WriteString(sizebuf_t *sb, const char *s)
 void
 MSG_WriteCoord(sizebuf_t *sb, float f, int protocol)
 {
-	if (IS_QII97_PROTOCOL(protocol))
+	if (IS_QII97_PROTOCOL(protocol) ||
+		(protocol == PROTOCOL_RR22_VERSION))
 	{
 		MSG_WriteShort(sb, (int)(f * 8));
 	}
 	else if ((protocol == PROTOCOL_VERSION) ||
-			 (protocol == PROTOCOL_RR22_VERSION))
+			 (protocol == PROTOCOL_RR23_VERSION))
 	{
 		MSG_WriteFloat(sb, f);
 	}
@@ -760,7 +761,7 @@ MSG_WriteOrigin(sizebuf_t *sb, const int origin[3], int protocol)
 		MSG_WriteShort(sb, origin[1]);
 		MSG_WriteShort(sb, origin[2]);
 	}
-	else if (protocol == PROTOCOL_RR22_VERSION)
+	else if (IS_QIIRR_PROTOCOL(protocol))
 	{
 		MSG_WriteFloat(sb, origin[0] / 8.0f);
 		MSG_WriteFloat(sb, origin[1] / 8.0f);
@@ -790,7 +791,7 @@ MSG_WritePos(sizebuf_t *sb, const vec3_t pos, int protocol)
 void
 MSG_WriteVel(sizebuf_t *sb, const short *vel, int protocol)
 {
-	if (protocol == PROTOCOL_RR22_VERSION)
+	if (IS_QIIRR_PROTOCOL(protocol))
 	{
 		MSG_WriteFloat(sb, vel[0] * 0.125f);
 		MSG_WriteFloat(sb, vel[1] * 0.125f);
@@ -841,7 +842,7 @@ MSG_WriteAngle16(sizebuf_t *sb, float f)
 void
 MSG_WriteDeltaAngles(sizebuf_t *sb, const short delta_angles[3], int protocol)
 {
-	if (protocol == PROTOCOL_RR22_VERSION)
+	if (IS_QIIRR_PROTOCOL(protocol))
 	{
 		MSG_WriteFloat(sb, SHORT2ANGLE(delta_angles[0]));
 		MSG_WriteFloat(sb, SHORT2ANGLE(delta_angles[1]));
@@ -864,7 +865,7 @@ MSG_WriteDeltaAngles(sizebuf_t *sb, const short delta_angles[3], int protocol)
 void
 MSG_WriteViewAngles(sizebuf_t *sb, const vec3_t viewangles, int protocol)
 {
-	if ((protocol == PROTOCOL_RR22_VERSION) ||
+	if (IS_QIIRR_PROTOCOL(protocol) ||
 		(protocol == PROTOCOL_VERSION))
 	{
 		MSG_WriteFloat(sb, viewangles[0]);
@@ -887,7 +888,7 @@ MSG_WriteViewAngles(sizebuf_t *sb, const vec3_t viewangles, int protocol)
 void
 MSG_WriteViewOffset(sizebuf_t *sb, const vec3_t viewoffset, int protocol)
 {
-	if (protocol == PROTOCOL_RR22_VERSION)
+	if (IS_QIIRR_PROTOCOL(protocol))
 	{
 		MSG_WriteShort(sb, viewoffset[0] * 16);
 		MSG_WriteShort(sb, viewoffset[1] * 16);
@@ -917,7 +918,7 @@ MSG_WriteViewOffset(sizebuf_t *sb, const vec3_t viewoffset, int protocol)
 void
 MSG_WriteKickAngles(sizebuf_t *sb, const vec3_t kick_angles, int protocol)
 {
-	if ((protocol == PROTOCOL_RR22_VERSION) ||
+	if (IS_QIIRR_PROTOCOL(protocol) ||
 		(protocol == PROTOCOL_VERSION))
 	{
 		MSG_WriteShort(sb, kick_angles[0] * 1024);
@@ -1669,11 +1670,12 @@ float
 MSG_ReadCoord(sizebuf_t *msg_read, int protocol)
 {
 	if (IS_QII97_PROTOCOL(protocol) ||
-		IS_QIIRR_PROTOCOL(protocol))
+		(protocol == PROTOCOL_RR22_VERSION))
 	{
 		return MSG_ReadShort(msg_read) * (0.125f);
 	}
-	else if (protocol == PROTOCOL_VERSION)
+	else if ((protocol == PROTOCOL_VERSION) ||
+		(protocol == PROTOCOL_RR23_VERSION))
 	{
 		return MSG_ReadFloat(msg_read);
 	}
@@ -1694,7 +1696,7 @@ MSG_ReadOrigin(sizebuf_t *msg_read, int origin[3], int protocol)
 		origin[1] = MSG_ReadShort(msg_read);
 		origin[2] = MSG_ReadShort(msg_read);
 	}
-	else if (protocol == PROTOCOL_RR22_VERSION)
+	else if (IS_QIIRR_PROTOCOL(protocol))
 	{
 		origin[0] = MSG_ReadFloat(&net_message) * 8.0f + 0.5f;
 		origin[1] = MSG_ReadFloat(&net_message) * 8.0f + 0.5f;
@@ -1724,7 +1726,7 @@ MSG_ReadPos(sizebuf_t *msg_read, vec3_t pos, int protocol)
 void
 MSG_ReadVel(sizebuf_t *msg_read, short *vel, int protocol)
 {
-	if (protocol == PROTOCOL_RR22_VERSION)
+	if (IS_QIIRR_PROTOCOL(protocol))
 	{
 		vel[0] = MSG_ReadFloat(msg_read) * 8.0f + 0.5f;
 		vel[1] = MSG_ReadFloat(msg_read) * 8.0f + 0.5f;
@@ -1751,7 +1753,7 @@ MSG_ReadAngle(sizebuf_t *msg_read, int protocol)
 	{
 		return MSG_ReadChar(msg_read) * 1.40625f;
 	}
-	else if (protocol == PROTOCOL_RR22_VERSION)
+	else if (IS_QIIRR_PROTOCOL(protocol))
 	{
 		return MSG_ReadFloat(&net_message);
 	}
@@ -1776,7 +1778,7 @@ MSG_ReadAngle16(sizebuf_t *msg_read)
 void
 MSG_ReadDeltaAngles(sizebuf_t *msg_read, short delta_angles[3], int protocol)
 {
-	if (protocol == PROTOCOL_RR22_VERSION)
+	if (IS_QIIRR_PROTOCOL(protocol))
 	{
 		delta_angles[0] = ANGLE2SHORT(MSG_ReadFloat(msg_read));
 		delta_angles[1] = ANGLE2SHORT(MSG_ReadFloat(msg_read));
@@ -1799,7 +1801,7 @@ MSG_ReadDeltaAngles(sizebuf_t *msg_read, short delta_angles[3], int protocol)
 void
 MSG_ReadViewAngles(sizebuf_t *msg_read, vec3_t viewangles, int protocol)
 {
-	if ((protocol == PROTOCOL_RR22_VERSION) ||
+	if (IS_QIIRR_PROTOCOL(protocol) ||
 		(protocol == PROTOCOL_VERSION))
 	{
 		viewangles[0] = MSG_ReadFloat(msg_read);
@@ -1822,7 +1824,7 @@ MSG_ReadViewAngles(sizebuf_t *msg_read, vec3_t viewangles, int protocol)
 void
 MSG_ReadViewOffset(sizebuf_t *msg_read, vec3_t viewoffset, int protocol)
 {
-	if (protocol == PROTOCOL_RR22_VERSION)
+	if (IS_QIIRR_PROTOCOL(protocol))
 	{
 		viewoffset[0] = MSG_ReadShort(msg_read) / 16.0f;
 		viewoffset[1] = MSG_ReadShort(msg_read) / 16.0f;
@@ -1852,7 +1854,7 @@ MSG_ReadViewOffset(sizebuf_t *msg_read, vec3_t viewoffset, int protocol)
 void
 MSG_ReadKickAngles(sizebuf_t *msg_read, vec3_t kick_angles, int protocol)
 {
-	if ((protocol == PROTOCOL_RR22_VERSION) ||
+	if (IS_QIIRR_PROTOCOL(protocol) ||
 		(protocol == PROTOCOL_VERSION))
 	{
 		kick_angles[0] = MSG_ReadShort(msg_read) / 1024.0f;
@@ -1876,7 +1878,7 @@ void
 MSG_ReadWeaponFrameAngles(sizebuf_t *msg_read, vec3_t gunoffset, vec3_t gunangles,
 	int *gunframe, int protocol)
 {
-	if (protocol == PROTOCOL_RR22_VERSION)
+	if (IS_QIIRR_PROTOCOL(protocol))
 	{
 		unsigned gunbits, i;
 
@@ -2007,4 +2009,3 @@ MSG_ReadData(sizebuf_t *msg_read, void *data, int len)
 		((byte *)data)[i] = MSG_ReadByte(msg_read);
 	}
 }
-
