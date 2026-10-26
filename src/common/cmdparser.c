@@ -965,7 +965,11 @@ Cmd_CompleteMapCommand(const char *partial)
 
 		for (i = 0; i < mapNames.num; i++)
 		{
-			if ((lastsep = strrchr(mapNames.data[i], '/')))
+			if (!strncmp(mapNames.data[i], "maps/", 5))
+			{
+				mapName = mapNames.data[i] + 5;
+			}
+			else if ((lastsep = strrchr(mapNames.data[i], '/')))
 			{
 				mapName = lastsep + 1;
 			}
