@@ -779,7 +779,7 @@ CL_AddPacketEntities(const frame_t *frame)
 }
 
 static void
-CL_AddViewWeapon(player_state_t *ps, player_state_t *ops)
+CL_AddViewWeapon(player_xstate_t *ps, player_xstate_t *ops)
 {
 	entity_t gun = {0}; /* view model */
 	int i;
@@ -879,7 +879,7 @@ CL_CalcViewValues(void)
 	int i;
 	float lerp, ifov;
 	frame_t *oldframe, *frame;
-	player_state_t *ps, *ops;
+	player_xstate_t *ps, *ops;
 
 	/* find the previous frame to interpolate from */
 	ps = &cl.frame.playerstate;

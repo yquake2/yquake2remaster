@@ -310,7 +310,7 @@ P_GetCountOfStats(int protocol)
 		return MAX_STATS_RR22DEMO;
 	}
 
-	return MAX_STATS;
+	return MAX_XSTATS;
 }
 
 int

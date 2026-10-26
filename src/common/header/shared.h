@@ -186,8 +186,8 @@ typedef unsigned char byte;
 #define MAX_CLIENTS 256             /* absolute limit */
 #define MAX_EDICTS 2048             /* must change protocol to increase more */
 #define MAX_LIGHTSTYLES 256
-#define MAX_MODELS 512              /* these are sent over the net as bytes */
-#define MAX_SOUNDS 512              /* so they cannot be blindly increased */
+#define MAX_MODELS 1024             /* these are sent over the net as bytes */
+#define MAX_SOUNDS 1024             /* so they cannot be blindly increased */
 #define MAX_IMAGES 256
 #define MAX_ITEMS 512
 #define MAX_GENERAL (MAX_CLIENTS * 2)       /* general config strings */
@@ -1286,10 +1286,10 @@ typedef enum
 #define STAT_RADAR_ICON 18
 #define STAT_RADAR 19
 
-/* Extend to have more slots?
- * Quake ReRelease has 64,
- * Heretic 2 has 48 */
+/* Original Quake 2 slots count */
 #define MAX_STATS 32
+/* ReRelease slots count */
+#define MAX_XSTATS 64
 
 typedef enum
 {
@@ -1485,6 +1485,28 @@ typedef struct
 
 	short stats[MAX_STATS];     /* fast status bar updates */
 } player_state_t;
+
+typedef struct
+{
+	/* keep it insync with entity_state_t */
+	pmove_state_t pmove;        /* for prediction */
+
+	vec3_t viewangles;          /* for fixed views */
+	vec3_t viewoffset;          /* add to pmovestate->origin */
+	vec3_t kick_angles;         /* add to view direction to get render angles */
+								/* set by weapon kicks, pain effects, etc */
+
+	vec3_t gunangles;
+	vec3_t gunoffset;
+	int gunindex;
+	int gunframe;
+
+	float blend[4];             /* rgba full screen effect */
+	float fov;                  /* horizontal field of view */
+	int rdflags;                /* refdef flags */
+
+	short stats[MAX_XSTATS];     /* fast status bar updates */
+} player_xstate_t;
 
 /* Fog */
 

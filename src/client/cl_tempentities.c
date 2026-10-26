@@ -1509,7 +1509,7 @@ AdjustToWeapon(const vec3_t ofs, float hand_mul, vec3_t out)
 {
 	int i;
 	frame_t *oldframe;
-	player_state_t *ps, *ops;
+	player_xstate_t *ps, *ops;
 
 	/* set up gun position */
 	ps = &cl.frame.playerstate;

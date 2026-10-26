@@ -236,7 +236,6 @@ Checked with:
 * [ ] Anachronox: load atd as sprite,
 * [ ] Anachronox: fix incorrect scale of `ob_stop-flame` and `ob_wommhill01`,
 * [ ] Anachronox: skins load broken with mingw win64 build,
-* [ ] Anachronox: CTC entity format,
 * [ ] Anachronox: support material load textures/textureinfo.dat,
 * [ ] Daikatana: Fix protopod animation,
 * [ ] Daikatana/SiN: Fix transparent textures in maps,
@@ -262,6 +261,8 @@ Checked with:
 * [ ] Dynamic count of entities on client.
 
 ### Next release:
+* [ ] Anachronox: CTC entity format,
+* [ ] ReRelease: extend server player_state_t MAX_STATS limit,
 * [x] ReRelease: implement demo protocol based on https://github.com/res2k/q2proto
       and https://github.com/Paril/quake2-rerelease-dll,
 * [x] ReRelease: select start level through `mapddb.json`

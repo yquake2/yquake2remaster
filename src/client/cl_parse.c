@@ -897,7 +897,7 @@ static void
 CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 {
 	unsigned flags, group, stats_size;
-	player_state_t *state;
+	player_xstate_t *state;
 	int flag_short;
 
 	state = &newframe->playerstate;
@@ -993,7 +993,7 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 		state->pmove.pm_type = PM_FREEZE; /* demo playback */
 	}
 
-	/* parse the rest of the player_state_t */
+	/* parse the rest of the player_xstate_t */
 	if (flags & PS_VIEWOFFSET)
 	{
 		MSG_ReadViewOffset(&net_message, state->viewoffset, protocol);
@@ -1078,7 +1078,7 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 		{
 			if (statbits & (1u << (i % 32)))
 			{
-				if (i < MAX_STATS)
+				if (i < MAX_XSTATS)
 				{
 					state->stats[i] = MSG_ReadShort(&net_message);
 

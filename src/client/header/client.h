@@ -69,7 +69,7 @@ typedef struct
 	int				servertime; /* server time the message is valid for (in msec) */
 	int				deltaframe;
 	byte			areabits[MAX_MAP_AREAS/8]; /* portalarea visibility bits */
-	player_state_t	playerstate;
+	player_xstate_t	playerstate;
 	int				origin[3]; /* extended ps.origin to 28.3 format */
 	int				num_entities;
 	int				parse_entities; /* non-masked index into cl_parse_entities array */

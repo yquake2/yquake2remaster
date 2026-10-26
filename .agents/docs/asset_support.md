@@ -21,6 +21,7 @@ This document details the supported file formats for models, textures, sprites, 
 | md5    | Doom 3/Quake 4  | float        | Multiple | Requires md2 for skins.             |
 | sbm    | SiN             | Part of sam  | Multiple | Unchecked with game                 |
 | sam    | SiN             | 8 bit        | Multiple | Unchecked with game                 |
+| obj    |                 | float        | Single   | Single and no skins                 |
 
 All models support only single texture for all meshes and frames limit based on game protocol.
 
