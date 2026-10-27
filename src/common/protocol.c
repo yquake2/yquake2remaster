@@ -29,7 +29,6 @@
 
 /* per-level limits Quake 2 Protocol version 26 */
 #define MAX_CLIENTS_Q2DEMO 256             /* absolute limit */
-#define MAX_EDICTS_Q2DEMO 1024             /* must change protocol to increase more */
 #define MAX_LIGHTSTYLES_Q2DEMO 256
 #define MAX_MODELS_Q2DEMO 256              /* these are sent over the net as bytes */
 #define MAX_SOUNDS_Q2DEMO 256              /* so they cannot be blindly increased */
@@ -53,7 +52,6 @@
 
 /* per-level limits Quake 2 ReRelease Protocol version 2022 */
 #define MAX_CLIENTS_RR22DEMO 256             /* absolute limit */
-#define MAX_EDICTS_RR22DEMO 8192             /* must change protocol to increase more */
 #define MAX_LIGHTSTYLES_RR22DEMO 256
 #define MAX_MODELS_RR22DEMO 8192             /* these are sent over the net as bytes */
 #define MAX_SOUNDS_RR22DEMO 2048             /* so they cannot be blindly increased */
@@ -62,9 +60,6 @@
 #define MAX_GENERAL_RR22DEMO (MAX_CLIENTS_RR22DEMO * 2)       /* general config strings */
 #define MAX_WHEEL_ITEMS_RR22DEMO 32
 #define MAX_SHADOW_LIGHTS_RR22DEMO 256
-
-/* Heretic 2 */
-#define MAX_STATS_H2DEMO 48
 
 /* CS structure Quake 2 ReRelease Protocol version 2022 */
 #define CS_AIRACCEL_RR22DEMO 59    /* air acceleration control */
@@ -87,6 +82,33 @@
 #define CS_GAME_STYLE_RR22DEMO (CS_CD_LOOP_COUNT_RR22DEMO + 1) /* see game_style_t */
 #define MAX_CONFIGSTRINGS_RR22DEMO (CS_GAME_STYLE_RR22DEMO + 1)
 #define MAX_STATS_RR22DEMO 64
+
+/* Heretic 2 */
+#define MAX_STATS_H2DEMO 48
+/* Protocol 51 ranges. */
+#define	MAX_CLIENTS_H2DEMO 32
+#define	MAX_LIGHTSTYLES_H2DEMO 256
+#define	MAX_MODELS_H2DEMO 256
+#define	MAX_SOUNDS_H2DEMO 768
+#define	MAX_IMAGES_H2DEMO 256
+#define	MAX_ITEMS_H2DEMO 256
+#define CS_NAME_H2DEMO 0
+#define CS_CDTRACK_H2DEMO 1
+#define CS_SKY_H2DEMO 2
+#define CS_SKYAXIS_H2DEMO 3
+#define CS_SKYROTATE_H2DEMO 4
+#define CS_LEVEL_NUMBER_H2DEMO 5 /* Unexisted in Quake 2 */
+#define CS_STATUSBAR_H2DEMO 6
+#define CS_MAXCLIENTS_H2DEMO 30
+#define CS_MAPCHECKSUM_H2DEMO 31
+#define CS_MODELS_H2DEMO 32
+#define CS_SOUNDS_H2DEMO (CS_MODELS_H2DEMO + MAX_MODELS_H2DEMO)
+#define CS_IMAGES_H2DEMO (CS_SOUNDS_H2DEMO + MAX_SOUNDS_H2DEMO)
+#define CS_LIGHTS_H2DEMO (CS_IMAGES_H2DEMO + MAX_IMAGES_H2DEMO)
+#define CS_ITEMS_H2DEMO (CS_LIGHTS_H2DEMO + MAX_LIGHTSTYLES_H2DEMO)
+#define CS_PLAYERSKINS_H2DEMO (CS_ITEMS_H2DEMO + MAX_ITEMS_H2DEMO)
+#define CS_WELCOME_H2DEMO (CS_PLAYERSKINS_H2DEMO + MAX_CLIENTS_H2DEMO) /* Unexisted in Quake 2 */
+#define MAX_CONFIGSTRINGS_H2DEMO CS_WELCOME_H2DEMO + 4
 
 /* Convert from current protocol to internal */
 int
@@ -126,6 +148,49 @@ P_ConvertConfigStringFrom(int i, int protocol)
 		else if (i >= CS_GENERAL_Q2DEMO && i < MAX_CONFIGSTRINGS_Q2DEMO)
 		{
 			i += CS_GENERAL - CS_GENERAL_Q2DEMO;
+		}
+	}
+	else if (protocol == PROTOCOL_H2DEMO_VERSION)
+	{
+		if (i == CS_LEVEL_NUMBER_H2DEMO)
+		{
+			i = CS_SKIP;
+		}
+		else if (i == CS_STATUSBAR_H2DEMO)
+		{
+			i = CS_STATUSBAR;
+		}
+		else if (i >= CS_MAXCLIENTS_H2DEMO && i < CS_MODELS_H2DEMO)
+		{
+			i += CS_MAXCLIENTS - CS_MAXCLIENTS_H2DEMO;
+		}
+		else if (i >= CS_MODELS_H2DEMO && i < CS_SOUNDS_H2DEMO)
+		{
+			i += CS_MODELS - CS_MODELS_H2DEMO;
+		}
+		else if (i >= CS_SOUNDS_H2DEMO && i < CS_IMAGES_H2DEMO)
+		{
+			i += CS_SOUNDS - CS_SOUNDS_H2DEMO;
+		}
+		else if (i >= CS_IMAGES_H2DEMO && i < CS_LIGHTS_H2DEMO)
+		{
+			i += CS_IMAGES - CS_IMAGES_H2DEMO;
+		}
+		else if (i >= CS_LIGHTS_H2DEMO && i < CS_ITEMS_H2DEMO)
+		{
+			i += CS_LIGHTS - CS_LIGHTS_H2DEMO;
+		}
+		else if (i >= CS_ITEMS_H2DEMO && i < CS_PLAYERSKINS_H2DEMO)
+		{
+			i += CS_ITEMS - CS_ITEMS_H2DEMO;
+		}
+		else if (i >= CS_PLAYERSKINS_H2DEMO && i < CS_WELCOME_H2DEMO)
+		{
+			i += CS_PLAYERSKINS - CS_PLAYERSKINS_H2DEMO;
+		}
+		else if (i >= CS_WELCOME_H2DEMO)
+		{
+			i = CS_SKIP;
 		}
 	}
 	else if (IS_QIIRR_PROTOCOL(protocol))
@@ -269,6 +334,75 @@ P_ConvertConfigStringTo(int i, int protocol)
 			if (i >= MAX_CONFIGSTRINGS_Q2DEMO)
 			{
 				Com_Error(ERR_DROP, "%s: MAX_CONFIGSTRINGS: bad index %i\n",
+					__func__, i);
+				return i;
+			}
+		}
+	}
+	else if (protocol == PROTOCOL_H2DEMO_VERSION)
+	{
+		if (i >= CS_MODELS && i < CS_SOUNDS)
+		{
+			i += CS_MODELS_H2DEMO - CS_MODELS;
+
+			if (i >= CS_SOUNDS_H2DEMO)
+			{
+				Com_Error(ERR_DROP, "%s: CS_SOUNDS: bad index %i\n",
+					__func__, i);
+				return i;
+			}
+		}
+		else if (i >= CS_SOUNDS && i < CS_IMAGES)
+		{
+			i += CS_SOUNDS_H2DEMO - CS_SOUNDS;
+
+			if (i >= CS_IMAGES_H2DEMO)
+			{
+				Com_Error(ERR_DROP, "%s: CS_IMAGES: bad index %i\n",
+					__func__, i);
+				return i;
+			}
+		}
+		else if (i >= CS_IMAGES && i < CS_LIGHTS)
+		{
+			i += CS_IMAGES_H2DEMO - CS_IMAGES;
+
+			if (i >= CS_LIGHTS_H2DEMO)
+			{
+				Com_Error(ERR_DROP, "%s: CS_LIGHTS: bad index %i\n",
+					__func__, i);
+				return i;
+			}
+		}
+		else if (i >= CS_LIGHTS && i < CS_ITEMS)
+		{
+			i += CS_LIGHTS_H2DEMO - CS_LIGHTS;
+
+			if (i >= CS_ITEMS_H2DEMO)
+			{
+				Com_Error(ERR_DROP, "%s: CS_ITEMS: bad index %i\n",
+					__func__, i);
+				return i;
+			}
+		}
+		else if (i >= CS_ITEMS && i < CS_PLAYERSKINS)
+		{
+			i += CS_ITEMS_H2DEMO - CS_ITEMS;
+
+			if (i >= CS_PLAYERSKINS_H2DEMO)
+			{
+				Com_Error(ERR_DROP, "%s: CS_PLAYERSKINS: bad index %i\n",
+					__func__, i);
+				return i;
+			}
+		}
+		else if (i >= CS_PLAYERSKINS && i < CS_GENERAL)
+		{
+			i += CS_PLAYERSKINS_H2DEMO - CS_PLAYERSKINS;
+
+			if (i >= CS_WELCOME_H2DEMO)
+			{
+				Com_Error(ERR_DROP, "%s: CS_GENERAL: bad index %i\n",
 					__func__, i);
 				return i;
 			}

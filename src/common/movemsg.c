@@ -1670,6 +1670,7 @@ float
 MSG_ReadCoord(sizebuf_t *msg_read, int protocol)
 {
 	if (IS_QII97_PROTOCOL(protocol) ||
+		(protocol == PROTOCOL_H2DEMO_VERSION) ||
 		(protocol == PROTOCOL_RR22_VERSION))
 	{
 		return MSG_ReadShort(msg_read) * (0.125f);
@@ -1690,7 +1691,8 @@ MSG_ReadCoord(sizebuf_t *msg_read, int protocol)
 void
 MSG_ReadOrigin(sizebuf_t *msg_read, int origin[3], int protocol)
 {
-	if (IS_QII97_PROTOCOL(protocol))
+	if (IS_QII97_PROTOCOL(protocol) ||
+		(protocol == PROTOCOL_H2DEMO_VERSION))
 	{
 		origin[0] = MSG_ReadShort(msg_read);
 		origin[1] = MSG_ReadShort(msg_read);
@@ -1733,6 +1735,7 @@ MSG_ReadVel(sizebuf_t *msg_read, short *vel, int protocol)
 		vel[2] = MSG_ReadFloat(msg_read) * 8.0f + 0.5f;
 	}
 	else if (IS_QII97_PROTOCOL(protocol) ||
+			(protocol == PROTOCOL_H2DEMO_VERSION) ||
 			(protocol == PROTOCOL_VERSION))
 	{
 		vel[0] = MSG_ReadShort(msg_read);
@@ -1749,7 +1752,8 @@ MSG_ReadVel(sizebuf_t *msg_read, short *vel, int protocol)
 float
 MSG_ReadAngle(sizebuf_t *msg_read, int protocol)
 {
-	if (IS_QII97_PROTOCOL(protocol))
+	if (IS_QII97_PROTOCOL(protocol) ||
+		(protocol == PROTOCOL_H2DEMO_VERSION))
 	{
 		return MSG_ReadChar(msg_read) * 1.40625f;
 	}
@@ -1785,6 +1789,7 @@ MSG_ReadDeltaAngles(sizebuf_t *msg_read, short delta_angles[3], int protocol)
 		delta_angles[2] = ANGLE2SHORT(MSG_ReadFloat(msg_read));
 	}
 	else if (IS_QII97_PROTOCOL(protocol) ||
+			(protocol == PROTOCOL_H2DEMO_VERSION) ||
 			(protocol == PROTOCOL_VERSION))
 	{
 		delta_angles[0] = MSG_ReadShort(msg_read);
@@ -1808,7 +1813,8 @@ MSG_ReadViewAngles(sizebuf_t *msg_read, vec3_t viewangles, int protocol)
 		viewangles[1] = MSG_ReadFloat(msg_read);
 		viewangles[2] = MSG_ReadFloat(msg_read);
 	}
-	else if (IS_QII97_PROTOCOL(protocol))
+	else if (IS_QII97_PROTOCOL(protocol) ||
+		(protocol == PROTOCOL_H2DEMO_VERSION))
 	{
 		viewangles[0] = MSG_ReadAngle16(msg_read);
 		viewangles[1] = MSG_ReadAngle16(msg_read);
