@@ -487,6 +487,59 @@ CL_ParseEntityBitsQ2RR(uint64_t *bits)
 	int i, b, number;
 	uint64_t total;
 
+	if (cls.serverProtocol == PROTOCOL_Q2TEST_VERSION)
+	{
+		const int header_pos = net_message.readcount;
+		const int packed = MSG_ReadShort(&net_message);
+		uint64_t q2bits = (uint16_t)packed & 0x3f;
+		const int extra_bytes = ((q2bits & 0x10) ? 1 : 0) +
+			((q2bits & 0x20) ? 2 : 0);
+
+		if (header_pos + 2 > net_message.cursize)
+		{
+			Com_Error(ERR_FATAL, "%s: unexpected message end", __func__);
+			return 0;
+		}
+
+		number = ((uint16_t)packed) >> 6;
+		for (i = 0; i < extra_bytes; i++)
+		{
+			b = MSG_ReadByte(&net_message);
+			if (b < 0)
+			{
+				Com_Error(ERR_FATAL, "%s: unexpected message end", __func__);
+				return 0;
+			}
+
+			q2bits |= (uint64_t)b << ((i + 1) * 8);
+		}
+
+		total = 0;
+		if (q2bits & 0x000001) total |= U_ORIGIN1;
+		if (q2bits & 0x000002) total |= U_ORIGIN2;
+		if (q2bits & 0x000004) total |= U_ORIGIN3;
+		if (q2bits & 0x000008) total |= U_FRAME8;
+		if (q2bits & 0x000100) total |= U_ANGLE1;
+		if (q2bits & 0x000200) total |= U_ANGLE2;
+		if (q2bits & 0x000400) total |= U_ANGLE3;
+		if (q2bits & 0x000800) total |= U_MODEL;
+		if (q2bits & 0x001000) total |= U_RENDERFX8;
+		if (q2bits & 0x002000) total |= U_SKIN8;
+		if (q2bits & 0x004000) total |= U_EFFECTS8;
+		if (q2bits & 0x010000) total |= U_FRAME16;
+		if (q2bits & 0x020000) total |= U_RENDERFX16;
+		if (q2bits & 0x040000) total |= U_EFFECTS16;
+		if (q2bits & 0x080000) total |= U_MODEL2;
+		if (q2bits & 0x100000) total |= U_MODEL3;
+		if (q2bits & 0x200000) total |= U_MODEL4;
+		if (q2bits & 0x400000) total |= U_OLDORIGIN;
+		if (q2bits & 0x800000) total |= U_SKIN16;
+		if (q2bits & 0x1000000) total |= U_SOUND;
+
+		*bits = total;
+		return number;
+	}
+
 	b = MSG_ReadByte(&net_message);
 	if (b < 0)
 	{
@@ -732,90 +785,129 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, uint
 		to->frame = MSG_ReadShort(&net_message);
 	}
 
-	/* used for laser colors */
-	if ((bits & U_SKIN8) && (bits & U_SKIN16))
+	if (cls.serverProtocol == PROTOCOL_Q2TEST_VERSION)
 	{
-		to->skinnum = MSG_ReadLong(&net_message);
-	}
-	else if (bits & U_SKIN8)
-	{
-		to->skinnum = MSG_ReadByte(&net_message);
-	}
-	else if (bits & U_SKIN16)
-	{
-		to->skinnum = MSG_ReadShort(&net_message);
-	}
-
-	if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16) ||
-		(bits & U_EFFECTS64))
-	{
-		to->effects = MSG_ReadLong(&net_message);
-	}
-	else if (bits & U_EFFECTS8)
-	{
-		to->effects = MSG_ReadByte(&net_message);
-	}
-	else if (bits & U_EFFECTS16)
-	{
-		to->effects = MSG_ReadShort(&net_message);
-	}
-
-	/* ReRelease effects */
-	if (cls.serverProtocol != PROTOCOL_VERSION)
-	{
-		if (bits & U_EFFECTS64)
+		/* Q2Test reads each width independently; the wide skin field is 32-bit */
+		if (bits & U_SKIN8)
 		{
-			/* RR22 */
-			if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16))
-			{
-				to->rr_effects = MSG_ReadLong(&net_message);
-			}
-			else if (bits & U_EFFECTS8)
-			{
-				to->rr_effects = MSG_ReadByte(&net_message);
-			}
-			else if (bits & U_EFFECTS16)
-			{
-				to->rr_effects = MSG_ReadShort(&net_message);
-			}
-		}
-		else
-		{
-			to->rr_effects = 0;
+			to->skinnum = MSG_ReadByte(&net_message);
 		}
 
+		if (bits & U_SKIN16)
+		{
+			to->skinnum = MSG_ReadLong(&net_message);
+		}
+
+		if (bits & U_EFFECTS8)
+		{
+			to->effects = MSG_ReadByte(&net_message);
+		}
+
+		if (bits & U_EFFECTS16)
+		{
+			to->effects = MSG_ReadShort(&net_message);
+		}
+
+		if (bits & U_RENDERFX8)
+		{
+			to->renderfx = MSG_ReadByte(&net_message);
+		}
+
+		if (bits & U_RENDERFX16)
+		{
+			to->renderfx = MSG_ReadShort(&net_message);
+		}
+
+		to->rr_effects = 0;
 		to->rr_mesh = 0;
 	}
 	else
 	{
-		if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16))
+		/* used for laser colors */
+		if ((bits & U_SKIN8) && (bits & U_SKIN16))
 		{
-			to->rr_effects = MSG_ReadLong(&net_message);
-			to->rr_mesh = MSG_ReadLong(&net_message);
+			to->skinnum = MSG_ReadLong(&net_message);
+		}
+		else if (bits & U_SKIN8)
+		{
+			to->skinnum = MSG_ReadByte(&net_message);
+		}
+		else if (bits & U_SKIN16)
+		{
+			to->skinnum = MSG_ReadShort(&net_message);
+		}
+
+		if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16) ||
+			(bits & U_EFFECTS64))
+		{
+			to->effects = MSG_ReadLong(&net_message);
 		}
 		else if (bits & U_EFFECTS8)
 		{
-			to->rr_effects = MSG_ReadByte(&net_message);
-			to->rr_mesh = MSG_ReadByte(&net_message);
+			to->effects = MSG_ReadByte(&net_message);
 		}
 		else if (bits & U_EFFECTS16)
 		{
-			to->rr_effects = MSG_ReadShort(&net_message);
-			to->rr_mesh = MSG_ReadShort(&net_message);
+			to->effects = MSG_ReadShort(&net_message);
 		}
-	}
 
-	if ((bits & (U_RENDERFX8 | U_RENDERFX16)) == (U_RENDERFX8 | U_RENDERFX16))
-	{
-		to->renderfx = MSG_ReadLong(&net_message);
-	}
-	else if (bits & U_RENDERFX8)
-	{
-		to->renderfx = MSG_ReadByte(&net_message);
-	}
-	else if (bits & U_RENDERFX16)
-	{
-		to->renderfx = MSG_ReadShort(&net_message);
+		/* ReRelease effects */
+		if (cls.serverProtocol != PROTOCOL_VERSION)
+		{
+			if (bits & U_EFFECTS64)
+			{
+				/* RR22 */
+				if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16))
+				{
+					to->rr_effects = MSG_ReadLong(&net_message);
+				}
+				else if (bits & U_EFFECTS8)
+				{
+					to->rr_effects = MSG_ReadByte(&net_message);
+				}
+				else if (bits & U_EFFECTS16)
+				{
+					to->rr_effects = MSG_ReadShort(&net_message);
+				}
+			}
+			else
+			{
+				to->rr_effects = 0;
+			}
+
+			to->rr_mesh = 0;
+		}
+		else
+		{
+			if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16))
+			{
+				to->rr_effects = MSG_ReadLong(&net_message);
+				to->rr_mesh = MSG_ReadLong(&net_message);
+			}
+			else if (bits & U_EFFECTS8)
+			{
+				to->rr_effects = MSG_ReadByte(&net_message);
+				to->rr_mesh = MSG_ReadByte(&net_message);
+			}
+			else if (bits & U_EFFECTS16)
+			{
+				to->rr_effects = MSG_ReadShort(&net_message);
+				to->rr_mesh = MSG_ReadShort(&net_message);
+			}
+		}
+
+		if ((bits & (U_RENDERFX8 | U_RENDERFX16)) == (U_RENDERFX8 | U_RENDERFX16))
+		{
+			to->renderfx = MSG_ReadLong(&net_message);
+		}
+		else if (bits & U_RENDERFX8)
+		{
+			to->renderfx = MSG_ReadByte(&net_message);
+		}
+		else if (bits & U_RENDERFX16)
+		{
+			to->renderfx = MSG_ReadShort(&net_message);
+		}
 	}
 
 	if (IS_QIIRR_PROTOCOL(cls.serverProtocol) && (bits & U_SOLID))
@@ -3696,6 +3788,12 @@ CL_ParseServerMessage(void)
 					continue;
 				}
 			}
+		}
+
+		if (cls.serverProtocol == PROTOCOL_Q2TEST_VERSION && cmd == 15)
+		{
+			(void)MSG_ReadByte(&net_message);
+			continue;
 		}
 
 		cmd = P_CmdConvert(cmd, cls.serverProtocol);
