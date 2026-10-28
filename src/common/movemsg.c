@@ -1670,6 +1670,7 @@ float
 MSG_ReadCoord(sizebuf_t *msg_read, int protocol)
 {
 	if (IS_QII97_PROTOCOL(protocol) ||
+		(protocol == PROTOCOL_Q2TEST_VERSION) ||
 		(protocol == PROTOCOL_H2DEMO_VERSION) ||
 		(protocol == PROTOCOL_RR22_VERSION))
 	{
@@ -1692,6 +1693,7 @@ void
 MSG_ReadOrigin(sizebuf_t *msg_read, int origin[3], int protocol)
 {
 	if (IS_QII97_PROTOCOL(protocol) ||
+		(protocol == PROTOCOL_Q2TEST_VERSION) ||
 		(protocol == PROTOCOL_H2DEMO_VERSION))
 	{
 		origin[0] = MSG_ReadShort(msg_read);
@@ -1735,6 +1737,7 @@ MSG_ReadVel(sizebuf_t *msg_read, short *vel, int protocol)
 		vel[2] = MSG_ReadFloat(msg_read) * 8.0f + 0.5f;
 	}
 	else if (IS_QII97_PROTOCOL(protocol) ||
+			(protocol == PROTOCOL_Q2TEST_VERSION) ||
 			(protocol == PROTOCOL_H2DEMO_VERSION) ||
 			(protocol == PROTOCOL_VERSION))
 	{
@@ -1753,6 +1756,7 @@ float
 MSG_ReadAngle(sizebuf_t *msg_read, int protocol)
 {
 	if (IS_QII97_PROTOCOL(protocol) ||
+		(protocol == PROTOCOL_Q2TEST_VERSION) ||
 		(protocol == PROTOCOL_H2DEMO_VERSION))
 	{
 		return MSG_ReadChar(msg_read) * 1.40625f;

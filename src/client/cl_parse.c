@@ -509,7 +509,8 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, uint
 					__func__, volume);
 			}
 		}
-		else if (IS_QII97_PROTOCOL(cls.serverProtocol))
+		else if (IS_QII97_PROTOCOL(cls.serverProtocol) ||
+			(cls.serverProtocol == PROTOCOL_Q2TEST_VERSION))
 		{
 			to->sound = MSG_ReadByte(&net_message);
 		}
@@ -1268,7 +1269,7 @@ CL_ParseFrame(void)
 	MSG_ReadData(&net_message, &cl.frame.areabits, len);
 
 	/* read playerinfo */
-	cmd = MSG_ReadByte(&net_message);
+	cmd = P_CmdConvert(MSG_ReadByte(&net_message), cls.serverProtocol);
 	CL_ShowNetCmd(cmd);
 
 	if (cmd != svc_playerinfo)
@@ -1281,7 +1282,7 @@ CL_ParseFrame(void)
 	CL_ParsePlayerstate(old, &cl.frame, cls.serverProtocol);
 
 	/* read packet entities */
-	cmd = MSG_ReadByte(&net_message);
+	cmd = P_CmdConvert(MSG_ReadByte(&net_message), cls.serverProtocol);
 	CL_ShowNetCmd(cmd);
 
 	if (cmd != svc_packetentities)
