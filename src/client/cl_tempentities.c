@@ -675,6 +675,32 @@ static unsigned int splash_color[] = {
 	0xff001f9b, 0xff00001b,
 };
 
+static int
+CL_ConvertQ2TestTEnt(int type)
+{
+	switch (type)
+	{
+		case 2: return TE_GUNSHOT;
+		case 12: return TE_BLOOD;
+		case 14: return TE_BLASTER;
+		case 15: return TE_RAILTRAIL;
+		case 16: return TE_SHOTGUN;
+		case 17: return TE_ROCKET_EXPLOSION;
+		case 18: return TE_EXPLOSION1;
+		case 19: return TE_GRENADE_EXPLOSION;
+		case 20: return TE_EXPLOSION2;
+		case 21: return TE_SPARKS;
+		case 22: return TE_SPLASH;
+		case 23: return TE_BUBBLETRAIL;
+		case 24: return TE_SCREEN_SPARKS;
+		case 25: return TE_SHIELD_SPARKS;
+		case 26: return TE_BULLET_SPARKS;
+		case 27: return TE_LASER_SPARKS;
+		case 28: return TE_PARASITE_ATTACK;
+		default: return -1;
+	}
+}
+
 void
 CL_ParseTEnt(void)
 {
@@ -687,6 +713,11 @@ CL_ParseTEnt(void)
 	int magnitude;
 
 	type = MSG_ReadByte(&net_message);
+
+	if (cls.serverProtocol == PROTOCOL_Q2TEST_VERSION)
+	{
+		type = CL_ConvertQ2TestTEnt(type);
+	}
 
 	switch (type)
 	{
@@ -878,6 +909,10 @@ CL_ParseTEnt(void)
 		case TE_RAILTRAIL2:
 			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 			MSG_ReadPos(&net_message, pos2, cls.serverProtocol);
+			if (cls.serverProtocol == PROTOCOL_Q2TEST_VERSION)
+			{
+				MSG_ReadDir(&net_message, dir);
+			}
 			CL_RailTrail(pos, pos2);
 			S_StartSound(pos2, 0, 0, cl_sfx_railg, 1, ATTN_NORM, 0);
 			break;
