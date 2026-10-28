@@ -381,10 +381,63 @@ CL_ParseEntityBits(uint64_t *bits)
 	int i, b, number;
 	uint64_t total;
 
+	if (cls.serverProtocol == PROTOCOL_Q2TEST_VERSION)
+	{
+		const int header_pos = net_message.readcount;
+		const int packed = MSG_ReadShort(&net_message);
+		uint64_t q2bits = (uint16_t)packed & 0x3f;
+		const int extra_bytes = ((q2bits & 0x10) ? 1 : 0) +
+			((q2bits & 0x20) ? 2 : 0);
+
+		if (header_pos + 2 > net_message.cursize)
+		{
+			Com_Error(ERR_FATAL, "%s: unexpected message end", __func__);
+			return 0;
+		}
+
+		number = ((uint16_t)packed) >> 6;
+		for (i = 0; i < extra_bytes; i++)
+		{
+			b = MSG_ReadByte(&net_message);
+			if (b < 0)
+			{
+				Com_Error(ERR_FATAL, "%s: unexpected message end", __func__);
+				return 0;
+			}
+
+			q2bits |= (uint64_t)b << ((i + 1) * 8);
+		}
+
+		total = 0;
+		if (q2bits & 0x000001) total |= U_ORIGIN1;
+		if (q2bits & 0x000002) total |= U_ORIGIN2;
+		if (q2bits & 0x000004) total |= U_ORIGIN3;
+		if (q2bits & 0x000008) total |= U_FRAME8;
+		if (q2bits & 0x000100) total |= U_ANGLE1;
+		if (q2bits & 0x000200) total |= U_ANGLE2;
+		if (q2bits & 0x000400) total |= U_ANGLE3;
+		if (q2bits & 0x000800) total |= U_MODEL;
+		if (q2bits & 0x001000) total |= U_RENDERFX8;
+		if (q2bits & 0x002000) total |= U_SKIN8;
+		if (q2bits & 0x004000) total |= U_EFFECTS8;
+		if (q2bits & 0x010000) total |= U_FRAME16;
+		if (q2bits & 0x020000) total |= U_RENDERFX16;
+		if (q2bits & 0x040000) total |= U_EFFECTS16;
+		if (q2bits & 0x080000) total |= U_MODEL2;
+		if (q2bits & 0x100000) total |= U_MODEL3;
+		if (q2bits & 0x200000) total |= U_MODEL4;
+		if (q2bits & 0x400000) total |= U_OLDORIGIN;
+		if (q2bits & 0x800000) total |= U_SKIN16;
+		if (q2bits & 0x1000000) total |= U_SOUND;
+
+		*bits = total;
+		return number;
+	}
+
 	b = MSG_ReadByte(&net_message);
 	if (b < 0)
 	{
-		Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+		Com_Error(ERR_FATAL, "%s: unexpected message end", __func__);
 		return 0;
 	}
 
@@ -395,7 +448,7 @@ CL_ParseEntityBits(uint64_t *bits)
 		b = MSG_ReadByte(&net_message);
 		if (b < 0)
 		{
-			Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+			Com_Error(ERR_FATAL, "%s: unexpected message end", __func__);
 			return 0;
 		}
 
@@ -407,7 +460,7 @@ CL_ParseEntityBits(uint64_t *bits)
 		b = MSG_ReadByte(&net_message);
 		if (b < 0)
 		{
-			Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+			Com_Error(ERR_FATAL, "%s: unexpected message end", __func__);
 			return 0;
 		}
 
@@ -419,7 +472,7 @@ CL_ParseEntityBits(uint64_t *bits)
 		b = MSG_ReadByte(&net_message);
 		if (b < 0)
 		{
-			Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+			Com_Error(ERR_FATAL, "%s: unexpected message end", __func__);
 			return 0;
 		}
 
@@ -431,7 +484,7 @@ CL_ParseEntityBits(uint64_t *bits)
 		b = MSG_ReadByte(&net_message);
 		if (b < 0)
 		{
-			Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+			Com_Error(ERR_FATAL, "%s: unexpected message end", __func__);
 			return 0;
 		}
 
@@ -459,7 +512,7 @@ CL_ParseEntityBits(uint64_t *bits)
 
 	if (number < 0)
 	{
-		Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+		Com_Error(ERR_FATAL, "%s: unexpected message end", __func__);
 		return 0;
 	}
 
@@ -506,6 +559,7 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, uint
 	}
 
 	if (IS_QII97_PROTOCOL(cls.serverProtocol) ||
+		(cls.serverProtocol == PROTOCOL_Q2TEST_VERSION) ||
 		(IS_QIIRR_PROTOCOL(cls.serverProtocol) && !(bits & U_MODEL16)))
 	{
 		if (bits & U_MODEL)
@@ -1542,11 +1596,11 @@ CL_ParseH2Playerstate(frame_t *oldframe, frame_t *newframe)
 
 	if (H2_PlayerStateFlag(flags, 3))
 	{
-		state->pmove.origin[0] = MSG_ReadShort(&net_message);
-		state->pmove.origin[1] = MSG_ReadShort(&net_message);
+		state->pmove.origin[0] = MSG_ReadCoord(&net_message, cls.serverProtocol);
+		state->pmove.origin[1] = MSG_ReadCoord(&net_message, cls.serverProtocol);
 	}
 	if (H2_PlayerStateFlag(flags, 4))
-		state->pmove.origin[2] = MSG_ReadShort(&net_message);
+		state->pmove.origin[2] = MSG_ReadCoord(&net_message, cls.serverProtocol);
 	if (H2_PlayerStateFlag(flags, 5))
 	{
 		state->pmove.velocity[0] = MSG_ReadShort(&net_message);
@@ -1707,8 +1761,7 @@ CL_ParseH2Playerstate(frame_t *oldframe, frame_t *newframe)
 	if (H2_PlayerStateFlag(flags, 123))
 		(void)MSG_ReadLong(&net_message);
 
-	for (i = 0; i < 3; i++)
-		newframe->origin[i] = state->pmove.origin[i];
+	VectorCopy(state->pmove.origin, newframe->origin);
 
 	if (net_message.readcount > net_message.cursize)
 	{
@@ -2023,17 +2076,28 @@ CL_ParseFrame(void)
 	int cmd;
 	int len;
 	frame_t *old;
+	const int previous_serverframe = cl.frame.serverframe;
+	const qboolean q2test = cls.serverProtocol == PROTOCOL_Q2TEST_VERSION;
 
 	memset(&cl.frame, 0, sizeof(cl.frame));
 
-	cl.frame.serverframe = MSG_ReadLong(&net_message);
-	cl.frame.deltaframe = MSG_ReadLong(&net_message);
-	cl.frame.servertime = cl.frame.serverframe *
-		(cls.serverProtocol == PROTOCOL_H2DEMO_VERSION ? 100 : cl.frame_msec);
+	if (q2test)
+	{
+		cl.frame.serverframe = previous_serverframe + 1;
+		cl.frame.deltaframe = previous_serverframe;
+		cl.frame.servertime = MSG_ReadLong(&net_message) * 100;
+	}
+	else
+	{
+		cl.frame.serverframe = MSG_ReadLong(&net_message);
+		cl.frame.deltaframe = MSG_ReadLong(&net_message);
+		cl.frame.servertime = cl.frame.serverframe *
+			(cls.serverProtocol == PROTOCOL_H2DEMO_VERSION ? 100 : cl.frame_msec);
+	}
 
 	/* BIG HACK to let old demos continue to work */
 	if (cls.serverProtocol != PROTOCOL_RELEASE_VERSION &&
-		cls.serverProtocol != PROTOCOL_H2DEMO_VERSION)
+		cls.serverProtocol != PROTOCOL_H2DEMO_VERSION && !q2test)
 	{
 		cl.surpressCount = MSG_ReadByte(&net_message);
 	}
@@ -2115,7 +2179,104 @@ CL_ParseFrame(void)
 		return;
 	}
 
-	if (cls.serverProtocol == PROTOCOL_H2DEMO_VERSION)
+	if (q2test)
+	{
+		player_xstate_t *state = &cl.frame.playerstate;
+		int flags = MSG_ReadShort(&net_message);
+		int stats_mask;
+		int i;
+
+		if (old)
+		{
+			*state = old->playerstate;
+			VectorCopy(old->origin, cl.frame.origin);
+		}
+		else
+		{
+			memset(state, 0, sizeof(*state));
+			memset(cl.frame.origin, 0, sizeof(cl.frame.origin));
+		}
+
+		MSG_ReadOrigin(&net_message, cl.frame.origin, cls.serverProtocol);
+		VectorCopy(cl.frame.origin, state->pmove.origin);
+		MSG_ReadVel(&net_message, state->pmove.velocity, cls.serverProtocol);
+
+		for (i = 0; i < 3; i++)
+		{
+			state->pmove.delta_angles[i] = MSG_ReadShort(&net_message);
+			state->viewangles[i] = cl.viewangles[i] +
+				SHORT2ANGLE(state->pmove.delta_angles[i]);
+		}
+
+		state->pmove.pm_type = cl.attractloop ? PM_FREEZE : PM_NORMAL;
+		state->fov = 90.0f;
+		state->rdflags = 0;
+		if (flags & 0x04)
+		{
+			state->gunindex = MSG_ReadByte(&net_message);
+			state->gunframe = MSG_ReadByte(&net_message);
+		}
+		else
+		{
+			state->gunindex = 0;
+			state->gunframe = 0;
+		}
+
+		if (flags & 0x08)
+		{
+			(void)MSG_ReadByte(&net_message);
+			(void)MSG_ReadByte(&net_message);
+			for (i = 0; i < 3; i++)
+			{
+				state->gunangles[i] = MSG_ReadChar(&net_message) * 0.25f;
+			}
+			for (i = 0; i < 3; i++)
+			{
+				state->gunoffset[i] = MSG_ReadChar(&net_message) * 0.25f;
+			}
+		}
+		else
+		{
+			VectorClear(state->gunangles);
+			VectorClear(state->gunoffset);
+		}
+
+		if (flags & 0x01)
+		{
+			for (i = 0; i < 4; i++)
+			{
+				state->blend[i] = MSG_ReadByte(&net_message) / 255.0f;
+			}
+		}
+		else
+		{
+			memset(state->blend, 0, sizeof(state->blend));
+		}
+
+		if (flags & 0x02)
+		{
+			state->fov = (float)MSG_ReadByte(&net_message);
+		}
+
+		if (flags & 0x80)
+		{
+			state->rdflags = MSG_ReadByte(&net_message);
+		}
+
+		stats_mask = MSG_ReadLong(&net_message);
+		for (i = 0; i < 32; i++)
+		{
+			state->stats[i] = (stats_mask & (1u << i)) ?
+				MSG_ReadShort(&net_message) : 0;
+		}
+
+		if (net_message.readcount > net_message.cursize)
+		{
+			Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+			return;
+		}
+	}
+	else if (cls.serverProtocol == PROTOCOL_H2DEMO_VERSION)
 	{
 		CL_ParseH2Playerstate(old, &cl.frame);
 	}
@@ -2946,7 +3107,8 @@ CL_ParseStartSoundPacket(void)
 		return;
 	}
 
-	if (IS_QII97_PROTOCOL(cls.serverProtocol))
+	if (IS_QII97_PROTOCOL(cls.serverProtocol) ||
+		(cls.serverProtocol == PROTOCOL_Q2TEST_VERSION))
 	{
 		sound_num = MSG_ReadByte(&net_message);
 	}
@@ -3348,7 +3510,8 @@ CL_ParseServerMessage(void)
 
 		if (net_message.readcount > net_message.cursize)
 		{
-			Com_Error(ERR_DROP, "%s: Bad server message", __func__);
+			Com_Error(ERR_FATAL, "%s: Bad server message (%d > %d)", __func__,
+					net_message.readcount, net_message.cursize);
 			return;
 		}
 
@@ -3454,6 +3617,12 @@ CL_ParseServerMessage(void)
 			}
 		}
 
+		if (cls.serverProtocol == PROTOCOL_Q2TEST_VERSION && cmd == 15)
+		{
+			(void)MSG_ReadByte(&net_message);
+			continue;
+		}
+
 		cmd = P_CmdConvert(cmd, cls.serverProtocol);
 
 		CL_ShowNetCmd(cmd);
@@ -3462,8 +3631,10 @@ CL_ParseServerMessage(void)
 		switch (cmd)
 		{
 			default:
-				Com_Error(ERR_DROP, "%s: Illegible server message 0x%02x\n",
-					__func__, cmd);
+				Com_Error(ERR_FATAL,
+					"%s: Illegible server message 0x%02x at %d of %d\n",
+					__func__, cmd, net_message.readcount - 1,
+					net_message.cursize);
 				return;
 
 			case svc_nop:

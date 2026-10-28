@@ -722,7 +722,7 @@ SV_ClearBaselines(void)
 void
 SV_Shutdown(const char *finalmsg, qboolean reconnect)
 {
-	if (svs.clients)
+	if (svs.clients && sv.state != ss_demo)
 	{
 		SV_FinalMessage(finalmsg, reconnect);
 	}

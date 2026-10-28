@@ -1019,6 +1019,10 @@ CL_ParseTEnt(void)
 
 		case TE_BFG_BIGEXPLOSION:
 			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
+			if (cls.serverProtocol == PROTOCOL_Q2TEST_VERSION)
+			{
+				MSG_ReadDir(&net_message, dir);
+			}
 			CL_BFGExplosionParticles(pos);
 			break;
 
@@ -1034,8 +1038,40 @@ CL_ParseTEnt(void)
 			break;
 
 		case TE_PARASITE_ATTACK:
+			if (cls.serverProtocol == PROTOCOL_Q2TEST_VERSION)
+			{
+				MSG_ReadPos(&net_message, pos, cls.serverProtocol);
+				MSG_ReadDir(&net_message, dir);
+				CL_ParticleEffect(pos, dir, 0xff000000, 0xff6b6b6b, 20);
+				CL_SmokeAndFlash(pos);
+			}
+			else
+			{
+				CL_ParseBeam(cl_mod_parasite_segment, false);
+			}
+			break;
+
 		case TE_MEDIC_CABLE_ATTACK:
-			CL_ParseBeam(cl_mod_parasite_segment, false);
+			if (cls.serverProtocol == PROTOCOL_Q2TEST_VERSION)
+			{
+				MSG_ReadPos(&net_message, pos, cls.serverProtocol);
+				ex = CL_AllocExplosion();
+				VectorCopy(pos, ex->ent.origin);
+				ex->type = ex_poly;
+				ex->ent.flags = RF_FULLBRIGHT | RF_NOSHADOW;
+				ex->start = cl.frame.servertime - 100.0f;
+				ex->light = 350;
+				ex->lightcolor[0] = 1.0f;
+				ex->lightcolor[1] = 0.5f;
+				ex->lightcolor[2] = 0.5f;
+				ex->ent.model = cl_mod_explo4;
+				ex->frames = 8;
+				EXPLOSION_PARTICLES(pos);
+			}
+			else
+			{
+				CL_ParseBeam(cl_mod_parasite_segment, false);
+			}
 			break;
 
 		case TE_BOSSTPORT: /* boss teleporting to station */

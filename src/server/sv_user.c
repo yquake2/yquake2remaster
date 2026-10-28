@@ -69,14 +69,16 @@ static void
 SV_BeginDemoserver(void)
 {
 	char name[MAX_OSPATH];
+	int filesize;
 
 	Com_sprintf(name, sizeof(name), "demos/%s", sv.name);
-	FS_FOpenFile(name, &sv.demofile, false);
+	filesize = FS_FOpenFile(name, &sv.demofile, false);
 
-	if (!sv.demofile)
+	if (!sv.demofile || filesize < 0)
 	{
 		Com_Error(ERR_DROP, "Couldn't open %s\n", name);
 	}
+	sv.demofile_remaining = filesize;
 
 	SV_UpdateDemoFPS();
 }

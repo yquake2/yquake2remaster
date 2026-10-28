@@ -554,6 +554,7 @@ SV_DemoCompleted(void)
 	{
 		FS_FCloseFile(sv.demofile);
 		sv.demofile = 0;
+		sv.demofile_remaining = 0;
 	}
 
 	SV_Nextserver();
@@ -602,6 +603,10 @@ SV_NextDemoChunk(byte **msgbuf)
 	{
 		return 0;
 	}
+	if (sv.demofile_remaining < 4)
+	{
+		return -1;
+	}
 
 	r = FS_FRead(&n, 4, 1, sv.demofile);
 
@@ -609,11 +614,18 @@ SV_NextDemoChunk(byte **msgbuf)
 	{
 		return -1;
 	}
+	sv.demofile_remaining -= 4;
 
 	n = LittleLong(n);
 
 	if (n == -1)
 	{
+		return -1;
+	}
+	if (n < 0 || n > sv.demofile_remaining)
+	{
+		Com_Printf("%s: invalid msglen %d with %d bytes remaining\n",
+			__func__, n, sv.demofile_remaining);
 		return -1;
 	}
 
@@ -626,6 +638,7 @@ SV_NextDemoChunk(byte **msgbuf)
 	}
 
 	r = FS_FRead(*msgbuf, n, 1, sv.demofile);
+	sv.demofile_remaining -= r;
 
 	return (r == n) ? n : -1;
 }

@@ -472,7 +472,7 @@ P_CmdConvert(int cmd, int protocol)
 			svc_packetentities,
 			svc_deltapacketentities,
 			svc_frame,
-			-1, /* svc_muzzlflash2 */
+			svc_muzzleflash2,
 			svc_inventory,
 			svc_layout,
 		};
