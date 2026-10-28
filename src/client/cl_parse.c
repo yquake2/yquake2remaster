@@ -381,6 +381,59 @@ CL_ParseEntityBits(uint64_t *bits)
 	int i, b, number;
 	uint64_t total;
 
+	if (cls.serverProtocol == PROTOCOL_Q2TEST_VERSION)
+	{
+		const int header_pos = net_message.readcount;
+		const int packed = MSG_ReadShort(&net_message);
+		uint64_t q2bits = (uint16_t)packed & 0x3f;
+		const int extra_bytes = ((q2bits & 0x10) ? 1 : 0) +
+			((q2bits & 0x20) ? 2 : 0);
+
+		if (header_pos + 2 > net_message.cursize)
+		{
+			Com_Error(ERR_FATAL, "%s: unexpected message end", __func__);
+			return 0;
+		}
+
+		number = ((uint16_t)packed) >> 6;
+		for (i = 0; i < extra_bytes; i++)
+		{
+			b = MSG_ReadByte(&net_message);
+			if (b < 0)
+			{
+				Com_Error(ERR_FATAL, "%s: unexpected message end", __func__);
+				return 0;
+			}
+
+			q2bits |= (uint64_t)b << ((i + 1) * 8);
+		}
+
+		total = 0;
+		if (q2bits & 0x000001) total |= U_ORIGIN1;
+		if (q2bits & 0x000002) total |= U_ORIGIN2;
+		if (q2bits & 0x000004) total |= U_ORIGIN3;
+		if (q2bits & 0x000008) total |= U_FRAME8;
+		if (q2bits & 0x000100) total |= U_ANGLE1;
+		if (q2bits & 0x000200) total |= U_ANGLE2;
+		if (q2bits & 0x000400) total |= U_ANGLE3;
+		if (q2bits & 0x000800) total |= U_MODEL;
+		if (q2bits & 0x001000) total |= U_RENDERFX8;
+		if (q2bits & 0x002000) total |= U_SKIN8;
+		if (q2bits & 0x004000) total |= U_EFFECTS8;
+		if (q2bits & 0x010000) total |= U_FRAME16;
+		if (q2bits & 0x020000) total |= U_RENDERFX16;
+		if (q2bits & 0x040000) total |= U_EFFECTS16;
+		if (q2bits & 0x080000) total |= U_MODEL2;
+		if (q2bits & 0x100000) total |= U_MODEL3;
+		if (q2bits & 0x200000) total |= U_MODEL4;
+		if (q2bits & 0x400000) total |= U_OLDORIGIN;
+		if (q2bits & 0x800000) total |= U_SKIN16;
+		if (q2bits & 0x1000000) total |= U_SOUND;
+
+		*bits = total;
+		return number;
+	}
+
 	b = MSG_ReadByte(&net_message);
 	if (b < 0)
 	{
@@ -506,6 +559,7 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, uint
 	}
 
 	if (IS_QII97_PROTOCOL(cls.serverProtocol) ||
+		(cls.serverProtocol == PROTOCOL_Q2TEST_VERSION) ||
 		(IS_QIIRR_PROTOCOL(cls.serverProtocol) && !(bits & U_MODEL16)))
 	{
 		if (bits & U_MODEL)
@@ -606,90 +660,129 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, uint
 		to->frame = MSG_ReadShort(&net_message);
 	}
 
-	/* used for laser colors */
-	if ((bits & U_SKIN8) && (bits & U_SKIN16))
+	if (cls.serverProtocol == PROTOCOL_Q2TEST_VERSION)
 	{
-		to->skinnum = MSG_ReadLong(&net_message);
-	}
-	else if (bits & U_SKIN8)
-	{
-		to->skinnum = MSG_ReadByte(&net_message);
-	}
-	else if (bits & U_SKIN16)
-	{
-		to->skinnum = MSG_ReadShort(&net_message);
-	}
-
-	if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16) ||
-		(bits & U_EFFECTS64))
-	{
-		to->effects = MSG_ReadLong(&net_message);
-	}
-	else if (bits & U_EFFECTS8)
-	{
-		to->effects = MSG_ReadByte(&net_message);
-	}
-	else if (bits & U_EFFECTS16)
-	{
-		to->effects = MSG_ReadShort(&net_message);
-	}
-
-	/* ReRelease effects */
-	if (cls.serverProtocol != PROTOCOL_VERSION)
-	{
-		if (bits & U_EFFECTS64)
+		/* Q2Test reads each width independently; the wide skin field is 32-bit */
+		if (bits & U_SKIN8)
 		{
-			/* RR22 */
-			if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16))
-			{
-				to->rr_effects = MSG_ReadLong(&net_message);
-			}
-			else if (bits & U_EFFECTS8)
-			{
-				to->rr_effects = MSG_ReadByte(&net_message);
-			}
-			else if (bits & U_EFFECTS16)
-			{
-				to->rr_effects = MSG_ReadShort(&net_message);
-			}
-		}
-		else
-		{
-			to->rr_effects = 0;
+			to->skinnum = MSG_ReadByte(&net_message);
 		}
 
+		if (bits & U_SKIN16)
+		{
+			to->skinnum = MSG_ReadLong(&net_message);
+		}
+
+		if (bits & U_EFFECTS8)
+		{
+			to->effects = MSG_ReadByte(&net_message);
+		}
+
+		if (bits & U_EFFECTS16)
+		{
+			to->effects = MSG_ReadShort(&net_message);
+		}
+
+		if (bits & U_RENDERFX8)
+		{
+			to->renderfx = MSG_ReadByte(&net_message);
+		}
+
+		if (bits & U_RENDERFX16)
+		{
+			to->renderfx = MSG_ReadShort(&net_message);
+		}
+
+		to->rr_effects = 0;
 		to->rr_mesh = 0;
 	}
 	else
 	{
-		if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16))
+		/* used for laser colors */
+		if ((bits & U_SKIN8) && (bits & U_SKIN16))
 		{
-			to->rr_effects = MSG_ReadLong(&net_message);
-			to->rr_mesh = MSG_ReadLong(&net_message);
+			to->skinnum = MSG_ReadLong(&net_message);
+		}
+		else if (bits & U_SKIN8)
+		{
+			to->skinnum = MSG_ReadByte(&net_message);
+		}
+		else if (bits & U_SKIN16)
+		{
+			to->skinnum = MSG_ReadShort(&net_message);
+		}
+
+		if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16) ||
+			(bits & U_EFFECTS64))
+		{
+			to->effects = MSG_ReadLong(&net_message);
 		}
 		else if (bits & U_EFFECTS8)
 		{
-			to->rr_effects = MSG_ReadByte(&net_message);
-			to->rr_mesh = MSG_ReadByte(&net_message);
+			to->effects = MSG_ReadByte(&net_message);
 		}
 		else if (bits & U_EFFECTS16)
 		{
-			to->rr_effects = MSG_ReadShort(&net_message);
-			to->rr_mesh = MSG_ReadShort(&net_message);
+			to->effects = MSG_ReadShort(&net_message);
 		}
-	}
 
-	if ((bits & (U_RENDERFX8 | U_RENDERFX16)) == (U_RENDERFX8 | U_RENDERFX16))
-	{
-		to->renderfx = MSG_ReadLong(&net_message);
-	}
-	else if (bits & U_RENDERFX8)
-	{
-		to->renderfx = MSG_ReadByte(&net_message);
-	}
-	else if (bits & U_RENDERFX16)
-	{
-		to->renderfx = MSG_ReadShort(&net_message);
+		/* ReRelease effects */
+		if (cls.serverProtocol != PROTOCOL_VERSION)
+		{
+			if (bits & U_EFFECTS64)
+			{
+				/* RR22 */
+				if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16))
+				{
+					to->rr_effects = MSG_ReadLong(&net_message);
+				}
+				else if (bits & U_EFFECTS8)
+				{
+					to->rr_effects = MSG_ReadByte(&net_message);
+				}
+				else if (bits & U_EFFECTS16)
+				{
+					to->rr_effects = MSG_ReadShort(&net_message);
+				}
+			}
+			else
+			{
+				to->rr_effects = 0;
+			}
+
+			to->rr_mesh = 0;
+		}
+		else
+		{
+			if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16))
+			{
+				to->rr_effects = MSG_ReadLong(&net_message);
+				to->rr_mesh = MSG_ReadLong(&net_message);
+			}
+			else if (bits & U_EFFECTS8)
+			{
+				to->rr_effects = MSG_ReadByte(&net_message);
+				to->rr_mesh = MSG_ReadByte(&net_message);
+			}
+			else if (bits & U_EFFECTS16)
+			{
+				to->rr_effects = MSG_ReadShort(&net_message);
+				to->rr_mesh = MSG_ReadShort(&net_message);
+			}
+		}
+
+		if ((bits & (U_RENDERFX8 | U_RENDERFX16)) == (U_RENDERFX8 | U_RENDERFX16))
+		{
+			to->renderfx = MSG_ReadLong(&net_message);
+		}
+		else if (bits & U_RENDERFX8)
+		{
+			to->renderfx = MSG_ReadByte(&net_message);
+		}
+		else if (bits & U_RENDERFX16)
+		{
+			to->renderfx = MSG_ReadShort(&net_message);
+		}
 	}
 
 	if (IS_QIIRR_PROTOCOL(cls.serverProtocol) && (bits & U_SOLID))
@@ -1183,6 +1276,60 @@ CL_ParseH2Delta(const entity_xstate_t *from, entity_xstate_t *to,
 	}
 }
 
+/* Q2Test effect bits differ from release from bit 7 upwards */
+#define EF_NOLERP_Q2TEST 0x80
+
+static unsigned int
+CL_ConvertQ2TestEffects(unsigned int effects)
+{
+	static const struct {
+		unsigned int from, to;
+	} map[] = {
+		{0x0001, EF_ROTATE},
+		{0x0002, EF_GIB},
+		{0x0008, EF_BLASTER},
+		{0x0010, EF_ROCKET},
+		{0x0020, EF_GRENADE},
+		{0x0040, EF_FLIES},
+		{0x0100, EF_BFG},
+		/* 0x0200/0x0400 are shells with unknown colors, dropped */
+		{0x0800, EF_ANIM01},
+		{0x1000, EF_ANIM23},
+		/* 10 Hz 0/1 toggle, closest release equivalent */
+		{0x2000, EF_ANIM01},
+		{0x4000, EF_ANIM_ALL},
+		{0x8000, EF_ANIM_ALLFAST},
+	};
+	unsigned int result = 0;
+	size_t i;
+
+	for (i = 0; i < ARRLEN(map); i++)
+	{
+		if (effects & map[i].from)
+		{
+			result |= map[i].to;
+		}
+	}
+
+	return result;
+}
+
+/* Q2Test renderfx match release up to RF_BEAM; 0x100/0x200 are client-side shells */
+#define RF_GLOW_Q2TEST 0x800
+
+static int
+CL_ConvertQ2TestRenderfx(int renderfx)
+{
+	int result = renderfx & 0xff;
+
+	if (renderfx & RF_GLOW_Q2TEST)
+	{
+		result |= RF_GLOW;
+	}
+
+	return result;
+}
+
 /*
  * Parses deltas from the given base and adds the resulting entity to
  * the current frame
@@ -1211,6 +1358,19 @@ CL_DeltaEntity(frame_t *frame, int newnum, const entity_xstate_t *old, uint64_t 
 	else
 	{
 		CL_ParseDelta(old, state, newnum, bits);
+	}
+
+	/* Q2Test always deltas from raw baselines, convert only frame states */
+	if (cls.serverProtocol == PROTOCOL_Q2TEST_VERSION)
+	{
+		if (state->effects & EF_NOLERP_Q2TEST)
+		{
+			ent->serverframe = -99;
+			VectorCopy(state->origin, state->old_origin);
+		}
+
+		state->effects = CL_ConvertQ2TestEffects(state->effects);
+		state->renderfx = CL_ConvertQ2TestRenderfx(state->renderfx);
 	}
 
 	/* some data changes will force no lerping */
@@ -2028,17 +2188,34 @@ CL_ParseFrame(void)
 	int cmd;
 	int len;
 	frame_t *old;
+	const int previous_serverframe = cl.frame.serverframe;
+	const qboolean q2test = cls.serverProtocol == PROTOCOL_Q2TEST_VERSION;
+	/* Q2Test frames may omit playerinfo, the previous state is kept then */
+	const player_xstate_t q2test_prevstate = cl.frame.playerstate;
+	int q2test_prevorigin[3];
+
+	VectorCopy(cl.frame.origin, q2test_prevorigin);
 
 	memset(&cl.frame, 0, sizeof(cl.frame));
 
-	cl.frame.serverframe = MSG_ReadLong(&net_message);
-	cl.frame.deltaframe = MSG_ReadLong(&net_message);
-	cl.frame.servertime = cl.frame.serverframe *
-		(cls.serverProtocol == PROTOCOL_H2DEMO_VERSION ? 100 : cl.frame_msec);
+	if (q2test)
+	{
+		/* every Q2Test frame is a full update against the baselines */
+		cl.frame.serverframe = previous_serverframe + 1;
+		cl.frame.deltaframe = -1;
+		cl.frame.servertime = MSG_ReadLong(&net_message) * 100;
+	}
+	else
+	{
+		cl.frame.serverframe = MSG_ReadLong(&net_message);
+		cl.frame.deltaframe = MSG_ReadLong(&net_message);
+		cl.frame.servertime = cl.frame.serverframe *
+			(cls.serverProtocol == PROTOCOL_H2DEMO_VERSION ? 100 : cl.frame_msec);
+	}
 
 	/* BIG HACK to let old demos continue to work */
 	if (cls.serverProtocol != PROTOCOL_RELEASE_VERSION &&
-		cls.serverProtocol != PROTOCOL_H2DEMO_VERSION)
+		cls.serverProtocol != PROTOCOL_H2DEMO_VERSION && !q2test)
 	{
 		cl.surpressCount = MSG_ReadByte(&net_message);
 	}
@@ -2113,14 +2290,102 @@ CL_ParseFrame(void)
 	cmd = P_CmdConvert(MSG_ReadByte(&net_message), cls.serverProtocol);
 	CL_ShowNetCmd(cmd);
 
-	if (cmd != svc_playerinfo)
+	if (q2test && cmd != svc_playerinfo)
+	{
+		cl.frame.playerstate = q2test_prevstate;
+		VectorCopy(q2test_prevorigin, cl.frame.origin);
+		/* opcode already consumed, rewind so it is parsed as packetentities */
+		net_message.readcount--;
+	}
+	else if (cmd != svc_playerinfo)
 	{
 		Com_Error(ERR_DROP, "%s: 0x%X not playerinfo",
 				__func__, cmd);
 		return;
 	}
+	else if (q2test)
+	{
+		player_xstate_t *state = &cl.frame.playerstate;
+		int flags = MSG_ReadShort(&net_message);
+		int stats_mask;
+		int i;
 
-	if (cls.serverProtocol == PROTOCOL_H2DEMO_VERSION)
+		memset(state, 0, sizeof(*state));
+
+		MSG_ReadOrigin(&net_message, cl.frame.origin, cls.serverProtocol);
+		VectorCopy(cl.frame.origin, state->pmove.origin);
+
+		for (i = 0; i < 3; i++)
+		{
+			state->viewangles[i] = MSG_ReadAngle16(&net_message);
+		}
+
+		for (i = 0; i < 3; i++)
+		{
+			state->pmove.delta_angles[i] = MSG_ReadShort(&net_message);
+		}
+
+		state->pmove.pm_type = cl.attractloop ? PM_FREEZE : PM_NORMAL;
+		state->fov = 90.0f;
+		state->rdflags = 0;
+		if (flags & 0x04)
+		{
+			state->gunindex = MSG_ReadByte(&net_message);
+			/* second view-weapon model, no equivalent */
+			(void)MSG_ReadByte(&net_message);
+		}
+
+		if (flags & 0x08)
+		{
+			state->gunframe = MSG_ReadByte(&net_message);
+			/* second view-weapon frame */
+			(void)MSG_ReadByte(&net_message);
+			for (i = 0; i < 3; i++)
+			{
+				state->gunoffset[i] = MSG_ReadChar(&net_message) * 0.25f;
+			}
+			for (i = 0; i < 3; i++)
+			{
+				state->gunangles[i] = MSG_ReadChar(&net_message) * 0.25f;
+			}
+		}
+
+		if (flags & 0x01)
+		{
+			for (i = 0; i < 4; i++)
+			{
+				state->blend[i] = MSG_ReadByte(&net_message) / 255.0f;
+			}
+		}
+		else
+		{
+			memset(state->blend, 0, sizeof(state->blend));
+		}
+
+		if (flags & 0x02)
+		{
+			state->fov = (float)MSG_ReadByte(&net_message);
+		}
+
+		if (flags & 0x80)
+		{
+			state->rdflags = MSG_ReadByte(&net_message);
+		}
+
+		stats_mask = MSG_ReadLong(&net_message);
+		for (i = 0; i < 32; i++)
+		{
+			state->stats[i] = (stats_mask & (1u << i)) ?
+				MSG_ReadShort(&net_message) : 0;
+		}
+
+		if (net_message.readcount > net_message.cursize)
+		{
+			Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+			return;
+		}
+	}
+	else if (cls.serverProtocol == PROTOCOL_H2DEMO_VERSION)
 	{
 		CL_ParseH2Playerstate(old, &cl.frame);
 	}
@@ -2280,14 +2545,6 @@ CL_ParseServerData(void)
 	}
 
 	Com_DPrintf("Used %d ms frame time\n", cl.frame_msec);
-
-	if ((cl_shownet->value == 0) &&
-		(i == PROTOCOL_Q2TEST_VERSION))
-	{
-		Com_Error(ERR_DROP, "Network protocol '%s' is currently unsupported\n",
-			CL_GetProtocolName(i));
-		return;
-	}
 
 	/* game directory */
 	str = MSG_ReadString(&net_message);
@@ -2955,7 +3212,8 @@ CL_ParseStartSoundPacket(void)
 		return;
 	}
 
-	if (IS_QII97_PROTOCOL(cls.serverProtocol))
+	if (IS_QII97_PROTOCOL(cls.serverProtocol) ||
+		(cls.serverProtocol == PROTOCOL_Q2TEST_VERSION))
 	{
 		sound_num = MSG_ReadByte(&net_message);
 	}
@@ -3459,6 +3717,12 @@ CL_ParseServerMessage(void)
 			}
 		}
 
+		if (cls.serverProtocol == PROTOCOL_Q2TEST_VERSION && cmd == 15)
+		{
+			(void)MSG_ReadByte(&net_message);
+			continue;
+		}
+
 		cmd = P_CmdConvert(cmd, cls.serverProtocol);
 
 		CL_ShowNetCmd(cmd);
@@ -3467,8 +3731,10 @@ CL_ParseServerMessage(void)
 		switch (cmd)
 		{
 			default:
-				Com_Error(ERR_DROP, "%s: Illegible server message 0x%02x\n",
-					__func__, cmd);
+				Com_Error(ERR_FATAL,
+					"%s: Illegible server message 0x%02x at %d of %d\n",
+					__func__, cmd, net_message.readcount - 1,
+					net_message.cursize);
 				return;
 
 			case svc_nop:
@@ -3564,7 +3830,15 @@ CL_ParseServerMessage(void)
 
 			case svc_layout:
 				s = MSG_ReadString(&net_message);
-				Q_strlcpy(cl.layout, s, sizeof(cl.layout));
+				/* Q2Test layout message toggles the layout display */
+				if (cls.serverProtocol == PROTOCOL_Q2TEST_VERSION && cl.layout[0])
+				{
+					cl.layout[0] = '\0';
+				}
+				else
+				{
+					Q_strlcpy(cl.layout, s, sizeof(cl.layout));
+				}
 				break;
 
 			case svc_playerinfo:
