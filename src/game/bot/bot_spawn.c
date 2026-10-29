@@ -210,23 +210,30 @@ BOT_NextCTFTeam()
 static qboolean
 BOT_JoinCTFTeam(edict_t *ent, const char *team_name)
 {
-	char	*s;
-	int		team;
-//	edict_t	*event;
+	const char *s;
+	int team;
 
 	if (ent->client->resp.ctf_team != CTF_NOTEAM)
 		return false;
 
 	// find what ctf team
-	if ((team_name !=NULL) && (strcmp(team_name, "blue") == 0))
+	if ((team_name != NULL) && (strcmp(team_name, "blue") == 0))
+	{
 		team = CTF_TEAM2;
-	else if ((team_name !=NULL) && (strcmp(team_name, "red") == 0))
+	}
+	else if ((team_name != NULL) && (strcmp(team_name, "red") == 0))
+	{
 		team = CTF_TEAM1;
+	}
 	else
+	{
 		team = BOT_NextCTFTeam();
+	}
 
 	if (team == CTF_NOTEAM)
+	{
 		return false;
+	}
 
 	//join ctf team
 	ent->svflags &= ~SVF_NOCLIENT;

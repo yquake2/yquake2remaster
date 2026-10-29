@@ -2031,8 +2031,9 @@ CTFWeapon_Grapple(edict_t *ent)
 void
 CTFTeam_f(edict_t *ent)
 {
-	char *t, *s;
 	int desired_team;
+	const char *s;
+	char *t;
 
 	t = gi.args();
 
@@ -3987,7 +3988,7 @@ pmenu_t nochasemenu[] = {
 static void
 CTFJoinTeam(edict_t *ent, int desired_team)
 {
-	char *s;
+	const char *s;
 
 	PMenu_Close(ent);
 

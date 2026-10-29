@@ -2001,7 +2001,7 @@ G_ScreenFader_AddBlend(edict_t *client)
 
 	for (fader = screenfader_active_list; fader; fader = fader->chain)
 	{
-		float duration, frac, alpha;
+		float frac, alpha;
 		vec3_t color;
 
 		if (!fader->inuse)
@@ -2011,6 +2011,8 @@ G_ScreenFader_AddBlend(edict_t *client)
 
 		if (fader->count == SCREENFADER_STATE_ACTIVE)
 		{
+			float duration;
+
 			duration = fader->wait > 0.0f ? fader->wait : FRAMETIME;
 			frac = ValueClamp((level.time - fader->timestamp) / duration);
 		}

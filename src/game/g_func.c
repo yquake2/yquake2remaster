@@ -4406,8 +4406,6 @@ RotateTrain_MoveDone(edict_t *self)
 void
 RotateTrain_MoveFinal(edict_t *self)
 {
-	vec3_t delta;
-
 	if (self->moveinfo.remaining_distance == 0)
 	{
 		RotateTrain_MoveDone(self);
@@ -4419,6 +4417,8 @@ RotateTrain_MoveFinal(edict_t *self)
 
 	if (!VectorCompare(self->rotate, vec3_origin))
 	{
+		vec3_t delta;
+
 		VectorSubtract(self->moveinfo.end_angles, self->s.angles, delta);
 		if (VectorCompare(delta, vec3_origin))
 		{
@@ -4438,7 +4438,6 @@ void
 RotateTrain_MoveBegin(edict_t *self)
 {
 	float frames, travel_time;
-	vec3_t delta;
 
 	if ((self->moveinfo.speed * FRAMETIME) >= self->moveinfo.remaining_distance)
 	{
@@ -4455,8 +4454,10 @@ RotateTrain_MoveBegin(edict_t *self)
 
 	if (!VectorCompare(self->rotate, vec3_origin))
 	{
-		VectorSubtract(self->moveinfo.end_angles, self->moveinfo.start_angles,
-			       delta);
+		vec3_t delta;
+
+		VectorSubtract(self->moveinfo.end_angles,
+			self->moveinfo.start_angles, delta);
 
 		if (VectorCompare(delta, vec3_origin))
 		{

@@ -645,8 +645,8 @@ G_SetStats(edict_t *ent)
 	/* radar layout */
 	if (ent->client->showradar)
 	{
-		gitem_t *radar_item = FindItem("Radar");
-		gitem_t *energy_item = FindItem("Energy");
+		const gitem_t *radar_item = FindItem("Radar");
+		const gitem_t *energy_item = FindItem("Energy");
 
 		if (radar_item && energy_item)
 		{

@@ -2837,11 +2837,13 @@ mine_enforce_limit(edict_t *mine)
 void
 proximity_mine_laser_think(edict_t *self)
 {
-	edict_t *beam, *child, *source;
+	edict_t *beam;
 	int i;
 
 	if (self->count < 30)
 	{
+		edict_t *source;
+
 		if (!self->count)
 		{
 			self->solid = SOLID_NOT;
@@ -2852,6 +2854,8 @@ proximity_mine_laser_think(edict_t *self)
 			source = self;
 			for (i = 0; i < 4; i++)
 			{
+				edict_t *child;
+
 				child = G_Spawn();
 				child->owner = self->owner;
 				child->activator = self->owner;
@@ -2888,10 +2892,13 @@ proximity_mine_laser_think(edict_t *self)
 	beam = self->chain;
 	for (i = 0; i < 4 && beam; i++)
 	{
+		edict_t *child;
+
 		child = beam->chain;
 		G_FreeEdict(beam);
 		beam = child;
 	}
+
 	self->chain = NULL;
 	self->think = proximity_mine_explode;
 	self->nextthink = level.time + 0.1f;
@@ -3279,7 +3286,7 @@ iredbomb_think(edict_t *self)
 }
 
 static void
-ired_enforce_limit(edict_t *bomb)
+ired_enforce_limit(const edict_t *bomb)
 {
 	edict_t *oldestEnt = NULL;
 	edict_t *e = NULL;
