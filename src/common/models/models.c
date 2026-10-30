@@ -1313,7 +1313,7 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen)
 	return extradata;
 }
 
-static const char *
+const char *
 Mod_LoadModel_FlexSection(const void *in_buffer, size_t modfilelen, const char *section_name,
 	int *section_version, size_t *section_size)
 {
@@ -1628,6 +1628,7 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen)
 	size_t size, inframesize = 0;
 	void *extradata = NULL;
 	const char *src = NULL;
+	flex_skin_t skin;
 	int version;
 
 	src = Mod_LoadModel_FlexSection(buffer, modfilelen, "header", &version, &size);
@@ -1717,38 +1718,22 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen)
 		}
 	}
 
-	src = Mod_LoadModel_FlexSection(buffer, modfilelen, "skeleton", &version, &size);
-	if (src && size)
+	if (!Mod_LoadFlexSkin(mod_name, buffer, modfilelen,
+		dmdxheader.num_xyz, dmdxheader.num_frames, dmdxheader.num_meshes,
+		inframesize, &skin))
 	{
-		int skeleton_type, skeleton_joints_num, *skeleton_data;
-
-		if (version != 1)
-		{
-			Com_Printf("%s: Invalid skeleton version %d\n",
-				__func__, version);
-			return NULL;
-		}
-
-		if (size < (int)(2 * sizeof(int))) {
-			Com_Printf("%s: Invalid skeleton size\n",
-				__func__);
-			return NULL;
-		}
-
-		skeleton_data = (int *)src;
-		skeleton_type = LittleLong(*skeleton_data);
-		skeleton_data++;
-		skeleton_joints_num = LittleLong(*skeleton_data);
-		Com_DPrintf("%s: %s in skeleton has 0x%02x type and %d bones\n",
-			__func__, mod_name, skeleton_type, skeleton_joints_num);
-		dmdxheader.num_joints = skeleton_joints_num;
+		return NULL;
 	}
+
+	dmdxheader.num_joints = skin.num_joints;
+	dmdxheader.num_weights = skin.num_weights;
 
 	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
 	if (!pheader)
 	{
 		Com_Printf("%s: %s has broken header.\n",
 			__func__, mod_name);
+		Mod_FreeFlexSkin(&skin);
 		return NULL;
 	}
 
@@ -1759,14 +1744,12 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen)
 		!Mod_LoadModel_FlexGLCmd(mod_name, pheader, buffer, modfilelen) ||
 		!Mod_LoadModel_FlexMeshNodes(pheader, buffer, modfilelen))
 	{
+		Mod_FreeFlexSkin(&skin);
 		return NULL;
 	}
 
-	src = Mod_LoadModel_FlexSection(buffer, modfilelen, "skeleton", &version, &size);
-	if (src && size)
-	{
-		/* TODO: reload skeleton */
-	}
+	Mod_StoreFlexSkin(pheader, &skin);
+	Mod_FreeFlexSkin(&skin);
 
 	/* Skipped blocks:
 	 * "normals",
