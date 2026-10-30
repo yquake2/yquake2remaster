@@ -72,6 +72,25 @@ void Mod_LittleHeader(const int *in, size_t len, int *out);
 void Mod_RawDecodeImageWithPalette(const char *filename, const byte *raw, int len,
 	byte **pic, byte **palette, int *width, int *height, int *bitsPerPixel);
 
+/* flex skeleton converted to skinned joints */
+typedef struct
+{
+	int num_joints;
+	int num_weights;
+	dmdx_joint_t *joints;
+	dmdx_baseframe_joint_t *poses; /* num_frames * num_joints */
+	dmdx_weight_t *weights;
+	dmdx_vertex_t *verts; /* num_xyz, only with weights */
+} flex_skin_t;
+
+const char *Mod_LoadModel_FlexSection(const void *in_buffer, size_t modfilelen,
+	const char *section_name, int *section_version, size_t *section_size);
+qboolean Mod_LoadFlexSkin(const char *mod_name, const void *buffer, int modfilelen,
+	int num_xyz, int num_frames, int num_mesh_nodes, size_t inframesize,
+	flex_skin_t *skin);
+void Mod_StoreFlexSkin(dmdx_t *pheader, const flex_skin_t *skin);
+void Mod_FreeFlexSkin(flex_skin_t *skin);
+
 /* models */
 void *Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer,
 	int modfilelen);
