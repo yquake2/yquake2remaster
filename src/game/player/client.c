@@ -960,6 +960,12 @@ player_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 		return;
 	}
 
+	if (self->client->remote_view_active || self->client->remote_view_entity)
+	{
+		/* give the view back before dying */
+		RemoteView_End(self);
+	}
+
 	if (self->client->chasetoggle)
 	{
 		ChasecamRemove(self);
@@ -3070,6 +3076,12 @@ ClientDisconnect(edict_t *ent)
 		ChasecamRemove(ent);
 	}
 
+	if (ent->client->remote_view_active || ent->client->remote_view_entity)
+	{
+		/* restore the player and free the dummy body */
+		RemoteView_End(ent);
+	}
+
 	gi.bprintf(PRINT_HIGH, "%s disconnected\n", ent->client->pers.netname);
 
 	if (ctf->value)
@@ -3159,6 +3171,11 @@ ClientThink(edict_t *ent, usercmd_t *ucmd)
 		return;
 	}
 
+	if (ent->client->remote_view_cmd_hook)
+	{
+		ent->client->remote_view_cmd_hook(ent, ucmd);
+	}
+
 	level.current_entity = ent;
 	client = ent->client;
 
@@ -3223,8 +3240,10 @@ ClientThink(edict_t *ent, usercmd_t *ucmd)
 
 	pm_passent = ent;
 
-	if (ent->client->chase_target)
+	if (ent->client->chase_target || ent->client->remote_view_active)
 	{
+		/* the view is controlled by the chase cam or a remote
+		   view (misc_camera / RTDU), don't run player movement */
 		client->resp.cmd_angles[0] = SHORT2ANGLE(ucmd->angles[0]);
 		client->resp.cmd_angles[1] = SHORT2ANGLE(ucmd->angles[1]);
 		client->resp.cmd_angles[2] = SHORT2ANGLE(ucmd->angles[2]);
@@ -3478,6 +3497,8 @@ ClientBeginServerFrame(edict_t *ent)
 	{
 		return;
 	}
+
+	Camera_ClientPreFrame(ent);
 
 	if (level.intermissiontime)
 	{
