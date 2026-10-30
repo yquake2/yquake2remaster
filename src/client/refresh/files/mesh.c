@@ -323,6 +323,7 @@ R_SkeletalVerts(const dmdx_t *pheader, int frame, int oldframe, float frontlerp,
 	skeletal_bone_t *bonematrix;
 	skeletal_verts_job_t job;
 
+	printf("R_SkeletalVerts called\n");
 	if (pheader->num_xyz <= 0)
 	{
 		return;

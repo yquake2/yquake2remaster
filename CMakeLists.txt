@@ -547,6 +547,7 @@ set(Client-Source
 	${COMMON_SRC_DIR}/models/loadfile.c
 	${COMMON_SRC_DIR}/models/models.c
 	${COMMON_SRC_DIR}/models/models_ctc.c
+	${COMMON_SRC_DIR}/models/models_fm.c
 	${COMMON_SRC_DIR}/models/models_hlmdl.c
 	${COMMON_SRC_DIR}/models/models_image.c
 	${COMMON_SRC_DIR}/models/models_md5.c
@@ -647,6 +648,7 @@ set(Server-Source
 	${COMMON_SRC_DIR}/models/loadfile.c
 	${COMMON_SRC_DIR}/models/models.c
 	${COMMON_SRC_DIR}/models/models_ctc.c
+	${COMMON_SRC_DIR}/models/models_fm.c
 	${COMMON_SRC_DIR}/models/models_hlmdl.c
 	${COMMON_SRC_DIR}/models/models_image.c
 	${COMMON_SRC_DIR}/models/models_md5.c
