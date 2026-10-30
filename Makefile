@@ -1201,6 +1201,7 @@ GAME_OBJS_ = \
 	src/game/g_trigger.o \
 	src/game/g_turret.o \
 	src/game/g_utils.o \
+	src/game/g_visor.o \
 	src/game/g_weapon.o \
 	src/game/dm/ball.o \
 	src/game/dm/tag.o \

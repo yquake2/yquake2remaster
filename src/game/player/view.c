@@ -1755,6 +1755,7 @@ ClientEndServerFrame(edict_t *ent)
 
 	/* must come last: overrides the view with the remote
 	   camera position while a remote view is active */
+	Visor_ClientFrame(ent);
 	Camera_ClientPostFrame(ent);
 }
 
