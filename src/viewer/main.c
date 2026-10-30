@@ -76,6 +76,7 @@ typedef struct {
 	int skin_joint_count;
 	int skin_weight_count;
 	int use_skin;
+	vec3_t skin_bone_positions[SKIN_MAX_BONES];
 	size_t mesh_nodes;
 	int mesh_node_count;
 	int texcoord_count;
@@ -579,20 +580,25 @@ static void lerp_vec3(vec3_t out, const vec3_t current, const vec3_t previous, f
 	out[2] = current[2] * current_weight + previous[2] * previous_weight;
 }
 
-/* same math as R_SkeletalVerts, with nlerp in place of slerp */
-static void skin_frame(const Model *model, int frame, int previous_frame, float previous_weight, vec3_t *out)
+/* same math as R_SkeletalVerts, with nlerp in place of slerp; fm joint angles propagate to child bones */
+static void skin_frame(Model *model, int frame, int previous_frame, float previous_weight,
+	int apply_joints, vec3_t *out)
 {
 	const float frontlerp = 1.0f - previous_weight;
 	float rotations[SKIN_MAX_BONES][9];
-	vec3_t positions[SKIN_MAX_BONES];
+	vec3_t *positions = model->skin_bone_positions;
+	quat_t deltas[SKIN_MAX_BONES];
+	vec3_t offsets[SKIN_MAX_BONES];
 
 	for (int bone = 0; bone < model->skin_joint_count; ++bone)
 	{
 		const dmdx_baseframe_joint_t *pose = &model->skin_poses[(size_t)frame * model->skin_joint_count + bone];
 		const dmdx_baseframe_joint_t *old = &model->skin_poses[(size_t)previous_frame * model->skin_joint_count + bone];
+		const int parent = model->skin_joints[bone].parent;
 		const float sign = (pose->orient[0] * old->orient[0] + pose->orient[1] * old->orient[1] +
 			pose->orient[2] * old->orient[2] + pose->orient[3] * old->orient[3]) < 0.0f ? -1.0f : 1.0f;
-		quat_t orient;
+		quat_t orient, posed;
+		vec3_t moved;
 		int i;
 
 		for (i = 0; i < 3; i++)
@@ -604,7 +610,38 @@ static void skin_frame(const Model *model, int frame, int previous_frame, float 
 			orient[i] = sign * old->orient[i] * previous_weight + pose->orient[i] * frontlerp;
 		}
 		Quat_normalize(orient);
-		Quat_toMat3(orient, rotations[bone]);
+
+		/* runtime rigid offset: x -> deltas * x + offsets, inherited from the parent bone */
+		if (parent >= 0)
+		{
+			memcpy(deltas[bone], deltas[parent], sizeof(quat_t));
+			VectorCopy(offsets[parent], offsets[bone]);
+		}
+		else
+		{
+			quat_identity(deltas[bone]);
+			VectorClear(offsets[bone]);
+		}
+		if (apply_joints && bone < model->joint_count)
+		{
+			const float *rotation = model->joint_rotations[bone];
+			const float *pivot = model->joint_pivots[bone];
+			vec3_t rotated, own;
+			quat_t combined;
+
+			Quat_rotatePoint(rotation, pivot, rotated);
+			VectorSubtract(pivot, rotated, own);
+			Quat_rotatePoint(deltas[bone], own, rotated);
+			VectorAdd(offsets[bone], rotated, offsets[bone]);
+			QuatMultiply(deltas[bone], rotation, combined);
+			memcpy(deltas[bone], combined, sizeof(quat_t));
+		}
+
+		Quat_rotatePoint(deltas[bone], positions[bone], moved);
+		VectorAdd(moved, offsets[bone], positions[bone]);
+		QuatMultiply(deltas[bone], orient, posed);
+		Quat_normalize(posed);
+		Quat_toMat3(posed, rotations[bone]);
 	}
 
 	for (int vertex = 0; vertex < model->vertex_count; ++vertex)
@@ -630,9 +667,21 @@ static void skin_frame(const Model *model, int frame, int previous_frame, float 
 typedef struct
 {
 	int bone_count;
+	/* fm skeleton bones come first and keep their stored poses */
+	int fixed_count;
+	/* then one bone per mesh node; generated bones follow */
+	int base_count;
 	int *vertex_bone;
+	unsigned *vertex_nodes;
+	int parents[SKIN_MAX_BONES];
+	int nodes[SKIN_MAX_BONES];
+	/* fm joint whose runtime rotation the bone follows, -1 for none */
+	int categories[SKIN_MAX_BONES];
+	/* mesh section bone that generated bones hang off */
+	int anchors[SKIN_MAX_BONES];
 	vec3_t centers[SKIN_MAX_BONES];
-	/* frame_count * SKIN_MAX_BONES */
+	quat_t bind_orients[SKIN_MAX_BONES];
+	/* frame_count * SKIN_MAX_BONES, rotation relative to the bind pose */
 	vec3_t *positions;
 	quat_t *orients;
 	float (*matrices)[9];
@@ -718,23 +767,56 @@ static void skin_rotation_from_covariance(const double s[9], quat_t q)
 	Quat_normalize(q);
 }
 
+static void skin_init_fixed(const Model *model, SkinFit *fit)
+{
+	fit->fixed_count = model->joint_count;
+	for (int bone = 0; bone < fit->fixed_count; ++bone)
+	{
+		const dmdx_baseframe_joint_t *bind = &model->frame_joints[bone];
+		quat_t inverse;
+
+		fit->parents[bone] = model->joints[bone].parent;
+		fit->nodes[bone] = -1;
+		fit->categories[bone] = bone;
+		fit->anchors[bone] = bone;
+		VectorCopy(bind->pos, fit->centers[bone]);
+		memcpy(fit->bind_orients[bone], bind->orient, sizeof(quat_t));
+		inverse[0] = -bind->orient[0];
+		inverse[1] = -bind->orient[1];
+		inverse[2] = -bind->orient[2];
+		inverse[3] = bind->orient[3];
+		for (int frame = 0; frame < model->frame_count; ++frame)
+		{
+			const dmdx_baseframe_joint_t *pose = &model->frame_joints[(size_t)frame * model->joint_count + bone];
+			const size_t index = (size_t)frame * SKIN_MAX_BONES + bone;
+
+			VectorCopy(pose->pos, fit->positions[index]);
+			QuatMultiply(pose->orient, inverse, fit->orients[index]);
+			Quat_normalize(fit->orients[index]);
+			Quat_toMat3(fit->orients[index], fit->matrices[index]);
+		}
+	}
+}
+
 static void skin_fit_bones(const Model *model, SkinFit *fit)
 {
 	const vec3_t *rest = model->vertices;
 	int counts[SKIN_MAX_BONES] = {0};
+	vec3_t sums[SKIN_MAX_BONES];
 	int bone;
 
-	memset(fit->centers, 0, sizeof(fit->centers));
+	memset(sums, 0, sizeof(sums));
 	for (int vertex = 0; vertex < model->vertex_count; ++vertex)
 	{
 		bone = fit->vertex_bone[vertex];
 		counts[bone]++;
-		VectorAdd(fit->centers[bone], rest[vertex], fit->centers[bone]);
+		VectorAdd(sums[bone], rest[vertex], sums[bone]);
 	}
-	for (bone = 0; bone < fit->bone_count; ++bone)
+	/* an empty generated bone keeps its last center */
+	for (bone = fit->fixed_count; bone < fit->bone_count; ++bone)
 	{
 		if (counts[bone])
-			VectorScale(fit->centers[bone], 1.0f / counts[bone], fit->centers[bone]);
+			VectorScale(sums[bone], 1.0f / counts[bone], fit->centers[bone]);
 	}
 
 	for (int frame = 0; frame < model->frame_count; ++frame)
@@ -750,23 +832,27 @@ static void skin_fit_bones(const Model *model, SkinFit *fit)
 			bone = fit->vertex_bone[vertex];
 			VectorAdd(targets[bone], current[vertex], targets[bone]);
 		}
-		for (bone = 0; bone < fit->bone_count; ++bone)
+		for (bone = fit->fixed_count; bone < fit->bone_count; ++bone)
 		{
 			if (counts[bone])
 				VectorScale(targets[bone], 1.0f / counts[bone], targets[bone]);
+			else
+				VectorCopy(fit->centers[bone], targets[bone]);
 		}
 		for (int vertex = 0; vertex < model->vertex_count; ++vertex)
 		{
 			vec3_t a, b;
 
 			bone = fit->vertex_bone[vertex];
+			if (bone < fit->fixed_count)
+				continue;
 			VectorSubtract(rest[vertex], fit->centers[bone], a);
 			VectorSubtract(current[vertex], targets[bone], b);
 			for (int i = 0; i < 3; ++i)
 				for (int j = 0; j < 3; ++j)
 					covariance[bone][i * 3 + j] += (double)a[i] * b[j];
 		}
-		for (bone = 0; bone < fit->bone_count; ++bone)
+		for (bone = fit->fixed_count; bone < fit->bone_count; ++bone)
 		{
 			const size_t index = (size_t)frame * SKIN_MAX_BONES + bone;
 
@@ -804,14 +890,46 @@ static double skin_vertex_error(const Model *model, const SkinFit *fit, int vert
 	return error;
 }
 
+static int skin_vertex_category(const Model *model, int vertex)
+{
+	return model->vertex_joints && model->vertex_joints[vertex] != VERTEX_NO_JOINT ?
+		model->vertex_joints[vertex] : -1;
+}
+
+/* keep the fm rotation chain of every vertex and stay inside its mesh sections */
+static int skin_bone_allowed(const Model *model, const SkinFit *fit, int vertex, int bone)
+{
+	if (fit->categories[bone] != skin_vertex_category(model, vertex))
+		return 0;
+	return bone < fit->fixed_count || !fit->vertex_nodes[vertex] ||
+		((fit->vertex_nodes[vertex] >> fit->nodes[bone]) & 1);
+}
+
+/* drop empty generated bones; fm and mesh node bones stay as hierarchy anchors */
 static void skin_compact(const Model *model, SkinFit *fit)
 {
-	int remap[SKIN_MAX_BONES], used[SKIN_MAX_BONES] = {0}, count = 0;
+	int remap[SKIN_MAX_BONES], used[SKIN_MAX_BONES] = {0}, count = fit->base_count;
 
 	for (int vertex = 0; vertex < model->vertex_count; ++vertex)
 		used[fit->vertex_bone[vertex]] = 1;
-	for (int bone = 0; bone < fit->bone_count; ++bone)
-		remap[bone] = used[bone] ? count++ : -1;
+	for (int bone = 0; bone < fit->base_count; ++bone)
+		remap[bone] = bone;
+	for (int bone = fit->base_count; bone < fit->bone_count; ++bone)
+	{
+		if (!used[bone])
+		{
+			remap[bone] = -1;
+			continue;
+		}
+		remap[bone] = count;
+		fit->parents[count] = fit->parents[bone];
+		fit->nodes[count] = fit->nodes[bone];
+		fit->categories[count] = fit->categories[bone];
+		fit->anchors[count] = fit->anchors[bone];
+		VectorCopy(fit->centers[bone], fit->centers[count]);
+		memcpy(fit->bind_orients[count], fit->bind_orients[bone], sizeof(quat_t));
+		count++;
+	}
 	for (int vertex = 0; vertex < model->vertex_count; ++vertex)
 		fit->vertex_bone[vertex] = remap[fit->vertex_bone[vertex]];
 	fit->bone_count = count;
@@ -828,7 +946,7 @@ static void skin_assign(const Model *model, SkinFit *fit)
 		{
 			double error;
 
-			if (bone == best)
+			if (bone == best || !skin_bone_allowed(model, fit, vertex, bone))
 				continue;
 			error = skin_vertex_error(model, fit, vertex, bone);
 			if (error < best_error)
@@ -874,9 +992,9 @@ static int skin_split_worst(const Model *model, SkinFit *fit, SkinSortItem *item
 			worst_vertex[bone] = vertex;
 		}
 	}
-	for (bone = 0; bone < fit->bone_count; ++bone)
+	for (bone = fit->fixed_count; bone < fit->bone_count; ++bone)
 	{
-		if (counts[bone] >= 2 && (split < 0 || bone_error[bone] > bone_error[split]))
+		if (counts[bone] >= 4 && (split < 0 || bone_error[bone] > bone_error[split]))
 			split = bone;
 	}
 	if (split < 0)
@@ -896,8 +1014,26 @@ static int skin_split_worst(const Model *model, SkinFit *fit, SkinSortItem *item
 	qsort(items, (size_t)count, sizeof(*items), skin_sort_compare);
 	for (int i = 0; i < count / 2; ++i)
 		fit->vertex_bone[items[i].vertex] = fit->bone_count;
+	/* generated bones hang off the bone of their mesh section */
+	fit->nodes[fit->bone_count] = fit->nodes[split];
+	fit->categories[fit->bone_count] = fit->categories[split];
+	fit->anchors[fit->bone_count] = fit->anchors[split];
+	fit->parents[fit->bone_count] = fit->anchors[split];
+	VectorCopy(fit->centers[split], fit->centers[fit->bone_count]);
+	quat_identity(fit->bind_orients[fit->bone_count]);
 	fit->bone_count++;
 	return 1;
+}
+
+/* weight offsets are in the bone's bind space, as md5 weights are */
+static void skin_weight_position(const Model *model, const SkinFit *fit, int vertex, int bone, vec3_t out)
+{
+	const float *bind = fit->bind_orients[bone];
+	quat_t inverse = {-bind[0], -bind[1], -bind[2], bind[3]};
+	vec3_t local;
+
+	VectorSubtract(model->vertices[vertex], fit->centers[bone], local);
+	Quat_rotatePoint(inverse, local, out);
 }
 
 static void skin_store(Model *model, const SkinFit *fit)
@@ -910,18 +1046,23 @@ static void skin_store(Model *model, const SkinFit *fit)
 	{
 		dmdx_joint_t *joint = &model->skin_joints[bone];
 
-		snprintf(joint->name, sizeof(joint->name), "bone%02d", bone);
-		joint->parent = -1;
+		if (bone < fit->fixed_count)
+			snprintf(joint->name, sizeof(joint->name), "%s", model->joints[bone].name);
+		else
+			snprintf(joint->name, sizeof(joint->name), bone < fit->base_count ? "node%02d_%s" : "node%02d_%s_%02d",
+				fit->nodes[bone], fit->categories[bone] >= 0 ? model->joints[fit->categories[bone]].name : "root",
+				bone);
+		joint->parent = fit->parents[bone];
 		VectorCopy(fit->centers[bone], joint->pos);
-		joint->orient[0] = joint->orient[1] = joint->orient[2] = 0.0f;
-		joint->orient[3] = 1.0f;
+		memcpy(joint->orient, fit->bind_orients[bone], sizeof(joint->orient));
 		for (int frame = 0; frame < model->frame_count; ++frame)
 		{
 			const size_t index = (size_t)frame * SKIN_MAX_BONES + bone;
 			dmdx_baseframe_joint_t *pose = &model->skin_poses[(size_t)frame * bones + bone];
 
 			VectorCopy(fit->positions[index], pose->pos);
-			memcpy(pose->orient, fit->orients[index], sizeof(pose->orient));
+			QuatMultiply(fit->orients[index], fit->bind_orients[bone], pose->orient);
+			Quat_normalize(pose->orient);
 		}
 	}
 
@@ -942,7 +1083,7 @@ static void skin_store(Model *model, const SkinFit *fit)
 			float blend;
 			int frame;
 
-			if (bone == primary)
+			if (bone == primary || !skin_bone_allowed(model, fit, vertex, bone))
 				continue;
 			for (frame = 0; frame < model->frame_count; frame += SKIN_FRAME_STRIDE)
 			{
@@ -989,7 +1130,7 @@ static void skin_store(Model *model, const SkinFit *fit)
 			out = &model->skin_weights[weight++];
 			out->joint = secondary;
 			out->bias = best_blend;
-			VectorSubtract(model->vertices[vertex], fit->centers[secondary], out->pos);
+			skin_weight_position(model, fit, vertex, secondary, out->pos);
 			bind->count++;
 			blended++;
 		}
@@ -1000,15 +1141,26 @@ static void skin_store(Model *model, const SkinFit *fit)
 		out = &model->skin_weights[weight++];
 		out->joint = primary;
 		out->bias = 1.0f - best_blend;
-		VectorSubtract(model->vertices[vertex], fit->centers[primary], out->pos);
+		skin_weight_position(model, fit, vertex, primary, out->pos);
 		bind->count++;
 	}
 	model->skin_weight_count = weight;
-	printf("skin: %d bones, %d weights, %d vertices blended between two bones\n",
-		bones, weight, blended);
+	printf("skin: %d bones (%d fm, %d mesh nodes, %d generated), %d weights, %d vertices blended\n",
+		bones, fit->fixed_count, fit->base_count - fit->fixed_count, bones - fit->base_count,
+		weight, blended);
+	for (int bone = 0; bone < bones; ++bone)
+	{
+		const int parent = model->skin_joints[bone].parent;
+		int count = 0;
+
+		for (int vertex = 0; vertex < model->vertex_count; ++vertex)
+			count += fit->vertex_bone[vertex] == bone;
+		printf("  %2d %-12s parent %-12s vertices %d\n", bone, model->skin_joints[bone].name,
+			parent >= 0 ? model->skin_joints[parent].name : "-", count);
+	}
 }
 
-static void skin_report(const Model *model)
+static void skin_report(Model *model)
 {
 	vec3_t *skinned = (vec3_t *)malloc((size_t)model->vertex_count * sizeof(*skinned));
 	double sum = 0.0;
@@ -1019,7 +1171,7 @@ static void skin_report(const Model *model)
 		return;
 	for (int frame = 0; frame < model->frame_count; ++frame)
 	{
-		skin_frame(model, frame, frame, 0.0f, skinned);
+		skin_frame(model, frame, frame, 0.0f, 0, skinned);
 		for (int vertex = 0; vertex < model->vertex_count; ++vertex)
 		{
 			vec3_t delta;
@@ -1051,31 +1203,58 @@ static int skin_convert(Model *model)
 	const size_t slots = (size_t)model->frame_count * SKIN_MAX_BONES;
 	SkinFit fit = {0};
 	SkinSortItem *items;
-	int ok = 0;
+	int ok = 0, node_count;
 
 	fit.vertex_bone = (int *)malloc((size_t)model->vertex_count * sizeof(int));
+	fit.vertex_nodes = (unsigned *)calloc((size_t)model->vertex_count, sizeof(unsigned));
 	fit.positions = (vec3_t *)malloc(slots * sizeof(*fit.positions));
 	fit.orients = (quat_t *)malloc(slots * sizeof(*fit.orients));
 	fit.matrices = (float (*)[9])malloc(slots * sizeof(*fit.matrices));
 	items = (SkinSortItem *)malloc((size_t)model->vertex_count * sizeof(*items));
-	if (!fit.vertex_bone || !fit.positions || !fit.orients || !fit.matrices || !items)
+	if (!fit.vertex_bone || !fit.vertex_nodes || !fit.positions || !fit.orients || !fit.matrices || !items)
 		goto done;
 
-	/* start from the mesh nodes, which roughly split the model into body parts */
+	skin_init_fixed(model, &fit);
+	node_count = mesh_node_count < 32 ? mesh_node_count : 32;
+	if (node_count < 1)
+		node_count = 1;
+	fit.bone_count = fit.fixed_count;
+
+	/* one bone per mesh section and fm joint, parented to that fm joint or the root */
 	for (int vertex = 0; vertex < model->vertex_count; ++vertex)
 	{
-		fit.vertex_bone[vertex] = 0;
-		for (int node = mesh_node_count - 1; node >= 0; --node)
+		const int category = skin_vertex_category(model, vertex);
+		int first = 0, bone;
+
+		for (int node = (mesh_node_count < node_count ? mesh_node_count : node_count) - 1; node >= 0; --node)
 		{
 			const byte *bits = model->data + mesh_nodes + (size_t)node * FLEX_MESH_NODE_SIZE + 256;
 
 			if (vertex < 256 * 8 && (bits[vertex >> 3] >> (vertex & 7)) & 1)
-				fit.vertex_bone[vertex] = node < SKIN_MAX_BONES ? node : SKIN_MAX_BONES - 1;
+			{
+				fit.vertex_nodes[vertex] |= 1u << node;
+				first = node;
+			}
 		}
+		for (bone = fit.fixed_count; bone < fit.bone_count; ++bone)
+		{
+			if (fit.nodes[bone] == first && fit.categories[bone] == category)
+				break;
+		}
+		if (bone == fit.bone_count)
+		{
+			if (fit.bone_count == SKIN_MAX_BONES)
+				goto done;
+			fit.nodes[bone] = first;
+			fit.categories[bone] = category;
+			fit.anchors[bone] = bone;
+			fit.parents[bone] = category;
+			quat_identity(fit.bind_orients[bone]);
+			fit.bone_count++;
+		}
+		fit.vertex_bone[vertex] = bone;
 	}
-	fit.bone_count = mesh_node_count > 0 ?
-		(mesh_node_count < SKIN_MAX_BONES ? mesh_node_count : SKIN_MAX_BONES) : 1;
-	skin_compact(model, &fit);
+	fit.base_count = fit.bone_count;
 
 	skin_fit_bones(model, &fit);
 	skin_assign(model, &fit);
@@ -1113,6 +1292,7 @@ done:
 		model->skin_vertices = NULL;
 	}
 	free(fit.vertex_bone);
+	free(fit.vertex_nodes);
 	free(fit.positions);
 	free(fit.orients);
 	free(fit.matrices);
@@ -1127,14 +1307,15 @@ static void interpolate_frame(Model *model, int frame, float previous_weight)
 	const vec3_t *previous = model->vertices + (size_t)previous_frame * (size_t)model->vertex_count;
 	if (model->use_skin)
 	{
-		skin_frame(model, frame, previous_frame, previous_weight, model->display_vertices);
+		if (model->joint_count)
+			update_joints(model, frame, previous_frame, previous_weight);
+		skin_frame(model, frame, previous_frame, previous_weight, model->joint_count > 0,
+			model->display_vertices);
+		return;
 	}
-	else
+	for (int vertex = 0; vertex < model->vertex_count; ++vertex)
 	{
-		for (int vertex = 0; vertex < model->vertex_count; ++vertex)
-		{
-			lerp_vec3(model->display_vertices[vertex], current[vertex], previous[vertex], previous_weight);
-		}
+		lerp_vec3(model->display_vertices[vertex], current[vertex], previous[vertex], previous_weight);
 	}
 	if (!model->joint_count)
 	{
