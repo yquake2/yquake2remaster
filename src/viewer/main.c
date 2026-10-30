@@ -26,6 +26,7 @@
 
 #include "../common/header/common.h"
 #include "../common/header/files.h"
+#include "../common/models/mesh.h"
 
 #ifdef USE_SDL3
 #include <SDL3/SDL.h>
@@ -40,19 +41,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #define FRAME_DURATION_MS 100
-
-typedef struct
-{
-	vec3_t origin, direction, up;
-} JointPose;
-
-typedef struct {
-	int joint_count;
-	int *parent;
-	vec3_t *angles;
-} RuntimeSkeleton;
+#define VERTEX_NO_JOINT 0xFF
+#define FLEX_MAX_JOINTS 3
+#define FLEX_MESH_NODE_SIZE 516
+#define SKIN_MAX_BONES 64
+#define SKIN_FRAME_STRIDE 4
 
 typedef struct {
 	byte *data;
@@ -60,21 +56,33 @@ typedef struct {
 	dstvert_t *texcoords;
 	dtriangle_t *triangles;
 	vec3_t *vertices;
-	vec3_t *raw_vertices;
 	vec3_t *display_vertices;
 	vec3_t *frame_scales;
 	vec3_t *frame_translates;
-	int **cluster_vertices;
-	int *cluster_vertex_counts;
-	JointPose *joint_poses;
-	RuntimeSkeleton runtime_skeleton;
+	/* skeleton stored the same way as dmdx_t keeps md5 joints */
+	dmdx_joint_t *joints;
+	dmdx_baseframe_joint_t *frame_joints;
+	byte *vertex_joints;
+	/* runtime state: joint local pitch/yaw/roll and the interpolated pose */
+	vec3_t *joint_angles;
+	vec3_t *joint_pivots;
+	quat_t *joint_orients;
+	quat_t *joint_rotations;
+	/* vertex frames converted to md5 style skinning, same layout as dmdx_t */
+	dmdx_joint_t *skin_joints;
+	dmdx_baseframe_joint_t *skin_poses;
+	dmdx_weight_t *skin_weights;
+	dmdx_vertex_t *skin_vertices;
+	int skin_joint_count;
+	int skin_weight_count;
+	int use_skin;
+	size_t mesh_nodes;
+	int mesh_node_count;
 	int texcoord_count;
 	int triangle_count;
 	int vertex_count;
 	int frame_count;
-	int skeletal_type;
 	int joint_count;
-	int skeleton_cluster_count;
 	float radius;
 } Model;
 
@@ -93,24 +101,20 @@ static void model_free(Model *model)
 	free(model->texcoords);
 	free(model->triangles);
 	free(model->vertices);
-	free(model->raw_vertices);
 	free(model->display_vertices);
 	free(model->frame_scales);
 	free(model->frame_translates);
-	free(model->joint_poses);
-	free(model->runtime_skeleton.parent);
-	free(model->runtime_skeleton.angles);
-
-	if (model->cluster_vertices)
-	{
-		for (int i = 0; i < model->skeleton_cluster_count; ++i)
-		{
-			free(model->cluster_vertices[i]);
-		}
-	}
-
-	free(model->cluster_vertices);
-	free(model->cluster_vertex_counts);
+	free(model->joints);
+	free(model->frame_joints);
+	free(model->vertex_joints);
+	free(model->joint_angles);
+	free(model->joint_pivots);
+	free(model->joint_orients);
+	free(model->joint_rotations);
+	free(model->skin_joints);
+	free(model->skin_poses);
+	free(model->skin_weights);
+	free(model->skin_vertices);
 	memset(model, 0, sizeof(*model));
 }
 
@@ -162,11 +166,10 @@ static int allocate_geometry(Model *model, int vertex_count, int texcoord_count,
 	model->texcoords = (dstvert_t *)calloc((size_t)texcoord_count, sizeof(*model->texcoords));
 	model->triangles = (dtriangle_t *)calloc((size_t)triangle_count, sizeof(*model->triangles));
 	model->vertices = (vec3_t *)calloc((size_t)vertex_count * (size_t)frame_count, sizeof(*model->vertices));
-	model->raw_vertices = (vec3_t *)calloc((size_t)vertex_count * (size_t)frame_count, sizeof(*model->raw_vertices));
 	model->display_vertices = (vec3_t *)calloc((size_t)vertex_count, sizeof(*model->display_vertices));
 	model->frame_scales = (vec3_t *)calloc((size_t)frame_count, sizeof(*model->frame_scales));
 	model->frame_translates = (vec3_t *)calloc((size_t)frame_count, sizeof(*model->frame_translates));
-	if (!model->texcoords || !model->triangles || !model->vertices || !model->raw_vertices ||
+	if (!model->texcoords || !model->triangles || !model->vertices ||
 		!model->display_vertices || !model->frame_scales || !model->frame_translates)
 	{
 		snprintf(error, error_size, "out of memory loading model");
@@ -185,7 +188,9 @@ static int load_triangles(Model *model, size_t offset, int count, char *error, s
 		{
 			model->triangles[i].index_xyz[corner] = LittleShort(*((short *)(model->data + triangle_offset + corner * 2)));
 			model->triangles[i].index_st[corner] = LittleShort(*((short *)(model->data + triangle_offset + 6 + corner * 2)));
-			if (model->triangles[i].index_xyz[corner] >= model->vertex_count ||
+			if (model->triangles[i].index_xyz[corner] < 0 ||
+				model->triangles[i].index_xyz[corner] >= model->vertex_count ||
+				model->triangles[i].index_st[corner] < 0 ||
 				model->triangles[i].index_st[corner] >= model->texcoord_count)
 			{
 				snprintf(error, error_size, "triangle references an invalid vertex");
@@ -248,263 +253,324 @@ static void decode_frame(Model *model, size_t offset, int frame, int vertex_coun
 		float x = model->data[compressed] * scale[0] + translate[0];
 		float y = model->data[compressed + 1] * scale[1] + translate[1];
 		float z = model->data[compressed + 2] * scale[2] + translate[2];
-		vec3_t *destination = &model->vertices[(size_t)frame * (size_t)vertex_count + (size_t)vertex];
-		(*destination)[0] = x;
-		(*destination)[1] = y;
-		(*destination)[2] = z;
-		model->raw_vertices[(size_t)frame * (size_t)vertex_count + (size_t)vertex][0] = (*destination)[0];
-		model->raw_vertices[(size_t)frame * (size_t)vertex_count + (size_t)vertex][1] = (*destination)[1];
-		model->raw_vertices[(size_t)frame * (size_t)vertex_count + (size_t)vertex][2] = (*destination)[2];
+		VectorSet(model->vertices[(size_t)frame * (size_t)vertex_count + (size_t)vertex], x, y, z);
 	}
 }
 
-static int skeleton_joint_count(int skeletal_type)
+typedef struct
 {
-	static const int counts[] = {3, 1, 2, 2, 3, 3};
-	return skeletal_type >= 0 && skeletal_type < ARRLEN(counts) ?
-		counts[skeletal_type] : 0;
+	int joint_count;
+	const char *names[FLEX_MAX_JOINTS];
+	int parents[FLEX_MAX_JOINTS];
+} FlexSkeletonType;
+
+/* indexed by the type stored in the flex "skeleton" block; every type is a chain */
+static const FlexSkeletonType flex_skeleton_types[] = {
+	{3, {"lowerback", "upperback", "head"}, {-1, 0, 1}},
+	{1, {"center"}, {-1}},
+	{2, {"neck", "head"}, {-1, 0}},
+	{2, {"neck", "head"}, {-1, 0}},
+	{3, {"lowerback", "upperback", "head"}, {-1, 0, 1}},
+	{3, {"lowerback", "upperback", "head"}, {-1, 0, 1}},
+};
+
+static int read_long(const Model *model, size_t offset)
+{
+	int value;
+	memcpy(&value, model->data + offset, sizeof(value));
+	return LittleLong(value);
 }
 
-static int build_runtime_skeleton(Model *model)
+static float read_float(const Model *model, size_t offset)
 {
-	const int type = model->skeletal_type;
-	const int joint_count = skeleton_joint_count(type);
-	if (joint_count == 0 || model->skeleton_cluster_count != joint_count)
-	{
-		return 0;
-	}
-
-	model->runtime_skeleton.joint_count = joint_count;
-	model->runtime_skeleton.parent = (int *)calloc((size_t)joint_count,
-		sizeof(*model->runtime_skeleton.parent));
-	model->runtime_skeleton.angles = (float (*)[3])calloc((size_t)joint_count,
-		sizeof(*model->runtime_skeleton.angles));
-	if (!model->runtime_skeleton.parent || !model->runtime_skeleton.angles)
-	{
-		free(model->runtime_skeleton.parent);
-		free(model->runtime_skeleton.angles);
-		model->runtime_skeleton.parent = NULL;
-		model->runtime_skeleton.angles = NULL;
-		model->runtime_skeleton.joint_count = 0;
-		return 0;
-	}
-	for (int joint = 0; joint < joint_count; ++joint)
-	{
-		model->runtime_skeleton.parent[joint] = -1;
-		VectorClear(model->runtime_skeleton.angles[joint]);
-	}
-	/* lower-back -> upper-back -> head for Raven,
-	   Plague Elf, and Corvus; the other definitions are one short chain. */
-	if (type == 0 || type == 4 || type == 5)
-	{
-		model->runtime_skeleton.parent[1] = 0;
-		model->runtime_skeleton.parent[2] = 1;
-	}
-	else if (type == 2 || type == 3)
-	{
-		model->runtime_skeleton.parent[1] = 0;
-	}
-	return 1;
+	float value;
+	memcpy(&value, model->data + offset, sizeof(value));
+	return LittleFloat(value);
 }
 
-static void rotate_runtime_point(vec3_t out, const vec3_t point, const vec3_t origin, const float angles[3])
+/* same convention as Mod_Mat3x4ToQuat: matrix columns are the basis axes, xyzw */
+static void basis_to_quat(const vec3_t forward, const vec3_t left, const vec3_t up, quat_t q)
 {
-	const float cx = cosf(angles[0]), sx = sinf(angles[0]);
-	const float cy = cosf(angles[1]), sy = sinf(angles[1]);
-	const float cz = cosf(angles[2]), sz = sinf(angles[2]);
-	vec3_t local, rotated;
-	VectorSubtract(point, origin, local);
-	rotated[0] = (cy * cz + sx * sy * sz) * local[0] + (cz * sx * sy - cy * sz) * local[1] + cx * sy * local[2];
-	rotated[1] = cx * sz * local[0] + cx * cz * local[1] - sx * local[2];
-	rotated[2] = (cy * sx * sz - cz * sy) * local[0] + (cy * cz * sx + sy * sz) * local[1] + cx * cy * local[2];
-	VectorAdd(origin, rotated, out);
+	const float m[3][3] = {
+		{forward[0], left[0], up[0]},
+		{forward[1], left[1], up[1]},
+		{forward[2], left[2], up[2]}
+	};
+	const float trace = m[0][0] + m[1][1] + m[2][2];
+	float s;
+
+	if (trace > 0.0f)
+	{
+		s = 0.5f / sqrtf(trace + 1.0f);
+		q[3] = 0.25f / s;
+		q[0] = (m[2][1] - m[1][2]) * s;
+		q[1] = (m[0][2] - m[2][0]) * s;
+		q[2] = (m[1][0] - m[0][1]) * s;
+	}
+	else if (m[0][0] > m[1][1] && m[0][0] > m[2][2])
+	{
+		s = 2.0f * sqrtf(1.0f + m[0][0] - m[1][1] - m[2][2]);
+		q[3] = (m[2][1] - m[1][2]) / s;
+		q[0] = 0.25f * s;
+		q[1] = (m[0][1] + m[1][0]) / s;
+		q[2] = (m[0][2] + m[2][0]) / s;
+	}
+	else if (m[1][1] > m[2][2])
+	{
+		s = 2.0f * sqrtf(1.0f + m[1][1] - m[0][0] - m[2][2]);
+		q[3] = (m[0][2] - m[2][0]) / s;
+		q[0] = (m[0][1] + m[1][0]) / s;
+		q[1] = 0.25f * s;
+		q[2] = (m[1][2] + m[2][1]) / s;
+	}
+	else
+	{
+		s = 2.0f * sqrtf(1.0f + m[2][2] - m[0][0] - m[1][1]);
+		q[3] = (m[1][0] - m[0][1]) / s;
+		q[0] = (m[0][2] + m[2][0]) / s;
+		q[1] = (m[1][2] + m[2][1]) / s;
+		q[2] = 0.25f * s;
+	}
+	Quat_normalize(q);
 }
 
-static void rotate_runtime_cluster(Model *model, int frame, int joint, vec3_t *vertices)
+static void quat_identity(quat_t q)
 {
-	const JointPose *pose = &model->joint_poses[(size_t)frame * (size_t)model->skeleton_cluster_count + (size_t)joint];
-	for (int child = 0; child < model->runtime_skeleton.joint_count; ++child)
+	q[0] = q[1] = q[2] = 0.0f;
+	q[3] = 1.0f;
+}
+
+/* flex poses are an origin plus two far points marking the bone direction and up */
+static void flex_pose_to_joint(const vec3_t origin, const vec3_t direction_point,
+	const vec3_t up_point, dmdx_baseframe_joint_t *joint)
+{
+	vec3_t forward, up, left;
+
+	VectorCopy(origin, joint->pos);
+	VectorSubtract(direction_point, origin, forward);
+	VectorSubtract(up_point, origin, up);
+	if (VectorNormalize(forward) == 0.0f)
 	{
-		if (model->runtime_skeleton.parent[child] == joint)
-			rotate_runtime_cluster(model, frame, child, vertices);
+		quat_identity(joint->orient);
+		return;
 	}
-	for (int vertex = 0; vertex < model->cluster_vertex_counts[joint]; ++vertex)
+	VectorMA(up, -DotProduct(up, forward), forward, up);
+	if (VectorNormalize(up) == 0.0f)
 	{
-		const int index = model->cluster_vertices[joint][vertex];
-		const float *angles = model->runtime_skeleton.angles[joint];
-		if (angles[0] != 0.0f || angles[1] != 0.0f || angles[2] != 0.0f)
+		quat_identity(joint->orient);
+		return;
+	}
+	CrossProduct(up, forward, left);
+	basis_to_quat(forward, left, up, joint->orient);
+}
+
+static void angles_to_quat(const vec3_t angles, quat_t out)
+{
+	static const vec3_t axis_forward = {1.0f, 0.0f, 0.0f};
+	static const vec3_t axis_left = {0.0f, 1.0f, 0.0f};
+	static const vec3_t axis_up = {0.0f, 0.0f, 1.0f};
+	quat_t pitch, yaw, roll, tmp;
+
+	QuatAngleAxis(axis_left, angles[PITCH], pitch);
+	QuatAngleAxis(axis_up, angles[YAW], yaw);
+	QuatAngleAxis(axis_forward, angles[ROLL], roll);
+	QuatMultiply(yaw, pitch, tmp);
+	QuatMultiply(tmp, roll, out);
+}
+
+static void update_joints(Model *model, int frame, int previous_frame, float previous_weight)
+{
+	const float current_weight = 1.0f - previous_weight;
+
+	for (int joint = 0; joint < model->joint_count; ++joint)
+	{
+		const dmdx_baseframe_joint_t *current =
+			&model->frame_joints[(size_t)frame * (size_t)model->joint_count + (size_t)joint];
+		const dmdx_baseframe_joint_t *previous =
+			&model->frame_joints[(size_t)previous_frame * (size_t)model->joint_count + (size_t)joint];
+		float *orient = model->joint_orients[joint];
+		quat_t local, conjugate, tmp;
+		float sign;
+		int i;
+
+		sign = (current->orient[0] * previous->orient[0] + current->orient[1] * previous->orient[1] +
+			current->orient[2] * previous->orient[2] + current->orient[3] * previous->orient[3]) < 0.0f ?
+			-1.0f : 1.0f;
+		for (i = 0; i < 3; i++)
 		{
-			vec3_t rotated;
-			rotate_runtime_point(rotated, vertices[index], pose->origin, model->runtime_skeleton.angles[joint]);
-			VectorCopy(rotated, vertices[index]);
+			model->joint_pivots[joint][i] = current->pos[i] * current_weight +
+				previous->pos[i] * previous_weight;
 		}
+		for (i = 0; i < 4; i++)
+		{
+			orient[i] = current->orient[i] * current_weight +
+				sign * previous->orient[i] * previous_weight;
+		}
+		Quat_normalize(orient);
+
+		/* joint angles are relative to the bone axes, so conjugate by the bone orientation */
+		angles_to_quat(model->joint_angles[joint], local);
+		QuatMultiply(orient, local, tmp);
+		conjugate[0] = -orient[0];
+		conjugate[1] = -orient[1];
+		conjugate[2] = -orient[2];
+		conjugate[3] = orient[3];
+		QuatMultiply(tmp, conjugate, model->joint_rotations[joint]);
 	}
 }
 
-static int load_flex_skeleton(Model *model, size_t offset, int32_t block_size, char *error, size_t error_size)
+/* deepest joint first, each around its unrotated pivot, then up to the root */
+static void apply_joint_chain(const Model *model, int joint, vec3_t point)
 {
+	for (; joint >= 0; joint = model->joints[joint].parent)
+	{
+		vec3_t local, rotated;
+
+		VectorSubtract(point, model->joint_pivots[joint], local);
+		Quat_rotatePoint(model->joint_rotations[joint], local, rotated);
+		VectorAdd(model->joint_pivots[joint], rotated, point);
+	}
+}
+
+static int load_flex_skeleton(Model *model, size_t offset, size_t block_size, char *error, size_t error_size)
+{
+	const size_t end = offset + block_size;
+	const FlexSkeletonType *skeleton;
 	size_t cursor = offset;
-	int cluster;
-	int raw_counts[8];
-	int running_total = 0;
-	int index_base = 0;
-	if (block_size < 12 || !range_valid(model, offset, (size_t)block_size))
+	int counts[FLEX_MAX_JOINTS];
+	int type, cluster_count, cluster, total = 0, attached = 0;
+
+	if (block_size < 8 || !range_valid(model, offset, block_size))
 	{
 		snprintf(error, error_size, "flex skeleton block is truncated");
 		return 0;
 	}
-	model->skeletal_type = LittleLong(*((int *)(model->data + cursor)));
-	model->joint_count = skeleton_joint_count(model->skeletal_type);
-	model->skeleton_cluster_count = LittleLong(*((int *)(model->data + cursor + 4)));
+	type = read_long(model, cursor);
+	cluster_count = read_long(model, cursor + 4);
 	cursor += 8;
-	if (model->skeleton_cluster_count != model->joint_count) {
-		snprintf(error, error_size, "flex skeleton has an invalid cluster count");
-		return 0;
-	}
-	model->cluster_vertex_counts = (int *)calloc((size_t)model->skeleton_cluster_count, sizeof(int));
-	model->cluster_vertices = (int **)calloc((size_t)model->skeleton_cluster_count, sizeof(int *));
-	if (!model->cluster_vertex_counts || !model->cluster_vertices) {
-		snprintf(error, error_size, "out of memory loading flex skeleton");
-		return 0;
-	}
-	for (cluster = model->skeleton_cluster_count - 1; cluster >= 0; --cluster)
+	if (type < 0 || type >= (int)ARRLEN(flex_skeleton_types) ||
+		cluster_count != flex_skeleton_types[type].joint_count)
 	{
-		if (!range_valid(model, cursor, 4))
-		{
-			snprintf(error, error_size, "flex skeleton counts are truncated");
-			return 0;
-		}
-		raw_counts[cluster] = LittleLong(*((int *)(model->data + cursor)));
+		snprintf(error, error_size, "flex skeleton has unknown type %d or invalid cluster count %d",
+			type, cluster_count);
+		return 0;
+	}
+	skeleton = &flex_skeleton_types[type];
+
+	if ((end - cursor) / 4 < (size_t)cluster_count)
+	{
+		snprintf(error, error_size, "flex skeleton counts are truncated");
+		return 0;
+	}
+	/* counts and vertex lists are stored from the deepest joint to the root */
+	for (cluster = cluster_count - 1; cluster >= 0; --cluster)
+	{
+		counts[cluster] = read_long(model, cursor);
 		cursor += 4;
-		if (raw_counts[cluster] < 0 || raw_counts[cluster] > model->vertex_count)
+		if (counts[cluster] < 0 || counts[cluster] > model->vertex_count - total)
 		{
 			snprintf(error, error_size, "flex skeleton has invalid cluster vertices");
 			return 0;
 		}
-		running_total += raw_counts[cluster];
-		if (running_total > model->vertex_count) {
-			snprintf(error, error_size, "flex skeleton cluster vertices exceed model");
-			return 0;
-		}
-		model->cluster_vertex_counts[cluster] = running_total;
-		model->cluster_vertices[cluster] = (int *)malloc((size_t)running_total * sizeof(int));
-		if (running_total > 0 && !model->cluster_vertices[cluster]) {
-			snprintf(error, error_size, "out of memory loading flex cluster");
-			return 0;
-		}
+		total += counts[cluster];
 	}
-	for (cluster = model->skeleton_cluster_count - 1; cluster >= 0; --cluster)
+	if ((end - cursor) / 4 < (size_t)total + 1)
 	{
-		const int count = model->cluster_vertex_counts[cluster];
-		for (int vertex = index_base; vertex < count; ++vertex)
+		snprintf(error, error_size, "flex skeleton vertex lists are truncated");
+		return 0;
+	}
+
+	model->vertex_joints = (byte *)malloc((size_t)model->vertex_count);
+	if (!model->vertex_joints)
+	{
+		snprintf(error, error_size, "out of memory loading flex skeleton");
+		return 0;
+	}
+	memset(model->vertex_joints, VERTEX_NO_JOINT, (size_t)model->vertex_count);
+	for (cluster = cluster_count - 1; cluster >= 0; --cluster)
+	{
+		for (int i = 0; i < counts[cluster]; ++i)
 		{
-			const int index = LittleLong(*((int *)(model->data + cursor)));
+			const int index = read_long(model, cursor);
 			cursor += 4;
-			if (index < 0 || index >= model->vertex_count) {
+			if (index < 0 || index >= model->vertex_count)
+			{
 				snprintf(error, error_size, "flex skeleton references an invalid vertex");
 				return 0;
 			}
-			for (int parent = 0; parent <= cluster; ++parent)
-				model->cluster_vertices[parent][vertex] = index;
+			/* a vertex already listed for a deeper joint keeps it */
+			if (model->vertex_joints[index] == VERTEX_NO_JOINT)
+			{
+				model->vertex_joints[index] = (byte)cluster;
+				++attached;
+			}
 		}
-		index_base = count;
-	}
-	if (!range_valid(model, cursor, 4))
-	{
-		snprintf(error, error_size, "flex skeleton flag is truncated");
-		return 0;
 	}
 
-	if (!LittleLong(*((int *)(model->data + cursor))))
+	if (!read_long(model, cursor))
 	{
+		printf("flex skeleton type %d has no joint poses, skeleton disabled\n", type);
+		free(model->vertex_joints);
+		model->vertex_joints = NULL;
 		return 1;
 	}
-
 	cursor += 4;
-
-	if (!range_valid(model, cursor, (size_t)model->frame_count * (size_t)model->skeleton_cluster_count * 36)) {
+	if ((end - cursor) / 36 < (size_t)model->frame_count * (size_t)cluster_count)
+	{
 		snprintf(error, error_size, "flex skeleton poses are truncated");
 		return 0;
 	}
-	model->joint_poses = (JointPose *)calloc((size_t)model->frame_count * (size_t)model->skeleton_cluster_count, sizeof(JointPose));
-	if (!model->joint_poses)
+
+	model->joints = (dmdx_joint_t *)calloc((size_t)cluster_count, sizeof(*model->joints));
+	model->frame_joints = (dmdx_baseframe_joint_t *)calloc(
+		(size_t)model->frame_count * (size_t)cluster_count, sizeof(*model->frame_joints));
+	model->joint_angles = (vec3_t *)calloc((size_t)cluster_count, sizeof(*model->joint_angles));
+	model->joint_pivots = (vec3_t *)calloc((size_t)cluster_count, sizeof(*model->joint_pivots));
+	model->joint_orients = (quat_t *)calloc((size_t)cluster_count, sizeof(*model->joint_orients));
+	model->joint_rotations = (quat_t *)calloc((size_t)cluster_count, sizeof(*model->joint_rotations));
+	if (!model->joints || !model->frame_joints || !model->joint_angles ||
+		!model->joint_pivots || !model->joint_orients || !model->joint_rotations)
 	{
 		snprintf(error, error_size, "out of memory loading flex poses");
 		return 0;
 	}
+
 	for (int frame = 0; frame < model->frame_count; ++frame)
 	{
-		for (cluster = 0; cluster < model->skeleton_cluster_count; ++cluster)
+		for (cluster = 0; cluster < cluster_count; ++cluster)
 		{
-			JointPose *pose = &model->joint_poses[(size_t)frame * (size_t)model->skeleton_cluster_count + (size_t)cluster];
-			VectorSet(pose->origin,
-					LittleFloat(*((float *)(model->data + cursor))),
-					LittleFloat(*((float *)(model->data + cursor + 4))),
-					LittleFloat(*((float *)(model->data + cursor + 8)))
-			);
-			cursor += 12;
-			VectorSet(pose->direction,
-					LittleFloat(*((float *)(model->data + cursor))),
-					LittleFloat(*((float *)(model->data + cursor + 4))),
-					LittleFloat(*((float *)(model->data + cursor + 8)))
-			);
-			cursor += 12;
-			VectorSet(pose->up,
-					LittleFloat(*((float *)(model->data + cursor))),
-					LittleFloat(*((float *)(model->data + cursor + 4))),
-					LittleFloat(*((float *)(model->data + cursor + 8)))
-			);
-			cursor += 12;
+			vec3_t points[3];
+
+			/* poses are stored in compressed frame space */
+			for (int point = 0; point < 3; ++point)
+			{
+				for (int axis = 0; axis < 3; ++axis)
+				{
+					points[point][axis] = read_float(model, cursor) * model->frame_scales[frame][axis] +
+						model->frame_translates[frame][axis];
+					cursor += 4;
+				}
+			}
+			flex_pose_to_joint(points[0], points[1], points[2],
+				&model->frame_joints[(size_t)frame * (size_t)cluster_count + (size_t)cluster]);
 		}
 	}
+
+	for (cluster = 0; cluster < cluster_count; ++cluster)
+	{
+		dmdx_joint_t *joint = &model->joints[cluster];
+
+		snprintf(joint->name, sizeof(joint->name), "%s", skeleton->names[cluster]);
+		joint->parent = skeleton->parents[cluster];
+		VectorCopy(model->frame_joints[cluster].pos, joint->pos);
+		memcpy(joint->orient, model->frame_joints[cluster].orient, sizeof(joint->orient));
+	}
+	model->joint_count = cluster_count;
+
+	printf("flex skeleton type %d: %d joints, %d of %d vertices attached\n",
+		type, cluster_count, attached, model->vertex_count);
 	return 1;
 }
-
-static void apply_flex_skeleton(Model *model)
-{
-	if (!model->joint_poses || !build_runtime_skeleton(model))
-		return;
-	for (int frame = 0; frame < model->frame_count; ++frame)
-	{
-		vec3_t *vertices = model->vertices + (size_t)frame * (size_t)model->vertex_count;
-		const vec3_t *raw = model->raw_vertices + (size_t)frame * (size_t)model->vertex_count;
-		memcpy(vertices, raw, (size_t)model->vertex_count * sizeof(*vertices));
-		rotate_runtime_cluster(model, frame, 0, vertices);
-	}
-}
-
-static void compare_skeletal_frames(const Model *model)
-{
-	if (!model->joint_poses || model->frame_count < 2)
-		return;
-	printf("skeleton comparison (frame 0 excluded):\n");
-	for (int frame = 1; frame < model->frame_count; ++frame)
-	{
-		const vec3_t *raw = model->raw_vertices + (size_t)frame * (size_t)model->vertex_count;
-		const vec3_t *skinned = model->vertices + (size_t)frame * (size_t)model->vertex_count;
-		int changed = 0;
-		float max_displacement = 0.0f;
-		double total_displacement = 0.0;
-		for (int vertex = 0; vertex < model->vertex_count; ++vertex)
-		{
-			vec3_t delta;
-			VectorSubtract(skinned[vertex], raw[vertex], delta);
-			const float displacement = VectorLength(delta);
-			if (displacement > 0.0001f)
-				++changed;
-			if (displacement > max_displacement)
-				max_displacement = displacement;
-			total_displacement += displacement;
-		}
-		if (frame == 1 || frame == model->frame_count - 1)
-		{
-			printf("  frame %d: changed=%d/%d max=%f average=%f\n",
-				frame, changed, model->vertex_count,
-				max_displacement, (float)(total_displacement / model->vertex_count));
-		}
-	}
-}
-
 static void lerp_vec3(vec3_t out, const vec3_t current, const vec3_t previous, float previous_weight)
 {
 	const float current_weight = 1.0f - previous_weight;
@@ -513,52 +579,574 @@ static void lerp_vec3(vec3_t out, const vec3_t current, const vec3_t previous, f
 	out[2] = current[2] * current_weight + previous[2] * previous_weight;
 }
 
-static void lerp_skeleton_component(vec3_t out, const Model *model, const vec3_t current,
-	const vec3_t previous, int frame, int previous_frame, float previous_weight)
+/* same math as R_SkeletalVerts, with nlerp in place of slerp */
+static void skin_frame(const Model *model, int frame, int previous_frame, float previous_weight, vec3_t *out)
 {
-	const float current_weight = 1.0f - previous_weight;
-	out[0] = current[0] * model->frame_scales[frame][0] * current_weight +
-		previous[0] * model->frame_scales[previous_frame][0] * previous_weight +
-		model->frame_translates[frame][0] * current_weight +
-		model->frame_translates[previous_frame][0] * previous_weight;
-	out[1] = current[1] * model->frame_scales[frame][1] * current_weight +
-		previous[1] * model->frame_scales[previous_frame][1] * previous_weight +
-		model->frame_translates[frame][1] * current_weight +
-		model->frame_translates[previous_frame][1] * previous_weight;
-	out[2] = current[2] * model->frame_scales[frame][2] * current_weight +
-		previous[2] * model->frame_scales[previous_frame][2] * previous_weight +
-		model->frame_translates[frame][2] * current_weight +
-		model->frame_translates[previous_frame][2] * previous_weight;
+	const float frontlerp = 1.0f - previous_weight;
+	float rotations[SKIN_MAX_BONES][9];
+	vec3_t positions[SKIN_MAX_BONES];
+
+	for (int bone = 0; bone < model->skin_joint_count; ++bone)
+	{
+		const dmdx_baseframe_joint_t *pose = &model->skin_poses[(size_t)frame * model->skin_joint_count + bone];
+		const dmdx_baseframe_joint_t *old = &model->skin_poses[(size_t)previous_frame * model->skin_joint_count + bone];
+		const float sign = (pose->orient[0] * old->orient[0] + pose->orient[1] * old->orient[1] +
+			pose->orient[2] * old->orient[2] + pose->orient[3] * old->orient[3]) < 0.0f ? -1.0f : 1.0f;
+		quat_t orient;
+		int i;
+
+		for (i = 0; i < 3; i++)
+		{
+			positions[bone][i] = old->pos[i] * previous_weight + pose->pos[i] * frontlerp;
+		}
+		for (i = 0; i < 4; i++)
+		{
+			orient[i] = sign * old->orient[i] * previous_weight + pose->orient[i] * frontlerp;
+		}
+		Quat_normalize(orient);
+		Quat_toMat3(orient, rotations[bone]);
+	}
+
+	for (int vertex = 0; vertex < model->vertex_count; ++vertex)
+	{
+		const dmdx_vertex_t *bind = &model->skin_vertices[vertex];
+		vec3_t result = {0.0f, 0.0f, 0.0f};
+
+		for (int k = 0; k < bind->count; ++k)
+		{
+			const dmdx_weight_t *weight = &model->skin_weights[bind->start + k];
+			const float *j_rot = rotations[weight->joint];
+			const float *j_pos = positions[weight->joint];
+			const float *w_pos = weight->pos;
+
+			result[0] += (j_pos[0] + j_rot[0] * w_pos[0] + j_rot[1] * w_pos[1] + j_rot[2] * w_pos[2]) * weight->bias;
+			result[1] += (j_pos[1] + j_rot[3] * w_pos[0] + j_rot[4] * w_pos[1] + j_rot[5] * w_pos[2]) * weight->bias;
+			result[2] += (j_pos[2] + j_rot[6] * w_pos[0] + j_rot[7] * w_pos[1] + j_rot[8] * w_pos[2]) * weight->bias;
+		}
+		VectorCopy(result, out[vertex]);
+	}
+}
+
+typedef struct
+{
+	int bone_count;
+	int *vertex_bone;
+	vec3_t centers[SKIN_MAX_BONES];
+	/* frame_count * SKIN_MAX_BONES */
+	vec3_t *positions;
+	quat_t *orients;
+	float (*matrices)[9];
+} SkinFit;
+
+/* cyclic Jacobi on a symmetric 4x4 matrix, returns the eigenvector of the largest eigenvalue */
+static void max_eigenvector4(double a[4][4], double out[4])
+{
+	double e[4][4] = {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
+	int best = 0;
+
+	for (int sweep = 0; sweep < 50; ++sweep)
+	{
+		double off = 0.0;
+
+		for (int p = 0; p < 3; ++p)
+			for (int q = p + 1; q < 4; ++q)
+				off += a[p][q] * a[p][q];
+		if (off < 1e-20)
+			break;
+
+		for (int p = 0; p < 3; ++p)
+		{
+			for (int q = p + 1; q < 4; ++q)
+			{
+				double theta, t, c, s;
+
+				if (fabs(a[p][q]) < 1e-30)
+					continue;
+				theta = (a[q][q] - a[p][p]) / (2.0 * a[p][q]);
+				t = (theta >= 0.0 ? 1.0 : -1.0) / (fabs(theta) + sqrt(theta * theta + 1.0));
+				c = 1.0 / sqrt(t * t + 1.0);
+				s = t * c;
+				for (int k = 0; k < 4; ++k)
+				{
+					const double akp = a[k][p], akq = a[k][q];
+					a[k][p] = c * akp - s * akq;
+					a[k][q] = s * akp + c * akq;
+				}
+				for (int k = 0; k < 4; ++k)
+				{
+					const double apk = a[p][k], aqk = a[q][k];
+					a[p][k] = c * apk - s * aqk;
+					a[q][k] = s * apk + c * aqk;
+				}
+				for (int k = 0; k < 4; ++k)
+				{
+					const double ekp = e[k][p], ekq = e[k][q];
+					e[k][p] = c * ekp - s * ekq;
+					e[k][q] = s * ekp + c * ekq;
+				}
+			}
+		}
+	}
+	for (int i = 1; i < 4; ++i)
+	{
+		if (a[i][i] > a[best][best])
+			best = i;
+	}
+	for (int k = 0; k < 4; ++k)
+		out[k] = e[k][best];
+}
+
+/* Horn's closed form: rotation that best maps rest offsets onto frame offsets */
+static void skin_rotation_from_covariance(const double s[9], quat_t q)
+{
+	const double sxx = s[0], sxy = s[1], sxz = s[2];
+	const double syx = s[3], syy = s[4], syz = s[5];
+	const double szx = s[6], szy = s[7], szz = s[8];
+	double n[4][4] = {
+		{sxx + syy + szz, syz - szy, szx - sxz, sxy - syx},
+		{syz - szy, sxx - syy - szz, sxy + syx, szx + sxz},
+		{szx - sxz, sxy + syx, -sxx + syy - szz, syz + szy},
+		{sxy - syx, szx + sxz, syz + szy, -sxx - syy + szz}
+	};
+	double v[4];
+
+	max_eigenvector4(n, v);
+	q[0] = (float)v[1];
+	q[1] = (float)v[2];
+	q[2] = (float)v[3];
+	q[3] = (float)v[0];
+	Quat_normalize(q);
+}
+
+static void skin_fit_bones(const Model *model, SkinFit *fit)
+{
+	const vec3_t *rest = model->vertices;
+	int counts[SKIN_MAX_BONES] = {0};
+	int bone;
+
+	memset(fit->centers, 0, sizeof(fit->centers));
+	for (int vertex = 0; vertex < model->vertex_count; ++vertex)
+	{
+		bone = fit->vertex_bone[vertex];
+		counts[bone]++;
+		VectorAdd(fit->centers[bone], rest[vertex], fit->centers[bone]);
+	}
+	for (bone = 0; bone < fit->bone_count; ++bone)
+	{
+		if (counts[bone])
+			VectorScale(fit->centers[bone], 1.0f / counts[bone], fit->centers[bone]);
+	}
+
+	for (int frame = 0; frame < model->frame_count; ++frame)
+	{
+		const vec3_t *current = model->vertices + (size_t)frame * model->vertex_count;
+		double covariance[SKIN_MAX_BONES][9];
+		vec3_t targets[SKIN_MAX_BONES];
+
+		memset(covariance, 0, sizeof(covariance));
+		memset(targets, 0, sizeof(targets));
+		for (int vertex = 0; vertex < model->vertex_count; ++vertex)
+		{
+			bone = fit->vertex_bone[vertex];
+			VectorAdd(targets[bone], current[vertex], targets[bone]);
+		}
+		for (bone = 0; bone < fit->bone_count; ++bone)
+		{
+			if (counts[bone])
+				VectorScale(targets[bone], 1.0f / counts[bone], targets[bone]);
+		}
+		for (int vertex = 0; vertex < model->vertex_count; ++vertex)
+		{
+			vec3_t a, b;
+
+			bone = fit->vertex_bone[vertex];
+			VectorSubtract(rest[vertex], fit->centers[bone], a);
+			VectorSubtract(current[vertex], targets[bone], b);
+			for (int i = 0; i < 3; ++i)
+				for (int j = 0; j < 3; ++j)
+					covariance[bone][i * 3 + j] += (double)a[i] * b[j];
+		}
+		for (bone = 0; bone < fit->bone_count; ++bone)
+		{
+			const size_t index = (size_t)frame * SKIN_MAX_BONES + bone;
+
+			VectorCopy(targets[bone], fit->positions[index]);
+			skin_rotation_from_covariance(covariance[bone], fit->orients[index]);
+			Quat_toMat3(fit->orients[index], fit->matrices[index]);
+		}
+	}
+}
+
+static void skin_predict(const Model *model, const SkinFit *fit, int vertex, int bone, int frame, vec3_t out)
+{
+	const size_t index = (size_t)frame * SKIN_MAX_BONES + bone;
+	const float *m = fit->matrices[index];
+	vec3_t local;
+
+	VectorSubtract(model->vertices[vertex], fit->centers[bone], local);
+	out[0] = fit->positions[index][0] + m[0] * local[0] + m[1] * local[1] + m[2] * local[2];
+	out[1] = fit->positions[index][1] + m[3] * local[0] + m[4] * local[1] + m[5] * local[2];
+	out[2] = fit->positions[index][2] + m[6] * local[0] + m[7] * local[1] + m[8] * local[2];
+}
+
+static double skin_vertex_error(const Model *model, const SkinFit *fit, int vertex, int bone)
+{
+	double error = 0.0;
+
+	for (int frame = 0; frame < model->frame_count; frame += SKIN_FRAME_STRIDE)
+	{
+		vec3_t predicted, delta;
+
+		skin_predict(model, fit, vertex, bone, frame, predicted);
+		VectorSubtract(predicted, model->vertices[(size_t)frame * model->vertex_count + vertex], delta);
+		error += DotProduct(delta, delta);
+	}
+	return error;
+}
+
+static void skin_compact(const Model *model, SkinFit *fit)
+{
+	int remap[SKIN_MAX_BONES], used[SKIN_MAX_BONES] = {0}, count = 0;
+
+	for (int vertex = 0; vertex < model->vertex_count; ++vertex)
+		used[fit->vertex_bone[vertex]] = 1;
+	for (int bone = 0; bone < fit->bone_count; ++bone)
+		remap[bone] = used[bone] ? count++ : -1;
+	for (int vertex = 0; vertex < model->vertex_count; ++vertex)
+		fit->vertex_bone[vertex] = remap[fit->vertex_bone[vertex]];
+	fit->bone_count = count;
+}
+
+static void skin_assign(const Model *model, SkinFit *fit)
+{
+	for (int vertex = 0; vertex < model->vertex_count; ++vertex)
+	{
+		int best = fit->vertex_bone[vertex];
+		double best_error = skin_vertex_error(model, fit, vertex, best);
+
+		for (int bone = 0; bone < fit->bone_count; ++bone)
+		{
+			double error;
+
+			if (bone == best)
+				continue;
+			error = skin_vertex_error(model, fit, vertex, bone);
+			if (error < best_error)
+			{
+				best_error = error;
+				best = bone;
+			}
+		}
+		fit->vertex_bone[vertex] = best;
+	}
+	skin_compact(model, fit);
+}
+
+typedef struct
+{
+	float distance;
+	int vertex;
+} SkinSortItem;
+
+static int skin_sort_compare(const void *a, const void *b)
+{
+	const float da = ((const SkinSortItem *)a)->distance;
+	const float db = ((const SkinSortItem *)b)->distance;
+	return (da > db) - (da < db);
+}
+
+/* split the bone with the largest error around its worst fitting vertex */
+static int skin_split_worst(const Model *model, SkinFit *fit, SkinSortItem *items)
+{
+	double bone_error[SKIN_MAX_BONES] = {0}, worst_error[SKIN_MAX_BONES] = {0};
+	int worst_vertex[SKIN_MAX_BONES], counts[SKIN_MAX_BONES] = {0};
+	int bone, split = -1, count = 0;
+
+	for (int vertex = 0; vertex < model->vertex_count; ++vertex)
+	{
+		const double error = skin_vertex_error(model, fit, vertex, fit->vertex_bone[vertex]);
+
+		bone = fit->vertex_bone[vertex];
+		bone_error[bone] += error;
+		if (!counts[bone]++ || error > worst_error[bone])
+		{
+			worst_error[bone] = error;
+			worst_vertex[bone] = vertex;
+		}
+	}
+	for (bone = 0; bone < fit->bone_count; ++bone)
+	{
+		if (counts[bone] >= 2 && (split < 0 || bone_error[bone] > bone_error[split]))
+			split = bone;
+	}
+	if (split < 0)
+		return 0;
+
+	for (int vertex = 0; vertex < model->vertex_count; ++vertex)
+	{
+		vec3_t delta;
+
+		if (fit->vertex_bone[vertex] != split)
+			continue;
+		VectorSubtract(model->vertices[vertex], model->vertices[worst_vertex[split]], delta);
+		items[count].distance = VectorLength(delta);
+		items[count].vertex = vertex;
+		count++;
+	}
+	qsort(items, (size_t)count, sizeof(*items), skin_sort_compare);
+	for (int i = 0; i < count / 2; ++i)
+		fit->vertex_bone[items[i].vertex] = fit->bone_count;
+	fit->bone_count++;
+	return 1;
+}
+
+static void skin_store(Model *model, const SkinFit *fit)
+{
+	const int bones = fit->bone_count;
+	int weight = 0, blended = 0;
+
+	model->skin_joint_count = bones;
+	for (int bone = 0; bone < bones; ++bone)
+	{
+		dmdx_joint_t *joint = &model->skin_joints[bone];
+
+		snprintf(joint->name, sizeof(joint->name), "bone%02d", bone);
+		joint->parent = -1;
+		VectorCopy(fit->centers[bone], joint->pos);
+		joint->orient[0] = joint->orient[1] = joint->orient[2] = 0.0f;
+		joint->orient[3] = 1.0f;
+		for (int frame = 0; frame < model->frame_count; ++frame)
+		{
+			const size_t index = (size_t)frame * SKIN_MAX_BONES + bone;
+			dmdx_baseframe_joint_t *pose = &model->skin_poses[(size_t)frame * bones + bone];
+
+			VectorCopy(fit->positions[index], pose->pos);
+			memcpy(pose->orient, fit->orients[index], sizeof(pose->orient));
+		}
+	}
+
+	/* each vertex keeps its rigid bone, optionally blended with a second one */
+	for (int vertex = 0; vertex < model->vertex_count; ++vertex)
+	{
+		const int primary = fit->vertex_bone[vertex];
+		const double primary_error = skin_vertex_error(model, fit, vertex, primary);
+		double best_error = primary_error;
+		float best_blend = 0.0f;
+		int secondary = -1;
+		dmdx_vertex_t *bind = &model->skin_vertices[vertex];
+		dmdx_weight_t *out;
+
+		for (int bone = 0; bone < bones; ++bone)
+		{
+			double numerator = 0.0, denominator = 0.0, error = 0.0;
+			float blend;
+			int frame;
+
+			if (bone == primary)
+				continue;
+			for (frame = 0; frame < model->frame_count; frame += SKIN_FRAME_STRIDE)
+			{
+				vec3_t a, b, d, r;
+
+				skin_predict(model, fit, vertex, primary, frame, a);
+				skin_predict(model, fit, vertex, bone, frame, b);
+				VectorSubtract(b, a, d);
+				VectorSubtract(model->vertices[(size_t)frame * model->vertex_count + vertex], a, r);
+				numerator += DotProduct(r, d);
+				denominator += DotProduct(d, d);
+			}
+			if (denominator <= 0.0)
+				continue;
+			blend = (float)(numerator / denominator);
+			if (blend <= 0.01f)
+				continue;
+			if (blend > 1.0f)
+				blend = 1.0f;
+			for (frame = 0; frame < model->frame_count; frame += SKIN_FRAME_STRIDE)
+			{
+				vec3_t a, b, p, d;
+
+				skin_predict(model, fit, vertex, primary, frame, a);
+				skin_predict(model, fit, vertex, bone, frame, b);
+				for (int i = 0; i < 3; ++i)
+					p[i] = a[i] + blend * (b[i] - a[i]);
+				VectorSubtract(p, model->vertices[(size_t)frame * model->vertex_count + vertex], d);
+				error += DotProduct(d, d);
+			}
+			if (error < best_error)
+			{
+				best_error = error;
+				best_blend = blend;
+				secondary = bone;
+			}
+		}
+
+		bind->st[0] = bind->st[1] = 0.0f;
+		bind->start = weight;
+		bind->count = 0;
+		if (secondary >= 0 && best_error < primary_error * 0.9)
+		{
+			out = &model->skin_weights[weight++];
+			out->joint = secondary;
+			out->bias = best_blend;
+			VectorSubtract(model->vertices[vertex], fit->centers[secondary], out->pos);
+			bind->count++;
+			blended++;
+		}
+		else
+		{
+			best_blend = 0.0f;
+		}
+		out = &model->skin_weights[weight++];
+		out->joint = primary;
+		out->bias = 1.0f - best_blend;
+		VectorSubtract(model->vertices[vertex], fit->centers[primary], out->pos);
+		bind->count++;
+	}
+	model->skin_weight_count = weight;
+	printf("skin: %d bones, %d weights, %d vertices blended between two bones\n",
+		bones, weight, blended);
+}
+
+static void skin_report(const Model *model)
+{
+	vec3_t *skinned = (vec3_t *)malloc((size_t)model->vertex_count * sizeof(*skinned));
+	double sum = 0.0;
+	float max_error = 0.0f;
+	int max_frame = 0, max_vertex = 0;
+
+	if (!skinned)
+		return;
+	for (int frame = 0; frame < model->frame_count; ++frame)
+	{
+		skin_frame(model, frame, frame, 0.0f, skinned);
+		for (int vertex = 0; vertex < model->vertex_count; ++vertex)
+		{
+			vec3_t delta;
+			float error;
+
+			VectorSubtract(skinned[vertex], model->vertices[(size_t)frame * model->vertex_count + vertex], delta);
+			error = VectorLength(delta);
+			sum += (double)error * error;
+			if (error > max_error)
+			{
+				max_error = error;
+				max_frame = frame;
+				max_vertex = vertex;
+			}
+		}
+	}
+	printf("skin error vs vertex frames: rms %.4f, max %.4f (frame %d vertex %d), model size %.2f\n",
+		sqrt(sum / ((double)model->frame_count * model->vertex_count)), max_error,
+		max_frame, max_vertex, model->radius * 2.0f);
+	free(skinned);
+}
+
+/* fm frames carry no weights, so fit rigid bones to the baked vertex animation */
+static int skin_convert(Model *model)
+{
+	const clock_t start = clock();
+	const size_t mesh_nodes = model->mesh_nodes;
+	const int mesh_node_count = model->mesh_node_count;
+	const size_t slots = (size_t)model->frame_count * SKIN_MAX_BONES;
+	SkinFit fit = {0};
+	SkinSortItem *items;
+	int ok = 0;
+
+	fit.vertex_bone = (int *)malloc((size_t)model->vertex_count * sizeof(int));
+	fit.positions = (vec3_t *)malloc(slots * sizeof(*fit.positions));
+	fit.orients = (quat_t *)malloc(slots * sizeof(*fit.orients));
+	fit.matrices = (float (*)[9])malloc(slots * sizeof(*fit.matrices));
+	items = (SkinSortItem *)malloc((size_t)model->vertex_count * sizeof(*items));
+	if (!fit.vertex_bone || !fit.positions || !fit.orients || !fit.matrices || !items)
+		goto done;
+
+	/* start from the mesh nodes, which roughly split the model into body parts */
+	for (int vertex = 0; vertex < model->vertex_count; ++vertex)
+	{
+		fit.vertex_bone[vertex] = 0;
+		for (int node = mesh_node_count - 1; node >= 0; --node)
+		{
+			const byte *bits = model->data + mesh_nodes + (size_t)node * FLEX_MESH_NODE_SIZE + 256;
+
+			if (vertex < 256 * 8 && (bits[vertex >> 3] >> (vertex & 7)) & 1)
+				fit.vertex_bone[vertex] = node < SKIN_MAX_BONES ? node : SKIN_MAX_BONES - 1;
+		}
+	}
+	fit.bone_count = mesh_node_count > 0 ?
+		(mesh_node_count < SKIN_MAX_BONES ? mesh_node_count : SKIN_MAX_BONES) : 1;
+	skin_compact(model, &fit);
+
+	skin_fit_bones(model, &fit);
+	skin_assign(model, &fit);
+	skin_fit_bones(model, &fit);
+	while (fit.bone_count < SKIN_MAX_BONES && skin_split_worst(model, &fit, items))
+	{
+		skin_fit_bones(model, &fit);
+		skin_assign(model, &fit);
+		skin_fit_bones(model, &fit);
+	}
+
+	model->skin_joints = (dmdx_joint_t *)calloc((size_t)fit.bone_count, sizeof(*model->skin_joints));
+	model->skin_poses = (dmdx_baseframe_joint_t *)calloc((size_t)model->frame_count * fit.bone_count,
+		sizeof(*model->skin_poses));
+	model->skin_weights = (dmdx_weight_t *)calloc((size_t)model->vertex_count * 2, sizeof(*model->skin_weights));
+	model->skin_vertices = (dmdx_vertex_t *)calloc((size_t)model->vertex_count, sizeof(*model->skin_vertices));
+	if (!model->skin_joints || !model->skin_poses || !model->skin_weights || !model->skin_vertices)
+		goto done;
+
+	skin_store(model, &fit);
+	skin_report(model);
+	printf("skin conversion took %.2f s\n", (double)(clock() - start) / CLOCKS_PER_SEC);
+	ok = 1;
+
+done:
+	if (!ok)
+	{
+		free(model->skin_joints);
+		free(model->skin_poses);
+		free(model->skin_weights);
+		free(model->skin_vertices);
+		model->skin_joints = NULL;
+		model->skin_poses = NULL;
+		model->skin_weights = NULL;
+		model->skin_vertices = NULL;
+	}
+	free(fit.vertex_bone);
+	free(fit.positions);
+	free(fit.orients);
+	free(fit.matrices);
+	free(items);
+	return ok;
 }
 
 static void interpolate_frame(Model *model, int frame, float previous_weight)
 {
 	const int previous_frame = frame > 0 ? frame - 1 : model->frame_count - 1;
-	const vec3_t *current = model->raw_vertices + (size_t)frame * (size_t)model->vertex_count;
-	const vec3_t *previous = model->raw_vertices + (size_t)previous_frame * (size_t)model->vertex_count;
-	vec3_t scale, translate;
-	lerp_vec3(scale, model->frame_scales[frame], model->frame_scales[previous_frame], previous_weight);
-	lerp_vec3(translate, model->frame_translates[frame], model->frame_translates[previous_frame], previous_weight);
+	const vec3_t *current = model->vertices + (size_t)frame * (size_t)model->vertex_count;
+	const vec3_t *previous = model->vertices + (size_t)previous_frame * (size_t)model->vertex_count;
+	if (model->use_skin)
+	{
+		skin_frame(model, frame, previous_frame, previous_weight, model->display_vertices);
+	}
+	else
+	{
+		for (int vertex = 0; vertex < model->vertex_count; ++vertex)
+		{
+			lerp_vec3(model->display_vertices[vertex], current[vertex], previous[vertex], previous_weight);
+		}
+	}
+	if (!model->joint_count)
+	{
+		return;
+	}
+	/* rotate in world space: compressed frame space has a non-uniform scale */
+	update_joints(model, frame, previous_frame, previous_weight);
 	for (int vertex = 0; vertex < model->vertex_count; ++vertex)
 	{
-		lerp_vec3(model->display_vertices[vertex], current[vertex], previous[vertex], previous_weight);
-	}
-	if (model->joint_poses && model->runtime_skeleton.joint_count > 0)
-	{
-		/* Runtime joint angles are defined before frame scale/translation,
-		   matching RotateModelSegment followed by CNode::ShowFrame(). */
-		for (int vertex = 0; vertex < model->vertex_count; ++vertex)
+		if (model->vertex_joints[vertex] != VERTEX_NO_JOINT)
 		{
-			model->display_vertices[vertex][0] = (model->display_vertices[vertex][0] - translate[0]) / scale[0];
-			model->display_vertices[vertex][1] = (model->display_vertices[vertex][1] - translate[1]) / scale[1];
-			model->display_vertices[vertex][2] = (model->display_vertices[vertex][2] - translate[2]) / scale[2];
-		}
-		rotate_runtime_cluster(model, frame, 0, model->display_vertices);
-		for (int vertex = 0; vertex < model->vertex_count; ++vertex)
-		{
-			model->display_vertices[vertex][0] = model->display_vertices[vertex][0] * scale[0] + translate[0];
-			model->display_vertices[vertex][1] = model->display_vertices[vertex][1] * scale[1] + translate[1];
-			model->display_vertices[vertex][2] = model->display_vertices[vertex][2] * scale[2] + translate[2];
+			apply_joint_chain(model, model->vertex_joints[vertex], model->display_vertices[vertex]);
 		}
 	}
 }
@@ -580,7 +1168,8 @@ static int load_md2(Model *model, const char *filename, char *error, size_t erro
 	texcoord_count = LittleLong(*((int *)(model->data + 28)));
 	triangle_count = LittleLong(*((int *)(model->data + 32)));
 	frame_count = LittleLong(*((int *)(model->data + 40)));
-	if (frame_size < 40 ||
+	if (vertex_count <= 0 || frame_size < 40 ||
+		(size_t)frame_size < 40 + (size_t)vertex_count * 4 ||
 		!range_valid(model, LittleLong(*((int *)(model->data + 48))), (size_t)texcoord_count * 4) ||
 		!range_valid(model, LittleLong(*((int *)(model->data + 52))), (size_t)triangle_count * 12) ||
 		!range_valid(model, LittleLong(*((int *)(model->data + 56))), (size_t)frame_size * (size_t)frame_count) ||
@@ -619,9 +1208,10 @@ static int block_name_equals(const byte *name, const char *expected)
 
 static int load_flex(Model *model, const char *filename, char *error, size_t error_size)
 {
-	size_t offset = 0, header = 0, st = 0, tris = 0, frames = 0, skeleton = 0;
-	int32_t header_size = 0, st_size = 0, tris_size = 0, frames_size = 0, skeleton_size = 0;
+	size_t offset = 0, header = 0, st = 0, tris = 0, frames = 0, skeleton = 0, mesh_nodes = 0;
+	int32_t header_size = 0, st_size = 0, tris_size = 0, frames_size = 0, skeleton_size = 0, mesh_nodes_size = 0;
 	int skin_width, skin_height, frame_size, vertex_count, texcoord_count, triangle_count, frame_count, i;
+	int mesh_node_count;
 	if (!read_file(model, filename, error, error_size)) return 0;
 	while (offset < model->data_size)
 	{
@@ -664,6 +1254,11 @@ static int load_flex(Model *model, const char *filename, char *error, size_t err
 			skeleton = offset + 40;
 			skeleton_size = size;
 		}
+		else if (block_name_equals(model->data + offset, "mesh nodes"))
+		{
+			mesh_nodes = offset + 40;
+			mesh_nodes_size = size;
+		}
 		offset += 40 + (size_t)size;
 	}
 	if (!header || header_size != 40 || !st || !tris || !frames)
@@ -678,13 +1273,21 @@ static int load_flex(Model *model, const char *filename, char *error, size_t err
 	texcoord_count = LittleLong(*((int *)(model->data + header + 20)));
 	triangle_count = LittleLong(*((int *)(model->data + header + 24)));
 	frame_count = LittleLong(*((int *)(model->data + header + 32)));
+	mesh_node_count = LittleLong(*((int *)(model->data + header + 36)));
+	if (!mesh_nodes || mesh_node_count <= 0 ||
+		(size_t)mesh_nodes_size != (size_t)mesh_node_count * FLEX_MESH_NODE_SIZE)
+	{
+		mesh_node_count = 0;
+	}
 	if (skin_width <= 0 ||
 		skin_height <= 0 ||
+		vertex_count <= 0 || texcoord_count <= 0 ||
+		triangle_count <= 0 || frame_count <= 0 ||
 		frame_size < 40 ||
-		frame_size < 40 + vertex_count * 4 ||
-		st_size != texcoord_count * 4 ||
-		tris_size != triangle_count * 12 ||
-		frames_size != frame_count * frame_size ||
+		(size_t)frame_size < 40 + (size_t)vertex_count * 4 ||
+		(size_t)st_size != (size_t)texcoord_count * 4 ||
+		(size_t)tris_size != (size_t)triangle_count * 12 ||
+		(size_t)frames_size != (size_t)frame_count * (size_t)frame_size ||
 		!allocate_geometry(model, vertex_count, texcoord_count, triangle_count, frame_count, error, error_size))
 	{
 		if (error[0] == '\0')
@@ -708,14 +1311,14 @@ static int load_flex(Model *model, const char *filename, char *error, size_t err
 		decode_frame(model, frames + (size_t)i * frame_size, i, vertex_count);
 	}
 
-	if (skeleton && !load_flex_skeleton(model, skeleton, skeleton_size, error, error_size))
+	if (skeleton && !load_flex_skeleton(model, skeleton, (size_t)skeleton_size, error, error_size))
 	{
 		return 0;
 	}
 
-	apply_flex_skeleton(model);
-	compare_skeletal_frames(model);
 	calculate_bounds(model);
+	model->mesh_nodes = mesh_nodes;
+	model->mesh_node_count = mesh_node_count;
 	return 1;
 }
 
@@ -723,6 +1326,7 @@ static void draw_model(const Model *model)
 {
 	int i, corner;
 	const vec3_t *vertices = model->display_vertices;
+	glColor3f(0.58f, 0.70f, 0.86f);
 	glBegin(GL_TRIANGLES);
 	for (i = 0; i < model->triangle_count; ++i)
 	{
@@ -746,39 +1350,52 @@ static void draw_model(const Model *model)
 	glEnd();
 }
 
-static void draw_skeleton(const Model *model, int frame, float previous_weight)
+static void draw_skeleton(const Model *model)
 {
-	if (!model->joint_poses)
+	static const vec3_t forward_axis = {1.0f, 0.0f, 0.0f};
+	vec3_t origins[FLEX_MAX_JOINTS], ends[FLEX_MAX_JOINTS];
+	const float length = model->radius * 0.2f;
+
+	if (!model->joint_count)
 		return;
+	for (int joint = 0; joint < model->joint_count; ++joint)
+	{
+		vec3_t forward;
+
+		VectorCopy(model->joint_pivots[joint], origins[joint]);
+		apply_joint_chain(model, model->joints[joint].parent, origins[joint]);
+		Quat_rotatePoint(model->joint_orients[joint], forward_axis, forward);
+		VectorMA(model->joint_pivots[joint], length, forward, ends[joint]);
+		apply_joint_chain(model, joint, ends[joint]);
+	}
 	glDisable(GL_LIGHTING);
-	glColor3f(1.0f, 0.72f, 0.12f);
+	glDisable(GL_DEPTH_TEST);
 	glLineWidth(2.0f);
 	glBegin(GL_LINES);
-	for (int cluster = 0; cluster < model->skeleton_cluster_count; ++cluster)
+	for (int joint = 0; joint < model->joint_count; ++joint)
 	{
-		const int previous_frame = frame > 0 ? frame - 1 : model->frame_count - 1;
-		const JointPose *pose = &model->joint_poses[(size_t)frame * (size_t)model->skeleton_cluster_count + (size_t)cluster];
-		const JointPose *previous = &model->joint_poses[(size_t)previous_frame * (size_t)model->skeleton_cluster_count + (size_t)cluster];
-		vec3_t origin, direction;
-		lerp_skeleton_component(origin, model, pose->origin, previous->origin, frame, previous_frame, previous_weight);
-		lerp_skeleton_component(direction, model, pose->direction, previous->direction, frame, previous_frame, previous_weight);
-		rotate_runtime_point(direction, direction, origin, model->runtime_skeleton.angles[cluster]);
-		glVertex3f(origin[0], origin[1], origin[2]);
-		glVertex3f(direction[0], direction[1], direction[2]);
+		const int parent = model->joints[joint].parent;
+
+		glColor3f(1.0f, 0.72f, 0.12f);
+		glVertex3fv(origins[joint]);
+		glVertex3fv(ends[joint]);
+		if (parent >= 0)
+		{
+			glColor3f(0.3f, 0.9f, 0.4f);
+			glVertex3fv(origins[parent]);
+			glVertex3fv(origins[joint]);
+		}
 	}
 	glEnd();
 	glPointSize(5.0f);
+	glColor3f(1.0f, 0.72f, 0.12f);
 	glBegin(GL_POINTS);
-	for (int cluster = 0; cluster < model->skeleton_cluster_count; ++cluster)
+	for (int joint = 0; joint < model->joint_count; ++joint)
 	{
-		const int previous_frame = frame > 0 ? frame - 1 : model->frame_count - 1;
-		const JointPose *pose = &model->joint_poses[(size_t)frame * (size_t)model->skeleton_cluster_count + (size_t)cluster];
-		const JointPose *previous = &model->joint_poses[(size_t)previous_frame * (size_t)model->skeleton_cluster_count + (size_t)cluster];
-		vec3_t origin;
-		lerp_skeleton_component(origin, model, pose->origin, previous->origin, frame, previous_frame, previous_weight);
-		glVertex3f(origin[0], origin[1], origin[2]);
+		glVertex3fv(origins[joint]);
 	}
 	glEnd();
+	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_LIGHTING);
 }
 
@@ -934,44 +1551,64 @@ int main(int argc, char **argv)
 				paused = !paused;
 			}
 #ifdef USE_SDL3
-			else if (event.type == SDL_EVENT_KEY_DOWN && key >= SDLK_1 && key <= SDLK_8 && model.runtime_skeleton.joint_count > 0)
+			else if (event.type == SDL_EVENT_KEY_DOWN && key == SDLK_S && is_flex)
 #else
-			else if (event.type == SDL_KEYDOWN && key >= SDLK_1 && key <= SDLK_8 && model.runtime_skeleton.joint_count > 0)
+			else if (event.type == SDL_KEYDOWN && key == SDLK_s && is_flex)
+#endif
+			{
+				if (!model.skin_vertices)
+				{
+					printf("converting vertex frames to skeletal animation...\n");
+					if (!skin_convert(&model))
+					{
+						printf("skin conversion failed\n");
+						continue;
+					}
+					last_frame_tick = SDL_GetTicks();
+				}
+				model.use_skin = !model.use_skin;
+				printf("rendering %s\n", model.use_skin ? "converted skeletal animation" : "original vertex frames");
+			}
+#ifdef USE_SDL3
+			else if (event.type == SDL_EVENT_KEY_DOWN && key >= SDLK_1 && key <= SDLK_8 && model.joint_count > 0)
+#else
+			else if (event.type == SDL_KEYDOWN && key >= SDLK_1 && key <= SDLK_8 && model.joint_count > 0)
 #endif
 			{
 				selected_joint = (int)(key - SDLK_1);
-				if (selected_joint >= model.runtime_skeleton.joint_count)
-					selected_joint = model.runtime_skeleton.joint_count - 1;
+				if (selected_joint >= model.joint_count)
+					selected_joint = model.joint_count - 1;
+				printf("selected joint %d: %s\n", selected_joint, model.joints[selected_joint].name);
 			}
 #ifdef USE_SDL3
-			else if (event.type == SDL_EVENT_KEY_DOWN && model.runtime_skeleton.joint_count > 0 &&
+			else if (event.type == SDL_EVENT_KEY_DOWN && model.joint_count > 0 &&
 				(key == SDLK_LEFT || key == SDLK_RIGHT || key == SDLK_UP || key == SDLK_DOWN ||
 				 key == SDLK_Q || key == SDLK_E))
 #else
-			else if (event.type == SDL_KEYDOWN && model.runtime_skeleton.joint_count > 0 &&
+			else if (event.type == SDL_KEYDOWN && model.joint_count > 0 &&
 				(key == SDLK_LEFT || key == SDLK_RIGHT || key == SDLK_UP || key == SDLK_DOWN ||
 				 key == SDLK_q || key == SDLK_e))
 #endif
 			{
 				const float angle_step = 5.0f * M_PI / 180.0f;
 				if (key == SDLK_LEFT)
-					model.runtime_skeleton.angles[selected_joint][1] -= angle_step;
+					model.joint_angles[selected_joint][YAW] -= angle_step;
 				else if (key == SDLK_RIGHT)
-					model.runtime_skeleton.angles[selected_joint][1] += angle_step;
+					model.joint_angles[selected_joint][YAW] += angle_step;
 				else if (key == SDLK_UP)
-					model.runtime_skeleton.angles[selected_joint][0] -= angle_step;
+					model.joint_angles[selected_joint][PITCH] -= angle_step;
 				else if (key == SDLK_DOWN)
-					model.runtime_skeleton.angles[selected_joint][0] += angle_step;
+					model.joint_angles[selected_joint][PITCH] += angle_step;
 #ifdef USE_SDL3
 				else if (key == SDLK_Q)
-					model.runtime_skeleton.angles[selected_joint][2] -= angle_step;
+					model.joint_angles[selected_joint][ROLL] -= angle_step;
 				else if (key == SDLK_E)
-					model.runtime_skeleton.angles[selected_joint][2] += angle_step;
+					model.joint_angles[selected_joint][ROLL] += angle_step;
 #else
 				else if (key == SDLK_q)
-					model.runtime_skeleton.angles[selected_joint][2] -= angle_step;
+					model.joint_angles[selected_joint][ROLL] -= angle_step;
 				else if (key == SDLK_e)
-					model.runtime_skeleton.angles[selected_joint][2] += angle_step;
+					model.joint_angles[selected_joint][ROLL] += angle_step;
 #endif
 			}
 #ifdef USE_SDL3
@@ -1061,7 +1698,7 @@ int main(int argc, char **argv)
 		glRotatef(model_pitch, 1.0f, 0.0f, 0.0f);
 		glRotatef(model_yaw, 0.0f, 1.0f, 0.0f);
 		draw_model(&model);
-		draw_skeleton(&model, current_frame, previous_weight);
+		draw_skeleton(&model);
 		SDL_GL_SwapWindow(window);
 	}
 #ifdef USE_SDL3

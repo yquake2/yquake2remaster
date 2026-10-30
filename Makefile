@@ -1702,6 +1702,7 @@ PAKEXTRACT_OBJS_ := \
 # Used by the model viewer
 VIEWER_OBJS_ := \
 	src/common/shared/shared.o \
+	src/common/models/mesh.o \
 	src/viewer/main.o
 
 # ----------
