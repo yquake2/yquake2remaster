@@ -28,6 +28,8 @@
 // die
 extern void DBall_BallDie (edict_t *, edict_t *, edict_t *, int, const vec3_t);
 extern void RTDU_RemoveTurret (edict_t *, edict_t *, edict_t *, int, const vec3_t);
+extern void SecurityCamera_Die (edict_t *, edict_t *, edict_t *, int, const vec3_t);
+extern void VisorBody_Die (edict_t *, edict_t *, edict_t *, int, const vec3_t);
 extern void actor_die (edict_t *, edict_t *, edict_t *, int, const vec3_t);
 extern void arachnid_die (edict_t *, edict_t *, edict_t *, int, const vec3_t);
 extern void army_die (edict_t *, edict_t *, edict_t *, int, const vec3_t);
@@ -106,6 +108,8 @@ extern void wizard_die (edict_t *, edict_t *, edict_t *, int, const vec3_t);
 extern void zombie_die (edict_t *, edict_t *, edict_t *, int, const vec3_t);
 // pain
 extern void DBall_BallPain (edict_t *, edict_t *, float, int);
+extern void SecurityCamera_Pain (edict_t *, edict_t *, float, int);
+extern void VisorBody_Pain (edict_t *, edict_t *, float, int);
 extern void actor_pain (edict_t *, edict_t *, float, int);
 extern void arachnid_pain (edict_t *, edict_t *, float, int);
 extern void army_pain (edict_t *, edict_t *, float, int);
@@ -200,6 +204,7 @@ extern void Nuke_Think (edict_t *);
 extern void Prox_Explode (edict_t *);
 extern void RTDU_RemoveTurretThink (edict_t *);
 extern void RTDU_TurretThink (edict_t *);
+extern void SecurityCamera_Think (edict_t *);
 extern void RotateTrain_MoveBegin (edict_t *);
 extern void RotateTrain_MoveDone (edict_t *);
 extern void RotateTrain_MoveFinal (edict_t *);
@@ -442,6 +447,7 @@ extern void Camera_TargetUse (edict_t *, edict_t *, edict_t *);
 extern void Camera_Use (edict_t *, edict_t *, edict_t *);
 extern void Door_Activate (edict_t *, edict_t *, edict_t *);
 extern void Item_TriggeredSpawn (edict_t *, edict_t *, edict_t *);
+extern void SecurityCamera_Use (edict_t *, edict_t *, edict_t *);
 extern void TriggerCamera_Use (edict_t *, edict_t *, edict_t *);
 extern void Use_Areaportal (edict_t *, edict_t *, edict_t *);
 extern void Use_Boss3 (edict_t *, edict_t *, edict_t *);

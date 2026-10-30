@@ -3683,6 +3683,31 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
+	 * QUAKED item_visor (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 */
+	{
+		"item_visor",
+		Pickup_Visor,
+		Use_Visor,
+		Drop_Visor,
+		NULL,
+		"items/pkup.wav",
+		"models/items/visor/tris.md2",
+		EF_ROTATE,
+		NULL,
+		"i_visor",
+		"Visor",
+		1,
+		1,
+		NULL,
+		IT_POWERUP | IT_STAY_COOP,
+		0,
+		NULL,
+		0,
+		"items/visor/act.wav items/visor/deact.wav"
+	},
+
+	/*
 	 * QUAKED item_breather (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 */
 	{

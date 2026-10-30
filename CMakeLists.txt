@@ -400,6 +400,7 @@ set(Game-Source
 	${GAME_SRC_DIR}/g_trigger.c
 	${GAME_SRC_DIR}/g_turret.c
 	${GAME_SRC_DIR}/g_utils.c
+	${GAME_SRC_DIR}/g_visor.c
 	${GAME_SRC_DIR}/g_weapon.c
 	${GAME_SRC_DIR}/menu/menu.c
 	${GAME_SRC_DIR}/monster/actor/actor.c

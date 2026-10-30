@@ -125,6 +125,7 @@
 {"misc_rain", SP_misc_rain},
 {"misc_satellite_dish", SP_misc_satellite_dish},
 {"misc_screenfader", SP_misc_screenfader},
+{"misc_securitycamera", SP_misc_securitycamera},
 {"misc_strogg_ship", SP_misc_strogg_ship},
 {"misc_teleporter", SP_misc_teleporter},
 {"misc_teleporter_dest", SP_misc_teleporter_dest},
