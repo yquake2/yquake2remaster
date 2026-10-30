@@ -1288,13 +1288,22 @@ SCR_ExecuteLayoutString(char *s)
 
 		if (!strcmp(token, "num"))
 		{
-			int value, width;
+			int index, value, width;
 
 			/* draw a number */
 			token = COM_Parse(&s);
 			width = (int)strtol(token, (char **)NULL, 10);
 			token = COM_Parse(&s);
-			value = cl.frame.playerstate.stats[(int)strtol(token, (char **)NULL, 10)];
+			index = (int)strtol(token, (char **)NULL, 10);
+
+			if ((index < 0) || (index >= MAX_XSTATS))
+			{
+				Com_DPrintf("%s: bad stats index %d (0x%x) in num\n",
+					__func__, index, index);
+				continue;
+			}
+
+			value = cl.frame.playerstate.stats[index];
 			SCR_DrawFieldScaled(x, y, 0, width, value, scale);
 			continue;
 		}
