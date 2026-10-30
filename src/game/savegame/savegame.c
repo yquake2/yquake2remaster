@@ -1045,6 +1045,7 @@ SanitizeClientStruct(gclient_t *cl)
 	}
 
 	cl->remote_view_saved_gunindex = 0;
+	cl->remote_view_had_notarget = false;
 	cl->remote_view_active = false;
 	cl->remote_view_cmd_hook = NULL;
 	cl->remote_view_body = NULL;

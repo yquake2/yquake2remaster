@@ -1612,6 +1612,7 @@ struct gclient_s
 	int remote_view_state_2;        /* viewoffset y while in remote view */
 	float remote_view_timer;        /* viewoffset z while in remote view */
 	int remote_view_saved_gunindex;
+	qboolean remote_view_had_notarget;  /* FL_NOTARGET was set before the remote view */
 
 	void *ctf_grapple;              /* entity of grapple */
 	int ctf_grapplestate;               /* true if pulling */
