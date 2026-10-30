@@ -33,6 +33,8 @@ struct edict_s;
 #include "../../common/header/shared.h"
 
 typedef void remote_view_cmd_func_t(struct edict_s *ent, usercmd_t *ucmd);
+typedef void remote_view_view_func_t(struct edict_s *ent, struct edict_s *viewent,
+	vec3_t view_origin, vec3_t view_angles);
 
 /* define GAME_INCLUDE so that game.h does not define the
    short, server-visible gclient_t and edict_t structures,
@@ -1158,6 +1160,15 @@ qboolean Pickup_RTDU(edict_t *ent, edict_t *other);
 void rtdu_use(edict_t *ent, const gitem_t *item);
 void Drop_RTDU(edict_t *ent, const gitem_t *item);
 
+/* g_visor.c */
+void SP_misc_securitycamera(edict_t *self);
+qboolean Pickup_Visor(edict_t *ent, edict_t *other);
+void Use_Visor(edict_t *ent, const gitem_t *item);
+void Drop_Visor(edict_t *ent, const gitem_t *item);
+void Visor_Stop(edict_t *ent);
+void Visor_ClientFrame(edict_t *ent);
+qboolean Visor_IsViewing(const edict_t *ent);
+
 /* g_trigger.c */
 void hurt_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf);
 
@@ -1472,6 +1483,8 @@ typedef struct
 	height_fog_t wanted_heightfog;
 	/* relative time value, copied from last touched trigger */
 	float fog_transition_time;
+
+	int visor_time;             /* Zaero visor: remaining view time in frames */
 } client_persistant_t;
 
 /* client data that stays across deathmatch respawns */
@@ -1605,6 +1618,7 @@ struct gclient_s
 
 	qboolean remote_view_active;
 	remote_view_cmd_func_t *remote_view_cmd_hook;
+	remote_view_view_func_t *remote_view_view_hook; /* optional view origin/angles override */
 	edict_t *remote_view_body;      /* visible stand-in at the player's real position */
 	edict_t *remote_view_entity;    /* entity the player is viewing from */
 	edict_t *rtdu_turret;           /* deployed RTDU turret, if any */
@@ -1613,6 +1627,12 @@ struct gclient_s
 	float remote_view_timer;        /* viewoffset z while in remote view */
 	int remote_view_saved_gunindex;
 	qboolean remote_view_had_notarget;  /* FL_NOTARGET was set before the remote view */
+
+	/* Zaero visor */
+	qboolean visor_active;
+	float visor_static_until;   /* white noise flash after connecting/switching */
+	float visor_hud_update;     /* next HUD layout refresh */
+	int visor_prev_health;      /* taking damage interrupts the visor */
 
 	void *ctf_grapple;              /* entity of grapple */
 	int ctf_grapplestate;               /* true if pulling */

@@ -255,6 +255,8 @@ Checked with:
 * [x] Oblivion: Add support of `misc_camera_target`,
 * [x] Oblivion: Add support of `trigger_misc_camera`,
 * [x] Oblivion: Add support of `weapon_rtdu`,
+* [x] Zaero: Add support of `misc_securitycamera`,
+* [x] Zaero: Add support of `item_visor`,
 * [ ] Oblivion: Add dynamic animation based on `activate` for `badass` and `floater`,
 * [ ] game: share `ired_enforce_limit`, `mine_enforce_limit`, `detpack_enforce_limit`,
 * [ ] Dynamic count of entities on client.

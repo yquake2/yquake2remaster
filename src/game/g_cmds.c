@@ -1194,6 +1194,11 @@ Cmd_PutAway_f(edict_t *ent)
 	ent->client->showinventory = false;
 	ent->client->showradar = false;
 
+	if (Visor_IsViewing(ent))
+	{
+		Visor_Stop(ent);
+	}
+
 	if (ent->client->menu)
 	{
 		PMenu_Close(ent);
@@ -2211,6 +2216,40 @@ ClientCommand(edict_t *ent)
 	}
 
 	cmd = gi.argv(0);
+
+	/* while viewing through the visor only a few commands work */
+	if (Visor_IsViewing(ent) && !level.intermissiontime)
+	{
+		if (Q_stricmp(cmd, "putaway") == 0)
+		{
+			Cmd_PutAway_f(ent);
+		}
+		else if (Q_stricmp(cmd, "use") == 0)
+		{
+			if (Q_stricmp(gi.args(), "Visor") == 0)
+			{
+				Cmd_Use_f(ent);
+			}
+		}
+		else if (Q_stricmp(cmd, "invuse") == 0)
+		{
+			if (ent->client->pers.selected_item ==
+				ITEM_INDEX(FindItem("Visor")))
+			{
+				Cmd_InvUse_f(ent);
+			}
+		}
+		else if (Q_stricmp(cmd, "invnext") == 0)
+		{
+			SelectNext(ent, -1);
+		}
+		else if (Q_stricmp(cmd, "invprev") == 0)
+		{
+			SelectPrev(ent, -1);
+		}
+
+		return;
+	}
 
 	if (Q_stricmp(cmd, "players") == 0)
 	{

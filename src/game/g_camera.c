@@ -429,6 +429,7 @@ static void
 RemoteView_ApplyClientState(edict_t *ent, edict_t *viewent)
 {
 	gclient_t *client;
+	vec3_t view_origin, view_angles;
 	int i;
 
 	if (!ent || !ent->client || !viewent)
@@ -438,20 +439,29 @@ RemoteView_ApplyClientState(edict_t *ent, edict_t *viewent)
 
 	client = ent->client;
 
+	VectorCopy(viewent->s.origin, view_origin);
+	VectorCopy(viewent->s.angles, view_angles);
+
+	if (client->remote_view_view_hook)
+	{
+		/* controller provides its own view position/direction */
+		client->remote_view_view_hook(ent, viewent, view_origin, view_angles);
+	}
+
 	/* The server takes the client view origin from the player
 	   entity, so move the player itself to the view entity
 	   (the same approach as UpdateChaseCam() in g_chase.c). */
-	VectorCopy(viewent->s.origin, ent->s.origin);
-	VectorCopy(viewent->s.origin, ent->s.old_origin);
+	VectorCopy(view_origin, ent->s.origin);
+	VectorCopy(view_origin, ent->s.old_origin);
 	VectorClear(ent->velocity);
 
-	VectorCopy(viewent->s.angles, client->ps.viewangles);
-	VectorCopy(viewent->s.angles, client->v_angle);
+	VectorCopy(view_angles, client->ps.viewangles);
+	VectorCopy(view_angles, client->v_angle);
 
 	for (i = 0; i < 3; i++)
 	{
 		client->ps.pmove.delta_angles[i] = ANGLE2SHORT(
-				viewent->s.angles[i] - client->resp.cmd_angles[i]);
+				view_angles[i] - client->resp.cmd_angles[i]);
 	}
 
 	client->ps.viewoffset[0] = (float)client->remote_view_state_1;
@@ -508,6 +518,7 @@ RemoteView_Begin(edict_t *ent, edict_t *viewent)
 
 	DummyBody_Setup(ent);
 	ent->client->remote_view_cmd_hook = NULL;
+	ent->client->remote_view_view_hook = NULL;
 	ent->client->remote_view_state_1 = 0;
 	ent->client->remote_view_state_2 = 0;
 	ent->client->remote_view_timer = 0.0f;
@@ -525,6 +536,7 @@ RemoteView_EndInternal(edict_t *ent, qboolean restore_position)
 
 	DummyBody_Teardown(ent, restore_position);
 	ent->client->remote_view_cmd_hook = NULL;
+	ent->client->remote_view_view_hook = NULL;
 	ent->client->remote_view_entity = NULL;
 	ent->client->remote_view_state_1 = 0;
 	ent->client->remote_view_state_2 = 0;

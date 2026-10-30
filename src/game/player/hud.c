@@ -790,6 +790,12 @@ G_SetStats(edict_t *ent)
 		ent->client->ps.stats[STAT_LAYOUTS] &= ~LAYOUTS_HIDE_CROSSHAIR;
 	}
 
+	/* visor camera overlay */
+	if (ent->client->visor_active)
+	{
+		ent->client->ps.stats[STAT_LAYOUTS] |= LAYOUTS_LAYOUT;
+	}
+
 	/* frags */
 	ent->client->ps.stats[STAT_FRAGS] = ent->client->resp.score;
 

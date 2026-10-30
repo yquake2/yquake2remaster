@@ -1048,12 +1048,17 @@ SanitizeClientStruct(gclient_t *cl)
 	cl->remote_view_had_notarget = false;
 	cl->remote_view_active = false;
 	cl->remote_view_cmd_hook = NULL;
+	cl->remote_view_view_hook = NULL;
 	cl->remote_view_body = NULL;
 	cl->remote_view_entity = NULL;
 	cl->rtdu_turret = NULL;
 	cl->remote_view_state_1 = 0;
 	cl->remote_view_state_2 = 0;
 	cl->remote_view_timer = 0;
+	cl->visor_active = false;
+	cl->visor_static_until = 0;
+	cl->visor_hud_update = 0;
+	cl->visor_prev_health = 0;
 }
 
 static void
