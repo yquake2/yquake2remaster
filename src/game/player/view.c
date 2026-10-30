@@ -1752,6 +1752,10 @@ ClientEndServerFrame(edict_t *ent)
 	{
 		CheckChasecam_Viewent(ent);
 	}
+
+	/* must come last: overrides the view with the remote
+	   camera position while a remote view is active */
+	Camera_ClientPostFrame(ent);
 }
 
 /* ======================================================================= */
