@@ -290,6 +290,7 @@ DummyBody_Think(edict_t *self)
 			DummyBody_RestorePlayer(player, self);
 			player->svflags &= ~SVF_NOCLIENT;
 			player->solid = SOLID_BBOX;
+			player->flags &= ~FL_NOTARGET;
 			player->client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
 			gi.linkentity(player);
 		}
@@ -345,6 +346,15 @@ DummyBody_Setup(edict_t *player)
 	player->client->remote_view_active = true;
 	player->svflags |= SVF_NOCLIENT;
 	player->solid = SOLID_NOT;
+
+	/* The player entity is moved to the view entity, so keep the
+	   AI from noticing and firing at the camera position. In the
+	   original mod the player entity stayed at the body position
+	   and remained a regular target there. */
+	player->client->remote_view_had_notarget =
+		(player->flags & FL_NOTARGET) != 0;
+	player->flags |= FL_NOTARGET;
+
 	gi.linkentity(player);
 }
 
@@ -370,6 +380,14 @@ DummyBody_Teardown(edict_t *player, qboolean restore_position)
 	player->client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
 	player->svflags &= ~SVF_NOCLIENT;
 	player->solid = SOLID_BBOX;
+
+	/* keep the notarget cheat if it was active before */
+	if (!player->client->remote_view_had_notarget)
+	{
+		player->flags &= ~FL_NOTARGET;
+	}
+
+	player->client->remote_view_had_notarget = false;
 	gi.linkentity(player);
 
 	if (body)
