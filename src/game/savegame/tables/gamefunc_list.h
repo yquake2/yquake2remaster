@@ -29,6 +29,8 @@ static const fnlist_entry_t fnentries_die[] =
 {
 	{"DBall_BallDie", (byte *)DBall_BallDie},
 	{"RTDU_RemoveTurret", (byte *)RTDU_RemoveTurret},
+	{"SecurityCamera_Die", (byte *)SecurityCamera_Die},
+	{"VisorBody_Die", (byte *)VisorBody_Die},
 	{"actor_die", (byte *)actor_die},
 	{"arachnid_die", (byte *)arachnid_die},
 	{"army_die", (byte *)army_die},
@@ -115,6 +117,8 @@ static const functionList_t fnlist_die =
 static const fnlist_entry_t fnentries_pain[] =
 {
 	{"DBall_BallPain", (byte *)DBall_BallPain},
+	{"SecurityCamera_Pain", (byte *)SecurityCamera_Pain},
+	{"VisorBody_Pain", (byte *)VisorBody_Pain},
 	{"actor_pain", (byte *)actor_pain},
 	{"arachnid_pain", (byte *)arachnid_pain},
 	{"army_pain", (byte *)army_pain},
@@ -225,6 +229,7 @@ static const fnlist_entry_t fnentries_think[] =
 	{"Prox_Explode", (byte *)Prox_Explode},
 	{"RTDU_RemoveTurretThink", (byte *)RTDU_RemoveTurretThink},
 	{"RTDU_TurretThink", (byte *)RTDU_TurretThink},
+	{"SecurityCamera_Think", (byte *)SecurityCamera_Think},
 	{"RotateTrain_MoveBegin", (byte *)RotateTrain_MoveBegin},
 	{"RotateTrain_MoveDone", (byte *)RotateTrain_MoveDone},
 	{"RotateTrain_MoveFinal", (byte *)RotateTrain_MoveFinal},
@@ -483,6 +488,7 @@ static const fnlist_entry_t fnentries_use[] =
 	{"Camera_Use", (byte *)Camera_Use},
 	{"Door_Activate", (byte *)Door_Activate},
 	{"Item_TriggeredSpawn", (byte *)Item_TriggeredSpawn},
+	{"SecurityCamera_Use", (byte *)SecurityCamera_Use},
 	{"TriggerCamera_Use", (byte *)TriggerCamera_Use},
 	{"Use_Areaportal", (byte *)Use_Areaportal},
 	{"Use_Boss3", (byte *)Use_Boss3},
