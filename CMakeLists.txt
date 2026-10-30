@@ -715,6 +715,7 @@ set(Pakextract-Header
 
 set(Viewer-Source
 	${COMMON_SRC_DIR}/shared/shared.c
+	${COMMON_SRC_DIR}/models/mesh.c
 	${SOURCE_DIR}/viewer/main.c
 	)
 
@@ -722,6 +723,7 @@ set(Viewer-Header
 	${COMMON_SRC_DIR}/header/common.h
 	${COMMON_SRC_DIR}/header/files.h
 	${COMMON_SRC_DIR}/header/shared.h
+	${COMMON_SRC_DIR}/models/mesh.h
 	)
 
 set(GL1-Source
