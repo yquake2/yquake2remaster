@@ -106,6 +106,7 @@ void SP_misc_nuke ( edict_t * ent ) ;
 void SP_misc_nuke_core ( edict_t * ent ) ;
 void SP_misc_camera ( edict_t * self ) ;
 void SP_misc_camera_target ( edict_t * self ) ;
+void SP_misc_securitycamera ( edict_t * self ) ;
 void SP_misc_player_mannequin ( edict_t * self ) ;
 void SP_misc_rain ( edict_t * self ) ;
 void SP_misc_satellite_dish ( edict_t * ent ) ;
