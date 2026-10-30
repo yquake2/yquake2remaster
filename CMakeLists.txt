@@ -373,6 +373,7 @@ set(Game-Source
 	${GAME_SRC_DIR}/dm/ball.c
 	${GAME_SRC_DIR}/dm/tag.c
 	${GAME_SRC_DIR}/g_ai.c
+	${GAME_SRC_DIR}/g_camera.c
 	${GAME_SRC_DIR}/g_chase.c
 	${GAME_SRC_DIR}/g_cmds.c
 	${GAME_SRC_DIR}/g_combat.c
@@ -391,6 +392,7 @@ set(Game-Source
 	${GAME_SRC_DIR}/g_newweap.c
 	${GAME_SRC_DIR}/g_obj.c
 	${GAME_SRC_DIR}/g_phys.c
+	${GAME_SRC_DIR}/g_rtdu.c
 	${GAME_SRC_DIR}/g_spawn.c
 	${GAME_SRC_DIR}/g_sphere.c
 	${GAME_SRC_DIR}/g_svcmds.c
