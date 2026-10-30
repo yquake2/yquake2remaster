@@ -447,6 +447,7 @@ InitGame(void)
 	g_quick_weap = gi.cvar("g_quick_weap", "1", CVAR_ARCHIVE);
 	g_swap_speed = gi.cvar("g_swap_speed", "1", CVAR_ARCHIVE);
 	g_itemsbobeffect = gi.cvar("g_itemsbobeffect", "0", CVAR_ARCHIVE);
+	g_thirdperson = gi.cvar("g_thirdperson", "0", CVAR_ARCHIVE);
 	g_game = gi.cvar("game", "", 0);
 	g_start_items = gi.cvar("g_start_items", "", 0);
 	ai_model_scale = gi.cvar("ai_model_scale", "0", 0);

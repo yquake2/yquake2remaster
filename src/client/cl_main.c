@@ -746,7 +746,6 @@ CL_InitLocal(void)
 	Cmd_AddCommand("spawnentity", NULL);
 	Cmd_AddCommand("spawnonstart", NULL);
 	Cmd_AddCommand("cycleweap", NULL);
-	Cmd_AddCommand("thirdperson", NULL);
 }
 
 /*

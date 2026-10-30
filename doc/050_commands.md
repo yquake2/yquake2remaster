@@ -22,7 +22,7 @@ original clients (Vanilla Quake II) commands are still in place.
   entities.
 
 * **listmaps**: Lists available maps for the player to load. Maps from
-  loaded pak files will be listed first followed by maps placed in 
+  loaded pak files will be listed first followed by maps placed in
   the current game's maps folder.
 
 * **ogg <cmd>**: Controls OGG/Vobis music playback. Commands are:
@@ -56,8 +56,6 @@ original clients (Vanilla Quake II) commands are still in place.
 * **set** / **seta** / **setu** / **sets**: set cvar valu with different flags.
 
 * **listlights**: Show lights style and dlights list.
-
-* **thirdperson**: Third person view.
 
 ## Jabot
 

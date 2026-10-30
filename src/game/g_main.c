@@ -103,6 +103,7 @@ cvar_t *g_machinegun_norecoil;
 cvar_t *g_quick_weap;
 cvar_t *g_swap_speed;
 cvar_t *g_itemsbobeffect;
+cvar_t *g_thirdperson;
 cvar_t *g_start_items;
 cvar_t *ai_model_scale;
 cvar_t *g_game;

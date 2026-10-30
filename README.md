@@ -192,7 +192,6 @@ Checked with:
 * [ ] reuse memory from models cache for bsp,
 * [ ] game: fix broken base3 with sorted fields names,
 * [ ] game: code has not reset ctf flag on load saves,
-* [ ] game: code has reset thirdperson flag on load new level,
 * [ ] game: check RealBoundingBox with frame box,
 * [ ] game/client: update bound box based on frame number,
 * [ ] ReRelease: show whole path of map in console showed by tab,
@@ -268,6 +267,7 @@ Checked with:
 * [x] ReRelease: select start level through `mapddb.json`
 
 ### Fixed:
+* [x] game: preserve thirdperson flag on new level load,
 * [x] renders: optimize count of threads,
 * [x] Infinity: Add support of `item_radar`,
 * [x] vulkan: rearange surfaces before render,

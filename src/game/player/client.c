@@ -2699,8 +2699,8 @@ PutClientInServer(edict_t *ent)
 
 	gi.linkentity(ent);
 
-	/* If chasetoggle set then turn on (delayed start of 5 frames - 0.5s) */
-	if (ent->client->pers.chasetoggle && !ent->client->chasetoggle)
+	/* If g_thirdperson is set then turn on (delayed start of 5 frames - 0.5s) */
+	if (g_thirdperson->value && !ent->client->chasetoggle)
 	{
 		ent->client->delayedstart = 5;
 	}
@@ -3495,6 +3495,9 @@ ClientBeginServerFrame(edict_t *ent)
 	{
 		ChasecamStart(ent);
 	}
+
+	/* keep third person view in sync with the g_thirdperson cvar */
+	Cmd_Chasecam_Check(ent);
 
 	if (deathmatch->value &&
 		(client->pers.spectator != client->resp.spectator) &&

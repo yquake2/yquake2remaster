@@ -780,6 +780,7 @@ extern cvar_t *g_machinegun_norecoil;
 extern cvar_t *g_quick_weap;
 extern cvar_t *g_swap_speed;
 extern cvar_t *g_itemsbobeffect;
+extern cvar_t *g_thirdperson;
 extern cvar_t *g_start_items;
 extern cvar_t *ai_model_scale;
 extern cvar_t *g_game;
@@ -2119,7 +2120,7 @@ qboolean CTFCheckRules(void);
 void SP_misc_ctf_banner(edict_t *ent);
 void SP_misc_ctf_small_banner(edict_t *ent);
 
-void Cmd_Chasecam_Toggle(edict_t *ent);
+void Cmd_Chasecam_Check(edict_t *ent);
 void ChasecamStart(edict_t *ent);
 void ChasecamRemove(edict_t *ent);
 void CheckChasecam_Viewent(edict_t *ent);

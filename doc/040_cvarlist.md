@@ -312,6 +312,10 @@ it's `+set busywait 0` (setting the `busywait` cvar) and `-portable`
 
 * **g_itemsbobeffect**: Bob effect of items like in ReRelease. Defaults to `0`.
 
+* **g_thirdperson**: Third person view. If set to `1`, the player is
+  shown from an external chase camera instead of the first person
+  view. Defaults to `0`.
+
 * **g_start_items**: List of start items on level.
 
 * **g_swap_speed**: Sets the speed of the "changing weapon" animation.

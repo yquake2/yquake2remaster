@@ -301,17 +301,17 @@ ChasecamTrack(edict_t *ent)
 }
 
 void
-Cmd_Chasecam_Toggle(edict_t *ent)
+Cmd_Chasecam_Check(edict_t *ent)
 {
-	if (!ent->deadflag)
+	if (!ent->deadflag && !ent->client->delayedstart)
 	{
-		if (ent->client->chasetoggle)
-		{
-			ChasecamRemove(ent);
-		}
-		else
+		if (g_thirdperson->value && !ent->client->chasetoggle)
 		{
 			ChasecamStart(ent);
+		}
+		else if (!g_thirdperson->value && ent->client->chasetoggle)
+		{
+			ChasecamRemove(ent);
 		}
 	}
 }
