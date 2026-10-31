@@ -596,14 +596,22 @@ static int
 SV_NextDemoChunk(byte **msgbuf)
 {
 	size_t r;
-	int n, msg_buf_size;;
+	int n = 0, msg_buf_size;
 
 	if (sv_paused->value)
 	{
 		return 0;
 	}
 
+	if (sv.demofile_left < 4)
+	{
+		Com_Printf("%s: end of file left %d bytes\n",
+			__func__, sv.demofile_left);
+		return -1;
+	}
+
 	r = FS_FRead(&n, 4, 1, sv.demofile);
+	sv.demofile_left -= r;
 
 	if (r != 4)
 	{
@@ -617,6 +625,13 @@ SV_NextDemoChunk(byte **msgbuf)
 		return -1;
 	}
 
+	if (n < 0 || n > sv.demofile_left)
+	{
+		Com_Printf("%s: negative msglen %d, left %d bytes\n",
+			__func__, n, sv.demofile_left);
+		return -1;
+	}
+
 	msg_buf_size = Q_max(n, MAX_MSGLEN);
 	*msgbuf = SV_SendReallocBuffers(&msg_buf_size);
 
@@ -626,6 +641,7 @@ SV_NextDemoChunk(byte **msgbuf)
 	}
 
 	r = FS_FRead(*msgbuf, n, 1, sv.demofile);
+	sv.demofile_left -= r;
 
 	return (r == n) ? n : -1;
 }

@@ -90,6 +90,7 @@ typedef struct
 
 	/* demo server information */
 	fileHandle_t demofile;
+	int demofile_left;
 	qboolean timedemo; /* don't time sync */
 } server_t;
 
