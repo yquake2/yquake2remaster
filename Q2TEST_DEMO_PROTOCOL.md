@@ -165,6 +165,12 @@ Any other subtype is a fatal error.
 Subtypes 16 and 19 must not be decoded with the later parasite-beam or
 medic-cable payloads.
 
+Explosions 17-20 are drawn as sprites, not the release `r_explode` model,
+which q2test does not ship. Subtypes 17 and 19 use `sprites/s_explo3.sp2`
+(8 frames); 18 and 20 use `sprites/s_explo2.sp2` (13 frames) raised by 64
+units. All four are fullbright, with a 350-unit (1, 0.5, 0.5) light that fades
+with the animation. Only 19 and 20 also spawn explosion particles.
+
 ## Frame Messages
 
 A frame message has a Q2Test-specific envelope:

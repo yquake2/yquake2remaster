@@ -119,6 +119,9 @@ static struct model_s *cl_mod_plasmaexplo;
 static struct model_s *cl_mod_lightning;
 static struct model_s *cl_mod_heatbeam;
 static struct model_s *cl_mod_explo4_big;
+/* Q2Test sprite explosions, used instead of r_explode */
+static struct model_s *cl_mod_explo2_sprite;
+static struct model_s *cl_mod_explo3_sprite;
 
 /*
  * Utility functions
@@ -294,6 +297,12 @@ CL_RegisterTEntModels(void)
 	cl_mod_explo4_big = R_RegisterModel("models/objects/r_explode2/tris.md2");
 	cl_mod_lightning = R_RegisterModel("models/proj/lightning/tris.md2");
 	cl_mod_heatbeam = R_RegisterModel("models/proj/beam/tris.md2");
+
+	if (cls.serverProtocol == PROTOCOL_Q2TEST_VERSION)
+	{
+		cl_mod_explo2_sprite = R_RegisterModel("sprites/s_explo2.sp2");
+		cl_mod_explo3_sprite = R_RegisterModel("sprites/s_explo3.sp2");
+	}
 }
 
 /*
@@ -342,6 +351,8 @@ CL_ClearTEntModelVars(void)
 	cl_mod_lightning = NULL;
 	cl_mod_heatbeam = NULL;
 	cl_mod_explo4_big = NULL;
+	cl_mod_explo2_sprite = NULL;
+	cl_mod_explo3_sprite = NULL;
 }
 
 void
@@ -723,6 +734,34 @@ CL_ConvertQ2TestTEnt(int type)
 	}
 }
 
+static void
+CL_Q2TestExplosion(const vec3_t pos, qboolean big)
+{
+	explosion_t *ex;
+
+	ex = CL_AllocExplosion();
+	VectorCopy(pos, ex->ent.origin);
+	ex->type = ex_misc;
+	ex->ent.flags = RF_FULLBRIGHT;
+	ex->start = cl.frame.servertime - 100.0f;
+	ex->light = 350;
+	ex->lightcolor[0] = 1.0;
+	ex->lightcolor[1] = 0.5;
+	ex->lightcolor[2] = 0.5;
+
+	if (big)
+	{
+		ex->ent.model = cl_mod_explo2_sprite;
+		ex->frames = 13;
+		ex->ent.origin[2] += 64;
+	}
+	else
+	{
+		ex->ent.model = cl_mod_explo3_sprite;
+		ex->frames = 8;
+	}
+}
+
 void
 CL_ParseTEnt(void)
 {
@@ -944,6 +983,14 @@ CL_ParseTEnt(void)
 		case TE_GRENADE_EXPLOSION:
 		case TE_GRENADE_EXPLOSION_WATER:
 			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
+			if (cls.serverProtocol == PROTOCOL_Q2TEST_VERSION)
+			{
+				CL_Q2TestExplosion(pos, type == TE_EXPLOSION2);
+				EXPLOSION_PARTICLES(pos);
+				S_StartSound(pos, 0, 0, cl_sfx_grenexp, 1, ATTN_NORM, 0);
+				break;
+			}
+
 			ex = CL_AllocExplosion();
 			VectorCopy(pos, ex->ent.origin);
 			ex->type = ex_poly;
@@ -978,6 +1025,14 @@ CL_ParseTEnt(void)
 		case TE_ROCKET_EXPLOSION_WATER:
 		case TE_PLASMA_EXPLOSION:
 			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
+			if (cls.serverProtocol == PROTOCOL_Q2TEST_VERSION)
+			{
+				/* Q2Test spawns no particles for rocket explosions */
+				CL_Q2TestExplosion(pos, type == TE_EXPLOSION1);
+				S_StartSound(pos, 0, 0, cl_sfx_rockexp, 1, ATTN_NORM, 0);
+				break;
+			}
+
 			ex = CL_AllocExplosion();
 			VectorCopy(pos, ex->ent.origin);
 			ex->type = ex_poly;
