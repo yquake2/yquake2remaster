@@ -133,7 +133,9 @@ Entity effect bits differ from the release values:
 | `0x4000` | animate all frames at 2 Hz | `EF_ANIM_ALL` |
 | `0x8000` | animate all frames at 10 Hz | `EF_ANIM_ALLFAST` |
 
-Render-effect bits up to `0x80` (`RF_BEAM`) match the release values.
+Render-effect bits up to `0x80` (`RF_BEAM`) match the release values. Items
+(ammo, health, powerups, weapons) carry render effect `0x800`, the item glow;
+it maps to `RF_GLOW` (`0x200`), not the release `RF_SHELL_GREEN` (`0x800`).
 
 ## Temporary Entities
 

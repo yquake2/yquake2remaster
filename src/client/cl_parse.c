@@ -1314,6 +1314,22 @@ CL_ConvertQ2TestEffects(unsigned int effects)
 	return result;
 }
 
+/* Q2Test renderfx match release up to RF_BEAM; 0x100/0x200 are client-side shells */
+#define RF_GLOW_Q2TEST 0x800
+
+static int
+CL_ConvertQ2TestRenderfx(int renderfx)
+{
+	int result = renderfx & 0xff;
+
+	if (renderfx & RF_GLOW_Q2TEST)
+	{
+		result |= RF_GLOW;
+	}
+
+	return result;
+}
+
 /*
  * Parses deltas from the given base and adds the resulting entity to
  * the current frame
@@ -1354,6 +1370,7 @@ CL_DeltaEntity(frame_t *frame, int newnum, const entity_xstate_t *old, uint64_t 
 		}
 
 		state->effects = CL_ConvertQ2TestEffects(state->effects);
+		state->renderfx = CL_ConvertQ2TestRenderfx(state->renderfx);
 	}
 
 	/* some data changes will force no lerping */
