@@ -660,90 +660,129 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, uint
 		to->frame = MSG_ReadShort(&net_message);
 	}
 
-	/* used for laser colors */
-	if ((bits & U_SKIN8) && (bits & U_SKIN16))
+	if (cls.serverProtocol == PROTOCOL_Q2TEST_VERSION)
 	{
-		to->skinnum = MSG_ReadLong(&net_message);
-	}
-	else if (bits & U_SKIN8)
-	{
-		to->skinnum = MSG_ReadByte(&net_message);
-	}
-	else if (bits & U_SKIN16)
-	{
-		to->skinnum = MSG_ReadShort(&net_message);
-	}
-
-	if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16) ||
-		(bits & U_EFFECTS64))
-	{
-		to->effects = MSG_ReadLong(&net_message);
-	}
-	else if (bits & U_EFFECTS8)
-	{
-		to->effects = MSG_ReadByte(&net_message);
-	}
-	else if (bits & U_EFFECTS16)
-	{
-		to->effects = MSG_ReadShort(&net_message);
-	}
-
-	/* ReRelease effects */
-	if (cls.serverProtocol != PROTOCOL_VERSION)
-	{
-		if (bits & U_EFFECTS64)
+		/* Q2Test reads each width independently; the wide skin field is 32-bit */
+		if (bits & U_SKIN8)
 		{
-			/* RR22 */
-			if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16))
-			{
-				to->rr_effects = MSG_ReadLong(&net_message);
-			}
-			else if (bits & U_EFFECTS8)
-			{
-				to->rr_effects = MSG_ReadByte(&net_message);
-			}
-			else if (bits & U_EFFECTS16)
-			{
-				to->rr_effects = MSG_ReadShort(&net_message);
-			}
-		}
-		else
-		{
-			to->rr_effects = 0;
+			to->skinnum = MSG_ReadByte(&net_message);
 		}
 
+		if (bits & U_SKIN16)
+		{
+			to->skinnum = MSG_ReadLong(&net_message);
+		}
+
+		if (bits & U_EFFECTS8)
+		{
+			to->effects = MSG_ReadByte(&net_message);
+		}
+
+		if (bits & U_EFFECTS16)
+		{
+			to->effects = MSG_ReadShort(&net_message);
+		}
+
+		if (bits & U_RENDERFX8)
+		{
+			to->renderfx = MSG_ReadByte(&net_message);
+		}
+
+		if (bits & U_RENDERFX16)
+		{
+			to->renderfx = MSG_ReadShort(&net_message);
+		}
+
+		to->rr_effects = 0;
 		to->rr_mesh = 0;
 	}
 	else
 	{
-		if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16))
+		/* used for laser colors */
+		if ((bits & U_SKIN8) && (bits & U_SKIN16))
 		{
-			to->rr_effects = MSG_ReadLong(&net_message);
-			to->rr_mesh = MSG_ReadLong(&net_message);
+			to->skinnum = MSG_ReadLong(&net_message);
+		}
+		else if (bits & U_SKIN8)
+		{
+			to->skinnum = MSG_ReadByte(&net_message);
+		}
+		else if (bits & U_SKIN16)
+		{
+			to->skinnum = MSG_ReadShort(&net_message);
+		}
+
+		if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16) ||
+			(bits & U_EFFECTS64))
+		{
+			to->effects = MSG_ReadLong(&net_message);
 		}
 		else if (bits & U_EFFECTS8)
 		{
-			to->rr_effects = MSG_ReadByte(&net_message);
-			to->rr_mesh = MSG_ReadByte(&net_message);
+			to->effects = MSG_ReadByte(&net_message);
 		}
 		else if (bits & U_EFFECTS16)
 		{
-			to->rr_effects = MSG_ReadShort(&net_message);
-			to->rr_mesh = MSG_ReadShort(&net_message);
+			to->effects = MSG_ReadShort(&net_message);
 		}
-	}
 
-	if ((bits & (U_RENDERFX8 | U_RENDERFX16)) == (U_RENDERFX8 | U_RENDERFX16))
-	{
-		to->renderfx = MSG_ReadLong(&net_message);
-	}
-	else if (bits & U_RENDERFX8)
-	{
-		to->renderfx = MSG_ReadByte(&net_message);
-	}
-	else if (bits & U_RENDERFX16)
-	{
-		to->renderfx = MSG_ReadShort(&net_message);
+		/* ReRelease effects */
+		if (cls.serverProtocol != PROTOCOL_VERSION)
+		{
+			if (bits & U_EFFECTS64)
+			{
+				/* RR22 */
+				if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16))
+				{
+					to->rr_effects = MSG_ReadLong(&net_message);
+				}
+				else if (bits & U_EFFECTS8)
+				{
+					to->rr_effects = MSG_ReadByte(&net_message);
+				}
+				else if (bits & U_EFFECTS16)
+				{
+					to->rr_effects = MSG_ReadShort(&net_message);
+				}
+			}
+			else
+			{
+				to->rr_effects = 0;
+			}
+
+			to->rr_mesh = 0;
+		}
+		else
+		{
+			if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16))
+			{
+				to->rr_effects = MSG_ReadLong(&net_message);
+				to->rr_mesh = MSG_ReadLong(&net_message);
+			}
+			else if (bits & U_EFFECTS8)
+			{
+				to->rr_effects = MSG_ReadByte(&net_message);
+				to->rr_mesh = MSG_ReadByte(&net_message);
+			}
+			else if (bits & U_EFFECTS16)
+			{
+				to->rr_effects = MSG_ReadShort(&net_message);
+				to->rr_mesh = MSG_ReadShort(&net_message);
+			}
+		}
+
+		if ((bits & (U_RENDERFX8 | U_RENDERFX16)) == (U_RENDERFX8 | U_RENDERFX16))
+		{
+			to->renderfx = MSG_ReadLong(&net_message);
+		}
+		else if (bits & U_RENDERFX8)
+		{
+			to->renderfx = MSG_ReadByte(&net_message);
+		}
+		else if (bits & U_RENDERFX16)
+		{
+			to->renderfx = MSG_ReadShort(&net_message);
+		}
 	}
 
 	if (IS_QIIRR_PROTOCOL(cls.serverProtocol) && (bits & U_SOLID))
@@ -1237,6 +1276,44 @@ CL_ParseH2Delta(const entity_xstate_t *from, entity_xstate_t *to,
 	}
 }
 
+/* Q2Test effect bits differ from release from bit 7 upwards */
+#define EF_NOLERP_Q2TEST 0x80
+
+static unsigned int
+CL_ConvertQ2TestEffects(unsigned int effects)
+{
+	static const struct {
+		unsigned int from, to;
+	} map[] = {
+		{0x0001, EF_ROTATE},
+		{0x0002, EF_GIB},
+		{0x0008, EF_BLASTER},
+		{0x0010, EF_ROCKET},
+		{0x0020, EF_GRENADE},
+		{0x0040, EF_FLIES},
+		{0x0100, EF_BFG},
+		/* 0x0200/0x0400 are shells with unknown colors, dropped */
+		{0x0800, EF_ANIM01},
+		{0x1000, EF_ANIM23},
+		/* 10 Hz 0/1 toggle, closest release equivalent */
+		{0x2000, EF_ANIM01},
+		{0x4000, EF_ANIM_ALL},
+		{0x8000, EF_ANIM_ALLFAST},
+	};
+	unsigned int result = 0;
+	size_t i;
+
+	for (i = 0; i < ARRLEN(map); i++)
+	{
+		if (effects & map[i].from)
+		{
+			result |= map[i].to;
+		}
+	}
+
+	return result;
+}
+
 /*
  * Parses deltas from the given base and adds the resulting entity to
  * the current frame
@@ -1265,6 +1342,18 @@ CL_DeltaEntity(frame_t *frame, int newnum, const entity_xstate_t *old, uint64_t 
 	else
 	{
 		CL_ParseDelta(old, state, newnum, bits);
+	}
+
+	/* Q2Test always deltas from raw baselines, convert only frame states */
+	if (cls.serverProtocol == PROTOCOL_Q2TEST_VERSION)
+	{
+		if (state->effects & EF_NOLERP_Q2TEST)
+		{
+			ent->serverframe = -99;
+			VectorCopy(state->origin, state->old_origin);
+		}
+
+		state->effects = CL_ConvertQ2TestEffects(state->effects);
 	}
 
 	/* some data changes will force no lerping */
@@ -2078,13 +2167,19 @@ CL_ParseFrame(void)
 	frame_t *old;
 	const int previous_serverframe = cl.frame.serverframe;
 	const qboolean q2test = cls.serverProtocol == PROTOCOL_Q2TEST_VERSION;
+	/* Q2Test frames may omit playerinfo, the previous state is kept then */
+	const player_xstate_t q2test_prevstate = cl.frame.playerstate;
+	int q2test_prevorigin[3];
+
+	VectorCopy(cl.frame.origin, q2test_prevorigin);
 
 	memset(&cl.frame, 0, sizeof(cl.frame));
 
 	if (q2test)
 	{
+		/* every Q2Test frame is a full update against the baselines */
 		cl.frame.serverframe = previous_serverframe + 1;
-		cl.frame.deltaframe = previous_serverframe;
+		cl.frame.deltaframe = -1;
 		cl.frame.servertime = MSG_ReadLong(&net_message) * 100;
 	}
 	else
@@ -2172,40 +2267,39 @@ CL_ParseFrame(void)
 	cmd = P_CmdConvert(MSG_ReadByte(&net_message), cls.serverProtocol);
 	CL_ShowNetCmd(cmd);
 
-	if (cmd != svc_playerinfo)
+	if (q2test && cmd != svc_playerinfo)
+	{
+		cl.frame.playerstate = q2test_prevstate;
+		VectorCopy(q2test_prevorigin, cl.frame.origin);
+		/* opcode already consumed, rewind so it is parsed as packetentities */
+		net_message.readcount--;
+	}
+	else if (cmd != svc_playerinfo)
 	{
 		Com_Error(ERR_DROP, "%s: 0x%X not playerinfo",
 				__func__, cmd);
 		return;
 	}
-
-	if (q2test)
+	else if (q2test)
 	{
 		player_xstate_t *state = &cl.frame.playerstate;
 		int flags = MSG_ReadShort(&net_message);
 		int stats_mask;
 		int i;
 
-		if (old)
-		{
-			*state = old->playerstate;
-			VectorCopy(old->origin, cl.frame.origin);
-		}
-		else
-		{
-			memset(state, 0, sizeof(*state));
-			memset(cl.frame.origin, 0, sizeof(cl.frame.origin));
-		}
+		memset(state, 0, sizeof(*state));
 
 		MSG_ReadOrigin(&net_message, cl.frame.origin, cls.serverProtocol);
 		VectorCopy(cl.frame.origin, state->pmove.origin);
-		MSG_ReadVel(&net_message, state->pmove.velocity, cls.serverProtocol);
+
+		for (i = 0; i < 3; i++)
+		{
+			state->viewangles[i] = MSG_ReadAngle16(&net_message);
+		}
 
 		for (i = 0; i < 3; i++)
 		{
 			state->pmove.delta_angles[i] = MSG_ReadShort(&net_message);
-			state->viewangles[i] = cl.viewangles[i] +
-				SHORT2ANGLE(state->pmove.delta_angles[i]);
 		}
 
 		state->pmove.pm_type = cl.attractloop ? PM_FREEZE : PM_NORMAL;
@@ -2214,31 +2308,23 @@ CL_ParseFrame(void)
 		if (flags & 0x04)
 		{
 			state->gunindex = MSG_ReadByte(&net_message);
-			state->gunframe = MSG_ReadByte(&net_message);
-		}
-		else
-		{
-			state->gunindex = 0;
-			state->gunframe = 0;
+			/* second view-weapon model, no equivalent */
+			(void)MSG_ReadByte(&net_message);
 		}
 
 		if (flags & 0x08)
 		{
+			state->gunframe = MSG_ReadByte(&net_message);
+			/* second view-weapon frame */
 			(void)MSG_ReadByte(&net_message);
-			(void)MSG_ReadByte(&net_message);
-			for (i = 0; i < 3; i++)
-			{
-				state->gunangles[i] = MSG_ReadChar(&net_message) * 0.25f;
-			}
 			for (i = 0; i < 3; i++)
 			{
 				state->gunoffset[i] = MSG_ReadChar(&net_message) * 0.25f;
 			}
-		}
-		else
-		{
-			VectorClear(state->gunangles);
-			VectorClear(state->gunoffset);
+			for (i = 0; i < 3; i++)
+			{
+				state->gunangles[i] = MSG_ReadChar(&net_message) * 0.25f;
+			}
 		}
 
 		if (flags & 0x01)
@@ -2436,14 +2522,6 @@ CL_ParseServerData(void)
 	}
 
 	Com_DPrintf("Used %d ms frame time\n", cl.frame_msec);
-
-	if ((cl_shownet->value == 0) &&
-		(i == PROTOCOL_Q2TEST_VERSION))
-	{
-		Com_Error(ERR_DROP, "Network protocol '%s' is currently unsupported\n",
-			CL_GetProtocolName(i));
-		return;
-	}
 
 	/* game directory */
 	str = MSG_ReadString(&net_message);
@@ -3760,7 +3838,15 @@ CL_ParseServerMessage(void)
 
 			case svc_layout:
 				s = MSG_ReadString(&net_message);
-				Q_strlcpy(cl.layout, s, sizeof(cl.layout));
+				/* Q2Test layout message toggles the layout display */
+				if (cls.serverProtocol == PROTOCOL_Q2TEST_VERSION && cl.layout[0])
+				{
+					cl.layout[0] = '\0';
+				}
+				else
+				{
+					Q_strlcpy(cl.layout, s, sizeof(cl.layout));
+				}
 				break;
 
 			case svc_fog:
