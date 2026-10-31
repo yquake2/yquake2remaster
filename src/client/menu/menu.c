@@ -2297,6 +2297,7 @@ static menuaction_s s_options_customize_options_action;
 static menuaction_s s_options_customize_joy_action;
 static menuslider_s s_options_sensitivity_slider;
 static menulist_s s_options_freelook_box;
+static menulist_s s_options_thirdperson_box;
 static menulist_s s_options_alwaysrun_box;
 static menulist_s s_options_invertmouse_box;
 static menulist_s s_options_lookstrafe_box;
@@ -2367,6 +2368,12 @@ FreeLookFunc(void *unused)
 }
 
 static void
+ThirdPersonFunc(void *unused)
+{
+	Cvar_SetValue("g_thirdperson", s_options_thirdperson_box.curvalue);
+}
+
+static void
 ControlsSetMenuItemValues(void)
 {
 	s_options_oggshuffle_box.curvalue = Cvar_VariableValue("ogg_shuffle");
@@ -2376,6 +2383,7 @@ ControlsSetMenuItemValues(void)
 	s_options_invertmouse_box.curvalue = (m_pitch->value < 0);
 	s_options_lookstrafe_box.curvalue = (lookstrafe->value != 0);
 	s_options_freelook_box.curvalue = (freelook->value != 0);
+	s_options_thirdperson_box.curvalue = (Cvar_VariableValue("g_thirdperson") != 0);
 	s_options_crosshair_box.curvalue = ClampCvar(0, 3, crosshair->value);
 
 	/* Match crosshair color cvars to a preset index */
@@ -2653,6 +2661,16 @@ Options_MenuInit(void)
 	s_options_freelook_box.generic.callback = FreeLookFunc;
 	s_options_freelook_box.itemnames = yesno_names;
 
+	if (viddef.height > (250 + 20 * scale))
+	{
+		s_options_thirdperson_box.generic.type = MTYPE_SPINCONTROL;
+		s_options_thirdperson_box.generic.x = 0;
+		s_options_thirdperson_box.generic.y = (y += 10);
+		s_options_thirdperson_box.generic.name = "third person";
+		s_options_thirdperson_box.generic.callback = ThirdPersonFunc;
+		s_options_thirdperson_box.itemnames = yesno_names;
+	}
+
 	s_options_crosshair_box.generic.type = MTYPE_SPINCONTROL;
 	s_options_crosshair_box.generic.x = 0;
 	s_options_crosshair_box.generic.y = (y += 10);
@@ -2710,6 +2728,12 @@ Options_MenuInit(void)
 	Menu_AddItem(&s_options_menu, (void *)&s_options_invertmouse_box);
 	Menu_AddItem(&s_options_menu, (void *)&s_options_lookstrafe_box);
 	Menu_AddItem(&s_options_menu, (void *)&s_options_freelook_box);
+
+	if (viddef.height > (250 + 20 * scale))
+	{
+		Menu_AddItem(&s_options_menu, (void *)&s_options_thirdperson_box);
+	}
+
 	Menu_AddItem(&s_options_menu, (void *)&s_options_crosshair_box);
 	Menu_AddItem(&s_options_menu, (void *)&s_options_crosshair_color_box);
 
@@ -2717,6 +2741,7 @@ Options_MenuInit(void)
 	{
 		Menu_AddItem(&s_options_menu, (void *)&s_options_customize_joy_action);
 	}
+
 	Menu_AddItem(&s_options_menu, (void *)&s_options_customize_options_action);
 	Menu_AddItem(&s_options_menu, (void *)&s_options_defaults_action);
 	Menu_AddItem(&s_options_menu, (void *)&s_options_console_action);
