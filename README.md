@@ -261,7 +261,7 @@ Checked with:
 
 ### Next release:
 * [ ] Anachronox: CTC entity format,
-* [ ] ReRelease: extend server player_state_t MAX_STATS limit,
+* [x] ReRelease: extend server player_state_t MAX_STATS limit,
 * [x] ReRelease: implement demo protocol based on https://github.com/res2k/q2proto
       and https://github.com/Paril/quake2-rerelease-dll,
 * [x] ReRelease: select start level through `mapddb.json`

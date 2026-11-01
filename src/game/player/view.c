@@ -102,17 +102,17 @@ P_DamageFeedback(edict_t *player)
 	client = player->client;
 
 	/* flash the backgrounds behind the status numbers */
-	client->ps.stats[STAT_FLASHES] = 0;
+	client->ps_rrstats[STAT_FLASHES] = 0;
 
 	if (client->damage_blood)
 	{
-		client->ps.stats[STAT_FLASHES] |= 1;
+		client->ps_rrstats[STAT_FLASHES] |= 1;
 	}
 
 	if (client->damage_armor && !(player->flags & FL_GODMODE) &&
 		(client->invincible_framenum <= level.framenum))
 	{
-		client->ps.stats[STAT_FLASHES] |= 2;
+		client->ps_rrstats[STAT_FLASHES] |= 2;
 	}
 
 	/* total points of damage shot at the player this frame */
@@ -1693,9 +1693,9 @@ ClientEndServerFrame(edict_t *ent)
 			continue;
 		}
 
-		memcpy(e->client->ps.stats, ent->client->ps.stats,
-				sizeof(ent->client->ps.stats));
-		e->client->ps.stats[STAT_LAYOUTS] = LAYOUTS_LAYOUT;
+		memcpy(e->client->ps_rrstats, ent->client->ps_rrstats,
+				sizeof(ent->client->ps_rrstats));
+		e->client->ps_rrstats[STAT_LAYOUTS] = LAYOUTS_LAYOUT;
 		break;
 	}
 

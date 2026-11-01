@@ -1755,9 +1755,9 @@ Touch_Item(edict_t *ent, edict_t *other, const cplane_t *plane /* unused */,
 		other->client->bonus_alpha = 0.25;
 
 		/* show icon and name on status bar */
-		other->client->ps.stats[STAT_PICKUP_ICON] =
+		other->client->ps_rrstats[STAT_PICKUP_ICON] =
 			FirstPersonWeaponIcon(ent->item);
-		other->client->ps.stats[STAT_PICKUP_STRING] =
+		other->client->ps_rrstats[STAT_PICKUP_STRING] =
 			CS_ITEMS + ITEM_INDEX(ent->item);
 		other->client->pickup_msg_time = level.time + 3.0;
 
@@ -1765,7 +1765,7 @@ Touch_Item(edict_t *ent, edict_t *other, const cplane_t *plane /* unused */,
 		if (ent->item->use)
 		{
 			other->client->pers.selected_item =
-				other->client->ps.stats[STAT_SELECTED_ITEM] =
+				other->client->ps_rrstats[STAT_SELECTED_ITEM] =
 				ITEM_INDEX(ent->item);
 		}
 

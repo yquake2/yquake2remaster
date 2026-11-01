@@ -154,9 +154,9 @@ SV_WritePlayerstateToClient(client_frame_t *from, client_frame_t *to,
 		sizebuf_t *msg, int protocol)
 {
 	int statbits[8], stats_size, pflags, group, idummy[3];
-	const player_state_t *ps, *ops;
+	const player_xstate_t *ps, *ops;
 	const int *origin, *oorig;
-	player_state_t dummy;
+	player_xstate_t dummy;
 
 	ps = &to->ps;
 	origin = to->origin;
@@ -405,7 +405,7 @@ SV_WritePlayerstateToClient(client_frame_t *from, client_frame_t *to,
 	if (IS_QII97_PROTOCOL(protocol) ||
 		IS_QIIRR_PROTOCOL(protocol))
 	{
-		stats_size = Q_min(P_GetCountOfStats(protocol), MAX_STATS);
+		stats_size = Q_min(P_GetCountOfStats(protocol), MAX_XSTATS);
 	}
 	else
 	{
@@ -612,7 +612,20 @@ SV_BuildClientFrame(client_t *client)
 	frame->areabytes = CM_WriteAreaBits(frame->areabits, clientarea);
 
 	/* grab the current player_state_t */
-	frame->ps = clent->client->ps;
+	/* copy quake original quake 2 state */
+	memcpy(&frame->ps, &clent->client->ps,
+		sizeof(clent->client->ps) - sizeof(clent->client->ps.stats));
+	if (SV_GetRecomendedProtocol() == PROTOCOL_R97_VERSION)
+	{
+		/* backcomparibility to original game libraries */
+		memcpy(&frame->ps.stats, &clent->client->ps.stats,
+			sizeof(clent->client->ps.stats));
+	}
+	else
+	{
+		memcpy(&frame->ps.stats, &clent->client->ps_rrstats,
+			sizeof(clent->client->ps_rrstats));
+	}
 
 	fatpvs = SV_FatPVS(org, &fatpvs_size);
 	clientphs = CM_ClusterPHS(clientcluster, &phs_size);

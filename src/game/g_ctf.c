@@ -1326,8 +1326,8 @@ CTFSetIDView(edict_t *ent)
 
 	ent->client->resp.lastidtime = level.time;
 
-	ent->client->ps.stats[STAT_CTF_ID_VIEW] = 0;
-	ent->client->ps.stats[STAT_CTF_ID_VIEW_COLOR] = 0;
+	ent->client->ps_rrstats[STAT_CTF_ID_VIEW] = 0;
+	ent->client->ps_rrstats[STAT_CTF_ID_VIEW_COLOR] = 0;
 
 	AngleVectors(ent->client->v_angle, forward, NULL, NULL);
 	VectorScale(forward, 1024, forward);
@@ -1336,16 +1336,16 @@ CTFSetIDView(edict_t *ent)
 
 	if ((tr.fraction < 1) && tr.ent && tr.ent->client)
 	{
-		ent->client->ps.stats[STAT_CTF_ID_VIEW] =
+		ent->client->ps_rrstats[STAT_CTF_ID_VIEW] =
 			CS_GENERAL + (tr.ent - g_edicts - 1);
 
 		if (tr.ent->client->resp.ctf_team == CTF_TEAM1)
 		{
-			ent->client->ps.stats[STAT_CTF_ID_VIEW_COLOR] = imageindex_sbfctf1;
+			ent->client->ps_rrstats[STAT_CTF_ID_VIEW_COLOR] = imageindex_sbfctf1;
 		}
 		else if (tr.ent->client->resp.ctf_team == CTF_TEAM2)
 		{
-			ent->client->ps.stats[STAT_CTF_ID_VIEW_COLOR] = imageindex_sbfctf2;
+			ent->client->ps_rrstats[STAT_CTF_ID_VIEW_COLOR] = imageindex_sbfctf2;
 		}
 
 		return;
@@ -1376,16 +1376,16 @@ CTFSetIDView(edict_t *ent)
 
 	if (bd > 0.90 && best)
 	{
-		ent->client->ps.stats[STAT_CTF_ID_VIEW] =
+		ent->client->ps_rrstats[STAT_CTF_ID_VIEW] =
 			CS_GENERAL + (best - g_edicts - 1);
 
 		if (best->client->resp.ctf_team == CTF_TEAM1)
 		{
-			ent->client->ps.stats[STAT_CTF_ID_VIEW_COLOR] = imageindex_sbfctf1;
+			ent->client->ps_rrstats[STAT_CTF_ID_VIEW_COLOR] = imageindex_sbfctf1;
 		}
 		else if (best->client->resp.ctf_team == CTF_TEAM2)
 		{
-			ent->client->ps.stats[STAT_CTF_ID_VIEW_COLOR] = imageindex_sbfctf2;
+			ent->client->ps_rrstats[STAT_CTF_ID_VIEW_COLOR] = imageindex_sbfctf2;
 		}
 	}
 }
@@ -1397,7 +1397,7 @@ SetCTFTechIcon(edict_t *ent)
 
 	/* tech icon */
 	i = 0;
-	ent->client->ps.stats[STAT_CTF_TECH] = 0;
+	ent->client->ps_rrstats[STAT_CTF_TECH] = 0;
 
 	while (tnames[i])
 	{
@@ -1406,7 +1406,7 @@ SetCTFTechIcon(edict_t *ent)
 		if (((tech = FindItemByClassname(tnames[i])) != NULL) &&
 			ent->client->pers.inventory[ITEM_INDEX(tech)])
 		{
-			ent->client->ps.stats[STAT_CTF_TECH] = FirstPersonWeaponIcon(tech);
+			ent->client->ps_rrstats[STAT_CTF_TECH] = FirstPersonWeaponIcon(tech);
 			break;
 		}
 
@@ -1431,20 +1431,20 @@ SetCTFStats(edict_t *ent)
 
 	if (ctfgame.match > MATCH_NONE)
 	{
-		ent->client->ps.stats[STAT_CTF_MATCH] = CONFIG_CTF_MATCH;
+		ent->client->ps_rrstats[STAT_CTF_MATCH] = CONFIG_CTF_MATCH;
 	}
 	else
 	{
-		ent->client->ps.stats[STAT_CTF_MATCH] = 0;
+		ent->client->ps_rrstats[STAT_CTF_MATCH] = 0;
 	}
 
 	if (ctfgame.warnactive)
 	{
-		ent->client->ps.stats[STAT_CTF_TEAMINFO] = CONFIG_CTF_TEAMINFO;
+		ent->client->ps_rrstats[STAT_CTF_TEAMINFO] = CONFIG_CTF_TEAMINFO;
 	}
 	else
 	{
-		ent->client->ps.stats[STAT_CTF_TEAMINFO] = 0;
+		ent->client->ps_rrstats[STAT_CTF_TEAMINFO] = 0;
 	}
 
 	/* ghosting */
@@ -1457,8 +1457,8 @@ SetCTFStats(edict_t *ent)
 	}
 
 	/* logo headers for the frag display */
-	ent->client->ps.stats[STAT_CTF_TEAM1_HEADER] = imageindex_ctfsb1;
-	ent->client->ps.stats[STAT_CTF_TEAM2_HEADER] = imageindex_ctfsb2;
+	ent->client->ps_rrstats[STAT_CTF_TEAM1_HEADER] = imageindex_ctfsb1;
+	ent->client->ps_rrstats[STAT_CTF_TEAM2_HEADER] = imageindex_ctfsb2;
 
 	/* if during intermission, we must blink
 	   the team header of the winning team */
@@ -1468,24 +1468,24 @@ SetCTFStats(edict_t *ent)
 		   set when we go to intermission */
 		if (ctfgame.team1 > ctfgame.team2)
 		{
-			ent->client->ps.stats[STAT_CTF_TEAM1_HEADER] = 0;
+			ent->client->ps_rrstats[STAT_CTF_TEAM1_HEADER] = 0;
 		}
 		else if (ctfgame.team2 > ctfgame.team1)
 		{
-			ent->client->ps.stats[STAT_CTF_TEAM2_HEADER] = 0;
+			ent->client->ps_rrstats[STAT_CTF_TEAM2_HEADER] = 0;
 		}
 		else if (ctfgame.total1 > ctfgame.total2) /* frag tie breaker */
 		{
-			ent->client->ps.stats[STAT_CTF_TEAM1_HEADER] = 0;
+			ent->client->ps_rrstats[STAT_CTF_TEAM1_HEADER] = 0;
 		}
 		else if (ctfgame.total2 > ctfgame.total1)
 		{
-			ent->client->ps.stats[STAT_CTF_TEAM2_HEADER] = 0;
+			ent->client->ps_rrstats[STAT_CTF_TEAM2_HEADER] = 0;
 		}
 		else /* tie game! */
 		{
-			ent->client->ps.stats[STAT_CTF_TEAM1_HEADER] = 0;
-			ent->client->ps.stats[STAT_CTF_TEAM2_HEADER] = 0;
+			ent->client->ps_rrstats[STAT_CTF_TEAM1_HEADER] = 0;
+			ent->client->ps_rrstats[STAT_CTF_TEAM2_HEADER] = 0;
 		}
 	}
 
@@ -1556,8 +1556,8 @@ SetCTFStats(edict_t *ent)
 		}
 	}
 
-	ent->client->ps.stats[STAT_CTF_TEAM1_PIC] = p1;
-	ent->client->ps.stats[STAT_CTF_TEAM2_PIC] = p2;
+	ent->client->ps_rrstats[STAT_CTF_TEAM1_PIC] = p1;
+	ent->client->ps_rrstats[STAT_CTF_TEAM2_PIC] = p2;
 
 	if (ctfgame.last_flag_capture &&
 		(level.time - ctfgame.last_flag_capture < 5))
@@ -1566,53 +1566,53 @@ SetCTFStats(edict_t *ent)
 		{
 			if (level.framenum & 8)
 			{
-				ent->client->ps.stats[STAT_CTF_TEAM1_PIC] = p1;
+				ent->client->ps_rrstats[STAT_CTF_TEAM1_PIC] = p1;
 			}
 			else
 			{
-				ent->client->ps.stats[STAT_CTF_TEAM1_PIC] = 0;
+				ent->client->ps_rrstats[STAT_CTF_TEAM1_PIC] = 0;
 			}
 		}
 		else
 		if (level.framenum & 8)
 		{
-			ent->client->ps.stats[STAT_CTF_TEAM2_PIC] = p2;
+			ent->client->ps_rrstats[STAT_CTF_TEAM2_PIC] = p2;
 		}
 		else
 		{
-			ent->client->ps.stats[STAT_CTF_TEAM2_PIC] = 0;
+			ent->client->ps_rrstats[STAT_CTF_TEAM2_PIC] = 0;
 		}
 	}
 
-	ent->client->ps.stats[STAT_CTF_TEAM1_CAPS] = ctfgame.team1;
-	ent->client->ps.stats[STAT_CTF_TEAM2_CAPS] = ctfgame.team2;
+	ent->client->ps_rrstats[STAT_CTF_TEAM1_CAPS] = ctfgame.team1;
+	ent->client->ps_rrstats[STAT_CTF_TEAM2_CAPS] = ctfgame.team2;
 
-	ent->client->ps.stats[STAT_CTF_FLAG_PIC] = 0;
+	ent->client->ps_rrstats[STAT_CTF_FLAG_PIC] = 0;
 
 	if ((ent->client->resp.ctf_team == CTF_TEAM1) &&
 		ent->client->pers.inventory[ITEM_INDEX(flag2_item)] &&
 		(level.framenum & 8))
 	{
-		ent->client->ps.stats[STAT_CTF_FLAG_PIC] = imageindex_i_ctf2;
+		ent->client->ps_rrstats[STAT_CTF_FLAG_PIC] = imageindex_i_ctf2;
 	}
 
 	else if ((ent->client->resp.ctf_team == CTF_TEAM2) &&
 			 ent->client->pers.inventory[ITEM_INDEX(flag1_item)] &&
 			 (level.framenum & 8))
 	{
-		ent->client->ps.stats[STAT_CTF_FLAG_PIC] = imageindex_i_ctf1;
+		ent->client->ps_rrstats[STAT_CTF_FLAG_PIC] = imageindex_i_ctf1;
 	}
 
-	ent->client->ps.stats[STAT_CTF_JOINED_TEAM1_PIC] = 0;
-	ent->client->ps.stats[STAT_CTF_JOINED_TEAM2_PIC] = 0;
+	ent->client->ps_rrstats[STAT_CTF_JOINED_TEAM1_PIC] = 0;
+	ent->client->ps_rrstats[STAT_CTF_JOINED_TEAM2_PIC] = 0;
 
 	if (ent->client->resp.ctf_team == CTF_TEAM1)
 	{
-		ent->client->ps.stats[STAT_CTF_JOINED_TEAM1_PIC] = imageindex_i_ctfj;
+		ent->client->ps_rrstats[STAT_CTF_JOINED_TEAM1_PIC] = imageindex_i_ctfj;
 	}
 	else if (ent->client->resp.ctf_team == CTF_TEAM2)
 	{
-		ent->client->ps.stats[STAT_CTF_JOINED_TEAM2_PIC] = imageindex_i_ctfj;
+		ent->client->ps_rrstats[STAT_CTF_JOINED_TEAM2_PIC] = imageindex_i_ctfj;
 	}
 
 	if (ent->client->resp.id_state)
@@ -1621,8 +1621,8 @@ SetCTFStats(edict_t *ent)
 	}
 	else
 	{
-		ent->client->ps.stats[STAT_CTF_ID_VIEW] = 0;
-		ent->client->ps.stats[STAT_CTF_ID_VIEW_COLOR] = 0;
+		ent->client->ps_rrstats[STAT_CTF_ID_VIEW] = 0;
+		ent->client->ps_rrstats[STAT_CTF_ID_VIEW_COLOR] = 0;
 	}
 }
 

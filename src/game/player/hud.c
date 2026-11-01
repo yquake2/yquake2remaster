@@ -475,8 +475,8 @@ G_SetStats_SelectedItem(gclient_t *cl)
 		si = -1;
 	}
 
-	cl->ps.stats[STAT_SELECTED_ITEM] = si;
-	cl->ps.stats[STAT_SELECTED_ICON] = (it && it->icon) ?
+	cl->ps_rrstats[STAT_SELECTED_ITEM] = si;
+	cl->ps_rrstats[STAT_SELECTED_ICON] = (it && it->icon) ?
 		gi.imageindex(it->icon) : 0;
 }
 
@@ -493,20 +493,20 @@ G_SetStats(edict_t *ent)
 	}
 
 	/* health */
-	ent->client->ps.stats[STAT_HEALTH_ICON] = level.pic_health;
-	ent->client->ps.stats[STAT_HEALTH] = (ent->health < -99) ? -99 : ent->health;
+	ent->client->ps_rrstats[STAT_HEALTH_ICON] = level.pic_health;
+	ent->client->ps_rrstats[STAT_HEALTH] = (ent->health < -99) ? -99 : ent->health;
 
 	/* ammo */
 	if (!ent->client->ammo_index)
 	{
-		ent->client->ps.stats[STAT_AMMO_ICON] = 0;
-		ent->client->ps.stats[STAT_AMMO] = 0;
+		ent->client->ps_rrstats[STAT_AMMO_ICON] = 0;
+		ent->client->ps_rrstats[STAT_AMMO] = 0;
 	}
 	else
 	{
 		item = &itemlist[ent->client->ammo_index];
-		ent->client->ps.stats[STAT_AMMO_ICON] = FirstPersonWeaponIcon(item);
-		ent->client->ps.stats[STAT_AMMO] =
+		ent->client->ps_rrstats[STAT_AMMO_ICON] = FirstPersonWeaponIcon(item);
+		ent->client->ps_rrstats[STAT_AMMO] =
 			ent->client->pers.inventory[ent->client->ammo_index];
 	}
 
@@ -534,113 +534,113 @@ G_SetStats(edict_t *ent)
 	if (power_armor_type && (!index || (level.framenum & 8)))
 	{
 		/* flash between power armor and other armor icon */
-		ent->client->ps.stats[STAT_ARMOR_ICON] = gi.imageindex("i_powershield");
-		ent->client->ps.stats[STAT_ARMOR] = cells;
+		ent->client->ps_rrstats[STAT_ARMOR_ICON] = gi.imageindex("i_powershield");
+		ent->client->ps_rrstats[STAT_ARMOR] = cells;
 	}
 	else if (index)
 	{
 		item = GetItemByIndex(index);
-		ent->client->ps.stats[STAT_ARMOR_ICON] = FirstPersonWeaponIcon(item);
-		ent->client->ps.stats[STAT_ARMOR] = ent->client->pers.inventory[index];
+		ent->client->ps_rrstats[STAT_ARMOR_ICON] = FirstPersonWeaponIcon(item);
+		ent->client->ps_rrstats[STAT_ARMOR] = ent->client->pers.inventory[index];
 	}
 	else
 	{
-		ent->client->ps.stats[STAT_ARMOR_ICON] = 0;
-		ent->client->ps.stats[STAT_ARMOR] = 0;
+		ent->client->ps_rrstats[STAT_ARMOR_ICON] = 0;
+		ent->client->ps_rrstats[STAT_ARMOR] = 0;
 	}
 
 	/* pickup message */
 	if (level.time > ent->client->pickup_msg_time)
 	{
-		ent->client->ps.stats[STAT_PICKUP_ICON] = 0;
-		ent->client->ps.stats[STAT_PICKUP_STRING] = 0;
+		ent->client->ps_rrstats[STAT_PICKUP_ICON] = 0;
+		ent->client->ps_rrstats[STAT_PICKUP_STRING] = 0;
 	}
 
 	/* timers */
 	if (ent->client->quad_framenum > level.framenum)
 	{
-		ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_quad");
-		ent->client->ps.stats[STAT_TIMER] =
+		ent->client->ps_rrstats[STAT_TIMER_ICON] = gi.imageindex("p_quad");
+		ent->client->ps_rrstats[STAT_TIMER] =
 			(ent->client->quad_framenum - level.framenum) / 10;
 	}
 	else if (ent->client->double_framenum > level.framenum)
 	{
-		ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_double");
-		ent->client->ps.stats[STAT_TIMER] =
+		ent->client->ps_rrstats[STAT_TIMER_ICON] = gi.imageindex("p_double");
+		ent->client->ps_rrstats[STAT_TIMER] =
 			(ent->client->double_framenum - level.framenum) / 10;
 	}
 	else if (ent->client->quadfire_framenum > level.framenum)
 	{
-		ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_quadfire");
-		ent->client->ps.stats[STAT_TIMER] = (ent->client->quadfire_framenum
+		ent->client->ps_rrstats[STAT_TIMER_ICON] = gi.imageindex("p_quadfire");
+		ent->client->ps_rrstats[STAT_TIMER] = (ent->client->quadfire_framenum
 				- level.framenum) / 10;
 	}
 	else if (ent->client->invincible_framenum > level.framenum)
 	{
-		ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex(
+		ent->client->ps_rrstats[STAT_TIMER_ICON] = gi.imageindex(
 				"p_invulnerability");
-		ent->client->ps.stats[STAT_TIMER] =
+		ent->client->ps_rrstats[STAT_TIMER] =
 			(ent->client->invincible_framenum - level.framenum) / 10;
 	}
 	else if (ent->client->invisible_framenum > level.framenum)
 	{
-		ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex(
+		ent->client->ps_rrstats[STAT_TIMER_ICON] = gi.imageindex(
 				"p_cloaker");
-		ent->client->ps.stats[STAT_TIMER] =
+		ent->client->ps_rrstats[STAT_TIMER] =
 			(ent->client->invisible_framenum - level.framenum) / 10;
 	}
 	else if (ent->client->enviro_framenum > level.framenum)
 	{
-		ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_envirosuit");
-		ent->client->ps.stats[STAT_TIMER] =
+		ent->client->ps_rrstats[STAT_TIMER_ICON] = gi.imageindex("p_envirosuit");
+		ent->client->ps_rrstats[STAT_TIMER] =
 			(ent->client->enviro_framenum - level.framenum) / 10;
 	}
 	else if (ent->client->breather_framenum > level.framenum)
 	{
-		ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_rebreather");
-		ent->client->ps.stats[STAT_TIMER] =
+		ent->client->ps_rrstats[STAT_TIMER_ICON] = gi.imageindex("p_rebreather");
+		ent->client->ps_rrstats[STAT_TIMER] =
 			(ent->client->breather_framenum - level.framenum) / 10;
 	}
 	else if (ent->client->owned_sphere)
 	{
 		if (ent->client->owned_sphere->spawnflags == 1) /* defender */
 		{
-			ent->client->ps.stats[STAT_TIMER_ICON] =
+			ent->client->ps_rrstats[STAT_TIMER_ICON] =
 				gi.imageindex("p_defender");
 		}
 		else if (ent->client->owned_sphere->spawnflags == 2) /* hunter */
 		{
-			ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_hunter");
+			ent->client->ps_rrstats[STAT_TIMER_ICON] = gi.imageindex("p_hunter");
 		}
 		else if (ent->client->owned_sphere->spawnflags == 4) /* vengeance */
 		{
-			ent->client->ps.stats[STAT_TIMER_ICON] =
+			ent->client->ps_rrstats[STAT_TIMER_ICON] =
 				gi.imageindex("p_vengeance");
 		}
 		else /* error case */
 		{
-			ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("i_fixme");
+			ent->client->ps_rrstats[STAT_TIMER_ICON] = gi.imageindex("i_fixme");
 		}
 
-		ent->client->ps.stats[STAT_TIMER] =
+		ent->client->ps_rrstats[STAT_TIMER] =
 			(int)(ent->client->owned_sphere->wait - level.time);
 	}
 	else if (ent->client->ir_framenum > level.framenum)
 	{
-		ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_ir");
-		ent->client->ps.stats[STAT_TIMER] =
+		ent->client->ps_rrstats[STAT_TIMER_ICON] = gi.imageindex("p_ir");
+		ent->client->ps_rrstats[STAT_TIMER] =
 			(ent->client->ir_framenum - level.framenum) / 10; }
 	else
 	{
-		ent->client->ps.stats[STAT_TIMER_ICON] = 0;
-		ent->client->ps.stats[STAT_TIMER] = 0;
+		ent->client->ps_rrstats[STAT_TIMER_ICON] = 0;
+		ent->client->ps_rrstats[STAT_TIMER] = 0;
 	}
 
 	/* selected item */
 	G_SetStats_SelectedItem(ent->client);
 
 	/* layouts */
-	ent->client->ps.stats[STAT_LAYOUTS] = 0;
+	ent->client->ps_rrstats[STAT_LAYOUTS] = 0;
 
 	/* radar layout */
 	if (ent->client->showradar)
@@ -673,8 +673,8 @@ G_SetStats(edict_t *ent)
 					gi.sound(ent, CHAN_ITEM, gi.soundindex("misc/power2.wav"), 1, ATTN_NORM, 0);
 				}
 
-				ent->client->ps.stats[STAT_RADAR_ICON] = gi.imageindex("radar/radar");
-				ent->client->ps.stats[STAT_RADAR] = ent->client->pers.inventory[e_index];
+				ent->client->ps_rrstats[STAT_RADAR_ICON] = gi.imageindex("radar/radar");
+				ent->client->ps_rrstats[STAT_RADAR] = ent->client->pers.inventory[e_index];
 
 				Com_sprintf(layout, sizeof(layout), "xv %d yv %d picn radar/radar ",
 					100 - 32, 200 - 32);
@@ -745,14 +745,14 @@ G_SetStats(edict_t *ent)
 				gi.WriteString(layout);
 				gi.unicast(ent, true);
 
-				ent->client->ps.stats[STAT_LAYOUTS] |= LAYOUTS_LAYOUT;
+				ent->client->ps_rrstats[STAT_LAYOUTS] |= LAYOUTS_LAYOUT;
 			}
 		}
 	}
 	else
 	{
-		ent->client->ps.stats[STAT_RADAR_ICON] = 0;
-		ent->client->ps.stats[STAT_RADAR] = 0;
+		ent->client->ps_rrstats[STAT_RADAR_ICON] = 0;
+		ent->client->ps_rrstats[STAT_RADAR] = 0;
 	}
 
 	if (deathmatch->value)
@@ -760,43 +760,43 @@ G_SetStats(edict_t *ent)
 		if ((ent->client->pers.health <= 0) || level.intermissiontime ||
 			ent->client->showscores)
 		{
-			ent->client->ps.stats[STAT_LAYOUTS] |= LAYOUTS_LAYOUT;
+			ent->client->ps_rrstats[STAT_LAYOUTS] |= LAYOUTS_LAYOUT;
 		}
 
 		if (ent->client->showinventory && (ent->client->pers.health > 0))
 		{
-			ent->client->ps.stats[STAT_LAYOUTS] |= LAYOUTS_INVENTORY;
+			ent->client->ps_rrstats[STAT_LAYOUTS] |= LAYOUTS_INVENTORY;
 		}
 	}
 	else
 	{
 		if (ent->client->showscores || ent->client->showhelp)
 		{
-			ent->client->ps.stats[STAT_LAYOUTS] |= LAYOUTS_LAYOUT;
+			ent->client->ps_rrstats[STAT_LAYOUTS] |= LAYOUTS_LAYOUT;
 		}
 
 		if (ent->client->showinventory && (ent->client->pers.health > 0))
 		{
-			ent->client->ps.stats[STAT_LAYOUTS] |= LAYOUTS_INVENTORY;
+			ent->client->ps_rrstats[STAT_LAYOUTS] |= LAYOUTS_INVENTORY;
 		}
 	}
 
 	if (level.story_active)
 	{
-		ent->client->ps.stats[STAT_LAYOUTS] |= LAYOUTS_HIDE_CROSSHAIR;
+		ent->client->ps_rrstats[STAT_LAYOUTS] |= LAYOUTS_HIDE_CROSSHAIR;
 	}
 	else
 	{
-		ent->client->ps.stats[STAT_LAYOUTS] &= ~LAYOUTS_HIDE_CROSSHAIR;
+		ent->client->ps_rrstats[STAT_LAYOUTS] &= ~LAYOUTS_HIDE_CROSSHAIR;
 	}
 
 	/* frags */
-	ent->client->ps.stats[STAT_FRAGS] = ent->client->resp.score;
+	ent->client->ps_rrstats[STAT_FRAGS] = ent->client->resp.score;
 
 	/* help icon / current weapon if not shown */
 	if (ent->client->pers.helpchanged && (level.framenum & 8))
 	{
-		ent->client->ps.stats[STAT_HELPICON] = gi.imageindex("i_help");
+		ent->client->ps_rrstats[STAT_HELPICON] = gi.imageindex("i_help");
 	}
 	else if (((ent->client->pers.hand == CENTER_HANDED) ||
 			  (ent->client->ps.fov > 91) ||
@@ -808,17 +808,17 @@ G_SetStats(edict_t *ent)
 
 		if (gun->value != 2)
 		{
-			ent->client->ps.stats[STAT_HELPICON] = FirstPersonWeaponIcon(
+			ent->client->ps_rrstats[STAT_HELPICON] = FirstPersonWeaponIcon(
 					ent->client->pers.weapon);
 		}
 		else
 		{
-			ent->client->ps.stats[STAT_HELPICON] = 0;
+			ent->client->ps_rrstats[STAT_HELPICON] = 0;
 		}
 	}
 	else
 	{
-		ent->client->ps.stats[STAT_HELPICON] = 0;
+		ent->client->ps_rrstats[STAT_HELPICON] = 0;
 	}
 
 	if (ctf->value)
@@ -827,7 +827,7 @@ G_SetStats(edict_t *ent)
 	}
 	else
 	{
-		ent->client->ps.stats[STAT_SPECTATOR] = 0;
+		ent->client->ps_rrstats[STAT_SPECTATOR] = 0;
 	}
 }
 
@@ -852,7 +852,7 @@ G_CheckChaseStats(const edict_t *ent)
 			continue;
 		}
 
-		memcpy(cl->ps.stats, ent->client->ps.stats, sizeof(cl->ps.stats));
+		memcpy(cl->ps_rrstats, ent->client->ps_rrstats, sizeof(cl->ps_rrstats));
 		G_SetSpectatorStats(g_edicts + i);
 	}
 }
@@ -872,28 +872,28 @@ G_SetSpectatorStats(edict_t *ent)
 		G_SetStats(ent);
 	}
 
-	cl->ps.stats[STAT_SPECTATOR] = 1;
+	cl->ps_rrstats[STAT_SPECTATOR] = 1;
 
 	/* layouts are independant in spectator */
-	cl->ps.stats[STAT_LAYOUTS] = 0;
+	cl->ps_rrstats[STAT_LAYOUTS] = 0;
 
 	if ((cl->pers.health <= 0) || level.intermissiontime || cl->showscores)
 	{
-		cl->ps.stats[STAT_LAYOUTS] |= LAYOUTS_LAYOUT;
+		cl->ps_rrstats[STAT_LAYOUTS] |= LAYOUTS_LAYOUT;
 	}
 
 	if (cl->showinventory && (cl->pers.health > 0))
 	{
-		cl->ps.stats[STAT_LAYOUTS] |= LAYOUTS_INVENTORY;
+		cl->ps_rrstats[STAT_LAYOUTS] |= LAYOUTS_INVENTORY;
 	}
 
 	if (cl->chase_target && cl->chase_target->inuse)
 	{
-		cl->ps.stats[STAT_CHASE] = CS_PLAYERSKINS +
+		cl->ps_rrstats[STAT_CHASE] = CS_PLAYERSKINS +
 								   (cl->chase_target - g_edicts) - 1;
 	}
 	else
 	{
-		cl->ps.stats[STAT_CHASE] = 0;
+		cl->ps_rrstats[STAT_CHASE] = 0;
 	}
 }

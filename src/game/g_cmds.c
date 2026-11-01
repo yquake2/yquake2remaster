@@ -1000,8 +1000,8 @@ Cmd_WeapPrev_f(edict_t *ent)
 		{
 			if (g_quick_weap->value)
 			{
-				cl->ps.stats[STAT_PICKUP_ICON] = FirstPersonWeaponIcon(cl->newweapon);
-				cl->ps.stats[STAT_PICKUP_STRING] = CS_ITEMS + ITEM_INDEX(cl->newweapon);
+				cl->ps_rrstats[STAT_PICKUP_ICON] = FirstPersonWeaponIcon(cl->newweapon);
+				cl->ps_rrstats[STAT_PICKUP_STRING] = CS_ITEMS + ITEM_INDEX(cl->newweapon);
 				cl->pickup_msg_time = level.time + 0.9f;
 			}
 			return; /* successful */
@@ -1064,8 +1064,8 @@ Cmd_WeapNext_f(edict_t *ent)
 		{
 			if (g_quick_weap->value)
 			{
-				cl->ps.stats[STAT_PICKUP_ICON] = FirstPersonWeaponIcon(cl->newweapon);
-				cl->ps.stats[STAT_PICKUP_STRING] = CS_ITEMS + ITEM_INDEX(cl->newweapon);
+				cl->ps_rrstats[STAT_PICKUP_ICON] = FirstPersonWeaponIcon(cl->newweapon);
+				cl->ps_rrstats[STAT_PICKUP_STRING] = CS_ITEMS + ITEM_INDEX(cl->newweapon);
 				cl->pickup_msg_time = level.time + 0.9f;
 			}
 			return; /* successful */
@@ -1215,8 +1215,8 @@ PlayerSort(void const *a, void const *b)
 	anum = *(int *)a;
 	bnum = *(int *)b;
 
-	anum = game.clients[anum].ps.stats[STAT_FRAGS];
-	bnum = game.clients[bnum].ps.stats[STAT_FRAGS];
+	anum = game.clients[anum].ps_rrstats[STAT_FRAGS];
+	bnum = game.clients[bnum].ps_rrstats[STAT_FRAGS];
 
 	if (anum < bnum)
 	{
@@ -1265,7 +1265,7 @@ Cmd_Players_f(edict_t *ent)
 	for (i = 0; i < count; i++)
 	{
 		Com_sprintf(small, sizeof(small), "%3i %s\n",
-				game.clients[index[i]].ps.stats[STAT_FRAGS],
+				game.clients[index[i]].ps_rrstats[STAT_FRAGS],
 				game.clients[index[i]].pers.netname);
 
 		if (strlen(small) + strlen(large) > sizeof(large) - 100)
@@ -2081,8 +2081,8 @@ Cmd_CycleWeap_f(edict_t *ent)
 	weap->use(ent, weap);
 	if (num_weaps > 3 && cl->newweapon == weap)
 	{
-		cl->ps.stats[STAT_PICKUP_ICON] = FirstPersonWeaponIcon(weap);
-		cl->ps.stats[STAT_PICKUP_STRING] = CS_ITEMS + ITEM_INDEX(weap);
+		cl->ps_rrstats[STAT_PICKUP_ICON] = FirstPersonWeaponIcon(weap);
+		cl->ps_rrstats[STAT_PICKUP_STRING] = CS_ITEMS + ITEM_INDEX(weap);
 		cl->pickup_msg_time = level.time + 0.7f;
 	}
 }

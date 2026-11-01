@@ -85,6 +85,10 @@ struct gclient_s
 {
 	player_state_t ps;      /* communicated by server to clients */
 	int ping;
+
+	/* ReRelease stats */
+	short ps_rrstats[MAX_XSTATS];     /* fast status bar updates */
+
 	/* the game dll can add anything it wants
 	   after this point in the structure */
 };
