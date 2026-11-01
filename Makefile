@@ -1204,6 +1204,7 @@ GAME_OBJS_ = \
 	src/game/dm/tag.o \
 	src/game/menu/menu.o \
 	src/game/monster/actor/actor.o \
+	src/game/monster/alienship/alienship.o \
 	src/game/monster/arachnid/arachnid.o \
 	src/game/monster/army/army.o \
 	src/game/monster/badass/badass.o \

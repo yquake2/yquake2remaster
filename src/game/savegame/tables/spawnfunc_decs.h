@@ -117,6 +117,7 @@ void SP_misc_update_spawner ( edict_t * self ) ;
 void SP_misc_viper ( edict_t * ent ) ;
 void SP_misc_viper_bomb( edict_t * self ) ;
 void SP_misc_viper_missile( edict_t * self ) ;
+void SP_monster_alienship1( edict_t * self ) ;
 void SP_monster_arachnid( edict_t * self ) ;
 void SP_monster_army( edict_t * self ) ;
 void SP_monster_badass( edict_t * self ) ;

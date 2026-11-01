@@ -132,6 +132,7 @@
 {"misc_viper", SP_misc_viper},
 {"misc_viper_bomb", SP_misc_viper_bomb},
 {"misc_viper_missile", SP_misc_viper_missile},
+{"monster_alienship1", SP_monster_alienship1},
 {"monster_arachnid", SP_monster_arachnid},
 {"monster_army", SP_monster_army},
 {"monster_bee", SP_obj_material},

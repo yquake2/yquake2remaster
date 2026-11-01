@@ -15197,7 +15197,7 @@
     "misc_value": 0,
     "no_mip": 0,
     "spawn_sequence": "none",
-    "description": "Item Radar",
+    "description": "Radar",
     "color": [
       0.5,
       0.5,
@@ -15572,8 +15572,8 @@
     ],
     "noshadow": "shadow",
     "solidflag": 0,
-    "walk_speed": 0.0,
-    "run_speed": 0.0,
+    "walk_speed": 5.0,
+    "run_speed": 10.0,
     "speed": 0,
     "lighting": 0,
     "blending": 0,
@@ -15597,7 +15597,7 @@
       0.0
     ],
     "gib_type": "none",
-    "gib_health": 0
+    "gib_health": -10
   },
   {
     "classname": "monster_grunt1v1",

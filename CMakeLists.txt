@@ -401,6 +401,7 @@ set(Game-Source
 	${GAME_SRC_DIR}/g_weapon.c
 	${GAME_SRC_DIR}/menu/menu.c
 	${GAME_SRC_DIR}/monster/actor/actor.c
+	${GAME_SRC_DIR}/monster/alienship/alienship.c
 	${GAME_SRC_DIR}/monster/arachnid/arachnid.c
 	${GAME_SRC_DIR}/monster/army/army.c
 	${GAME_SRC_DIR}/monster/badass/badass.c
