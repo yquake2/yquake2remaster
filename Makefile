@@ -1242,6 +1242,7 @@ GAME_OBJS_ = \
 	src/game/monster/ogre/ogre.o \
 	src/game/monster/parasite/parasite.o \
 	src/game/monster/rotfish/rotfish.o \
+	src/game/monster/screamer/screamer.o \
 	src/game/monster/shalrath/shalrath.o \
 	src/game/monster/shambler/shambler.o \
 	src/game/monster/soldier/soldier.o \

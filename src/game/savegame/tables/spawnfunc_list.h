@@ -178,6 +178,7 @@
 {"monster_ogre", SP_monster_ogre},
 {"monster_parasite", SP_monster_parasite},
 {"monster_rotfish", SP_monster_rotfish},
+{"monster_screamer", SP_monster_screamer},
 {"monster_shalrath", SP_monster_shalrath},
 {"monster_shambler", SP_monster_shambler},
 {"monster_soldier", SP_monster_soldier},

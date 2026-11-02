@@ -157,6 +157,7 @@ void SP_monster_mutant( edict_t * self ) ;
 void SP_monster_ogre( edict_t * self ) ;
 void SP_monster_parasite( edict_t * self ) ;
 void SP_monster_rotfish( edict_t * self ) ;
+void SP_monster_screamer( edict_t * self ) ;
 void SP_monster_shalrath( edict_t * self ) ;
 void SP_monster_shambler(edict_t* self);
 void SP_monster_soldier( edict_t * self ) ;

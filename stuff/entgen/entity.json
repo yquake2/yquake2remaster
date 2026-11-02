@@ -15589,8 +15589,8 @@
     ],
     "health": 35,
     "mass": 50,
-    "damage": 0,
-    "damage_range": 0,
+    "damage": 3,
+    "damage_range": 8,
     "damage_aim": [
       0.0,
       0.0,
@@ -15753,19 +15753,19 @@
     ],
     "entity_type": "general",
     "mins": [
-      -20.0,
-      -20.0,
-      -25.0
+      -14.0,
+      -14.0,
+      -24.0
     ],
     "maxs": [
-      20.0,
-      20.0,
+      14.0,
+      14.0,
       38.0
     ],
     "noshadow": "shadow",
     "solidflag": 0,
-    "walk_speed": 0.0,
-    "run_speed": 0.0,
+    "walk_speed": 23.0,
+    "run_speed": 28.0,
     "speed": 0,
     "lighting": 0,
     "blending": 0,
@@ -15781,15 +15781,15 @@
     ],
     "health": 180,
     "mass": 200,
-    "damage": 0,
-    "damage_range": 0,
+    "damage": 40,
+    "damage_range": 10,
     "damage_aim": [
       0.0,
       0.0,
       0.0
     ],
     "gib_type": "none",
-    "gib_health": 0
+    "gib_health": -50
   },
   {
     "classname": "weapon_6bshot",
