@@ -164,6 +164,7 @@
 {"monster_guncmdr", SP_monster_guncmdr},
 {"monster_grunt1v1", SP_monster_grunt1},
 {"monster_grunt1v2", SP_monster_grunt1},
+{"monster_grunt2", SP_monster_grunt2},
 {"monster_hknight", SP_monster_hknight},
 {"monster_hover", SP_monster_hover},
 {"monster_infantry", SP_monster_infantry},

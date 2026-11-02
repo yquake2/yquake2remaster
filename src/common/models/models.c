@@ -682,8 +682,10 @@ static const namesconvert_t quake2_names[] = {
 	{"run", "run"},
 	{"walk", "walk"},
 	/* infinity */
+	{"idle", "idle"},
 	{"powa", "pow"},
 	{"powb", "pow"},
+	{"shoot", "shoot"},
 	{NULL, NULL}
 };
 

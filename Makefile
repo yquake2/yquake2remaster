@@ -1230,6 +1230,7 @@ GAME_OBJS_ = \
 	src/game/monster/gladiator/gladiator.o \
 	src/game/monster/guardian/guardian.o \
 	src/game/monster/grunt/grunt1.o \
+	src/game/monster/grunt/grunt2.o \
 	src/game/monster/gunner/gunner.o \
 	src/game/monster/hknight/hknight.o \
 	src/game/monster/hover/hover.o \

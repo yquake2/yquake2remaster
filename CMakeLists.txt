@@ -428,6 +428,7 @@ set(Game-Source
 	${GAME_SRC_DIR}/monster/guardian/guardian.c
 	${GAME_SRC_DIR}/monster/gunner/gunner.c
 	${GAME_SRC_DIR}/monster/grunt/grunt1.c
+	${GAME_SRC_DIR}/monster/grunt/grunt2.c
 	${GAME_SRC_DIR}/monster/hknight/hknight.c
 	${GAME_SRC_DIR}/monster/hover/hover.c
 	${GAME_SRC_DIR}/monster/infantry/infantry.c
