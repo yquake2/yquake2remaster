@@ -340,8 +340,8 @@ misc_lightning||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0
 misc_rain|models/objects/rain/tris.md2|1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Misc Rain|.5|.5|.5|0|0|0|0|0|0|0|none|0
 misc_text_caption||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Misc Text Caption|.5|.5|.5|0|0|0|0|0|0|0|none|0
 monster_alienship1|models/monsters/aliens1/tris.md2|1.0|1.0|1.0|general|-34.0|-25.0|-13.0|45.0|43.0|41.0|shadow|0|5.0|10.0|0|0|0|0:0|0|0|none|Monster Alienship|0.5|0.5|0.5|35|50|3|8|0.0|0.0|0.0|none|-10
-monster_grunt1v1|models/monsters/grunt/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-25.0|16.0|16.0|30.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Monster Grunt1v1|.5|.5|.5|80|100|0|0|0|0|0|none|0
-monster_grunt1v2|models/monsters/grunt/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-25.0|16.0|16.0|30.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Monster Grunt1v2|.5|.5|.5|80|120|0|0|0|0|0|none|0
+monster_grunt1v1|models/monsters/grunt/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-25.0|16.0|16.0|30.0|shadow|0|5.0|10.0|0|0|0|0:0|0|0|none|Monster Grunt1v1|0.5|0.5|0.5|60|100|2|2|0.0|0.0|0.0|none|-40
+monster_grunt1v2|models/monsters/grunt/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-25.0|16.0|16.0|30.0|shadow|0|5.0|10.0|0|0|0|0:0|0|0|none|Monster Grunt1v2|0.5|0.5|0.5|80|100|2|2|0.0|0.0|0.0|none|-40
 monster_grunt2|models/monsters/grunt2/tris.md2|1.0|1.0|1.0|general|-10.0|-23.0|-25.0|12.0|22.0|52.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Monster Grunt2|.5|.5|.5|180|100|0|0|0|0|0|none|0
 monster_screamer|models/monsters/screamer/tris.md2|1.0|1.0|1.0|general|-14.0|-14.0|-24.0|14.0|14.0|38.0|shadow|0|23.0|28.0|0|0|0|0:0|0|0|none|Monster Screamer|0.5|0.5|0.5|180|200|40|10|0.0|0.0|0.0|none|-50
 weapon_6bshot|models/weapons/g_6bshot/tris.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Riot Shotgun|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0

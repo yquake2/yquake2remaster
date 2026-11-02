@@ -144,6 +144,7 @@ void SP_monster_gladiator( edict_t * self ) ;
 void SP_monster_guardian( edict_t * self ) ;
 void SP_monster_guncmdr( edict_t * self ) ;
 void SP_monster_gunner( edict_t * self ) ;
+void SP_monster_grunt1( edict_t * self ) ;
 void SP_monster_hknight( edict_t * self ) ;
 void SP_monster_hover( edict_t * self ) ;
 void SP_monster_infantry( edict_t * self ) ;
