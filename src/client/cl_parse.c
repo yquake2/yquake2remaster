@@ -2052,6 +2052,20 @@ CL_ParsePOI(void)
 }
 
 static void
+CL_ParseHelpPath(void)
+{
+	int start;
+	vec3_t pos, dir;
+
+	start = MSG_ReadByte(&net_message);
+	MSG_ReadPos(&net_message, pos, cls.serverProtocol);
+	MSG_ReadDir(&net_message, dir);
+
+	Com_DPrintf("%s: start %d at %.2fx%.2fx%.2f, direction %.2fx%.2fx%.2f\n",
+		__func__, start, pos[0], pos[1], pos[2], dir[0], dir[1], dir[2]);
+}
+
+static void
 CL_ParseDamage(void)
 {
 	int count, i;
@@ -2408,6 +2422,10 @@ CL_ParseServerMessage(void)
 
 			case svc_poi:
 				CL_ParsePOI();
+				break;
+
+			case svc_help_path:
+				CL_ParseHelpPath();
 				break;
 
 			case svc_playerinfo:
