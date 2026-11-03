@@ -25,6 +25,7 @@
  * =======================================================================
  */
 
+{"achievement", STOFS(achievement), F_LRAWSTRING},
 {"effects", STOFS(effects), F_INT},
 {"fade_end_dist", STOFS(fade_end_dist), F_FLOAT},
 {"fade_start_dist", STOFS(fade_start_dist), F_FLOAT},

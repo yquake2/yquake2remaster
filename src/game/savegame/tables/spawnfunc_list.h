@@ -359,6 +359,7 @@
 {"point_combat", SP_point_combat},
 {"quake_light_flame", SP_quake_light_flame},
 {"rotating_light", SP_rotating_light},
+{"target_achievement", SP_target_achievement},
 {"target_actor", SP_target_actor},
 {"target_anger", SP_target_anger},
 {"target_autosave", SP_target_autosave},

@@ -264,6 +264,7 @@ void SP_path_corner( edict_t * self ) ;
 void SP_point_combat( edict_t * self ) ;
 void SP_quake_light_flame( edict_t * self ) ;
 void SP_rotating_light( edict_t * self ) ;
+void SP_target_achievement( edict_t * self ) ;
 void SP_target_actor( edict_t * self ) ;
 void SP_target_anger( edict_t * self ) ;
 void SP_target_autosave( edict_t * self ) ;

@@ -2387,6 +2387,33 @@ SP_target_crossunit_target(edict_t *self)
 	self->nextthink = level.time + self->delay;
 }
 
+/*
+ * QUAKED target_achievement (.5 .5 .5) (-8 -8 -8) (8 8 8)
+ *
+ * Give an achievement.
+ * "achievement"		cheevo to give
+ */
+void
+use_target_achievement(edict_t *self, edict_t *other, edict_t *activator)
+{
+	gi.WriteByte(svc_achievement);
+	gi.WriteString(self->map);
+	gi.multicast(vec3_origin, MULTICAST_ALL);
+}
+
+void
+SP_target_achievement(edict_t *self)
+{
+	if (deathmatch->value)
+	{
+		G_FreeEdict(self);
+		return;
+	}
+
+	self->map = st.achievement;
+	self->use = use_target_achievement;
+}
+
 void
 use_target_story(edict_t *self, edict_t *other, edict_t *activator)
 {

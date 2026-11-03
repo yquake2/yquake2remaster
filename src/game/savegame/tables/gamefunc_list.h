@@ -548,6 +548,7 @@ static const fnlist_entry_t fnentries_use[] =
 	{"turret_brain_deactivate", (byte *)turret_brain_deactivate},
 	{"use_killbox", (byte *)use_killbox},
 	{"use_nuke", (byte *)use_nuke},
+	{"use_target_achievement", (byte *)use_target_achievement},
 	{"use_target_autosave", (byte *)use_target_autosave},
 	{"use_target_blaster", (byte *)use_target_blaster},
 	{"use_target_camera", (byte *)use_target_camera},

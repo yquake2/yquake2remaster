@@ -507,6 +507,7 @@ extern void turret_brain_activate (edict_t *, edict_t *, edict_t *);
 extern void turret_brain_deactivate (edict_t *, edict_t *, edict_t *);
 extern void use_killbox (edict_t *, edict_t *, edict_t *);
 extern void use_nuke (edict_t *, edict_t *, edict_t *);
+extern void use_target_achievement (edict_t *, edict_t *, edict_t *);
 extern void use_target_autosave (edict_t *, edict_t *, edict_t *);
 extern void use_target_blaster (edict_t *, edict_t *, edict_t *);
 extern void use_target_camera (edict_t *, edict_t *, edict_t *);

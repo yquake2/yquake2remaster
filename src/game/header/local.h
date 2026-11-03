@@ -54,6 +54,7 @@
 #define svc_inventory 5
 #define svc_stufftext 11
 #define svc_fog 27
+#define svc_achievement 33
 
 /* ================================================================== */
 
@@ -478,6 +479,9 @@ typedef struct
 	float maxyaw;
 	float minpitch;
 	float maxpitch;
+
+	/* RR22/RR23 */
+	char *achievement;
 
 	/* misc_flare */
 	float radius;
