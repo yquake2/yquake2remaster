@@ -2245,6 +2245,20 @@ CL_ParseWaitingForPlayers(void)
 }
 
 static void
+CL_ParseBotChat(void)
+{
+	char bot_name[2048], message[2048];
+	int client;
+
+	Q_strlcpy(bot_name, MSG_ReadString(&net_message), sizeof(bot_name));
+	client = MSG_ReadShort(&net_message);
+	Q_strlcpy(message, MSG_ReadString(&net_message), sizeof(message));
+
+	Com_DPrintf("%s: %s to client %d: %s\n",
+		__func__, bot_name, client, message);
+}
+
+static void
 CL_ParseDamage(void)
 {
 	int count, i;
@@ -2613,6 +2627,10 @@ CL_ParseServerMessage(void)
 
 			case svc_waitingforplayers:
 				CL_ParseWaitingForPlayers();
+				break;
+
+			case svc_bot_chat:
+				CL_ParseBotChat();
 				break;
 
 			case svc_poi:
