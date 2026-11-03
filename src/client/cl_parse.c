@@ -1891,6 +1891,38 @@ CL_ParseConfigStringValue(int orig_i, char *s)
 }
 
 static void
+CL_ParseLevelRestart(void)
+{
+	while (1)
+	{
+		int index;
+		char *value;
+
+		if (net_message.readcount > net_message.cursize ||
+			net_message.cursize - net_message.readcount < 2)
+		{
+			Com_Error(ERR_DROP, "%s: truncated configstring list", __func__);
+			return;
+		}
+
+		index = MSG_ReadShort(&net_message);
+		if (index == -1)
+		{
+			break;
+		}
+
+		value = MSG_ReadString(&net_message);
+		if (net_message.readcount > net_message.cursize)
+		{
+			Com_Error(ERR_DROP, "%s: truncated configstring value", __func__);
+			return;
+		}
+
+		CL_ParseConfigStringValue(index, value);
+	}
+}
+
+static void
 CL_ParseConfigString(sizebuf_t *message)
 {
 	int orig_i;
@@ -2505,6 +2537,10 @@ CL_ParseServerMessage(void)
 
 			case svc_configblast:
 				CL_ParseConfigBlast();
+				break;
+
+			case svc_level_restart:
+				CL_ParseLevelRestart();
 				break;
 
 			case svc_sound:
