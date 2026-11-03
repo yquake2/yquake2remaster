@@ -2641,6 +2641,11 @@ CL_ParseServerMessage(void)
 				CL_ParseHelpPath();
 				break;
 
+			case svc_achievement:
+				Com_DPrintf("%s: achievement %s\n",
+					__func__, MSG_ReadString(&net_message));
+				break;
+
 			case svc_playerinfo:
 			case svc_packetentities:
 			case svc_deltapacketentities:
