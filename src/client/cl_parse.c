@@ -2035,6 +2035,23 @@ CL_ParseStartSoundPacket(void)
 }
 
 static void
+CL_ParsePOI(void)
+{
+	int key, time, image, color, flags;
+	vec3_t pos;
+
+	key = MSG_ReadShort(&net_message);
+	time = MSG_ReadShort(&net_message);
+	MSG_ReadPos(&net_message, pos, cls.serverProtocol);
+	image = MSG_ReadShort(&net_message);
+	color = MSG_ReadByte(&net_message);
+	flags = MSG_ReadByte(&net_message);
+
+	Com_DPrintf("%s: key %d, time %d, image %d, color %d, flags %d at %.2fx%.2fx%.2f\n",
+		__func__, key, time, image, color, flags, pos[0], pos[1], pos[2]);
+}
+
+static void
 CL_ParseDamage(void)
 {
 	int count, i;
@@ -2387,6 +2404,10 @@ CL_ParseServerMessage(void)
 
 			case svc_fog:
 				CL_AddFog(&cl.refdef.fog);
+				break;
+
+			case svc_poi:
+				CL_ParsePOI();
 				break;
 
 			case svc_playerinfo:
