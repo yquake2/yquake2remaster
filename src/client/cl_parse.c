@@ -1987,6 +1987,44 @@ CL_ParseConfigBlast(void)
 }
 
 static void
+CL_ParseBaselineBlast(void)
+{
+	byte *uncompressed_data = NULL;
+	int uncompressed_len;
+	sizebuf_t inflated_message, original_message;
+	qboolean malformed = false;
+
+	CL_InflateBlast(&uncompressed_data, &uncompressed_len);
+	if (!uncompressed_data)
+	{
+		return;
+	}
+
+	SZ_Init(&inflated_message, uncompressed_data, uncompressed_len);
+	original_message = net_message;
+	net_message = inflated_message;
+
+	while (net_message.readcount < net_message.cursize)
+	{
+		CL_ParseBaseline();
+
+		if (net_message.readcount > net_message.cursize)
+		{
+			malformed = true;
+			break;
+		}
+	}
+
+	net_message = original_message;
+	free(uncompressed_data);
+
+	if (malformed)
+	{
+		Com_Error(ERR_DROP, "%s: malformed inflated baselines", __func__);
+	}
+}
+
+static void
 CL_ParseStartSoundPacket(void)
 {
 	vec3_t pos_v;
@@ -2479,6 +2517,10 @@ CL_ParseServerMessage(void)
 
 			case svc_spawnbaseline:
 				CL_ParseBaseline();
+				break;
+
+			case svc_spawnbaselineblast:
+				CL_ParseBaselineBlast();
 				break;
 
 			case svc_temp_entity:
