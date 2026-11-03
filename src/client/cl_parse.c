@@ -2230,6 +2230,21 @@ CL_ParseHelpPath(void)
 }
 
 static void
+CL_ParseWaitingForPlayers(void)
+{
+	int count;
+
+	count = MSG_ReadByte(&net_message);
+	if (count < 0)
+	{
+		Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+		return;
+	}
+
+	Com_DPrintf("%s: %d players waiting\n", __func__, count);
+}
+
+static void
 CL_ParseDamage(void)
 {
 	int count, i;
@@ -2594,6 +2609,10 @@ CL_ParseServerMessage(void)
 
 			case svc_fog:
 				CL_AddFog(&cl.refdef.fog);
+				break;
+
+			case svc_waitingforplayers:
+				CL_ParseWaitingForPlayers();
 				break;
 
 			case svc_poi:
