@@ -1430,7 +1430,6 @@ CL_ParseServerData(void)
 
 	if ((cl_shownet->value == 0) &&
 		((i == PROTOCOL_H2DEMO_VERSION) ||
-		 (i == PROTOCOL_RR23_VERSION) ||
 		 (i == PROTOCOL_Q2TEST_VERSION)))
 	{
 		Com_Error(ERR_DROP, "Network protocol '%s' is currently unsupported\n",
@@ -2498,12 +2497,6 @@ CL_ParseServerMessage(void)
 			case svc_nop:
 				break;
 
-			case svc_splitclient:
-				/* next message for such split screen*/
-				Com_DPrintf("%s: package for split screen %d\n",
-					__func__, MSG_ReadByte(&net_message));
-				break;
-
 			case svc_disconnect:
 				Com_Error(ERR_DISCONNECT, "Server disconnected\n");
 				return;
@@ -2541,10 +2534,6 @@ CL_ParseServerMessage(void)
 				con.ormask = 0;
 				break;
 
-			case svc_locprint:
-				CL_ParseLocPrint();
-				break;
-
 			case svc_centerprint:
 				SCR_CenterPrint(MSG_ReadString(&net_message));
 				break;
@@ -2564,28 +2553,12 @@ CL_ParseServerMessage(void)
 				CL_ParseConfigString(&net_message);
 				break;
 
-			case svc_configblast:
-				CL_ParseConfigBlast();
-				break;
-
-			case svc_level_restart:
-				CL_ParseLevelRestart();
-				break;
-
 			case svc_sound:
 				CL_ParseStartSoundPacket();
 				break;
 
-			case svc_damage:
-				CL_ParseDamage();
-				break;
-
 			case svc_spawnbaseline:
 				CL_ParseBaseline();
-				break;
-
-			case svc_spawnbaselineblast:
-				CL_ParseBaselineBlast();
 				break;
 
 			case svc_temp_entity:
@@ -2598,10 +2571,6 @@ CL_ParseServerMessage(void)
 
 			case svc_muzzleflash2:
 				CL_AddMuzzleFlash2();
-				break;
-
-			case svc_muzzleflash3:
-				CL_AddMuzzleFlash3();
 				break;
 
 			case svc_download:
@@ -2619,6 +2588,39 @@ CL_ParseServerMessage(void)
 			case svc_layout:
 				s = MSG_ReadString(&net_message);
 				Q_strlcpy(cl.layout, s, sizeof(cl.layout));
+				break;
+
+			case svc_playerinfo:
+			case svc_packetentities:
+			case svc_deltapacketentities:
+				Com_Error(ERR_DROP, "Out of place frame data");
+				return;
+
+			/* RR22/RR23 */
+			case svc_splitclient:
+				/* next message for such split screen*/
+				Com_DPrintf("%s: package for split screen %d\n",
+					__func__, MSG_ReadByte(&net_message));
+				break;
+
+			case svc_configblast:
+				CL_ParseConfigBlast();
+				break;
+
+			case svc_spawnbaselineblast:
+				CL_ParseBaselineBlast();
+				break;
+
+			case svc_level_restart:
+				CL_ParseLevelRestart();
+				break;
+
+			case svc_damage:
+				CL_ParseDamage();
+				break;
+
+			case svc_locprint:
+				CL_ParseLocPrint();
 				break;
 
 			case svc_fog:
@@ -2641,16 +2643,13 @@ CL_ParseServerMessage(void)
 				CL_ParseHelpPath();
 				break;
 
-			case svc_achievement:
-				Com_DPrintf("%s: achievement %s\n",
-					__func__, MSG_ReadString(&net_message));
+			case svc_muzzleflash3:
+				CL_AddMuzzleFlash3();
 				break;
 
-			case svc_playerinfo:
-			case svc_packetentities:
-			case svc_deltapacketentities:
-				Com_Error(ERR_DROP, "Out of place frame data");
-				return;
+			case svc_achievement:
+				Com_Printf("Achievement: %s\n", MSG_ReadString(&net_message));
+				break;
 		}
 	}
 

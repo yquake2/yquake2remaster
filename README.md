@@ -261,6 +261,9 @@ Checked with:
 
 ### Next release:
 * [ ] Anachronox: CTC entity format,
+* [x] ReRelease: Add `target_achievement` support,
+* [x] Minimal multiplayer KEX/RR2023 protocol support based on https://github.com/res2k/q2proto
+      and https://github.com/Paril/quake2-rerelease-dll,
 * [x] ReRelease: extend server player_state_t MAX_STATS limit,
 * [x] ReRelease: implement demo protocol based on https://github.com/res2k/q2proto
       and https://github.com/Paril/quake2-rerelease-dll,
@@ -277,8 +280,6 @@ Checked with:
 
 ### Not a goal:
 
-* [ ] Multiplayer protocol support with KEX engine based on https://github.com/res2k/q2proto
-      and https://github.com/Paril/quake2-rerelease-dll,
 * [ ] Support KEX engine features (inventory, compass and so on),
 * [ ] [KEX game library support](https://github.com/id-Software/quake2-rerelease-dll).
 
