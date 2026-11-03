@@ -26,6 +26,7 @@
 
 #include "header/client.h"
 #include "input/header/input.h"
+#include "../common/unzip/miniz/miniz.h"
 
 static int bitcounts[64]; /* just for protocol profiling */
 
@@ -1770,14 +1771,11 @@ CL_LoadShadowLight(int idx, const char *s)
 }
 
 static void
-CL_ParseConfigString(void)
+CL_ParseConfigStringValue(int orig_i, char *s)
 {
-	int i, orig_i, cs_changed;
 	size_t length, space;
-	char *s, *cs;
-
-	orig_i = MSG_ReadShort(&net_message) & 0xFFFF;
-	s = MSG_ReadString(&net_message);
+	int i, cs_changed;
+	char *cs;
 
 	i = P_ConvertConfigStringFrom(orig_i, cls.serverProtocol);
 
@@ -1890,6 +1888,102 @@ CL_ParseConfigString(void)
 	{
 		CL_LoadShadowLight(i - CS_SHADOWLIGHTS, s);
 	}
+}
+
+static void
+CL_ParseConfigString(sizebuf_t *message)
+{
+	int orig_i;
+	char *s;
+
+	orig_i = MSG_ReadShort(message) & 0xFFFF;
+	s = MSG_ReadString(message);
+	CL_ParseConfigStringValue(orig_i, s);
+}
+
+static void
+CL_InflateBlast(byte **data, int *data_len)
+{
+	int compressed_len, uncompressed_len;
+	mz_ulong actual_len;
+	byte *compressed_data, *uncompressed_data;
+	int result;
+
+	if (net_message.readcount > net_message.cursize ||
+		net_message.cursize - net_message.readcount < 4)
+	{
+		Com_Error(ERR_DROP, "%s: truncated blast header", __func__);
+		return;
+	}
+
+	compressed_len = MSG_ReadShort(&net_message) & 0xFFFF;
+	uncompressed_len = MSG_ReadShort(&net_message) & 0xFFFF;
+
+	if (!compressed_len || !uncompressed_len ||
+		compressed_len > net_message.cursize - net_message.readcount)
+	{
+		Com_Error(ERR_DROP, "%s: invalid blast sizes %d/%d",
+			__func__, compressed_len, uncompressed_len);
+		return;
+	}
+
+	compressed_data = malloc(compressed_len);
+	uncompressed_data = malloc(uncompressed_len);
+
+	if (!compressed_data || !uncompressed_data)
+	{
+		free(compressed_data);
+		free(uncompressed_data);
+		Com_Error(ERR_DROP, "%s: couldn't allocate blast buffers", __func__);
+		return;
+	}
+
+	MSG_ReadData(&net_message, compressed_data, compressed_len);
+	actual_len = uncompressed_len;
+	result = mz_uncompress(uncompressed_data, &actual_len,
+		compressed_data, compressed_len);
+	free(compressed_data);
+
+	if (result != MZ_OK || actual_len != (mz_ulong)uncompressed_len)
+	{
+		free(uncompressed_data);
+		Com_Error(ERR_DROP, "%s: couldn't inflate blast (miniz %d, size %lu/%d)",
+			__func__, result, (unsigned long)actual_len, uncompressed_len);
+		return;
+	}
+
+	*data = uncompressed_data;
+	*data_len = uncompressed_len;
+}
+
+static void
+CL_ParseConfigBlast(void)
+{
+	byte *uncompressed_data = NULL;
+	int uncompressed_len;
+	sizebuf_t inflated_message;
+
+	CL_InflateBlast(&uncompressed_data, &uncompressed_len);
+	if (!uncompressed_data)
+	{
+		return;
+	}
+
+	SZ_Init(&inflated_message, uncompressed_data, uncompressed_len);
+
+	while (inflated_message.readcount < inflated_message.cursize)
+	{
+		CL_ParseConfigString(&inflated_message);
+
+		if (inflated_message.readcount > inflated_message.cursize)
+		{
+			free(uncompressed_data);
+			Com_Error(ERR_DROP, "%s: malformed inflated config strings", __func__);
+			return;
+		}
+	}
+
+	free(uncompressed_data);
 }
 
 static void
@@ -2368,7 +2462,11 @@ CL_ParseServerMessage(void)
 				break;
 
 			case svc_configstring:
-				CL_ParseConfigString();
+				CL_ParseConfigString(&net_message);
+				break;
+
+			case svc_configblast:
+				CL_ParseConfigBlast();
 				break;
 
 			case svc_sound:
