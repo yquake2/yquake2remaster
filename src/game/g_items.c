@@ -4776,7 +4776,7 @@ InitItems(void)
 						}
 						else if (!strcmp(itemlist[num_items].classname, "weapon_blaze"))
 						{
-							itemlist[num_items].ammo = "Cells";
+							itemlist[num_items].ammo = "Power Crystals";
 							itemlist[num_items].quantity = 1;
 						}
 						else if (!strcmp(itemlist[num_items].classname, "weapon_goop"))

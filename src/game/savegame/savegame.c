@@ -1034,6 +1034,16 @@ SanitizeClientStruct(gclient_t *cl)
 
 	ValidateSelectedItem(cl);
 	cl->ammo_index = GetWeaponAmmoIndex(cl->pers.weapon);
+	if (cl->pers.weapon && cl->pers.weapon->classname &&
+			!strcmp(cl->pers.weapon->classname, "weapon_rifle"))
+	{
+		const gitem_t *ammo = FindItem(cl->infinity_rifle_mode ?
+				"HE Rounds" : "Bullets");
+		if (ammo)
+		{
+			cl->ammo_index = ITEM_INDEX(ammo);
+		}
+	}
 	cl->flood_whenhead = 0;
 }
 

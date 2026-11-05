@@ -402,29 +402,42 @@ pistol_bolt_think(edict_t *self)
 
 	gi.WriteByte(svc_temp_entity);
 	gi.WriteByte(TE_LASER_SPARKS);
-	gi.WriteByte(2);
+	gi.WriteByte(8);
 	gi.WritePosition(back1);
-	gi.WriteDir(vec3_origin);
+	gi.WriteDir(self->movedir);
 	gi.WriteByte(0);
 	gi.multicast(back1, MULTICAST_PVS);
 
 	gi.WriteByte(svc_temp_entity);
 	gi.WriteByte(TE_LASER_SPARKS);
-	gi.WriteByte(2);
+	gi.WriteByte(8);
 	gi.WritePosition(back2);
-	gi.WriteDir(vec3_origin);
+	gi.WriteDir(self->movedir);
 	gi.WriteByte(0);
 	gi.multicast(back2, MULTICAST_PVS);
 
 	gi.WriteByte(svc_temp_entity);
 	gi.WriteByte(TE_LASER_SPARKS);
-	gi.WriteByte(2);
+	gi.WriteByte(8);
 	gi.WritePosition(back3);
-	gi.WriteDir(vec3_origin);
+	gi.WriteDir(self->movedir);
 	gi.WriteByte(0);
 	gi.multicast(back3, MULTICAST_PVS);
 
 	self->nextthink = level.time + 0.1;
+}
+
+static void
+pistol_bolt_impact_think(edict_t *self)
+{
+	if (self->s.frame >= 2)
+	{
+		G_FreeEdict(self);
+		return;
+	}
+
+	self->s.frame++;
+	self->nextthink = level.time + 0.1f;
 }
 
 void
@@ -432,7 +445,12 @@ pistol_bolt_touch(edict_t *self, edict_t *other, const cplane_t *plane, const cs
 {
 	vec3_t normal;
 
-	if (!self || !other)
+	if (!self)
+	{
+		return;
+	}
+
+	if (!other)
 	{
 		G_FreeEdict(self);
 		return;
@@ -455,7 +473,14 @@ pistol_bolt_touch(edict_t *self, edict_t *other, const cplane_t *plane, const cs
 	}
 
 	/* spark */
-	get_normal_vector(plane, normal);
+	if (plane)
+	{
+		get_normal_vector(plane, normal);
+	}
+	else
+	{
+		VectorSet(normal, 0, 0, 1);
+	}
 	gi.WriteByte(svc_temp_entity);
 	gi.WriteByte(TE_LASER_SPARKS);
 	gi.WriteByte(28);
@@ -468,7 +493,8 @@ pistol_bolt_touch(edict_t *self, edict_t *other, const cplane_t *plane, const cs
 	gi.sound(self, CHAN_AUTO, gi.soundindex("weapons/lashit.wav"), 1, ATTN_NORM, 0);
 
 	/* Area of effect damage (90-unit radius, 30 damage) */
-	T_RadiusDamage(self, self->owner, self->dmg, other, 90, MOD_MAGNETICPULSE);
+	T_RadiusDamage(self, self->owner, self->dmg, self->owner, 90,
+			MOD_MAGNETICPULSE);
 
 	/* Swap visual mesh to detonation/explosion model and trigger
 	 * animation / destruction */
@@ -478,8 +504,8 @@ pistol_bolt_touch(edict_t *self, edict_t *other, const cplane_t *plane, const cs
 	self->solid = SOLID_NOT;
 
 	self->s.frame = 0;
-	self->think = G_FreeEdict;
-	self->nextthink = level.time + 0.3; /* 3 frames at 0.1s each */
+	self->think = pistol_bolt_impact_think;
+	self->nextthink = level.time + 0.1f;
 }
 
 void

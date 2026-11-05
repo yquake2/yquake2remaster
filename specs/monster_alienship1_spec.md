@@ -1,22 +1,23 @@
-# Functional Specification: Monster Alienship 1 (`monster_alienship1`)
+# Functional Specification: Infinity Alienship 1
 
-## 1. Overview
-The Alienship 1 (`monster_alienship1`) is a flying enemy ported from the Infinity mod (`infinity/src/infinity/im_ship1.c`). It features birth, walk/fly, attack, pain, and death sequences, with distance-based movement adjustments (running away if too close).
-
----
-
-## 2. Entity Definition & Properties
+## Entity and map interface
 - **Classname:** `monster_alienship1`
-- **Source File:** `infinity/src/infinity/im_ship1.c`
-- **Frames & Animation States:**
-  - **Birth:** Frames `0` to `7` (`BIRTHSTART` to `BIRTHEND`)
-  - **Walk / Fly:** Frames `8` to `12` (`WALKSTART` to `WALKEND`)
-  - **Attack:** Frames `13` to `17` (`ATTACKSTART` to `ATTACKEND`)
-- **Proximity Threshold:** `TOCLOSE` = 180 units. If the enemy is closer than 180 units, the ship executes avoidance movement (`im_ship1_move_runaway`).
+- **Map bounds:** Minimum `(-34, -25, -13)`; maximum `(45, 43, 41)`.
+- **Map flags:** `Ambush`, `Trigger_Spawn`, `Sight`, `Style1`, and `Style2`.
+- **Model:** `models/monsters/aliens1/tris.md2`; `Style1` selects `models/monsters/aliens1/tris2.md2`.
+- **Scale, health, mass:** `1`, `35`, and `50`.
+- **Movement:** Flying; no melee attack.
+- **Animation frames:** birth `0–7`; standing, walking, and flight `8–12`; attack `13–17`.
+- The monster does not spawn in deathmatch.
 
----
-
-## 3. Combat & AI Behaviors
-- **Sight / Idle / Pain / Death Sounds:** Plays designated audio hooks (`sound_sight`, `sound_idle1`, `sound_idle2`, `sound_pain1`, `sound_pain2`, `sound_die`, `sound_attack`).
-- **Skill Attacks:** Periodically triggers `im_ship1_skill_attack` during movement/running cycles.
-- **Flight Dynamics:** Operates with flying movement logic, maintaining distance and executing strafing/firing maneuvers.
+## Behavior
+- It pursues its current enemy. At distances below `180` units it backs away, moving `18` units backward per frame; otherwise it advances at `10` units per frame.
+- An attack opportunity occurs during movement when `difficulty × U > 1.8`, where `U` is a random value in `[0, 1)`. The five-frame attack sequence fires on its first three frames.
+- Each projectile deals `3 + 8 × difficulty × U` damage and travels at speed `880`. The attack sound plays for each shot.
+- Sight, idle, pain, death, and attack sounds are:
+  - `monsters/aliens1/asact1.wav`
+  - `monsters/aliens1/asidle1.wav`, `monsters/aliens1/asidle2.wav`
+  - `monsters/aliens1/aspain1.wav`, `monsters/aliens1/aspain2.wav`
+  - `monsters/aliens1/asdeath.wav`
+  - `weapons/aswhip1.wav`
+- Death releases five ship-specific gib models: `models/monsters/shipgib/shipgib1.md2` through `models/monsters/shipgib/shipgib5.md2`.
