@@ -1441,6 +1441,18 @@ CL_ParseServerData(void)
 	str = MSG_ReadString(&net_message);
 	Q_strlcpy(cl.gamedir, str, sizeof(cl.gamedir));
 
+	if (cls.serverProtocol == PROTOCOL_H2DEMO_VERSION)
+	{
+		const char *version;
+		int download;
+
+		download = MSG_ReadByte(&net_message);
+		version = MSG_ReadString(&net_message);
+
+		Com_DPrintf("%s: Download type %d, client version '%s'\n",
+			__func__, download, version);
+	}
+
 	/* set gamedir */
 	if ((*str && (!fs_gamedirvar->string || !*fs_gamedirvar->string ||
 		  strcmp(fs_gamedirvar->string, str))) ||
