@@ -706,7 +706,19 @@ R_DrawEntitiesOnList(qboolean translucent)
 		/* all bmodels have already been drawn by the edge list */
 		for (i = 0; i < r_newrefdef.num_entities; i++)
 		{
-			entity_t *currententity = &r_newrefdef.entities[i];
+			entity_t *currententity;
+			size_t j;
+
+			currententity = &r_newrefdef.entities[i];
+
+			for (j = 0; j < 3; j++)
+			{
+				/* fix scale */
+				if (!currententity->scale[j])
+				{
+					currententity->scale[j] = 1.0f;
+				}
+			}
 
 			if (currententity->flags & (RF_TRANSLUCENT | RF_FLARE))
 			{

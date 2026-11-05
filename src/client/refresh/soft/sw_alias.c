@@ -618,15 +618,6 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 			aliasxscale = -aliasxscale;
 	}
 
-	for (i = 0; i < 3; i++)
-	{
-		/* fix scale */
-		if (!currententity->scale[i])
-		{
-			currententity->scale[i] = 1.0f;
-		}
-	}
-
 	/*
 	** we have to set our frame pointers and transformations before
 	** doing any real work

@@ -541,6 +541,16 @@ Mod_LoadFileWithoutExtModel(const char *namewe, size_t tlen, void **buffer)
 		return filesize;
 	}
 
+	/* Check sprite instead model */
+	Q_strlcpy(newname + tlen, ".sp2", sizeof(newname));
+	filesize = FS_LoadFile(newname, buffer);
+	if (filesize > 0)
+	{
+		Com_DPrintf("%s: %s loaded as sp2 (Quake 2)\n",
+			__func__, namewe);
+		return filesize;
+	}
+
 	return -1;
 }
 
@@ -560,6 +570,7 @@ static const replacement_t replacements[] = {
 	{"models/vault/monsters/mutant/tris", "models/monsters/mutant/tris"},
 	{"models/vault/monsters/flyer/tris", "models/monsters/flyer/tris"},
 	{"models/vault/monsters/float/tris", "models/monsters/float/tris"},
+	{"models/objects/r_explode2/tris", "models/objects/r_explode/tris"},
 	/* grapple -> flareg for classic */
 	{"models/weapons/grapple/tris", "models/weapons/v_flareg/tris"},
 	{"models/weapons/grapple/hook/tris", "models/weapons/g_flareg/tris"},
@@ -572,8 +583,9 @@ static const replacement_t replacements[] = {
 	{"models/objects/grenade3/tris", "models/objects/grenade2/tris"},
 	/* DoD vs Daikatana */
 	{"models/weapons/ammo/g_bolt", "models/e3/wa_bolt"},
-	/* q2demo */
+	/* q2test */
 	{"models/objects/gibs/head2/tris", "models/objects/gibs/head/tris"},
+	{"models/objects/r_explode/tris", "sprites/s_explo3"},
 	/* Oblivion */
 	{"models/weapons/v_mine/tris", "models/weapons/v_handgr/tris"},
 	{"models/objects/mine/tris", "models/items/ammo/grenades/medium/tris"},

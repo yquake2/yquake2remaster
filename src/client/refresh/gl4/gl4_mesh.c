@@ -446,15 +446,6 @@ GL4_DrawAliasModel(entity_t *currententity)
 	model_t* model = currententity->model;
 	paliashdr = (dmdx_t *)model->extradata;
 
-	for (i = 0; i < 3; i++)
-	{
-		/* fix scale */
-		if (!currententity->scale[i])
-		{
-			currententity->scale[i] = 1.0f;
-		}
-	}
-
 	if (r_worldmodel)
 	{
 		R_ApplyModelLight(r_worldmodel, currententity, shadelight,

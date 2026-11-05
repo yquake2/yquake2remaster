@@ -322,15 +322,6 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 		}
 	}
 
-	for (i = 0; i < 3; i++)
-	{
-		/* fix scale */
-		if (!currententity->scale[i])
-		{
-			currententity->scale[i] = 1.0f;
-		}
-	}
-
 	paliashdr = (dmdx_t *)currentmodel->extradata;
 
 	if (r_worldmodel)
