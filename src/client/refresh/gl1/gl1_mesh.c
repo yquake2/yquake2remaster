@@ -298,7 +298,6 @@ R_DrawAliasShadow(entity_t *currententity, dmdx_t *paliashdr, int posenum,
 void
 R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 {
-	int i;
 	float an;
 	const image_t *skin = NULL;
 	vec3_t bbox[8];
@@ -322,15 +321,6 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 		}
 	}
 
-	for (i = 0; i < 3; i++)
-	{
-		/* fix scale */
-		if (!currententity->scale[i])
-		{
-			currententity->scale[i] = 1.0f;
-		}
-	}
-
 	paliashdr = (dmdx_t *)currentmodel->extradata;
 
 	if (r_worldmodel)
@@ -348,6 +338,8 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 	 * appear slightly dimmer relative to walls. */
 	if (gl1_overbrightbits->value)
 	{
+		int i;
+
 		for (i = 0; i < 3; ++i)
 		{
 			shadelight[i] *= gl1_overbrightbits->value;

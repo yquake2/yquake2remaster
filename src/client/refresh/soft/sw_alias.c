@@ -578,8 +578,6 @@ R_DrawAliasModel
 void
 R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 {
-	int i;
-
 	if (!(currententity->flags & RF_WEAPONMODEL))
 	{
 		vec3_t bbox[8];
@@ -616,15 +614,6 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 
 		if ( r_lefthand->value == 1.0F )
 			aliasxscale = -aliasxscale;
-	}
-
-	for (i = 0; i < 3; i++)
-	{
-		/* fix scale */
-		if (!currententity->scale[i])
-		{
-			currententity->scale[i] = 1.0f;
-		}
 	}
 
 	/*

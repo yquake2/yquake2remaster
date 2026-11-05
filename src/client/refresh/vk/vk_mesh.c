@@ -499,7 +499,7 @@ Vk_DrawAliasShadow(int *order, const int *order_end, float height, float lheight
 void
 R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 {
-	int leftHandOffset = 0, index_pos = 0, i;
+	int leftHandOffset = 0, index_pos = 0;
 	float prev_viewproj[16], an;
 	vec3_t shadevector, shadelight;
 	dmdx_t *paliashdr;
@@ -524,15 +524,6 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 		if (r_lefthand->value == 2)
 		{
 			return;
-		}
-	}
-
-	for (i = 0; i < 3; i++)
-	{
-		/* fix scale */
-		if (!currententity->scale[i])
-		{
-			currententity->scale[i] = 1.0f;
 		}
 	}
 

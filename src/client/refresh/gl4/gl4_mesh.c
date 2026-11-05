@@ -414,7 +414,6 @@ DrawAliasShadow(gl4_shadowinfo_t* shadowInfo)
 void
 GL4_DrawAliasModel(entity_t *currententity)
 {
-	int i;
 	dmdx_t *paliashdr;
 	float an;
 	vec3_t shadelight;
@@ -445,15 +444,6 @@ GL4_DrawAliasModel(entity_t *currententity)
 
 	model_t* model = currententity->model;
 	paliashdr = (dmdx_t *)model->extradata;
-
-	for (i = 0; i < 3; i++)
-	{
-		/* fix scale */
-		if (!currententity->scale[i])
-		{
-			currententity->scale[i] = 1.0f;
-		}
-	}
 
 	if (r_worldmodel)
 	{
