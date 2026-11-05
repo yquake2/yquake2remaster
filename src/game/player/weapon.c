@@ -545,6 +545,8 @@ ChangeWeapon(edict_t *ent)
 	ent->client->pers.weapon = ent->client->newweapon;
 	ent->client->newweapon = NULL;
 	ent->client->machinegun_shots = 0;
+	ent->client->infinity_blaze_charge = 0;
+	ent->client->infinity_rifle_recoil = 0;
 
 	/* set visible model */
 	if (ent->s.modelindex == CUSTOM_PLAYER_MODEL)
@@ -564,6 +566,16 @@ ChangeWeapon(edict_t *ent)
 	}
 
 	ent->client->ammo_index = GetWeaponAmmoIndex(ent->client->pers.weapon);
+	if (ent->client->pers.weapon && ent->client->pers.weapon->classname &&
+			!strcmp(ent->client->pers.weapon->classname, "weapon_rifle"))
+	{
+		const gitem_t *ammo = FindItem(ent->client->infinity_rifle_mode ?
+				"HE Rounds" : "Bullets");
+		if (ammo)
+		{
+			ent->client->ammo_index = ITEM_INDEX(ammo);
+		}
+	}
 
 	if (!ent->client->pers.weapon)
 	{
@@ -1013,7 +1025,10 @@ Weapon_Generic2(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 
 			if ((!ent->client->ammo_index) ||
 				(ent->client->pers.inventory[ent->client->ammo_index] >=
-				 ent->client->pers.weapon->quantity))
+				 ent->client->pers.weapon->quantity) ||
+				(ent->client->pers.weapon->classname &&
+				 (!strcmp(ent->client->pers.weapon->classname, "weapon_blaze") ||
+				  !strcmp(ent->client->pers.weapon->classname, "weapon_rifle"))))
 			{
 				ent->client->ps.gunframe = FRAME_FIRE_FIRST;
 				ent->client->weaponstate = WEAPON_FIRING;
@@ -1022,6 +1037,14 @@ Weapon_Generic2(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 			}
 			else
 			{
+				if (ent->client->pers.weapon &&
+						ent->client->pers.weapon->classname &&
+						!strcmp(ent->client->pers.weapon->classname,
+								"weapon_6bshot"))
+				{
+					ent->client->ps.gunframe = 45;
+				}
+
 				if (level.time >= ent->pain_debounce_time)
 				{
 					gi.sound(ent, CHAN_VOICE, gi.soundindex(
@@ -1866,21 +1889,16 @@ Weapon_Pistol_Fire(edict_t *ent)
 {
 	vec3_t forward, right;
 	vec3_t start, offset;
-	int damage = 30;
+	const int damage = 30;
 
-	if (!ent)
+	if (!ent || !ent->client)
 	{
 		return;
 	}
 
-	if (is_quad)
-	{
-		damage *= damage_multiplier;
-	}
-
 	AngleVectors(ent->client->v_angle, forward, right, NULL);
 
-	VectorSet(offset, 8, 8, ent->viewheight - 8);
+	VectorSet(offset, 16, 5, ent->viewheight - 5);
 	P_ProjectSource(ent, offset, forward, right, start);
 
 	VectorScale(forward, -2, ent->client->kick_origin);
@@ -1896,8 +1914,6 @@ Weapon_Pistol_Fire(edict_t *ent)
 	PlayerNoise(ent, start, PNOISE_WEAPON);
 
 	ent->client->ps.gunframe++;
-
-	G_RemoveAmmo(ent);
 }
 
 static void
@@ -4218,31 +4234,35 @@ Weapon_ProximityMines(edict_t *ent)
 	}
 }
 
-// Helper function to spawn the projectile beam
-void
-Fire_BeamProjectile(edict_t *ent, vec3_t start, vec3_t dir, int speed, int damage)
+static qboolean
+Infinity_AmmoAvailable(edict_t *ent, int ammo_index, qboolean consume)
 {
-	edict_t *beam;
+	if (!ent || !ent->client || (ammo_index <= 0))
+	{
+		return false;
+	}
 
-	beam = G_Spawn();
-	VectorCopy(start, beam->s.origin);
-	VectorCopy(dir, beam->movedir);
-	VectorScale(dir, speed, beam->velocity);
-	vectoangles(dir, beam->s.angles);
+	if (ent->client->pers.inventory[ammo_index] < 1)
+	{
+		ent->client->ammo_index = ammo_index;
+		if (level.time >= ent->pain_debounce_time)
+		{
+			gi.sound(ent, CHAN_VOICE, gi.soundindex("weapons/noammo.wav"), 1,
+					ATTN_NORM, 0);
+			ent->pain_debounce_time = level.time + 1.0f;
+		}
+		NoAmmoWeaponChange(ent);
+		ent->client->weaponstate = WEAPON_READY;
+		return false;
+	}
 
-	beam->movetype = MOVETYPE_FLYMISSILE;
-	beam->solid = SOLID_BBOX;
-	beam->clipmask = MASK_SHOT;
-	beam->owner = ent;
-	beam->dmg = damage;
+	if (consume && !((int)dmflags->value & DF_INFINITE_AMMO) &&
+			(ent->client->invincible_framenum <= level.framenum))
+	{
+		ent->client->pers.inventory[ammo_index]--;
+	}
 
-	// Infinity model path for the beam
-	beam->s.modelindex = gi.modelindex("models/objects/beam/tris.md2");
-	beam->s.effects |= EF_BFG; // Example effect flag
-	beam->think = G_FreeEdict;
-	beam->nextthink = level.time + 2; // Lifetime
-
-	gi.linkentity(beam);
+	return true;
 }
 
 // Helper function to eject a physical shell/casing
@@ -4276,96 +4296,327 @@ Eject_Casing(edict_t *ent, vec3_t start, vec3_t dir)
 	gi.linkentity(shell);
 }
 
-// Coordination function
-void
-Fire_BeamWithShell(edict_t *ent, vec3_t start, vec3_t dir)
+static void
+Rifle_HE_Explode(edict_t *projectile, const csurface_t *surface)
 {
-	Fire_BeamProjectile(ent, start, dir, 1000, 50);
-	Eject_Casing(ent, start, dir);
+	int effect;
+
+	if (surface && (surface->flags & SURF_SKY))
+	{
+		G_FreeEdict(projectile);
+		return;
+	}
+
+	if (gi.pointcontents(projectile->s.origin) & MASK_WATER)
+	{
+		effect = TE_ROCKET_EXPLOSION_WATER;
+	}
+	else
+	{
+		effect = TE_ROCKET_EXPLOSION;
+	}
+
+	gi.WriteByte(svc_temp_entity);
+	gi.WriteByte(effect);
+	gi.WritePosition(projectile->s.origin);
+	gi.multicast(projectile->s.origin, MULTICAST_PVS);
+	T_RadiusDamage(projectile, projectile->owner, projectile->dmg,
+			projectile->owner, projectile->dmg_radius, MOD_RIFLE_HE);
+	G_FreeEdict(projectile);
+}
+
+static void
+Rifle_HE_Touch(edict_t *projectile, edict_t *other, const cplane_t *,
+		const csurface_t *surface)
+{
+	if (!other || (other == projectile->owner))
+	{
+		return;
+	}
+
+	Rifle_HE_Explode(projectile, surface);
+}
+
+static void
+Rifle_HE_Fire(edict_t *owner, const vec3_t start, const vec3_t direction,
+		int damage)
+{
+	edict_t *projectile = G_Spawn();
+
+	projectile->owner = owner;
+	projectile->movetype = MOVETYPE_FLYMISSILE;
+	projectile->clipmask = MASK_SHOT;
+	projectile->solid = SOLID_BBOX;
+	projectile->dmg = damage;
+	projectile->dmg_radius = (float)(damage + 40);
+	projectile->classname = "rifle_he_round";
+	projectile->s.modelindex = gi.modelindex("models/objects/beam/tris.md2");
+	projectile->s.renderfx |= RF_FULLBRIGHT;
+	projectile->s.sound = gi.soundindex("weapons/bohsht.wav");
+	projectile->touch = Rifle_HE_Touch;
+	projectile->think = G_FreeEdict;
+	projectile->nextthink = level.time + 2.0f;
+	VectorCopy(start, projectile->s.origin);
+	VectorCopy(start, projectile->s.old_origin);
+	VectorCopy(direction, projectile->movedir);
+	vectoangles(direction, projectile->s.angles);
+	VectorScale(direction, 1680.0f, projectile->velocity);
+	gi.linkentity(projectile);
 }
 
 void
 Rifle_Fire(edict_t *ent)
 {
-	vec3_t  start;
-	vec3_t  forward, right;
-	vec3_t  offset;
-	int	 sound_index;
+	vec3_t start, forward, right, offset, aim_angles;
+	const gitem_t *ammo_item;
+	int ammo_index, other_ammo_index, damage;
+	qboolean he_mode;
 
-	if (!Weapon_Has_Ammo(ent))
+	if (!ent || !ent->client)
 	{
 		return;
 	}
 
-	// 2. Play M26 Firing Sound
-	sound_index = gi.soundindex("weapons/m26/m26exr.wav");
-	gi.sound(ent, CHAN_WEAPON, sound_index, 1.0, ATTN_NORM, 0);
+	if ((ent->client->ps.gunframe >= 68) &&
+			(ent->client->ps.gunframe <= 71))
+	{
+		if (ent->client->ps.gunframe == 71)
+		{
+			ent->client->ps.gunframe = 21;
+			ent->client->weaponstate = WEAPON_READY;
+		}
+		else
+		{
+			ent->client->ps.gunframe++;
+		}
+		return;
+	}
 
-	// 3. Muzzle flash (Using custom index mapping from Infinity)
-	// DAT_20079a84 was the custom muzzle flash index in the original
+	if (!(ent->client->buttons & BUTTON_ATTACK))
+	{
+		ent->client->infinity_rifle_recoil = 0;
+		ent->client->ps.gunframe = 21;
+		ent->client->weaponstate = WEAPON_READY;
+		return;
+	}
+
+	he_mode = ent->client->infinity_rifle_mode != 0;
+	ammo_item = FindItem(he_mode ? "HE Rounds" : "Bullets");
+	ammo_index = ammo_item ? ITEM_INDEX(ammo_item) : 0;
+	ammo_item = FindItem(he_mode ? "Bullets" : "HE Rounds");
+	other_ammo_index = ammo_item ? ITEM_INDEX(ammo_item) : 0;
+	ent->client->ammo_index = ammo_index;
+
+	if (!ammo_index || (ent->client->pers.inventory[ammo_index] < 1))
+	{
+		ent->client->infinity_rifle_mode = !he_mode;
+		ent->client->ammo_index = other_ammo_index;
+		ent->client->ps.gunframe = 68;
+		gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/m26/m26co.wav"),
+				1.0f, ATTN_NORM, 0);
+		gi.cprintf(ent, PRINT_HIGH, "Rifle mode: %s\n",
+				he_mode ? "AP" : "HE");
+		return;
+	}
+
+	if (he_mode)
+	{
+		damage = 68 + (randk() % 18);
+		AngleVectors(ent->client->v_angle, forward, right, NULL);
+		VectorSet(offset, 13, 6, ent->viewheight - 6);
+		P_ProjectSource(ent, offset, forward, right, start);
+		Rifle_HE_Fire(ent, start, forward, damage);
+		gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/m26/m26exr.wav"),
+				1.0f, ATTN_NORM, 0);
+		Eject_Casing(ent, start, forward);
+	}
+	else
+	{
+		if (!deathmatch->value && (ent->client->infinity_rifle_recoil < 3))
+		{
+			ent->client->infinity_rifle_recoil++;
+		}
+		else if (deathmatch->value)
+		{
+			ent->client->infinity_rifle_recoil = 0;
+		}
+		VectorCopy(ent->client->v_angle, aim_angles);
+		aim_angles[0] -= (float)ent->client->infinity_rifle_recoil * 1.5f;
+		AngleVectors(aim_angles, forward, right, NULL);
+		VectorSet(offset, 0, 0, ent->viewheight - 8);
+		P_ProjectSource(ent, offset, forward, right, start);
+		VectorMA(start, crandom() * 2.0f, right, start);
+		VectorMA(start, crandom() * 2.0f, forward, start);
+		fire_bullet(ent, start, forward, 8, 2, 150, 250, MOD_RIFLE_AP);
+		ent->client->kick_angles[0] =
+				-(float)ent->client->infinity_rifle_recoil * 1.5f;
+		ent->client->kick_angles[1] = crandom();
+		VectorSet(ent->client->kick_origin, crandom(), crandom(), crandom());
+	}
+
 	gi.WriteByte(svc_muzzleflash);
 	gi.WriteShort(ent - g_edicts);
-	gi.WriteByte(MZ_ETF_RIFLE | 1);
+	gi.WriteByte(MZ_MACHINEGUN | is_silenced);
 	gi.multicast(ent->s.origin, MULTICAST_PVS);
-
-	// 4. Project Source (calculate where the bullet spawns)
-	AngleVectors(ent->client->v_angle, forward, right, NULL);
-	VectorSet(offset, 0, 8, ent->viewheight - 8);
-	P_ProjectSource(ent, offset, forward, right, start);
-
-	// 5. Fire the bullet
-	// Note: Replacing the custom FUN_20033640 with standard fire_bullet
-	// Using our new unified firing sequence
-	Fire_BeamWithShell(ent, start, forward);
-
-	// 6. Update animation frame
-	if (ent->client->ps.gunframe == 0x3c)
-		ent->client->ps.gunframe = 0x3d;
+	PlayerNoise(ent, start, PNOISE_WEAPON);
+	Infinity_AmmoAvailable(ent, ammo_index, true);
+	if (he_mode)
+	{
+		ent->client->ps.gunframe++;
+	}
 	else
-		ent->client->ps.gunframe = 0x3c;
+	{
+		ent->client->ps.gunframe =
+				(ent->client->ps.gunframe >= 12) ? 7 :
+				ent->client->ps.gunframe + 1;
+	}
 }
 
 // Goop Projectile logic
 void
 Goop_Explode(edict_t *ent)
 {
-	// Notify the engine and trigger explosion
-	PlayerNoise(ent->owner, ent->s.origin, PNOISE_IMPACT);
-	T_RadiusDamage(ent, ent->owner, ent->dmg, NULL, ent->dmg_radius, MOD_GOOPLAUNCHER);
+	int effect;
 
-	// Create visual effect multicast
+	if (!ent || !ent->inuse)
+	{
+		return;
+	}
+
+	if (ent->owner && ent->owner->client)
+	{
+		PlayerNoise(ent->owner, ent->s.origin, PNOISE_IMPACT);
+	}
+
+	T_RadiusDamage(ent, ent->owner ? ent->owner : ent, ent->dmg, NULL,
+			ent->dmg_radius, MOD_GOOPLAUNCHER);
+	if (ent->waterlevel)
+	{
+		effect = ent->style ? TE_GRENADE_EXPLOSION_WATER :
+				TE_ROCKET_EXPLOSION_WATER;
+	}
+	else
+	{
+		effect = ent->style ? TE_GRENADE_EXPLOSION : TE_ROCKET_EXPLOSION;
+	}
+
 	gi.WriteByte(svc_temp_entity);
-	gi.WriteByte(TE_BFG_EXPLOSION); // Adjust based on Infinity's specific visual FX
+	gi.WriteByte(effect);
 	gi.WritePosition(ent->s.origin);
 	gi.multicast(ent->s.origin, MULTICAST_PVS);
 
 	G_FreeEdict(ent);
 }
 
+static void
+Goop_Think(edict_t *ent)
+{
+	edict_t *target;
+
+	ent->waterlevel = (gi.pointcontents(ent->s.origin) & MASK_WATER) != 0;
+	if (level.time >= ent->timestamp)
+	{
+		Goop_Explode(ent);
+		return;
+	}
+
+	if (ent->style)
+	{
+		if (ent->count < 6)
+		{
+			ent->s.frame = ent->count++;
+		}
+		else if (ent->count == 6)
+		{
+			ent->s.frame = 5 + (randk() % 4);
+			ent->count = 7;
+		}
+
+		for (target = findradius(NULL, ent->s.origin, 64); target;
+				target = findradius(target, ent->s.origin, 64))
+		{
+			if (!target->inuse || !target->takedamage ||
+					(target->health <= 0) ||
+					!((target->client) || (target->svflags & SVF_MONSTER)) ||
+					!visible(ent, target))
+			{
+				continue;
+			}
+
+			Goop_Explode(ent);
+			return;
+		}
+	}
+
+	ent->nextthink = level.time + 0.1f;
+}
+
 void
 Goop_Touch(edict_t *ent, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
-	// Basic collision handling, just trigger the explosion
-	Goop_Explode(ent);
+	if (!ent || !other || (other == ent->owner))
+	{
+		return;
+	}
+
+	if (surf && (surf->flags & SURF_SKY))
+	{
+		G_FreeEdict(ent);
+		return;
+	}
+	ent->waterlevel = (gi.pointcontents(ent->s.origin) & MASK_WATER) != 0;
+
+	if (other->takedamage)
+	{
+		Goop_Explode(ent);
+		return;
+	}
+
+	if ((other->solid != SOLID_BSP) && (other->solid != SOLID_BBOX))
+	{
+		return;
+	}
+
+	if (ent->style)
+	{
+		return;
+	}
+
+	ent->style = 1;
+	ent->groundentity = other;
+	ent->movetype = MOVETYPE_NONE;
+	ent->solid = SOLID_BBOX;
+	VectorClear(ent->velocity);
+	VectorClear(ent->avelocity);
+	ent->timestamp = level.time + 8.0f + random() * 8.0f;
+	ent->count = 0;
+	ent->think = Goop_Think;
+	ent->nextthink = level.time + 0.1f;
+	gi.sound(ent, CHAN_VOICE, gi.soundindex("weapons/goop/gghit.wav"),
+			1.0f, ATTN_NORM, 0);
 }
 
 void
 Goop_Die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point)
 {
-	// Detonate immediately if shot
 	self->takedamage = DAMAGE_NO;
 	self->think = Goop_Explode;
-	self->nextthink = level.time + 0.1;
+	self->nextthink = level.time + 0.1f;
 }
 
 void
 throw_goop(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed, float lifetime, float radius)
 {
 	edict_t *goop;
+	vec3_t right, up, angles;
 
 	goop = G_Spawn();
 	VectorCopy(start, goop->s.origin);
+	vectoangles(dir, angles);
+	AngleVectors(angles, NULL, right, up);
 	VectorScale(dir, speed, goop->velocity);
+	VectorMA(goop->velocity, 50.0f, up, goop->velocity);
+	VectorMA(goop->velocity, crandom() * 10.0f, right, goop->velocity);
 
 	goop->movetype = MOVETYPE_BOUNCE;
 	goop->solid = SOLID_BBOX;
@@ -4379,7 +4630,8 @@ throw_goop(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed, float
 
 	goop->dmg = damage;
 	goop->dmg_radius = radius;
-	goop->think = Goop_Explode;
+	goop->timestamp = level.time + lifetime;
+	goop->think = Goop_Think;
 	goop->nextthink = level.time + lifetime;
 	goop->touch = Goop_Touch;
 	goop->die = Goop_Die;
@@ -4401,7 +4653,7 @@ Goop_Fire(edict_t *self)
 	vec3_t  offset;
 	int	 sound_index;
 
-	if (!Weapon_Has_Ammo(self))
+	if (!Infinity_AmmoAvailable(self, self->client->ammo_index, true))
 	{
 		return;
 	}
@@ -4412,13 +4664,13 @@ Goop_Fire(edict_t *self)
 	AngleVectors(self->client->v_angle, forward, right, NULL);
 
 	// 2. Project Source (calculate where the goop spawns)
-	VectorSet(offset, 0, 8, self->viewheight - 8);
+	VectorSet(offset, 12, 6, self->viewheight - 6);
 	P_ProjectSource(self, offset, forward, right, start);
 
 	// 3. Throw the Goop
-	// Mapping: throw_goop(self, start, forward, damage, speed, unknown1, unknown2)
-	// Replace 700 with projectile speed, 160.0 with the damage/effect radius
 	throw_goop(self, start, forward, 120, 700, 2.5, 160.0);
+	VectorScale(forward, -2, self->client->kick_origin);
+	self->client->kick_angles[0] = -1;
 
 	// 4. Update animation frame
 	self->client->ps.gunframe++;
@@ -4435,17 +4687,7 @@ Goop_Fire(edict_t *self)
 void
 fire_m26shotgun(edict_t *self, vec3_t start, vec3_t dir, int damage, int kick, float hspread, float vspread, int count, int mod)
 {
-	int i;
-
-	// Fire pellets in a loop
-	for (i = 0; i < count; i++)
-	{
-		// Using standard fire_lead (or fire_bullet)
-		fire_bullet(self, start, dir, damage, kick, hspread, vspread, mod);
-	}
-
-	// Eject shell automatically as part of firing
-	Eject_Casing(self, start, dir);
+	fire_shotgun(self, start, dir, damage, kick, hspread, vspread, count, mod);
 }
 
 // Shotgun firing sequence
@@ -4455,35 +4697,37 @@ M26Shotgun_Fire(edict_t *ent)
 	vec3_t  start;
 	vec3_t  forward, right;
 	vec3_t  offset;
+	int count;
 
-	if (!Weapon_Has_Ammo(ent))
+	if (!Infinity_AmmoAvailable(ent, ent->client->ammo_index, true))
 	{
 		return;
 	}
 
-	// Play Infinity shotgun fire sound
-	gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/shotgf1b.wav"), 1.0, ATTN_NORM, 0);
-
 	gi.WriteByte(svc_muzzleflash);
 	gi.WriteShort(ent - g_edicts);
-	gi.WriteByte(MZ_SHOTGUN | 1);
+	gi.WriteByte(MZ_SSHOTGUN | is_silenced);
 	gi.multicast(ent->s.origin, MULTICAST_PVS);
 
 	AngleVectors(ent->client->v_angle, forward, right, NULL);
 	VectorSet(offset, 0, 8, ent->viewheight - 8);
 	P_ProjectSource(ent, offset, forward, right, start);
 
-	// Using the ported fire_m26shotgun logic
-	fire_m26shotgun(ent, start, forward, 8, 0, DEFAULT_SHOTGUN_HSPREAD, DEFAULT_SHOTGUN_VSPREAD, 12, MOD_RIOTGUN);
-
-	// Reuse the casing ejection logic
-	Eject_Casing(ent, start, forward);
-
+	count = deathmatch->value ? DEFAULT_DEATHMATCH_SHOTGUN_COUNT :
+			DEFAULT_SHOTGUN_COUNT;
+	fire_m26shotgun(ent, start, forward, 4, 8, 500, 500, count,
+			MOD_RIOTGUN);
+	VectorScale(forward, -2, ent->client->kick_origin);
+	ent->client->kick_angles[0] = -2;
 	ent->client->ps.gunframe++;
 	PlayerNoise(ent, start, PNOISE_WEAPON);
 }
 
 // Ported Laser/Blaze projectile logic
+static void
+Blaze_Touch(edict_t *ent, edict_t *other, const cplane_t *plane,
+		const csurface_t *surf);
+
 void
 Fire_LaserBolt(edict_t *self, vec3_t start, vec3_t dir, float speed, int frame)
 {
@@ -4491,6 +4735,9 @@ Fire_LaserBolt(edict_t *self, vec3_t start, vec3_t dir, float speed, int frame)
 
 	laser = G_Spawn();
 	laser->owner = self;
+	VectorCopy(self->rrs.scale, laser->rrs.scale);
+	VectorScale(laser->rrs.scale, 1.0f + (float)frame / 30.0f,
+			laser->rrs.scale);
 	VectorCopy(start, laser->s.origin);
 	VectorCopy(start, laser->s.old_origin);
 
@@ -4504,14 +4751,108 @@ Fire_LaserBolt(edict_t *self, vec3_t start, vec3_t dir, float speed, int frame)
 
 	// Model and Sound
 	laser->s.modelindex = gi.modelindex("models/objects/laser2/tris.md2");
-	laser->s.sound = gi.soundindex("weapons/blazer/blzchglp.wav");
-
+	laser->touch = Blaze_Touch;
 	laser->think = G_FreeEdict;
-	laser->nextthink = level.time + 5.0;
+	laser->nextthink = level.time + 5.0f;
 
 	laser->s.frame = frame / 6;
+	laser->count = self->client->infinity_blaze_charge;
+	laser->dmg = (laser->count * 3) > 32 ? laser->count * 3 : 32;
+	laser->dmg_radius = (float)laser->count * (float)laser->s.frame;
+	if (laser->dmg_radius < 64.0f)
+	{
+		laser->dmg_radius = 64.0f;
+	}
 
 	gi.linkentity(laser);
+}
+
+static void
+Blaze_ImpactThink(edict_t *ent)
+{
+	int damage;
+	float radius;
+
+	damage = ent->dmg;
+	radius = ent->dmg_radius;
+	T_RadiusDamage(ent, ent->owner ? ent->owner : ent, damage,
+			ent->owner, radius,
+			MOD_BLASTER);
+
+	if (ent->s.frame >= 10)
+	{
+		G_FreeEdict(ent);
+		return;
+	}
+
+	ent->dmg_radius = (float)ent->count * (float)++ent->s.frame;
+	if (ent->dmg_radius < 64.0f)
+	{
+		ent->dmg_radius = 64.0f;
+	}
+	ent->nextthink = level.time + 0.1f;
+}
+
+static void
+Blaze_Touch(edict_t *ent, edict_t *other, const cplane_t *plane,
+		const csurface_t *surf)
+{
+	int effect;
+
+	if (!ent || !other)
+	{
+		return;
+	}
+
+	if (other == ent->owner)
+	{
+		return;
+	}
+
+	if (surf && (surf->flags & SURF_SKY))
+	{
+		G_FreeEdict(ent);
+		return;
+	}
+
+	ent->style = plane && (plane->normal[2] == 1.0f);
+	effect = ent->style ? TE_EXPLOSION1 : TE_EXPLOSION2;
+
+	gi.WriteByte(svc_temp_entity);
+	gi.WriteByte(effect);
+	gi.WritePosition(ent->s.origin);
+	gi.multicast(ent->s.origin, MULTICAST_PVS);
+	if (ent->count > 20)
+	{
+		gi.WriteByte(svc_temp_entity);
+		gi.WriteByte(TE_BFG_BIGEXPLOSION);
+		gi.WritePosition(ent->s.origin);
+		gi.multicast(ent->s.origin, MULTICAST_PVS);
+	}
+
+	if (ent->count < 10)
+	{
+		gi.sound(ent, CHAN_AUTO, gi.soundindex("weapons/blazer/blzexp1.wav"),
+				1.0f, ATTN_NORM, 0);
+	}
+	else if (ent->count < 20)
+	{
+		gi.sound(ent, CHAN_AUTO, gi.soundindex("weapons/blazer/blzexp2.wav"),
+				1.0f, ATTN_NORM, 0);
+	}
+	else
+	{
+		gi.sound(ent, CHAN_AUTO, gi.soundindex("weapons/blazer/blzexp3.wav"),
+				1.0f, ATTN_NORM, 0);
+	}
+
+	ent->movetype = MOVETYPE_NONE;
+	ent->solid = SOLID_NOT;
+	ent->touch = NULL;
+	ent->s.sound = 0;
+	VectorClear(ent->velocity);
+	ent->think = Blaze_ImpactThink;
+	ent->nextthink = level.time + 0.1f;
 }
 
 // Logic for the Blaze/Laser weapon fire
@@ -4522,22 +4863,268 @@ Blaze_Fire(edict_t *ent)
 	vec3_t  forward, right;
 	vec3_t  offset;
 
-	if (!Weapon_Has_Ammo(ent))
+	if (!ent || !ent->client)
 	{
 		return;
 	}
 
+	if (ent->client->buttons & BUTTON_ATTACK)
+	{
+		int ammo_index = ent->client->ammo_index;
+		if (ammo_index > 0 &&
+				ent->client->pers.inventory[ammo_index] > 0 &&
+				ent->client->infinity_blaze_charge < 30)
+		{
+			if (!ent->client->infinity_blaze_charge ||
+					(ent->client->infinity_blaze_charge % 3 == 0))
+			{
+				gi.sound(ent, CHAN_WEAPON,
+						gi.soundindex("weapons/blazer/blzchglp.wav"),
+						1.0f, ATTN_NORM, 0);
+			}
+
+			if (!((int)dmflags->value & DF_INFINITE_AMMO) &&
+					(ent->client->invincible_framenum <= level.framenum))
+			{
+				ent->client->pers.inventory[ammo_index]--;
+			}
+			ent->client->infinity_blaze_charge++;
+			ent->client->kick_angles[0] = -0.2f;
+
+			if (ent->client->infinity_blaze_charge > 5)
+			{
+				AngleVectors(ent->client->v_angle, forward, right, NULL);
+				VectorSet(offset, 12, 4, ent->viewheight - 3);
+				P_ProjectSource(ent, offset, forward, right, start);
+				gi.WriteByte(svc_temp_entity);
+				gi.WriteByte(TE_LASER_SPARKS);
+				gi.WriteByte(2);
+				gi.WritePosition(start);
+				gi.WriteDir(forward);
+				gi.WriteByte(0xb0);
+				gi.multicast(start, MULTICAST_PVS);
+			}
+		}
+		else if (!ent->client->infinity_blaze_charge && (ammo_index > 0))
+		{
+			Infinity_AmmoAvailable(ent, ammo_index, false);
+		}
+
+		if ((ent->client->infinity_blaze_charge >= 30) &&
+				(ent->client->ps.gunframe >= 43))
+		{
+			ent->client->ps.gunframe = 38;
+		}
+		else
+		{
+			ent->client->ps.gunframe++;
+		}
+		return;
+	}
+
+	if (!ent->client->infinity_blaze_charge)
+	{
+		ent->client->ps.gunframe = 48;
+		return;
+	}
+
 	AngleVectors(ent->client->v_angle, forward, right, NULL);
-	VectorSet(offset, 0, 8, ent->viewheight - 8);
+	VectorSet(offset, 12, 4, ent->viewheight - 3);
 	P_ProjectSource(ent, offset, forward, right, start);
 
-	// Fire the laser bolt
-	Fire_LaserBolt(ent, start, forward, 500, 10);
+	ent->client->infinity_blaze_charge =
+			ent->client->infinity_blaze_charge < 5 ? 5 :
+			ent->client->infinity_blaze_charge;
+	Fire_LaserBolt(ent, start, forward, 800, ent->client->infinity_blaze_charge);
+	ent->client->infinity_blaze_charge = 0;
 
+	gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/blazer/blzsht.wav"),
+			1.0f, ATTN_NORM, 0);
+	PlayerNoise(ent, start, PNOISE_WEAPON);
+	ent->client->ps.gunframe = 44;
+}
+
+static void
+Biggun_MarkThink(edict_t *marker)
+{
+	edict_t *target = marker->enemy;
+
+	if (target && target->inuse)
+	{
+		if (!marker->style)
+		{
+			target->s.renderfx &= ~RF_SHELL_RED;
+		}
+		if (target->takedamage && (target->health > 0))
+		{
+			T_Damage(target, marker, marker->owner, marker->movedir,
+					marker->s.origin, vec3_origin, marker->dmg,
+					0, DAMAGE_ENERGY, MOD_BIGGUN);
+		}
+	}
+
+	G_FreeEdict(marker);
+}
+
+static void
+Biggun_MarkTarget(edict_t *shooter, edict_t *target, const vec3_t point,
+		const vec3_t direction, int damage, int kick)
+{
+	edict_t *marker;
+	edict_t *existing;
+	vec3_t impact, aim;
+	qboolean found_marker = false;
+
+	VectorCopy(point, impact);
+	VectorCopy(direction, aim);
+	T_Damage(target, shooter, shooter, aim, impact, vec3_origin, 1,
+			kick, DAMAGE_ENERGY, MOD_BIGGUN);
+	target->velocity[2] += 80.0f;
+	if (!target->inuse || target->health <= 0)
+	{
+		return;
+	}
+
+	marker = G_Spawn();
+	marker->classname = "biggun_marker";
+	marker->owner = shooter;
+	marker->enemy = target;
+	marker->dmg = damage;
+	for (existing = NULL;
+			(existing = G_Find(existing, FOFS(classname), "biggun_marker")); )
+	{
+		if ((existing != marker) && existing->enemy == target && existing->inuse)
+		{
+			found_marker = true;
+			existing->style = 1;
+			marker->count = existing->count;
+		}
+	}
+	if (!found_marker)
+	{
+		marker->count = (target->s.renderfx & RF_SHELL_RED) != 0;
+	}
+	marker->style = marker->count != 0;
+	marker->think = Biggun_MarkThink;
+	marker->nextthink = level.time + 0.5f;
+	VectorCopy(point, marker->s.origin);
+	VectorCopy(direction, marker->movedir);
+	target->s.renderfx |= RF_SHELL_RED;
+}
+
+static void
+Biggun_Fire(edict_t *ent)
+{
+	vec3_t start, forward, right, offset, end, from, beam_start, beam_end,
+			sample;
+	trace_t trace;
+	edict_t *ignore;
+	int damage, kick, mask, i;
+	qboolean zoomed;
+
+	if (!Infinity_AmmoAvailable(ent, ent->client->ammo_index, false))
+	{
+		return;
+	}
+
+	damage = deathmatch->value ? 68 + (randk() % 18) :
+			128 + (randk() % 28);
+	kick = deathmatch->value ? 150 : 250;
+	zoomed = ent->client->ps.fov == 10;
+	if (ent->client->use && ent->client->oldplayer)
+	{
+		AngleVectors(ent->client->oldplayer->s.angles, forward, right, NULL);
+	}
+	else
+	{
+		AngleVectors(ent->client->v_angle, forward, right, NULL);
+	}
+	VectorSet(offset, -1, 7, ent->viewheight);
+	P_ProjectSource(ent, offset, forward, right, start);
+	VectorMA(ent->velocity, zoomed ? -30.0f : -100.0f, forward,
+			ent->velocity);
+	if (!zoomed)
+	{
+		VectorScale(forward, -3.0f, ent->client->kick_origin);
+		ent->client->kick_angles[0] = -3.0f;
+	}
+
+	VectorMA(start, 8192, forward, end);
+	VectorCopy(start, from);
+	ignore = ent;
+	mask = MASK_SHOT | CONTENTS_WINDOW | CONTENTS_SLIME | CONTENTS_LAVA;
+	for (i = 0; i < game.maxentities; i++)
+	{
+		trace = gi.trace(from, NULL, NULL, end, ignore, mask);
+		if (trace.fraction >= 1.0f)
+		{
+			break;
+		}
+
+		if (trace.contents & (CONTENTS_SLIME | CONTENTS_LAVA))
+		{
+			mask &= ~(trace.contents & (CONTENTS_SLIME | CONTENTS_LAVA));
+			continue;
+		}
+
+		if ((trace.contents & CONTENTS_WINDOW) && trace.ent &&
+				trace.ent->takedamage)
+		{
+			edict_t *blast = G_Spawn();
+			VectorCopy(trace.endpos, blast->s.origin);
+			blast->owner = ent;
+			T_RadiusDamage(blast, ent, 32, NULL, 32.0f, MOD_BIGGUN);
+			G_FreeEdict(blast);
+			break;
+		}
+
+		if (trace.ent && (trace.ent != ent) && trace.ent->takedamage &&
+				(trace.ent->health > 0))
+		{
+			Biggun_MarkTarget(ent, trace.ent, trace.endpos, forward, damage,
+					kick);
+			ignore = trace.ent;
+			VectorMA(trace.endpos, 1.0f, forward, from);
+			continue;
+		}
+
+		break;
+	}
+
+	VectorCopy(trace.endpos, beam_end);
+	PlayerNoise(ent, beam_end, PNOISE_IMPACT);
+	for (i = -1; i <= 1; i += 2)
+	{
+		VectorMA(start, (float)i * 3.0f, right, beam_start);
+		VectorMA(beam_end, (float)i * 3.0f, right, sample);
+		gi.WriteByte(svc_temp_entity);
+		gi.WriteByte(TE_RAILTRAIL);
+		gi.WritePosition(beam_start);
+		gi.WritePosition(sample);
+		gi.multicast(ent->s.origin, MULTICAST_PHS);
+	}
+
+	gi.WriteByte(svc_temp_entity);
+	gi.WriteByte(TE_BUBBLETRAIL);
+	gi.WritePosition(start);
+	gi.WritePosition(beam_end);
+	gi.multicast(start, MULTICAST_PVS);
+
+	if (zoomed)
+	{
+		gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/railgf1a.wav"),
+				0.25f, ATTN_NORM, 0);
+	}
+	else
+	{
+		gi.WriteByte(svc_muzzleflash);
+		gi.WriteShort(ent - g_edicts);
+		gi.WriteByte(MZ_RAILGUN | is_silenced);
+		gi.multicast(ent->s.origin, MULTICAST_PVS);
+	}
+
+	Infinity_AmmoAvailable(ent, ent->client->ammo_index, true);
 	ent->client->ps.gunframe++;
-
-	// Sound effect
-	gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/blazer/blzchglp.wav"), 1.0, ATTN_NORM, 0);
 }
 
 static void
@@ -4606,7 +5193,8 @@ Weapon_DOD_Fire(edict_t *ent)
 void
 Weapon_DynamicWeapon(edict_t *ent)
 {
-	if (!ent || !ent->client->pers.weapon || !ent->client->pers.weapon->classname)
+	if (!ent || !ent->client || !ent->client->pers.weapon ||
+			!ent->client->pers.weapon->classname)
 	{
 		return;
 	}
@@ -4632,7 +5220,9 @@ Weapon_DynamicWeapon(edict_t *ent)
 	else if (!strcmp(ent->client->pers.weapon->classname, "weapon_rifle"))
 	{
 		static const int pause_frames[] = {0};
-		static const int fire_frames[] = {7, 8, 9, 10, 11, 12, 13, 0};
+		static const int fire_frames[] = {
+			7, 8, 9, 10, 11, 12, 13, 68, 69, 70, 71, 0
+		};
 
 		/* totaly strange */
 		Weapon_Generic(ent, 6, 20, 60, 67, pause_frames,
@@ -4649,11 +5239,11 @@ Weapon_DynamicWeapon(edict_t *ent)
 	}
 	else if (!strcmp(ent->client->pers.weapon->classname, "weapon_biggun"))
 	{
-		static const int pause_frames[] = {57, 0};
+		static const int pause_frames[] = {0};
 		static const int fire_frames[] = {4, 0};
 
 		Weapon_Generic(ent, 3, 19, 57, 62, pause_frames,
-				fire_frames, weapon_railgun_fire);
+				fire_frames, Biggun_Fire);
 	}
 	else if (!strcmp(ent->client->pers.weapon->classname, "weapon_blaze"))
 	{

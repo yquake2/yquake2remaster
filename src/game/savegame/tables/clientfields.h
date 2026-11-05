@@ -27,6 +27,9 @@
  */
 
 {"newweapon", CLOFS(newweapon), F_ITEM},
+{"infinity_blaze_charge", CLOFS(infinity_blaze_charge), F_INT},
+{"infinity_rifle_mode", CLOFS(infinity_rifle_mode), F_INT},
+{"infinity_rifle_recoil", CLOFS(infinity_rifle_recoil), F_INT},
 {"owned_sphere", CLOFS(owned_sphere), F_EDICT},
 {"landmark_name", CLOFS(landmark_name), F_GRAWSTRING},
 {"pers.lastweapon", CLOFS(pers.lastweapon), F_ITEM},
