@@ -419,7 +419,7 @@ SV_Status_f(void)
 		}
 
 		Com_Printf("%2i ", i);
-		Com_Printf("%5i ", CL_EDICT(cl)->client->ps.stats[STAT_FRAGS]);
+		Com_Printf("%5i ", SV_GetPlayerStats(CL_EDICT(cl))[STAT_FRAGS]);
 
 		if (cl->state == cs_connected)
 		{

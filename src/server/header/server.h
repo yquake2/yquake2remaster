@@ -262,6 +262,7 @@ void SV_ClientPrintf(client_t *cl, int level, const char *fmt, ...);
 void SV_BroadcastPrintf(int level, const char *fmt, ...);
 void SV_BroadcastCommand(const char *fmt, ...);
 int SV_GetRecomendedProtocol(void);
+const short *SV_GetPlayerStats(const edict_t *ent);
 
 void SV_Nextserver(void);
 void SV_ExecuteClientMessage(client_t *cl);

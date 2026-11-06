@@ -524,7 +524,7 @@ SV_Savegame_f(void)
 	}
 
 	if ((maxclients->value == 1) &&
-		(CL_EDICT(&svs.clients[0])->client->ps.stats[STAT_HEALTH] <= 0))
+		(SV_GetPlayerStats(CL_EDICT(&svs.clients[0]))[STAT_HEALTH] <= 0))
 	{
 		Com_Printf("\nCan't savegame while dead!\n");
 		return;

@@ -110,7 +110,7 @@ SV_StatusString(void)
 			int playerLength;
 
 			Com_sprintf(player, sizeof(player), "%i %i \"%s\"\n",
-					CL_EDICT(cl)->client->ps.stats[STAT_FRAGS], cl->ping, cl->name);
+					SV_GetPlayerStats(CL_EDICT(cl))[STAT_FRAGS], cl->ping, cl->name);
 			playerLength = (int)strlen(player);
 
 			if (statusLength + playerLength >= sizeof(status))

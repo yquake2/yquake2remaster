@@ -96,6 +96,19 @@ SV_GetRecomendedProtocol(void)
 
 }
 
+/* stats array the loaded game library fills in */
+const short *
+SV_GetPlayerStats(const edict_t *ent)
+{
+	if (SV_GetRecomendedProtocol() == PROTOCOL_R97_VERSION)
+	{
+		/* original */
+		return ent->client->ps.stats;
+	}
+
+	return ent->client->ps_rrstats;
+}
+
 /*
  * Sends the first message from the server to a connected client.
  * This will be sent on the initial connection and upon each server load.
