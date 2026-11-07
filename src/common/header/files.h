@@ -335,7 +335,7 @@ typedef struct hlmdl_sequence_s
 
 #define MAX_TRIANGLES 4096
 #define MAX_VERTS 2048
-#define MAX_FRAMES 2048
+#define MAX_FRAMES 512
 #define MAX_MD2SKINS 32
 #define MAX_SKINNAME 64
 
@@ -344,24 +344,25 @@ typedef struct hlmdl_sequence_s
 
 typedef struct
 {
-	int ident;
+	int ident; /* == CTCHEADER */
 	int version;
 	int skinwidth;
 	int skinheight;
-	int unknown1;
+	int pad_1;
 	int num_skins;
 	int num_xyz;
 	int num_st;
 	int num_tris;
 	int num_glcmds;
 	int num_frames;
+	/* ---- */
 	int num_animations;
 	int num_bones;
 	int num_morphs;
 	int num_attachment_points;
 	int num_tri_list_sizes;
-	int num_unknown5;
-	float unknown6;
+	int pad_2;
+	int pad_3;
 	int num_vert_colors;
 	int ofs_skins;
 	int ofs_verts;
@@ -376,17 +377,11 @@ typedef struct
 	int ofs_morph_data;
 	int ofs_attachment_points;
 	int ofs_tri_list_sizes;
-	int ofs_unknown5;
+	int ofs_pad;
 	int ofs_tris3;
 	int ofs_vert_colors;
 	int ofs_end;
 } dctc_header_t;
-
-typedef struct
-{
-	vec3_t xyz;
-	vec3_t normal;
-} dctc_vertex_t;
 
 typedef struct
 {

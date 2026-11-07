@@ -2631,12 +2631,11 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 	if (input.num_skins < 0 || input.num_xyz <= 0 ||
 		input.num_st <= 0 || input.num_tris <= 0 ||
 		input.num_glcmds < 0 || input.num_frames <= 0 ||
-		input.num_frames > MAX_FRAMES ||
 		input.num_animations < 0 ||
 		input.num_animations > input.num_frames ||
 		input.num_bones < 0 ||
 		input.num_morphs < 0 || input.num_attachment_points < 0 ||
-		input.num_tri_list_sizes < 0 || input.num_unknown5 < 0 ||
+		input.num_tri_list_sizes < 0 ||
 		input.num_vert_colors < 0 ||
 		input.num_skins > MAX_MD2SKINS ||
 		input.num_xyz > MAX_VERTS ||
@@ -2646,7 +2645,7 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 		!Mod_CTCValidRange(file_size, input.ofs_skins,
 			(size_t)input.num_skins, MAX_SKINNAME) ||
 		!Mod_CTCValidRange(file_size, input.ofs_verts,
-			(size_t)input.num_xyz, sizeof(dctc_vertex_t)) ||
+			(size_t)input.num_xyz, sizeof(dmdx_vert_t)) ||
 		!Mod_CTCValidRange(file_size, input.ofs_tri_xyzs,
 			(size_t)input.num_tris, 3 * sizeof(short)) ||
 		!Mod_CTCValidRange(file_size, input.ofs_tri_texcoords,
@@ -2749,7 +2748,8 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 
 	for (i = 0; i < input.num_xyz; ++i)
 	{
-		dctc_vertex_t vertex;
+		/* Redudant */
+		dmdx_vert_t vertex;
 		int axis;
 
 		memcpy(&vertex, src + input.ofs_verts +
@@ -2757,17 +2757,11 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 		for (axis = 0; axis < 3; ++axis)
 		{
 			vertex.xyz[axis] = LittleFloat(vertex.xyz[axis]);
-			vertex.normal[axis] = LittleFloat(vertex.normal[axis]);
-			if (!isfinite(vertex.xyz[axis]) || !isfinite(vertex.normal[axis]))
-			{
-				Com_Printf("%s: %s contains a non-finite CTC vertex or normal\n",
-					__func__, mod_name);
-				goto failed;
-			}
+			vertex.norm[axis] = LittleFloat(vertex.norm[axis]);
 		}
 
 		VectorCopy(vertex.xyz, vertices[i].xyz);
-		VectorCopy(vertex.normal, vertices[i].norm);
+		VectorCopy(vertex.norm, vertices[i].norm);
 	}
 
 	if (input.num_bones)
