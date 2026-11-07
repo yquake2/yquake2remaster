@@ -162,6 +162,7 @@
 {"monster_gladiator", SP_monster_gladiator},
 {"monster_guardian", SP_monster_guardian},
 {"monster_guncmdr", SP_monster_guncmdr},
+{"monster_gunner", SP_monster_gunner},
 {"monster_grunt1v1", SP_monster_grunt1},
 {"monster_grunt1v2", SP_monster_grunt1},
 {"monster_grunt2", SP_monster_grunt2},

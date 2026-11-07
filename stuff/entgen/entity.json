@@ -4292,8 +4292,8 @@
     ],
     "noshadow": "shadow",
     "solidflag": 1,
-    "walk_speed": 0.0,
-    "run_speed": 0.0,
+    "walk_speed": 7.0,
+    "run_speed": 26.0,
     "speed": 0,
     "lighting": 0,
     "blending": 0,
@@ -4307,17 +4307,17 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
-    "damage": 0,
+    "health": 175,
+    "mass": 200,
+    "damage": 3,
     "damage_range": 0,
     "damage_aim": [
       0.0,
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -70
   },
   {
     "classname": "monster_hover",
@@ -12980,8 +12980,8 @@
     ],
     "noshadow": "shadow",
     "solidflag": 1,
-    "walk_speed": 0.0,
-    "run_speed": 0.0,
+    "walk_speed": 7.0,
+    "run_speed": 26.0,
     "speed": 0,
     "lighting": 0,
     "blending": 0,
@@ -12995,17 +12995,17 @@
       0.5,
       0.0
     ],
-    "health": 0,
-    "mass": 0,
-    "damage": 0,
+    "health": 175,
+    "mass": 200,
+    "damage": 3,
     "damage_range": 0,
     "damage_aim": [
       0.0,
       0.0,
       0.0
     ],
-    "gib_type": "none",
-    "gib_health": 0
+    "gib_type": "organic",
+    "gib_health": -70
   },
   {
     "classname": "monster_tank_stand",
