@@ -90,7 +90,7 @@ monster_flipper|models/monsters/flipper/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-2
 monster_floater|models/monsters/float/tris.md2|1.0|1.0|1.0|char|-24.0|-24.0|-24.0|24.0|24.0|48.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Technician|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
 monster_flyer|models/monsters/flyer/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Flyer|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
 monster_gladiator|models/monsters/gladiatr/tris.md2|1.0|1.0|1.0|char|-32.0|-32.0|-24.0|32.0|32.0|64.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Gladiator|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_gunner|models/monsters/gunner/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Gunner|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
+monster_gunner|models/monsters/gunner/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|7.0|26.0|0|0|0|0:0|0|0|none|Gunner|1.0|0.5|0.0|175|200|3|0|0.0|0.0|0.0|organic|-70
 monster_hover|models/monsters/hover/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Icarus|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
 monster_infantry|models/monsters/infantry/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Infantry|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
 monster_jorg|models/monsters/boss3/jorg/tris.md2|1.0|1.0|1.0|char|-80.0|-80.0|0.0|90.0|90.0|140.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Jorg|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
@@ -281,7 +281,7 @@ misc_model||1.0|1.0|1.0|general|-8|-8|-8|8|8|8|shadow|0|0.0|0.0|0|0|0|0:0|0|0|no
 misc_player_mannequin|models/monsters/insane/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Player Mannequin|1.0|0.5|1.0|0|0|0|0|0|0|0|none|0
 monster_arachnid|models/monsters/arachnid/tris.md2|1.0|1.0|1.0|char|-48.0|-48.0|-20.0|48.0|48.0|48.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Arachnid (PSX)|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
 monster_guardian|models/monsters/guardian/tris.md2|1.0|1.0|1.0|char|-96.0|-96.0|-66.0|96.0|96.0|62.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Guardian (PSX)|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_guncmdr|models/monsters/gunner/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Gunner Commander|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
+monster_guncmdr|models/monsters/gunner/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|7.0|26.0|0|0|0|0:0|0|0|none|Gunner Commander|1.0|0.5|0.0|175|200|3|0|0.0|0.0|0.0|organic|-70
 monster_tank_stand|models/monsters/tank/tris.md2|1.0|1.0|1.0|char|-32|-32|0|32|32|90|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0|0|0|0|0|0|0|0|none|0
 target_achievement||1.0|1.0|1.0|general|-8|-8|-8|8|8|8|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.5|.5|.5|0|0|0|0|0|0|0|none|0
 target_autosave||1.0|1.0|1.0|general|-8|-8|-8|8|8|8|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Autosave|0|1|0|0|0|0|0|0|0|0|none|0
