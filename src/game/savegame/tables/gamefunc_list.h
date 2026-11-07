@@ -1008,6 +1008,7 @@ static const fnlist_entry_t fnentries_mi_blocked[] =
 {
 	{"berserk_blocked", (byte *)berserk_blocked},
 	{"chick_blocked", (byte *)chick_blocked},
+	{"flyer_blocked", (byte *)flyer_blocked},
 	{"gladiator_blocked", (byte *)gladiator_blocked},
 	{"gunner_blocked", (byte *)gunner_blocked},
 	{"hover_blocked", (byte *)hover_blocked},

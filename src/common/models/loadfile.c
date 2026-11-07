@@ -584,6 +584,8 @@ static const replacement_t replacements[] = {
 	/* DoD vs Daikatana */
 	{"models/weapons/ammo/g_bolt", "models/e3/wa_bolt"},
 	/* q2test */
+	{"models/objects/gibs/chest/tris", "models/objects/gibs/bone2/tris"},
+	{"models/objects/gibs/skull/tris", "models/objects/gibs/head/tris"},
 	{"models/objects/gibs/head2/tris", "models/objects/gibs/head/tris"},
 	{"models/objects/r_explode/tris", "sprites/s_explo3"},
 	/* Oblivion */

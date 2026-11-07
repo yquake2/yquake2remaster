@@ -292,6 +292,11 @@ CL_RegisterTEntModels(void)
 	Draw_FindPic("a_grenades");
 
 	cl_mod_explo4_big = R_RegisterModel("models/objects/r_explode2/tris.md2");
+	if (!cl_mod_explo4_big)
+	{
+		/* Without additional explode model */
+		cl_mod_explo4_big = cl_mod_explo4;
+	}
 	cl_mod_lightning = R_RegisterModel("models/proj/lightning/tris.md2");
 	cl_mod_heatbeam = R_RegisterModel("models/proj/beam/tris.md2");
 }

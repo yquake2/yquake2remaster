@@ -871,6 +871,7 @@ extern void zombie_sight (edict_t *, edict_t *);
 // monsterinfo.blocked
 extern qboolean berserk_blocked (edict_t *self, float dist);
 extern qboolean chick_blocked (edict_t *self, float dist);
+extern qboolean flyer_blocked (edict_t *self, float dist);
 extern qboolean gladiator_blocked (edict_t *self, float dist);
 extern qboolean gunner_blocked (edict_t *self, float dist);
 extern qboolean hover_blocked (edict_t *self, float dist);
