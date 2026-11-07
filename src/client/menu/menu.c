@@ -6515,6 +6515,7 @@ PlayerModelList(const strlist_t *dirs)
 			!FS_FileExists(va("%s/tris.md5mesh", s)) &&
 			!FS_FileExists(va("%s/tris.mdx", s)) &&
 			!FS_FileExists(va("%s/tris.mdl", s)) &&
+			!FS_FileExists(va("%s/tris.ctc", s)) &&
 			!FS_FileExists(va("%s/tris.obj", s))))
 		{
 			continue;

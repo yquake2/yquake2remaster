@@ -858,7 +858,7 @@ flyer_die(edict_t *self, edict_t *inflictor /* unused */,
 }
 
 /* kamikaze code .. blow up if blocked */
-static int
+int
 flyer_blocked(edict_t *self, float dist)
 {
 	if (!self)

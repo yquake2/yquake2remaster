@@ -438,13 +438,24 @@ Mod_LoadFileWithoutExtModel(const char *namewe, size_t tlen, void **buffer)
 		return filesize;
 	}
 
-	/* Check Quake 3 model */
+	/* Check Star Trek: Elite Force model */
 	Q_strlcpy(newname, namewe, sizeof(newname));
 	Q_strlcpy(newname + tlen, ".mdr", sizeof(newname));
 	filesize = FS_LoadFile(newname, buffer);
 	if (filesize > 0)
 	{
 		Com_DPrintf("%s: %s loaded as mdr/md4 (Star Trek: Elite Force)\n",
+			__func__, namewe);
+		return filesize;
+	}
+
+	/* Check Anachronox model */
+	Q_strlcpy(newname, namewe, sizeof(newname));
+	Q_strlcpy(newname + tlen, ".ctc", sizeof(newname));
+	filesize = FS_LoadFile(newname, buffer);
+	if (filesize > 0)
+	{
+		Com_DPrintf("%s: %s loaded as ctc (Anachronox)\n",
 			__func__, namewe);
 		return filesize;
 	}
