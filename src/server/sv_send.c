@@ -605,7 +605,7 @@ SV_NextDemoChunk(byte **msgbuf)
 
 	if (sv.demofile_left < 4)
 	{
-		Com_Printf("%s: end of file left %d bytes\n",
+		Com_Printf("%s: end of file, left %d bytes\n",
 			__func__, sv.demofile_left);
 		return -1;
 	}

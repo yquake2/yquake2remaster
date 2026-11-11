@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
- * Copyright (C) 2024-2025 Jaime Moreira
+ * Copyright (C) 2024-2026 Jaime Moreira
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,9 +48,18 @@ R_ResetGLBuffer(void)
 void
 R_ApplyGLBuffer(void)
 {
-	// Properties of batched draws here
+	enum
+	{
+		bat_texture	= 1 << 0,
+		bat_mtex	= 1 << 1,
+		bat_alpha	= 1 << 2,
+		bat_color	= 1 << 3,
+		bat_alias	= 1 << 4,
+		bat_texenv	= 1 << 5
+	};
+
 	GLint vtx_size;
-	qboolean texture, mtex, alpha, color, alias, texenv_set;
+	int batch_flags;
 
 	if (vtx_ptr == 0 || idx_ptr == 0)
 	{
@@ -59,8 +68,7 @@ R_ApplyGLBuffer(void)
 
 	// defaults for drawing (mostly buf_singletex features)
 	vtx_size = 3;
-	texture = true;
-	mtex = alpha = color = alias = texenv_set = false;
+	batch_flags = bat_texture;
 
 	// choosing features by type
 	switch (gl_buf.type)
@@ -69,27 +77,27 @@ R_ApplyGLBuffer(void)
 			vtx_size = 2;
 			break;
 		case buf_mtex:
-			mtex = true;
+			batch_flags |= bat_mtex;
 			break;
 		case buf_alpha:
-			alpha = true;
+			batch_flags |= bat_alpha;
 			break;
 		case buf_alias:
-			alias = color = true;
+			batch_flags |= bat_alias | bat_color;
 			break;
 		case buf_flash:
-			color = true;
+			batch_flags |= bat_color;
 			/* fall through */
 		case buf_shadow:
-			texture = false;
+			batch_flags &= ~bat_texture;
 			break;
 		default:
 			break;
 	}
 
-	R_EnableMultitexture(mtex);
+	R_EnableMultitexture(batch_flags & bat_mtex);
 
-	if (alias)
+	if (batch_flags & bat_alias)
 	{
 		if (gl_buf.flags & RF_DEPTHHACK)
 		{
@@ -129,12 +137,12 @@ R_ApplyGLBuffer(void)
 		if (gl_buf.flags & (RF_SHELL_RED | RF_SHELL_GREEN |
 			RF_SHELL_BLUE | RF_SHELL_DOUBLE | RF_SHELL_HALF_DAM))
 		{
-			texture = false;
+			batch_flags &= ~bat_texture;
 			glDisable(GL_TEXTURE_2D);
 		}
 	}
 
-	if (alpha)
+	if (batch_flags & bat_alpha)
 	{
 		// the textures are prescaled up for a better
 		// lighting range, so scale it back down
@@ -144,7 +152,7 @@ R_ApplyGLBuffer(void)
 	}
 	else if (gl_buf.flags & SURF_DRAWTURB)
 	{
-		texenv_set = true;
+		batch_flags |= bat_texenv;
 
 		// This is a hack ontop of a hack. Warping surfaces like those generated
 		// by R_EmitWaterPolys() don't have a lightmap. Original Quake II therefore
@@ -176,9 +184,9 @@ R_ApplyGLBuffer(void)
 	glEnableClientState( GL_VERTEX_ARRAY );
 	glVertexPointer (vtx_size, GL_FLOAT, 0, gl_buf.vtx);
 
-	if (texture)
+	if (batch_flags & bat_texture)
 	{
-		if (mtex)
+		if (batch_flags & bat_mtex)
 		{
 			// TMU 1: Lightmap texture
 			int lmtexture = gl_state.lightmap_textures + gl_buf.texture[1];
@@ -210,7 +218,7 @@ R_ApplyGLBuffer(void)
 		glTexCoordPointer(2, GL_FLOAT, 0, gl_buf.tex[0]);
 	}
 
-	if (color)
+	if (batch_flags & bat_color)
 	{
 		glEnableClientState(GL_COLOR_ARRAY);
 		glColorPointer(4, GL_UNSIGNED_BYTE, 0, gl_buf.clr);
@@ -220,24 +228,24 @@ R_ApplyGLBuffer(void)
 	glDrawElements(GL_TRIANGLES, idx_ptr, GL_UNSIGNED_SHORT, gl_buf.idx);
 	// ... and now, turn back everything as it was
 
-	if (color)
+	if (batch_flags & bat_color)
 	{
 		glDisableClientState(GL_COLOR_ARRAY);
 	}
 
-	if (texture)
+	if (batch_flags & bat_texture)
 	{
 		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 	}
 
 	glDisableClientState( GL_VERTEX_ARRAY );
 
-	if (texenv_set)
+	if (batch_flags & bat_texenv)
 	{
 		R_TexEnv(GL_REPLACE);
 	}
 
-	if (alias)
+	if (batch_flags & bat_alias)
 	{
 		if (gl_buf.flags & (RF_SHELL_RED | RF_SHELL_GREEN |
 			RF_SHELL_BLUE | RF_SHELL_DOUBLE | RF_SHELL_HALF_DAM))
@@ -365,11 +373,13 @@ R_SetBufferIndices(GLenum primitive, GLuint vertices_num)
 		case GL_TRIANGLE_FAN:
 			R_GenFanIndexes(gl_buf.idx + idx_ptr, vtx_ptr, vtx_ptr + vertices_num - 2);
 			break;
+
 		case GL_TRIANGLE_STRIP:
 			R_GenStripIndexes(gl_buf.idx + idx_ptr, vtx_ptr, vtx_ptr + vertices_num - 2);
 			break;
+
 		default:
-			Com_DPrintf("%s: no such primitive %d\n", __func__, primitive);
+			Com_Printf("%s: no such primitive 0x%x\n", __func__, primitive);
 			return;
 	}
 

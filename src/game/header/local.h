@@ -2140,17 +2140,11 @@ void CTFSetPowerUpEffect(edict_t *ent, int def);
 
 edict_t *Sphere_Spawn(edict_t *owner, int spawnflags);
 qboolean Pickup_Adrenaline(edict_t * ent, edict_t * other);
-qboolean Pickup_Ammo(edict_t * ent , edict_t * other);
-qboolean Pickup_AncientHead(edict_t * ent, edict_t * other);
 qboolean Pickup_Armor(edict_t * ent, edict_t * other);
-qboolean Pickup_Bandolier(edict_t * ent, edict_t * other);
 qboolean Pickup_Doppleganger(edict_t * ent, edict_t * other);
 qboolean Pickup_Health(edict_t * ent, edict_t * other);
-qboolean Pickup_Key(edict_t * ent, edict_t * other);
 qboolean Pickup_Nuke(edict_t * ent, edict_t * other);
-qboolean Pickup_Pack(edict_t * ent, edict_t * other);
 qboolean Pickup_PowerArmor(edict_t * ent, edict_t * other);
-qboolean Pickup_Powerup(edict_t * ent, edict_t * other);
 qboolean Pickup_Sphere(edict_t * ent, edict_t * other);
 
 void CopyToBodyQue(edict_t *ent);

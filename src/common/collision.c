@@ -1114,15 +1114,7 @@ CM_RecursiveHullCheck(int num, float p1f, float p2f, const vec3_t p1, const vec3
 	}
 
 	/* move up to the node */
-	if (frac < 0)
-	{
-		frac = 0;
-	}
-
-	if (frac > 1)
-	{
-		frac = 1;
-	}
+	frac = Q_clamp(frac, 0, 1);
 
 	midf = p1f + (p2f - p1f) * frac;
 
@@ -1134,15 +1126,7 @@ CM_RecursiveHullCheck(int num, float p1f, float p2f, const vec3_t p1, const vec3
 	CM_RecursiveHullCheck(node->children[side], p1f, midf, p1, mid);
 
 	/* go past the node */
-	if (frac2 < 0)
-	{
-		frac2 = 0;
-	}
-
-	if (frac2 > 1)
-	{
-		frac2 = 1;
-	}
+	frac2 = Q_clamp(frac2, 0, 1);
 
 	midf = p1f + (p2f - p1f) * frac2;
 

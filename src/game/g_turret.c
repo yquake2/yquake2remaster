@@ -117,7 +117,6 @@ turret_blocked(edict_t *self, edict_t *other)
  * "minyaw"	min acceptable yaw angle   : default 0
  * "maxyaw"	max acceptable yaw angle   : default 360
  */
-
 static void
 turret_breach_fire(edict_t *self)
 {
