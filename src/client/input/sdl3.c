@@ -1167,7 +1167,8 @@ IN_Update(void)
 
 			case SDL_EVENT_JOYSTICK_BATTERY_UPDATED :
 				if ( !controller || event.jbattery.which != SDL_GetJoystickID(SDL_GetGamepadJoystick(controller))
-					|| event.jbattery.percent > 20 )
+					|| event.jbattery.state != SDL_POWERSTATE_ON_BATTERY
+					|| event.jbattery.percent < 0 || event.jbattery.percent > 20 )
 				{
 					break;
 				}
