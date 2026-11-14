@@ -11,9 +11,14 @@ This skill enables systematic detection and refactoring of internal C functions 
 
 ## Workflow
 
-### Step 1: Run Build with Prototype Warnings
-Execute `make clean` and compile with `-Wmissing-prototypes` to generate compilation warnings (restricted to `src/`):
+### Step 1: Automated Detection & Refactoring with `auto_static.py`
+To automatically detect missing prototype warnings, identify file-local functions, prepend `static`, and run build verification:
 
+```bash
+python3 .agents/skills/validate-unused-code/scripts/auto_static.py
+```
+
+Alternatively, you can run the build with prototype warnings check manually:
 ```bash
 bash .agents/skills/validate-unused-code/scripts/check_prototypes.sh
 ```
@@ -30,7 +35,7 @@ Examine the filtered warnings or `/tmp/yq2_missing_prototypes.log` for files ins
 - `warning: ‘function_name’ defined but not used [-Wunused-function]`
 
 ### Step 3: Refactor Candidates
-For each candidate function in `src/`:
+For candidate functions not handled automatically:
 1. **File-Local Functions (Missing Prototype)**: If the function is only called within its translation unit (`.c` file) and lacks a prototype, modify its definition to use `static`:
    ```c
    static void my_internal_helper(void) {
