@@ -355,31 +355,31 @@ typedef struct
 	int num_tris;
 	int num_glcmds;
 	int num_frames;
-	/* ---- */
-	int num_animations;
+	int num_animgroup;
 	int num_bones;
-	int num_morphs;
-	int num_attachment_points;
-	int num_tri_list_sizes;
-	int pad_2;
+	int num_morphs; // ?
 	int pad_3;
-	int num_vert_colors;
+	int pad_4;
+	int pad_5;
+	int pad_6;
+	int pad_7;
+	/* ---- */
 	int ofs_skins;
 	int ofs_verts;
-	int ofs_output_verts;
-	int ofs_tri_xyzs;
-	int ofs_tri_texcoords;
+	int pad_8;
+	int ofs_tris;
+	int ofs_st;
 	int ofs_bones;
-	int ofs_skeletal_data;
-	int ofs_animations;
+	int ofs_skeletal_data; // ?
+	int ofs_animgroup;
 	int ofs_frames;
 	int ofs_glcmds;
-	int ofs_morph_data;
-	int ofs_attachment_points;
-	int ofs_tri_list_sizes;
-	int ofs_pad;
-	int ofs_tris3;
-	int ofs_vert_colors;
+	int ofs_morph_data;  // ?
+	int pad_9;
+	int pad_10;
+	int pad_11;
+	int pad_12;
+	int pad_13;
 	int ofs_end;
 } dctc_header_t;
 
