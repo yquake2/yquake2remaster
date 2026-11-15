@@ -653,7 +653,7 @@ VID_GetPalette24to8(const byte *d_8to24table, byte** d_16to8table)
 		return;
 	}
 
-	if (table16to8 || filesize >= 0x10000)
+	if (table16to8 && filesize >= 0x10000)
 	{
 		// Use predefined convert map
 		memcpy(*d_16to8table, table16to8, 0x10000);
