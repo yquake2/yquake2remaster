@@ -468,7 +468,7 @@ P_CmdConvert(int cmd, int protocol)
 			svc_muzzleflash,
 			svc_download,
 			svc_playerinfo,
-			-1, /* svc_chokecount */
+			svc_chokecount,
 			svc_packetentities,
 			svc_deltapacketentities,
 			svc_frame,

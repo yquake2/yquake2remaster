@@ -55,6 +55,7 @@ static const char *svc_strings[] = {
 	"svc_deltapacketentities",
 	"svc_frame",
 
+	/* Quake 2 ReRelease */
 	"svc_splitclient",
 	"svc_configblast",
 	"svc_spawnbaselineblast",
@@ -68,6 +69,9 @@ static const char *svc_strings[] = {
 	"svc_help_path",
 	"svc_muzzleflash3",
 	"svc_achievement",
+
+	/* Quake World */
+	"svc_chokecount",
 };
 
 void
@@ -2661,6 +2665,12 @@ CL_ParseServerMessage(void)
 
 			case svc_achievement:
 				Com_Printf("Achievement: %s\n", MSG_ReadString(&net_message));
+				break;
+
+			/* Quake World */
+			case svc_chokecount:
+				Com_DPrintf("%s: %d packages skipped\n",
+					__func__, MSG_ReadByte(&net_message));
 				break;
 		}
 	}
