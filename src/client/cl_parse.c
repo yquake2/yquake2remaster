@@ -487,59 +487,6 @@ CL_ParseEntityBitsQ2RR(uint64_t *bits)
 	int i, b, number;
 	uint64_t total;
 
-	if (cls.serverProtocol == PROTOCOL_Q2TEST_VERSION)
-	{
-		const int header_pos = net_message.readcount;
-		const int packed = MSG_ReadShort(&net_message);
-		uint64_t q2bits = (uint16_t)packed & 0x3f;
-		const int extra_bytes = ((q2bits & 0x10) ? 1 : 0) +
-			((q2bits & 0x20) ? 2 : 0);
-
-		if (header_pos + 2 > net_message.cursize)
-		{
-			Com_Error(ERR_FATAL, "%s: unexpected message end", __func__);
-			return 0;
-		}
-
-		number = ((uint16_t)packed) >> 6;
-		for (i = 0; i < extra_bytes; i++)
-		{
-			b = MSG_ReadByte(&net_message);
-			if (b < 0)
-			{
-				Com_Error(ERR_FATAL, "%s: unexpected message end", __func__);
-				return 0;
-			}
-
-			q2bits |= (uint64_t)b << ((i + 1) * 8);
-		}
-
-		total = 0;
-		if (q2bits & 0x000001) total |= U_ORIGIN1;
-		if (q2bits & 0x000002) total |= U_ORIGIN2;
-		if (q2bits & 0x000004) total |= U_ORIGIN3;
-		if (q2bits & 0x000008) total |= U_FRAME8;
-		if (q2bits & 0x000100) total |= U_ANGLE1;
-		if (q2bits & 0x000200) total |= U_ANGLE2;
-		if (q2bits & 0x000400) total |= U_ANGLE3;
-		if (q2bits & 0x000800) total |= U_MODEL;
-		if (q2bits & 0x001000) total |= U_RENDERFX8;
-		if (q2bits & 0x002000) total |= U_SKIN8;
-		if (q2bits & 0x004000) total |= U_EFFECTS8;
-		if (q2bits & 0x010000) total |= U_FRAME16;
-		if (q2bits & 0x020000) total |= U_RENDERFX16;
-		if (q2bits & 0x040000) total |= U_EFFECTS16;
-		if (q2bits & 0x080000) total |= U_MODEL2;
-		if (q2bits & 0x100000) total |= U_MODEL3;
-		if (q2bits & 0x200000) total |= U_MODEL4;
-		if (q2bits & 0x400000) total |= U_OLDORIGIN;
-		if (q2bits & 0x800000) total |= U_SKIN16;
-		if (q2bits & 0x1000000) total |= U_SOUND;
-
-		*bits = total;
-		return number;
-	}
-
 	b = MSG_ReadByte(&net_message);
 	if (b < 0)
 	{
@@ -785,129 +732,90 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, uint
 		to->frame = MSG_ReadShort(&net_message);
 	}
 
-	if (cls.serverProtocol == PROTOCOL_Q2TEST_VERSION)
+	/* used for laser colors */
+	if ((bits & U_SKIN8) && (bits & U_SKIN16))
 	{
-		/* Q2Test reads each width independently; the wide skin field is 32-bit */
-		if (bits & U_SKIN8)
-		{
-			to->skinnum = MSG_ReadByte(&net_message);
-		}
-
-		if (bits & U_SKIN16)
-		{
-			to->skinnum = MSG_ReadLong(&net_message);
-		}
-
-		if (bits & U_EFFECTS8)
-		{
-			to->effects = MSG_ReadByte(&net_message);
-		}
-
-		if (bits & U_EFFECTS16)
-		{
-			to->effects = MSG_ReadShort(&net_message);
-		}
-
-		if (bits & U_RENDERFX8)
-		{
-			to->renderfx = MSG_ReadByte(&net_message);
-		}
-
-		if (bits & U_RENDERFX16)
-		{
-			to->renderfx = MSG_ReadShort(&net_message);
-		}
-
-		to->rr_effects = 0;
-		to->rr_mesh = 0;
+		to->skinnum = MSG_ReadLong(&net_message);
 	}
-	else
+	else if (bits & U_SKIN8)
 	{
-		/* used for laser colors */
-		if ((bits & U_SKIN8) && (bits & U_SKIN16))
-		{
-			to->skinnum = MSG_ReadLong(&net_message);
-		}
-		else if (bits & U_SKIN8)
-		{
-			to->skinnum = MSG_ReadByte(&net_message);
-		}
-		else if (bits & U_SKIN16)
-		{
-			to->skinnum = MSG_ReadShort(&net_message);
-		}
+		to->skinnum = MSG_ReadByte(&net_message);
+	}
+	else if (bits & U_SKIN16)
+	{
+		to->skinnum = MSG_ReadShort(&net_message);
+	}
 
-		if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16) ||
-			(bits & U_EFFECTS64))
-		{
-			to->effects = MSG_ReadLong(&net_message);
-		}
-		else if (bits & U_EFFECTS8)
-		{
-			to->effects = MSG_ReadByte(&net_message);
-		}
-		else if (bits & U_EFFECTS16)
-		{
-			to->effects = MSG_ReadShort(&net_message);
-		}
+	if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16) ||
+		(bits & U_EFFECTS64))
+	{
+		to->effects = MSG_ReadLong(&net_message);
+	}
+	else if (bits & U_EFFECTS8)
+	{
+		to->effects = MSG_ReadByte(&net_message);
+	}
+	else if (bits & U_EFFECTS16)
+	{
+		to->effects = MSG_ReadShort(&net_message);
+	}
 
-		/* ReRelease effects */
-		if (cls.serverProtocol != PROTOCOL_VERSION)
+	/* ReRelease effects */
+	if (cls.serverProtocol != PROTOCOL_VERSION)
+	{
+		if (bits & U_EFFECTS64)
 		{
-			if (bits & U_EFFECTS64)
-			{
-				/* RR22 */
-				if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16))
-				{
-					to->rr_effects = MSG_ReadLong(&net_message);
-				}
-				else if (bits & U_EFFECTS8)
-				{
-					to->rr_effects = MSG_ReadByte(&net_message);
-				}
-				else if (bits & U_EFFECTS16)
-				{
-					to->rr_effects = MSG_ReadShort(&net_message);
-				}
-			}
-			else
-			{
-				to->rr_effects = 0;
-			}
-
-			to->rr_mesh = 0;
-		}
-		else
-		{
+			/* RR22 */
 			if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16))
 			{
 				to->rr_effects = MSG_ReadLong(&net_message);
-				to->rr_mesh = MSG_ReadLong(&net_message);
 			}
 			else if (bits & U_EFFECTS8)
 			{
 				to->rr_effects = MSG_ReadByte(&net_message);
-				to->rr_mesh = MSG_ReadByte(&net_message);
 			}
 			else if (bits & U_EFFECTS16)
 			{
 				to->rr_effects = MSG_ReadShort(&net_message);
-				to->rr_mesh = MSG_ReadShort(&net_message);
 			}
 		}
+		else
+		{
+			to->rr_effects = 0;
+		}
 
-		if ((bits & (U_RENDERFX8 | U_RENDERFX16)) == (U_RENDERFX8 | U_RENDERFX16))
+		to->rr_mesh = 0;
+	}
+	else
+	{
+		if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16))
 		{
-			to->renderfx = MSG_ReadLong(&net_message);
+			to->rr_effects = MSG_ReadLong(&net_message);
+			to->rr_mesh = MSG_ReadLong(&net_message);
 		}
-		else if (bits & U_RENDERFX8)
+		else if (bits & U_EFFECTS8)
 		{
-			to->renderfx = MSG_ReadByte(&net_message);
+			to->rr_effects = MSG_ReadByte(&net_message);
+			to->rr_mesh = MSG_ReadByte(&net_message);
 		}
-		else if (bits & U_RENDERFX16)
+		else if (bits & U_EFFECTS16)
 		{
-			to->renderfx = MSG_ReadShort(&net_message);
+			to->rr_effects = MSG_ReadShort(&net_message);
+			to->rr_mesh = MSG_ReadShort(&net_message);
 		}
+	}
+
+	if ((bits & (U_RENDERFX8 | U_RENDERFX16)) == (U_RENDERFX8 | U_RENDERFX16))
+	{
+		to->renderfx = MSG_ReadLong(&net_message);
+	}
+	else if (bits & U_RENDERFX8)
+	{
+		to->renderfx = MSG_ReadByte(&net_message);
+	}
+	else if (bits & U_RENDERFX16)
+	{
+		to->renderfx = MSG_ReadShort(&net_message);
 	}
 
 	if (IS_QIIRR_PROTOCOL(cls.serverProtocol) && (bits & U_SOLID))
@@ -1129,50 +1037,6 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, uint
 }
 
 static qboolean
-H2_EntityBit(uint64_t bits, int bit)
-{
-	return (bits & (1ULL << bit)) != 0;
-}
-
-static int
-CL_ParseH2EntityBits(uint64_t *bits)
-{
-	const int mask = MSG_ReadByte(&net_message);
-	uint64_t total = 0;
-	int i, number;
-
-	if (mask < 0)
-	{
-		Com_Error(ERR_DROP, "%s: truncated Heretic II entity header", __func__);
-		return 0;
-	}
-
-	for (i = 0; i < 5; i++)
-	{
-		if (mask & (1 << i))
-		{
-			const int value = MSG_ReadByte(&net_message);
-			if (value < 0)
-			{
-				Com_Error(ERR_DROP, "%s: truncated Heretic II entity flags", __func__);
-				return 0;
-			}
-			total |= (uint64_t)(byte)value << (i * 8);
-		}
-	}
-
-	number = H2_EntityBit(total, 30) ?
-		MSG_ReadShort(&net_message) : MSG_ReadByte(&net_message);
-	if (number < 0)
-	{
-		Com_Error(ERR_DROP, "%s: truncated Heretic II entity number", __func__);
-		return 0;
-	}
-	*bits = total;
-	return number;
-}
-
-static qboolean
 H2_SkipEntityBytes(int count)
 {
 	if (count < 0 || count > net_message.cursize - net_message.readcount)
@@ -1283,6 +1147,12 @@ H2_ReadJoints(void)
 		}
 	} while (flags);
 	return true;
+}
+
+static qboolean
+H2_EntityBit(uint64_t bits, int bit)
+{
+	return (bits & (1ULL << bit)) != 0;
 }
 
 static void
@@ -1588,14 +1458,7 @@ CL_ParsePacketEntities(const frame_t *oldframe, frame_t *newframe)
 		unsigned int newnum;
 		uint64_t bits;
 
-		if (cls.serverProtocol == PROTOCOL_H2DEMO_VERSION)
-		{
-			newnum = CL_ParseH2EntityBits(&bits);
-		}
-		else
-		{
-			newnum = CL_ParseEntityBits(&bits);
-		}
+		newnum = CL_ParseEntityBits(&bits);
 
 		if (newnum > MAX_CL_ENTNUM)
 		{
@@ -2725,14 +2588,7 @@ CL_ParseBaseline(void)
 	int newnum;
 	centity_t *ent;
 
-	if (cls.serverProtocol == PROTOCOL_H2DEMO_VERSION)
-	{
-		newnum = CL_ParseH2EntityBits(&bits);
-	}
-	else
-	{
-		newnum = CL_ParseEntityBits(&bits);
-	}
+	newnum = CL_ParseEntityBits(&bits);
 	ent = CL_AllocEntity(newnum);
 
 	if (cls.serverProtocol == PROTOCOL_H2DEMO_VERSION)
@@ -3840,12 +3696,6 @@ CL_ParseServerMessage(void)
 					continue;
 				}
 			}
-		}
-
-		if (cls.serverProtocol == PROTOCOL_Q2TEST_VERSION && cmd == 15)
-		{
-			(void)MSG_ReadByte(&net_message);
-			continue;
 		}
 
 		cmd = P_CmdConvert(cmd, cls.serverProtocol);
