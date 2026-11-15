@@ -175,11 +175,18 @@ CL_RequestNextDownload(void)
 				/* checking for skins in the model */
 				if (!precache_model)
 				{
-					FS_LoadFile(cl.configstrings[precache_check],
+					size_t filesize;
+
+					filesize = FS_LoadFile(cl.configstrings[precache_check],
 							(void **)&precache_model);
 
-					if (!precache_model)
+					if (!precache_model || filesize <= 0)
 					{
+						if (precache_model)
+						{
+							FS_FreeFile(precache_model);
+						}
+
 						precache_model_skin = 0;
 						precache_check++;
 						continue; /* couldn't load it */

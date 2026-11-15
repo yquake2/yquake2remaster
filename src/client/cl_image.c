@@ -633,11 +633,12 @@ VID_ImageDestroy(void)
 void
 VID_GetPalette24to8(const byte *d_8to24table, byte** d_16to8table)
 {
-	unsigned char * table16to8;
 	const char tablefile[] = "pics/16to8.dat";
+	unsigned char * table16to8;
+	size_t filesize;
 
 	*d_16to8table = NULL;
-	FS_LoadFile(tablefile, (void **)&table16to8);
+	filesize = FS_LoadFile(tablefile, (void **)&table16to8);
 
 	if (!table16to8)
 	{
@@ -652,7 +653,7 @@ VID_GetPalette24to8(const byte *d_8to24table, byte** d_16to8table)
 		return;
 	}
 
-	if (table16to8)
+	if (table16to8 || filesize >= 0x10000)
 	{
 		// Use predefined convert map
 		memcpy(*d_16to8table, table16to8, 0x10000);
