@@ -96,11 +96,54 @@ CL_RegisterSounds(void)
 	S_EndRegistration();
 }
 
-/*
- * Returns the entity number and the header bits
- */
 static unsigned
-CL_ParseEntityBits(uint64_t *bits)
+CL_ParseEntityBitsQ2Test(uint64_t *bits)
+{
+	int i, number, extra_bytes, packed;
+	uint64_t total;
+
+	packed = MSG_ReadShort(&net_message);
+	if (packed < 0)
+	{
+		Com_Error(ERR_FATAL, "%s: unexpected message end", __func__);
+		return 0;
+	}
+
+	total = (short)packed & 0x0f;
+	extra_bytes = ((short)packed >> 4) & 0x03;
+	number = ((short)packed) >> 6;
+
+	for (i = 0; i < extra_bytes; i++)
+	{
+		int b;
+
+		b = MSG_ReadByte(&net_message);
+		if (b < 0)
+		{
+			Com_Error(ERR_FATAL, "%s: unexpected message end", __func__);
+			return 0;
+		}
+
+		total |= (uint64_t)b << ((i + 1) * 8);
+	}
+
+	total = P_EntityBitsConvert(total, cls.serverProtocol);
+
+	/* count the bits for net profiling */
+	for (i = 0; i < ARRLEN(bitcounts); i++)
+	{
+		if (total & (1ULL << i))
+		{
+			bitcounts[i]++;
+		}
+	}
+
+	*bits = total;
+	return number;
+}
+
+static unsigned
+CL_ParseEntityBitsQ2RR(uint64_t *bits)
 {
 	int i, b, number;
 	uint64_t total;
@@ -190,6 +233,22 @@ CL_ParseEntityBits(uint64_t *bits)
 	*bits = total;
 
 	return number;
+}
+
+/*
+ * Returns the entity number and the header bits
+ */
+static unsigned
+CL_ParseEntityBits(uint64_t *bits)
+{
+	if (cls.serverProtocol == PROTOCOL_Q2TEST_VERSION)
+	{
+		return CL_ParseEntityBitsQ2Test(bits);
+	}
+	else
+	{
+		return CL_ParseEntityBitsQ2RR(bits);
+	}
 }
 
 /*

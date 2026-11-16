@@ -973,6 +973,7 @@ int P_ConvertConfigStringTo(int i, int protocol);
 int P_GetCountOfItems(int protocol);
 int P_GetCountOfStats(int protocol);
 int P_CmdConvert(int cmd, int protocol);
+uint64_t P_EntityBitsConvert(uint64_t bits, int protocol);
 
 /* ======================================================================= */
 
