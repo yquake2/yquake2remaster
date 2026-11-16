@@ -2588,7 +2588,6 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 	float *bone_poses = NULL;
 	float *bone_transforms = NULL;
 	byte *bone_ready = NULL;
-	qboolean has_root_key;
 	dstvert_t *st;
 	dtriangle_t *triangles;
 	dmdxmesh_t *mesh;
@@ -2696,39 +2695,23 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 			__func__, mod_name);
 		return NULL;
 	}
-	framesize = (size_t)(input.ofs_morph_data - input.ofs_frames) /
-		(size_t)input.num_frames;
-	if ((size_t)(input.ofs_morph_data - input.ofs_frames) %
-			(size_t)input.num_frames ||
-		framesize % (6 * sizeof(float)))
-	{
-		Com_Printf("%s: %s has an invalid CTC frame size\n",
-			__func__, mod_name);
-		return NULL;
-	}
-	frame_key_count = framesize / (6 * sizeof(float));
-	if (frame_key_count == (size_t)input.num_bones + 1)
-	{
-		has_root_key = true;
-	}
-	else if (frame_key_count == (size_t)input.num_bones)
-	{
-		has_root_key = false;
-	}
-	else
+	frame_key_count = (size_t)input.num_bones + 1;
+	if (frame_key_count > (size_t)-1 / (6 * sizeof(float)))
 	{
 		Com_Printf("%s: %s has an invalid CTC frame key count\n",
 			__func__, mod_name);
 		return NULL;
 	}
-
-	printf("framesize %d==%d (%d) %d\n",
-		input.num_morphs, framesize, has_root_key, input.version);
+	framesize = frame_key_count * 6 * sizeof(float);
+	printf("framesize %zu (%zu keys) %d\n",
+		framesize, frame_key_count, input.version);
 
 	if (!Mod_CTCValidRange(file_size, input.ofs_frames,
-		(size_t)input.num_frames, framesize))
+			(size_t)input.num_frames, framesize) ||
+		!Mod_CTCValidRange((size_t)input.ofs_morph_data,
+			input.ofs_frames, (size_t)input.num_frames, framesize))
 	{
-		Com_Printf("%s: %s has truncated CTC frame data\n",
+		Com_Printf("%s: %s has truncated or overlapping CTC frame data\n",
 			__func__, mod_name);
 		return NULL;
 	}
@@ -2941,18 +2924,7 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 		dmdx_vert_t *posed_vertices;
 		int j, axis, completed;
 
-		if (has_root_key)
-		{
-			Mod_CTCKeyMatrix((float *)frame_data, root_transform.m);
-		}
-		else
-		{
-			memset(root_transform.m, 0, sizeof(root_transform.m));
-			root_transform.m[0] = 1.0f;
-			root_transform.m[5] = 1.0f;
-			root_transform.m[10] = 1.0f;
-			root_transform.m[15] = 1.0f;
-		}
+		Mod_CTCKeyMatrix((float *)frame_data, root_transform.m);
 
 		if (input.num_bones)
 		{
@@ -2967,7 +2939,7 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 					ctc_matrix_t key_transform, pose_transform;
 					ctc_matrix_t skin_transform;
 					const byte *key = frame_data +
-						(size_t)(j + (has_root_key ? 1 : 0)) *
+						((size_t)j + 1) *
 						6 * sizeof(float);
 
 					if (bone_ready[j] ||
