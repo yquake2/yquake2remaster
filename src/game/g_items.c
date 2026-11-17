@@ -732,7 +732,7 @@ Use_Double(edict_t *ent, const gitem_t *item)
 static void
 Use_Radar(edict_t *ent, const gitem_t *item)
 {
-	gitem_t *energy_item;
+	const gitem_t *energy_item;
 
 	if (!ent || !item || !ent->client)
 	{
