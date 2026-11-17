@@ -2679,6 +2679,7 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 		}
 		animation_frame_count += animation_frames;
 	}
+
 	if (input.num_animgroup &&
 		animation_frame_count != (size_t)input.num_frames)
 	{
@@ -2703,8 +2704,6 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 		return NULL;
 	}
 	framesize = frame_key_count * 6 * sizeof(float);
-	printf("framesize %zu (%zu keys) %d\n",
-		framesize, frame_key_count, input.version);
 
 	if (!Mod_CTCValidRange(file_size, input.ofs_frames,
 			(size_t)input.num_frames, framesize) ||
@@ -2726,20 +2725,16 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 
 	for (i = 0; i < input.num_xyz; ++i)
 	{
-		/* Redudant */
-		dmdx_vert_t vertex;
 		int axis;
 
-		memcpy(&vertex, src + input.ofs_verts +
-			(size_t)i * sizeof(vertex), sizeof(vertex));
+		memcpy(vertices + i, src + input.ofs_verts +
+			(size_t)i * sizeof(vertices[i]), sizeof(vertices[i]));
+
 		for (axis = 0; axis < 3; ++axis)
 		{
-			vertex.xyz[axis] = LittleFloat(vertex.xyz[axis]);
-			vertex.norm[axis] = LittleFloat(vertex.norm[axis]);
+			vertices[i].xyz[axis] = LittleFloat(vertices[i].xyz[axis]);
+			vertices[i].norm[axis] = LittleFloat(vertices[i].norm[axis]);
 		}
-
-		VectorCopy(vertex.xyz, vertices[i].xyz);
-		VectorCopy(vertex.norm, vertices[i].norm);
 	}
 
 	if (input.num_bones)
