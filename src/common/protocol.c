@@ -560,31 +560,31 @@ P_EntityBitsConvert(uint64_t bits, int protocol)
 	if (protocol == PROTOCOL_Q2TEST_VERSION)
 	{
 		static const uint64_t convert[] = {
-			U_ORIGIN1,     /* 0 */
-			U_ORIGIN2,     /* 1 */
-			U_ORIGIN3,     /* 2 */
-			U_FRAME8,      /* 3 */
-			0,             /* 4 */
-			0,             /* 5 */
-			0,             /* 6 */
-			0,             /* 7 */
-			U_ANGLE1,      /* 8 */
-			U_ANGLE2,      /* 9 */
-			U_ANGLE3,      /* 10 */
-			U_MODEL,       /* 11 */
-			U_RENDERFX8,   /* 12 */
-			U_SKIN8,       /* 13 */
-			U_EFFECTS8,    /* 14 */
-			0,             /* 15 */
-			U_FRAME16,     /* 16 */
-			U_RENDERFX16,  /* 17 */
-			U_EFFECTS16,   /* 18 */
-			U_MODEL2,      /* 19 */
-			U_MODEL3,      /* 20 */
-			U_MODEL4,      /* 21 */
-			U_OLDORIGIN,   /* 22 */
-			U_SKIN16,      /* 23 */
-			U_SOUND,       /* 24 */
+			U_ORIGIN1,           /* 0 */
+			U_ORIGIN2,           /* 1 */
+			U_ORIGIN3,           /* 2 */
+			U_FRAME8,            /* 3 */
+			0,                   /* 4 */
+			0,                   /* 5 */
+			0,                   /* 6 */
+			0,                   /* 7 */
+			U_ANGLE1,            /* 8 */
+			U_ANGLE2,            /* 9 */
+			U_ANGLE3,            /* 10 */
+			U_MODEL,             /* 11 */
+			U_RENDERFX8,         /* 12 */
+			U_SKIN8,             /* 13 */
+			U_EFFECTS8,          /* 14 */
+			0,                   /* 15 */
+			U_FRAME16,           /* 16 */
+			U_RENDERFX16,        /* 17 */
+			U_EFFECTS16,         /* 18 */
+			U_MODEL2,            /* 19 */
+			U_MODEL3,            /* 20 */
+			U_MODEL4,            /* 21 */
+			U_OLDORIGIN,         /* 22 */
+			U_SKIN8 | U_SKIN16,  /* 23 */
+			U_SOUND,             /* 24 */
 		};
 
 		return P_EntityBitsConvertFlags(bits, convert, ARRLEN(convert));

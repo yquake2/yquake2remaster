@@ -351,6 +351,7 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, uint
 	}
 
 	if (IS_QII97_PROTOCOL(cls.serverProtocol) ||
+		(cls.serverProtocol == PROTOCOL_Q2TEST_VERSION) ||
 		(IS_QIIRR_PROTOCOL(cls.serverProtocol) && !(bits & U_MODEL16)))
 	{
 		if (bits & U_MODEL)
