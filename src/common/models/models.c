@@ -2723,12 +2723,11 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 		goto failed;
 	}
 
+	memcpy(vertices, src + input.ofs_verts, (size_t)input.num_xyz * sizeof(*vertices));
+
 	for (i = 0; i < input.num_xyz; ++i)
 	{
 		int axis;
-
-		memcpy(vertices + i, src + input.ofs_verts +
-			(size_t)i * sizeof(vertices[i]), sizeof(vertices[i]));
 
 		for (axis = 0; axis < 3; ++axis)
 		{
