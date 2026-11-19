@@ -1,8 +1,5 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
- * Copyright (c) 2005-2015 David HENRY
- * Copyright (c) 2011 Sajt (https://icculus.org/qshed/qwalk/)
- * Copyright (c) 1998 Trey Harrison (SiN View)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
