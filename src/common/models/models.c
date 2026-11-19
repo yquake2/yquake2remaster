@@ -2429,6 +2429,7 @@ Mod_LoadModel_OBJ(const char *mod_name, const void *buffer, int modfilelen)
 	return extradata;
 }
 
+
 /*
 =================
 Mod_LoadModelFile
@@ -2447,6 +2448,10 @@ Mod_LoadModelFile(const char *mod_name, const void *buffer, int modfilelen)
 
 	switch (LittleLong(*(unsigned *)buffer))
 	{
+		case CTCHEADER:
+			extradata = Mod_LoadModel_CTC(mod_name, buffer, modfilelen);
+			break;
+
 		case MDAHEADER:
 			extradata = Mod_LoadModel_MDA(mod_name, buffer, modfilelen);
 			break;
