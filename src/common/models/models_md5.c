@@ -1241,15 +1241,16 @@ PrepareFrameVertex(dmdx_vert_t *vertexArray, int num_verts, daliasxframe_t *fram
 	int i;
 	vec3_t mins, maxs;
 
-	mins[0] = 9999;
-	mins[1] = 9999;
-	mins[2] = 9999;
-	maxs[0] = -9999;
-	maxs[1] = -9999;
-	maxs[2] = -9999;
+	if (num_verts <= 0)
+	{
+		return;
+	}
+
+	VectorCopy(vertexArray[0].xyz, mins);
+	VectorCopy(vertexArray[0].xyz, maxs);
 
 	/* get min/max in frame */
-	for (i = 0; i < num_verts; ++i)
+	for (i = 1; i < num_verts; ++i)
 	{
 		int j;
 
@@ -1271,6 +1272,10 @@ PrepareFrameVertex(dmdx_vert_t *vertexArray, int num_verts, daliasxframe_t *fram
 	{
 		frame_out->translate[i] = mins[i];
 		frame_out->scale[i] = (maxs[i] - mins[i]) / 0xFFFF;
+		if (frame_out->scale[i] == 0.0f)
+		{
+			frame_out->scale[i] = 1.0f;
+		}
 	}
 
 	for (i = 0; i < num_verts; ++i)
@@ -1279,10 +1284,19 @@ PrepareFrameVertex(dmdx_vert_t *vertexArray, int num_verts, daliasxframe_t *fram
 
 		for (j = 0; j < 3; j++)
 		{
-			frame_out->verts[i].v[j] = (
+			float value = (
 				vertexArray[i].xyz[j] - frame_out->translate[j]
 			) / frame_out->scale[j];
 
+			if (value < 0.0f)
+			{
+				value = 0.0f;
+			}
+			else if (value > 0xFFFF)
+			{
+				value = 0xFFFF;
+			}
+			frame_out->verts[i].v[j] = (unsigned short)value;
 			frame_out->verts[i].normal[j] = vertexArray[i].norm[j] * 127.f;
 		}
 	}

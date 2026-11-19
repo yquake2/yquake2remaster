@@ -344,11 +344,11 @@ typedef struct hlmdl_sequence_s
 
 typedef struct
 {
-	int ident; /* == CTCHEADER */
+	int ident; /* magic number: "SMDL" */
 	int version;
 	int skinwidth;
 	int skinheight;
-	int pad_1;
+	int pad_0x10;
 	int num_skins;
 	int num_xyz;
 	int num_st;
@@ -357,29 +357,28 @@ typedef struct
 	int num_frames;
 	int num_animgroup;
 	int num_bones;
-	int num_morphs; // ?
-	int pad_3;
-	int pad_4;
-	int pad_5;
-	int pad_6;
-	int pad_7;
-	/* ---- */
+	int pad_0x34;
+	int pad_0x38;
+	int pad_0x3C;
+	int pad_0x40;
+	int pad_0x44;
+	int pad_0x48;
 	int ofs_skins;
 	int ofs_verts;
-	int pad_8;
+	int pad_0x54;
 	int ofs_tris;
 	int ofs_st;
 	int ofs_bones;
-	int ofs_skeletal_data; // ?
+	int ofs_skeletal;
 	int ofs_animgroup;
 	int ofs_frames;
 	int ofs_glcmds;
-	int ofs_morph_data;  // ?
-	int pad_9;
-	int pad_10;
-	int pad_11;
-	int pad_12;
-	int pad_13;
+	int pad_0x74;
+	int pad_0x78;
+	int pad_0x7C;
+	int pad_0x80;
+	int pad_0x84;
+	int pad_0x88;
 	int ofs_end;
 } dctc_header_t;
 

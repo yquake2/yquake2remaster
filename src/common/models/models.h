@@ -73,6 +73,8 @@ void Mod_RawDecodeImageWithPalette(const char *filename, const byte *raw, int le
 	byte **pic, byte **palette, int *width, int *height, int *bitsPerPixel);
 
 /* models */
+void *Mod_LoadModel_CTC(const char *mod_name, const void *buffer,
+	int modfilelen);
 void *Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer,
 	int modfilelen);
 void *Mod_LoadModel_MD5(const char *mod_name, const void *buffer,
