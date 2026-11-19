@@ -890,10 +890,8 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 
 					for (bp = 0; bp < pinmodel.num_bones; bp++)
 					{
-						pose_row[bp].pos[0] = bonetransform[bp][0][3];
-						pose_row[bp].pos[1] = bonetransform[bp][1][3];
-						pose_row[bp].pos[2] = bonetransform[bp][2][3];
-						Mod_Mat3x4ToQuat(bonetransform[bp], pose_row[bp].orient);
+						Mod_Mat3x4ToPose(bonetransform[bp],
+							pose_row[bp].pos, pose_row[bp].orient);
 					}
 				}
 

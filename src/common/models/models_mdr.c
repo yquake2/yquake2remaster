@@ -591,10 +591,8 @@ Mod_LoadModel_MDR(const char *mod_name, const void *buffer, int modfilelen)
 
 			out_joints[b].name[0] = '\0';
 			out_joints[b].parent = -1;
-			out_joints[b].pos[0] = bone->matrix[0][3];
-			out_joints[b].pos[1] = bone->matrix[1][3];
-			out_joints[b].pos[2] = bone->matrix[2][3];
-			Mod_Mat3x4ToQuat(bone->matrix, out_joints[b].orient);
+			Mod_Mat3x4ToPose(bone->matrix, out_joints[b].pos,
+				out_joints[b].orient);
 		}
 
 		/* per-frame bone poses from the already byte-swapped frames buffer */
@@ -612,10 +610,8 @@ Mod_LoadModel_MDR(const char *mod_name, const void *buffer, int modfilelen)
 				{
 					dmdx_baseframe_joint_t *pose = &baseframe_joints[f * pheader->num_joints + b2];
 
-					pose->pos[0] = mframe->bones[b2].matrix[0][3];
-					pose->pos[1] = mframe->bones[b2].matrix[1][3];
-					pose->pos[2] = mframe->bones[b2].matrix[2][3];
-					Mod_Mat3x4ToQuat(mframe->bones[b2].matrix, pose->orient);
+					Mod_Mat3x4ToPose(mframe->bones[b2].matrix, pose->pos,
+						pose->orient);
 				}
 			}
 		}

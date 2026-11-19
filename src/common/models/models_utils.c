@@ -216,6 +216,15 @@ Mod_Mat3x4ToQuat(const float m[3][4], vec4_t q)
 	}
 }
 
+void
+Mod_Mat3x4ToPose(const float m[3][4], vec3_t pos, quat_t orient)
+{
+	pos[0] = m[0][3];
+	pos[1] = m[1][3];
+	pos[2] = m[2][3];
+	Mod_Mat3x4ToQuat(m, orient);
+}
+
 /*
  * Calculate offsets and allocate memory for model
  */
@@ -250,6 +259,40 @@ Mod_LoadAllocate(const char *mod_name, dmdx_t *dmdxheader, void **extradata)
 	memcpy(pheader, dmdxheader, sizeof(dmdx_t));
 
 	return pheader;
+}
+
+void
+Mod_StoreModelSkin(dmdx_t *pheader, const model_skin_t *skin)
+{
+	if (pheader->num_joints != skin->num_joints ||
+		pheader->num_weights != skin->num_weights ||
+		skin->num_joints <= 0)
+	{
+		return;
+	}
+
+	memcpy((byte *)pheader + pheader->ofs_joints, skin->joints,
+		skin->num_joints * sizeof(*skin->joints));
+	memcpy((byte *)pheader + pheader->ofs_baseframe_joints, skin->poses,
+		(size_t)pheader->num_frames * skin->num_joints * sizeof(*skin->poses));
+
+	if (skin->num_weights > 0)
+	{
+		memcpy((byte *)pheader + pheader->ofs_weights, skin->weights,
+			skin->num_weights * sizeof(*skin->weights));
+		memcpy((byte *)pheader + pheader->ofs_mesh_verteces, skin->verts,
+			pheader->num_xyz * sizeof(*skin->verts));
+	}
+}
+
+void
+Mod_FreeModelSkin(model_skin_t *skin)
+{
+	free(skin->joints);
+	free(skin->poses);
+	free(skin->weights);
+	free(skin->verts);
+	memset(skin, 0, sizeof(*skin));
 }
 
 void

@@ -317,11 +317,7 @@ Mod_CTCLoadFrames(const char *mod_name, const dctc_header_t *input,
 					Mod_CTCMatrixMultiply(root_transform,
 						temp->bone_poses[j], world_pose);
 					Mod_CTCConvertMatrix(world_pose, engine_pose);
-
-					pose_row[j].pos[0] = engine_pose[0][3];
-					pose_row[j].pos[1] = engine_pose[1][3];
-					pose_row[j].pos[2] = engine_pose[2][3];
-					Mod_Mat3x4ToQuat(engine_pose,
+					Mod_Mat3x4ToPose(engine_pose, pose_row[j].pos,
 						pose_row[j].orient);
 
 					if (i == 0)
