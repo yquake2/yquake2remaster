@@ -739,7 +739,9 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 	}
 	framesize = frame_key_count * sizeof(ctc_frame_key_t);
 
-	if ((size_t)input.num_frames >
+	if (input.ofs_frames < 0 ||
+		(size_t)input.ofs_frames > file_size ||
+		(size_t)input.num_frames >
 			(file_size - (size_t)input.ofs_frames) / framesize)
 	{
 		Com_Printf("%s: %s has truncated or overlapping CTC frame data\n",
