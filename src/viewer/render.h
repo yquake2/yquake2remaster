@@ -20,6 +20,5 @@ void RenderFrameItp(int n, float interp, const dmdx_t *mod);
 struct image_s * insert_skin(const char *name, byte *data, int width, int realwidth,
 	int height, int realheight, size_t size, imagetype_t type, int bits);
 byte* image_load(const char* name, int *w, int *h, int *b);
-void keyboard(unsigned char key, int x, int y);
 void cleanup(void);
 void model_load(const char *filename);

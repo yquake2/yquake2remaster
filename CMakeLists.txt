@@ -741,7 +741,7 @@ set(Viewer-Source
 	${COMMON_SRC_DIR}/models/models_sdef.c
 	${COMMON_SRC_DIR}/models/sprites.c
 	${SOURCE_DIR}/viewer/render.c
-	${SOURCE_DIR}/viewer/main.c
+	${SOURCE_DIR}/viewer/fmx.c
 	)
 
 set(Viewer-Header

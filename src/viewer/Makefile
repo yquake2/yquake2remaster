@@ -40,7 +40,7 @@ SDL_CFLAGS := $(shell pkg-config --cflags sdl2 2>/dev/null)
 SDL_LIBS := $(shell pkg-config --libs sdl2 2>/dev/null || echo -lSDL2)
 
 CFLAGS = -g -Wall $(SDL_CFLAGS)
-LDLIBS = -lm -lGL -lGLU -lglut $(SDL_LIBS)
+LDLIBS = -lm -lGL -lGLU $(SDL_LIBS)
 COMMON_FILES = \
 	../client/cl_image.c \
 	../common/md4.c \
@@ -72,9 +72,12 @@ COMMON_HEADERS =  \
 	../common/header/shared.h \
 	render.h
 
-all: view-quake
+all: view-quake view-fm
 clean:
-	rm -f *.o view-quake
+	rm -f *.o view-quake view-fm
 
 view-quake: mdlx.c ${COMMON_FILES} ${COMMON_HEADERS} rendergl.c
 	gcc -g -DYQ2OSTYPE=\"$(YQ2_OSTYPE)\" -DYQ2ARCH=\"$(YQ2_ARCH)\" ${CFLAGS} ${COMMON_FILES} rendergl.c mdlx.c ${LDLIBS} -o view-quake
+
+view-fm: fmx.c ${COMMON_FILES} ${COMMON_HEADERS}
+	gcc -g -DYQ2OSTYPE=\"$(YQ2_OSTYPE)\" -DYQ2ARCH=\"$(YQ2_ARCH)\" ${CFLAGS} ${COMMON_FILES} fmx.c ${LDLIBS} -o view-fm

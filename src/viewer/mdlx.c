@@ -26,7 +26,14 @@
  *
  */
 
-#include <GL/glut.h>
+#ifdef USE_SDL3
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_opengl.h>
+#else
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -83,43 +90,17 @@ init(const char *filename)
 	exit (EXIT_FAILURE);
 }
 
-static void
-display ()
-{
-	static int n = 0; /* The current frame */
-	static float interp = 0.0;
-	static double curent_time = 0;
-	static double last_time = 0;
-
-	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glLoadIdentity ();
-
-	last_time = curent_time;
-	curent_time = (double)glutGet (GLUT_ELAPSED_TIME) / 1000.0;
-
-	/* Animate model from frames 0 to num_frames-1 */
-	interp += 10 * (curent_time - last_time);
-	Animate(0, mem_mod->num_frames - 1, &n, &interp);
-
-	glTranslatef(
-		0.0f, /* x */
-		0.0f, /* y */
-		zdist /* z */
-	);
-	glRotatef (xrotate, 1.0, 0.0, 0.0);
-	glRotatef (yrotate, 0.0, 1.0, 0.0);
-	glRotatef (zrotate, 0.0, 0.0, 1.0);
-
-	/* Draw the model */
-	RenderFrameItp(n, interp, mem_mod);
-
-	glutSwapBuffers ();
-	glutPostRedisplay ();
-}
-
 int
 main(int argc, char *argv[])
 {
+	SDL_Window *window;
+	SDL_GLContext context;
+	int running = 1;
+	static int n = 0; /* The current frame */
+	static float interp = 0.0;
+	double curent_time = 0;
+	double last_time = 0;
+
 	if (argc < 2)
 	{
 		R_Printf(PRINT_ALL, "usage: %s <filename.md2> [<texture.png>]\n", argv[0]);
@@ -129,17 +110,47 @@ main(int argc, char *argv[])
 	// quake swap prepere
 	Swap_Init();
 
-	glutInit (&argc, argv);
-	glutInitDisplayMode (GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
-	glutInitWindowSize (640, 480);
-	glutCreateWindow ("MD2/MDL/MD5 Model");
+#ifdef USE_SDL3
+	if (!SDL_Init(SDL_INIT_VIDEO))
+#else
+	if (SDL_Init(SDL_INIT_VIDEO) != 0)
+#endif
+	{
+		fprintf(stderr, "SDL initialization failed: %s\n", SDL_GetError());
+		return 1;
+	}
 
-	atexit (cleanup);
-	init (argv[1]);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
 
-	glutReshapeFunc(reshape);
-	glutDisplayFunc(display);
-	glutKeyboardFunc(keyboard);
+#ifdef USE_SDL3
+	window = SDL_CreateWindow("MD2/MDL/MD5 Model", 640, 480, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+#else
+	window = SDL_CreateWindow("MD2/MDL/MD5 Model", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+		640, 480, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+#endif
+	context = window ? SDL_GL_CreateContext(window) : NULL;
+	if (!window || !context)
+	{
+		fprintf(stderr, "OpenGL window creation failed: %s\n", SDL_GetError());
+		if (context)
+		{
+#ifdef USE_SDL3
+			SDL_GL_DestroyContext(context);
+#else
+			SDL_GL_DeleteContext(context);
+#endif
+		}
+		if (window)
+		{
+			SDL_DestroyWindow(window);
+		}
+		SDL_Quit();
+		return 1;
+	}
+
+	init(argv[1]);
 
 	if (argc > 2)
 	{
@@ -157,7 +168,143 @@ main(int argc, char *argv[])
 		}
 	}
 
-	glutMainLoop ();
+	last_time = (double)SDL_GetTicks() / 1000.0;
+
+	while (running)
+	{
+		SDL_Event event;
+		int width, height;
+
+		while (SDL_PollEvent(&event))
+		{
+#ifdef USE_SDL3
+			SDL_Keycode key = event.key.key;
+#else
+			SDL_Keycode key = event.key.keysym.sym;
+#endif
+
+#ifdef USE_SDL3
+			if (event.type == SDL_EVENT_QUIT || (event.type == SDL_EVENT_KEY_DOWN && key == SDLK_ESCAPE))
+#else
+			if (event.type == SDL_QUIT || (event.type == SDL_KEYDOWN && key == SDLK_ESCAPE))
+#endif
+			{
+				running = 0;
+			}
+#ifdef USE_SDL3
+			else if (event.type == SDL_EVENT_KEY_DOWN)
+#else
+			else if (event.type == SDL_KEYDOWN)
+#endif
+			{
+				iskin += skin_count;
+				xrotate += 360;
+				yrotate += 360;
+				zrotate += 360;
+
+				switch (key)
+				{
+					case '0':
+						imesh++;
+						break;
+
+					case '=':
+						iskin++;
+						break;
+
+					case '-':
+						iskin--;
+						break;
+
+					case 'w':
+						xrotate += 5;
+						break;
+
+					case 's':
+						xrotate -= 5;
+						break;
+
+					case 'd':
+						yrotate += 5;
+						break;
+
+					case 'a':
+						yrotate -= 5;
+						break;
+
+					case 'z':
+						zrotate += 5;
+						break;
+
+					case 'c':
+						zrotate -= 5;
+						break;
+
+					case 'x':
+						irender++;
+						break;
+
+					case 'v':
+						zdist -= 5;
+						break;
+
+					case 'b':
+						zdist += 5;
+						break;
+
+					case 'q':
+						running = 0;
+						break;
+				}
+
+				iskin %= skin_count;
+				xrotate %= 360;
+				yrotate %= 360;
+				zrotate %= 360;
+			}
+		}
+
+		curent_time = (double)SDL_GetTicks() / 1000.0;
+		/* Animate model from frames 0 to num_frames-1 */
+		interp += 10 * (curent_time - last_time);
+		last_time = curent_time;
+
+		Animate(0, mem_mod->num_frames - 1, &n, &interp);
+
+#ifdef USE_SDL3
+		SDL_GetWindowSizeInPixels(window, &width, &height);
+#else
+		SDL_GetWindowSize(window, &width, &height);
+#endif
+		reshape(width, height);
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glLoadIdentity();
+
+		glTranslatef(
+			0.0f, /* x */
+			0.0f, /* y */
+			zdist /* z */
+		);
+		glRotatef(xrotate, 1.0, 0.0, 0.0);
+		glRotatef(yrotate, 0.0, 1.0, 0.0);
+		glRotatef(zrotate, 0.0, 0.0, 1.0);
+
+		/* Draw the model */
+		RenderFrameItp(n, interp, mem_mod);
+
+		SDL_GL_SwapWindow(window);
+	}
+
+	cleanup();
+
+#ifdef USE_SDL3
+	SDL_GL_DestroyContext(context);
+#else
+	SDL_GL_DeleteContext(context);
+#endif
+	SDL_DestroyWindow(window);
+	SDL_Quit();
 
 	return 0;
 }

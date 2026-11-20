@@ -1732,7 +1732,7 @@ VIEWER_OBJS_ := \
 	src/common/models/models_sdef.o \
 	src/common/models/sprites.o \
 	src/viewer/render.o \
-	src/viewer/main.o
+	src/viewer/fmx.o
 
 ifeq ($(YQ2_OSTYPE), Windows)
 VIEWER_OBJS_ += \
