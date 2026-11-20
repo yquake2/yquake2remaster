@@ -69,6 +69,17 @@ init(const char *filename)
 
 		show_frames(mem_mod);
 
+		R_Printf(PRINT_ALL, "Supported keys:\n");
+		R_Printf(PRINT_ALL, "  ESC, q - Quit\n");
+		R_Printf(PRINT_ALL, "  0      - Next mesh\n");
+		R_Printf(PRINT_ALL, "  =      - Next skin\n");
+		R_Printf(PRINT_ALL, "  -      - Previous skin\n");
+		R_Printf(PRINT_ALL, "  w / s  - Rotate X (+5 / -5)\n");
+		R_Printf(PRINT_ALL, "  d / a  - Rotate Y (+5 / -5)\n");
+		R_Printf(PRINT_ALL, "  z / c  - Rotate Z (+5 / -5)\n");
+		R_Printf(PRINT_ALL, "  x      - Next render mode\n");
+		R_Printf(PRINT_ALL, "  v / b  - Zoom out / in\n");
+
 		/* Initialize OpenGL context */
 		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 		glShadeModel(GL_SMOOTH);

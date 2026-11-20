@@ -78,9 +78,17 @@ FS_LoadFile(const char *path, void **buffer)
 	}
 
 	*buffer = malloc(size);
+	if (!*buffer)
+	{
+		fclose(fp);
+		return -1;
+	}
+
 	fseek(fp, 0, SEEK_SET);
 	if (fread(*buffer, size, 1, fp) != 1)
 	{
+		free(*buffer);
+		*buffer = NULL;
 		fclose(fp);
 		return -1;
 	}
@@ -107,8 +115,9 @@ model_load(const char *filename)
 {
 	byte *buffer;
 	clock_t starttime;
-	FILE *fp_mesh, *fp_anim;
-	int mesh_size = 0, anim_size = 0, full_size = 0;
+	FILE *fp_mesh = NULL, *fp_anim = NULL;
+	size_t mesh_size = 0, anim_size = 0, full_size = 0;
+	int filesize = 0;
 
 	fp_mesh = fopen(filename, "rb");
 	if (!fp_mesh)
@@ -118,14 +127,16 @@ model_load(const char *filename)
 	}
 
 	fseek (fp_mesh, 0, SEEK_END);
-	mesh_size = ftell(fp_mesh);
-	if (mesh_size <= 0)
+	filesize = ftell(fp_mesh);
+	if (filesize <= 0)
 	{
 		R_Printf(PRINT_ALL, "Error: empty file \"%s\"!\n", filename);
 
 		fclose(fp_mesh);
 		exit(EXIT_FAILURE);
 	}
+
+	mesh_size = filesize;
 
 	if (strstr(filename, ".md5mesh"))
 	{
@@ -138,8 +149,16 @@ model_load(const char *filename)
 		fp_anim = fopen(animfile, "rb");
 		if (fp_anim)
 		{
-			fseek (fp_anim, 0, SEEK_END);
-			anim_size = ftell(fp_anim);
+			fseek(fp_anim, 0, SEEK_END);
+			filesize = ftell(fp_anim);
+			if (filesize <= 0)
+			{
+				R_Printf(PRINT_ALL, "Error: empty file \"%s\"!\n", animfile);
+				fclose(fp_anim);
+				fclose(fp_mesh);
+				exit(EXIT_FAILURE);
+			}
+			anim_size = filesize;
 		}
 		else
 		{
@@ -154,11 +173,22 @@ model_load(const char *filename)
 	}
 
 	buffer = malloc(full_size);
+	if (!buffer)
+	{
+		fclose(fp_mesh);
+		if (fp_anim)
+		{
+			fclose(fp_anim);
+		}
+
+		exit(EXIT_FAILURE);
+	}
 
 	fseek(fp_mesh, 0, SEEK_SET);
 	if (fread(buffer, mesh_size, 1, fp_mesh) != 1)
 	{
 		R_Printf(PRINT_ALL, "Cant read mesh data!\n");
+		free(buffer);
 		fclose(fp_mesh);
 		if (fp_anim)
 		{
@@ -170,19 +200,19 @@ model_load(const char *filename)
 
 	fclose(fp_mesh);
 
-	if (anim_size)
+	if (fp_anim)
 	{
-		buffer[mesh_size] = 0;
-		fseek(fp_anim, 0, SEEK_SET);
-		if (fread(buffer + mesh_size + 1, anim_size, 1, fp_anim) != 1)
+		if (anim_size)
 		{
-			R_Printf(PRINT_ALL, "Cant read anim data!\n");
-			if (fp_anim)
+			buffer[mesh_size] = 0;
+			fseek(fp_anim, 0, SEEK_SET);
+			if (fread(buffer + mesh_size + 1, anim_size, 1, fp_anim) != 1)
 			{
+				R_Printf(PRINT_ALL, "Cant read anim data!\n");
+				free(buffer);
 				fclose(fp_anim);
+				exit(EXIT_FAILURE);
 			}
-
-			exit(EXIT_FAILURE);
 		}
 
 		fclose(fp_anim);
