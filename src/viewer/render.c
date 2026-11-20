@@ -43,7 +43,7 @@ Sys_Error(const char *error, ...)
 	vprintf(error, argptr);
 	va_end(argptr);
 
-	exit (0);
+	exit(0);
 }
 
 void
@@ -54,7 +54,7 @@ Com_Error(int error_code, const char *error, ...)
 	vprintf(error, argptr);
 	va_end(argptr);
 
-	exit (0);
+	exit(0);
 }
 
 int
@@ -73,12 +73,18 @@ FS_LoadFile(const char *path, void **buffer)
 	size = ftell(fp);
 	if (size <= 0)
 	{
+		fclose(fp);
 		return -1;
 	}
 
 	*buffer = malloc(size);
 	fseek(fp, 0, SEEK_SET);
-	fread(*buffer, size, 1, fp);
+	if (fread(*buffer, size, 1, fp) != 1)
+	{
+		fclose(fp);
+		return -1;
+	}
+
 	fclose(fp);
 
 	return size;
@@ -108,7 +114,7 @@ model_load(const char *filename)
 	if (!fp_mesh)
 	{
 		R_Printf(PRINT_ALL, "Error: couldn't open \"%s\"!\n", filename);
-		exit (EXIT_FAILURE);
+		exit(EXIT_FAILURE);
 	}
 
 	fseek (fp_mesh, 0, SEEK_END);
@@ -118,14 +124,14 @@ model_load(const char *filename)
 		R_Printf(PRINT_ALL, "Error: empty file \"%s\"!\n", filename);
 
 		fclose(fp_mesh);
-		exit (EXIT_FAILURE);
+		exit(EXIT_FAILURE);
 	}
 
 	if (strstr(filename, ".md5mesh"))
 	{
 		char animfile[256];
 
-		strncpy(animfile, filename, sizeof(animfile));
+		Q_strlcpy(animfile, filename, sizeof(animfile));
 		memcpy(animfile + strlen(animfile) - strlen("mesh"),
 			"anim",
 			strlen("anim"));
@@ -150,14 +156,35 @@ model_load(const char *filename)
 	buffer = malloc(full_size);
 
 	fseek(fp_mesh, 0, SEEK_SET);
-	fread(buffer, mesh_size, 1, fp_mesh);
+	if (fread(buffer, mesh_size, 1, fp_mesh) != 1)
+	{
+		R_Printf(PRINT_ALL, "Cant read mesh data!\n");
+		fclose(fp_mesh);
+		if (fp_anim)
+		{
+			fclose(fp_anim);
+		}
+
+		exit(EXIT_FAILURE);
+	}
+
 	fclose(fp_mesh);
 
 	if (anim_size)
 	{
 		buffer[mesh_size] = 0;
 		fseek(fp_anim, 0, SEEK_SET);
-		fread(buffer + mesh_size + 1, anim_size, 1, fp_anim);
+		if (fread(buffer + mesh_size + 1, anim_size, 1, fp_anim) != 1)
+		{
+			R_Printf(PRINT_ALL, "Cant read anim data!\n");
+			if (fp_anim)
+			{
+				fclose(fp_anim);
+			}
+
+			exit(EXIT_FAILURE);
+		}
+
 		fclose(fp_anim);
 	}
 
