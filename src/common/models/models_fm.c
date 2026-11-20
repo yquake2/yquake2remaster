@@ -54,34 +54,18 @@
 #define FLEX_SKIN_MAX_BONES 64
 #define FLEX_SKIN_FRAME_STRIDE 4
 
-typedef struct
-{
-	int num_joints;
-	const char *names[FLEX_MAX_JOINTS];
-	int parents[FLEX_MAX_JOINTS];
-} flex_skeleton_type_t;
-
-/* indexed by the type stored in the flex "skeleton" block, every type is a chain */
-static const flex_skeleton_type_t flex_skeleton_types[] = {
-	{3, {"lowerback", "upperback", "head"}, {-1, 0, 1}},
-	{1, {"center"}, {-1}},
-	{2, {"neck", "head"}, {-1, 0}},
-	{2, {"neck", "head"}, {-1, 0}},
-	{3, {"lowerback", "upperback", "head"}, {-1, 0, 1}},
-	{3, {"lowerback", "upperback", "head"}, {-1, 0, 1}},
-};
-
 /* decoded flex data used as fit input */
 typedef struct
 {
 	int num_xyz;
 	int num_frames;
 	int num_joints;
-	const flex_skeleton_type_t *type;
 	vec3_t *verts; /* num_frames * num_xyz */
 	dmdx_baseframe_joint_t *poses; /* num_frames * num_joints, world space */
 	int *vertex_joint; /* deepest fm joint, -1 for none */
 	unsigned *vertex_nodes; /* mesh node bits */
+	const char **names;
+	const int *parents;
 } flex_model_t;
 
 typedef struct
@@ -177,6 +161,9 @@ Mod_FlexFreeModel(flex_model_t *model)
 	memset(model, 0, sizeof(*model));
 }
 
+static const char *player_bones_names[] = {"lowerback", "upperback", "head"};
+static const int player_bones_parent[] = {-1, 0, 1};
+
 /*
  * Decode skeleton, frames and mesh nodes, returns false only on malformed
  * data, num_joints is zero if there is no usable skeleton.
@@ -218,8 +205,7 @@ Mod_FlexLoadSkeleton(const char *mod_name, const void *buffer, int modfilelen,
 	Com_DPrintf("%s: %s in skeleton has 0x%02x type and %d bones\n",
 		__func__, mod_name, type, joints);
 
-	if (type < 0 || type >= (int)ARRLEN(flex_skeleton_types) ||
-		joints != flex_skeleton_types[type].num_joints)
+	if (type != 5 || joints != 3)
 	{
 		Com_Printf("%s: %s has unsupported skeleton type %d with %d bones\n",
 			__func__, mod_name, type, joints);
@@ -391,7 +377,8 @@ Mod_FlexLoadSkeleton(const char *mod_name, const void *buffer, int modfilelen,
 		}
 	}
 
-	model->type = &flex_skeleton_types[type];
+	model->names = player_bones_names;
+	model->parents = player_bones_parent;
 	model->num_joints = joints;
 	return true;
 }
@@ -534,7 +521,7 @@ Mod_FlexFitInitFixed(const flex_model_t *model, flex_fit_t *fit)
 		const dmdx_baseframe_joint_t *bind = &model->poses[bone];
 		quat_t inverse;
 
-		fit->parents[bone] = model->type->parents[bone];
+		fit->parents[bone] = model->parents[bone];
 		fit->nodes[bone] = -1;
 		fit->categories[bone] = bone;
 		fit->anchors[bone] = bone;
@@ -963,10 +950,10 @@ Mod_FlexStore(const flex_model_t *model, const flex_fit_t *fit, flex_skin_t *ski
 		const int category = fit->categories[bone];
 		const char *category_name;
 
-		category_name = category >= 0 ? model->type->names[category] : "root";
+		category_name = category >= 0 ? model->names[category] : "root";
 		if (bone < fit->fixed_count)
 		{
-			Q_strlcpy(joint->name, model->type->names[bone], sizeof(joint->name));
+			Q_strlcpy(joint->name, model->names[bone], sizeof(joint->name));
 		}
 		else if (bone < fit->base_count)
 		{
@@ -1235,8 +1222,8 @@ Mod_FlexStoreSkeleton(const flex_model_t *model, flex_skin_t *skin)
 	/* bind pose is the first frame */
 	for (i = 0; i < model->num_joints; i++)
 	{
-		Q_strlcpy(skin->joints[i].name, model->type->names[i], sizeof(skin->joints[i].name));
-		skin->joints[i].parent = model->type->parents[i];
+		Q_strlcpy(skin->joints[i].name, model->names[i], sizeof(skin->joints[i].name));
+		skin->joints[i].parent = model->parents[i];
 		VectorCopy(model->poses[i].pos, skin->joints[i].pos);
 		memcpy(skin->joints[i].orient, model->poses[i].orient, sizeof(skin->joints[i].orient));
 	}
