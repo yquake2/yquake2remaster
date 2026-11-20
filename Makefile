@@ -1712,9 +1712,38 @@ PAKEXTRACT_OBJS_ := \
 
 # Used by the model viewer
 VIEWER_OBJS_ := \
+	src/client/cl_image.o \
+	src/common/md4.o \
 	src/common/shared/shared.o \
+	src/common/cmodels.o \
+	src/common/threads.o \
+	src/common/zone.o \
+	src/client/refresh/files/mesh.o \
+	src/common/models/image.o \
+	src/common/models/loadfile.o \
 	src/common/models/mesh.o \
+	src/common/models/models.o \
+	src/common/models/models_ctc.o \
+	src/common/models/models_fm.o \
+	src/common/models/models_utils.o \
+	src/common/models/models_hlmdl.o \
+	src/common/models/models_image.o \
+	src/common/models/models_mda.o \
+	src/common/models/models_mdl.o \
+	src/common/models/models_md5.o \
+	src/common/models/models_mdr.o \
+	src/common/models/models_sdef.o \
+	src/common/models/sprites.o \
+	src/viewer/render.o \
 	src/viewer/main.o
+
+ifeq ($(YQ2_OSTYPE), Windows)
+VIEWER_OBJS_ += \
+	src/backends/windows/shared/hunk.o
+else
+VIEWER_OBJS_ += \
+	src/backends/unix/shared/hunk.o
+endif
 
 # ----------
 

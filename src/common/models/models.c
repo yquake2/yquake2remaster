@@ -1630,7 +1630,7 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen)
 	size_t size, inframesize = 0;
 	void *extradata = NULL;
 	const char *src = NULL;
-	flex_skin_t skin;
+	model_skin_t skin;
 	int version;
 
 	src = Mod_LoadModel_FlexSection(buffer, modfilelen, "header", &version, &size);
@@ -1735,7 +1735,7 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen)
 	{
 		Com_Printf("%s: %s has broken header.\n",
 			__func__, mod_name);
-		Mod_FreeFlexSkin(&skin);
+		Mod_FreeModelSkin(&skin);
 		return NULL;
 	}
 
@@ -1746,12 +1746,12 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen)
 		!Mod_LoadModel_FlexGLCmd(mod_name, pheader, buffer, modfilelen) ||
 		!Mod_LoadModel_FlexMeshNodes(pheader, buffer, modfilelen))
 	{
-		Mod_FreeFlexSkin(&skin);
+		Mod_FreeModelSkin(&skin);
 		return NULL;
 	}
 
-	Mod_StoreFlexSkin(pheader, &skin);
-	Mod_FreeFlexSkin(&skin);
+	Mod_StoreModelSkin(pheader, &skin);
+	Mod_FreeModelSkin(&skin);
 
 	/* Skipped blocks:
 	 * "normals",

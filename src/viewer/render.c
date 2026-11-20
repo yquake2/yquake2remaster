@@ -6,9 +6,10 @@ int skin_count = 0, iskin = 0, yrotate = 0, xrotate = -90, zrotate = -90,
 	imesh = 0, irender = 0, zdist = -150.0;
 dmdx_t *mem_mod;
 
-refimport_t ri;
+cvar_t *r_skeletalanimation;
 
-void R_Printf(int level, const char* msg, ...)
+void
+R_Printf(int level, const char* msg, ...)
 {
 	va_list argptr;
 	va_start(argptr, msg);
@@ -17,7 +18,7 @@ void R_Printf(int level, const char* msg, ...)
 }
 
 void
-Com_Printf (const char *msg, ...)
+Com_Printf(const char *msg, ...)
 {
 	va_list argptr;
 	va_start(argptr, msg);
@@ -26,7 +27,7 @@ Com_Printf (const char *msg, ...)
 }
 
 void
-Com_DPrintf (const char *msg, ...)
+Com_DPrintf(const char *msg, ...)
 {
 	va_list argptr;
 	va_start(argptr, msg);
@@ -81,13 +82,6 @@ FS_LoadFile(const char *path, void **buffer)
 	fclose(fp);
 
 	return size;
-}
-
-void *
-Z_Malloc(size_t size)
-{
-	void *ptr = calloc(1, size ? size : 1);
-	return ptr;
 }
 
 int
@@ -169,6 +163,6 @@ model_load(const char *filename)
 
 	starttime = clock();
 	mem_mod = (dmdx_t *)Mod_LoadModelFile(filename, buffer, full_size);
-	printf("Load takes %.3fs\n", (double)(clock() - starttime) / CLOCKS_PER_SEC);
+	Com_Printf("Load takes %.3fs\n", (double)(clock() - starttime) / CLOCKS_PER_SEC);
 	free(buffer);
 }

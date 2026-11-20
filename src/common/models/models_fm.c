@@ -70,6 +70,13 @@ typedef struct
 
 typedef struct
 {
+	float distance;
+	int vertex;
+} flex_sort_t;
+
+typedef struct
+{
+	flex_sort_t *items;
 	int bone_count;
 	/* fm skeleton bones come first and keep their stored poses */
 	int fixed_count;
@@ -89,12 +96,6 @@ typedef struct
 	quat_t *orients;
 	float (*matrices)[9];
 } flex_fit_t;
-
-typedef struct
-{
-	float distance;
-	int vertex;
-} flex_sort_t;
 
 static void
 Mod_FlexQuatIdentity(quat_t q)
@@ -144,10 +145,10 @@ Mod_FlexPoseToJoint(const vec3_t origin, const vec3_t direction_point,
 		m[i][0] = forward[i];
 		m[i][1] = left[i];
 		m[i][2] = up[i];
-		m[i][3] = 0.0f;
+		m[i][3] = origin[i];
 	}
 
-	Mod_Mat3x4ToQuat(m, joint->orient);
+	Mod_Mat3x4ToPose(m, joint->pos, joint->orient);
 	Quat_normalize(joint->orient);
 }
 
@@ -527,10 +528,7 @@ Mod_FlexFitInitFixed(const flex_model_t *model, flex_fit_t *fit)
 		fit->anchors[bone] = bone;
 		VectorCopy(bind->pos, fit->centers[bone]);
 		memcpy(fit->bind_orients[bone], bind->orient, sizeof(quat_t));
-		inverse[0] = -bind->orient[0];
-		inverse[1] = -bind->orient[1];
-		inverse[2] = -bind->orient[2];
-		inverse[3] = bind->orient[3];
+		QuatInverse(bind->orient, inverse);
 
 		for (frame = 0; frame < model->num_frames; frame++)
 		{
@@ -785,7 +783,7 @@ Mod_FlexSortCompare(const void *a, const void *b)
  * https://en.wikipedia.org/wiki/Hierarchical_clustering)
  */
 static qboolean
-Mod_FlexSplitWorst(const flex_model_t *model, flex_fit_t *fit, flex_sort_t *items)
+Mod_FlexSplitWorst(const flex_model_t *model, flex_fit_t *fit)
 {
 	double bone_error[FLEX_SKIN_MAX_BONES], worst_error[FLEX_SKIN_MAX_BONES];
 	int worst_vertex[FLEX_SKIN_MAX_BONES], counts[FLEX_SKIN_MAX_BONES];
@@ -836,15 +834,15 @@ Mod_FlexSplitWorst(const flex_model_t *model, flex_fit_t *fit, flex_sort_t *item
 		}
 
 		VectorSubtract(model->verts[vertex], model->verts[worst_vertex[split]], delta);
-		items[count].distance = VectorLength(delta);
-		items[count].vertex = vertex;
+		fit->items[count].distance = VectorLength(delta);
+		fit->items[count].vertex = vertex;
 		count++;
 	}
 
-	qsort(items, count, sizeof(*items), Mod_FlexSortCompare);
+	qsort(fit->items, count, sizeof(*fit->items), Mod_FlexSortCompare);
 	for (i = 0; i < count / 2; i++)
 	{
-		fit->vertex_bone[items[i].vertex] = fit->bone_count;
+		fit->vertex_bone[fit->items[i].vertex] = fit->bone_count;
 	}
 
 	/* generated bones hang off the bone of their mesh node */
@@ -869,10 +867,7 @@ Mod_FlexWeightPosition(const flex_model_t *model, const flex_fit_t *fit,
 	quat_t inverse;
 	vec3_t local;
 
-	inverse[0] = -bind[0];
-	inverse[1] = -bind[1];
-	inverse[2] = -bind[2];
-	inverse[3] = bind[3];
+	QuatInverse(bind, inverse);
 	VectorSubtract(model->verts[vertex], fit->centers[bone], local);
 	Quat_rotatePoint(inverse, local, out);
 }
@@ -939,7 +934,7 @@ Mod_FlexBlendError(const flex_model_t *model, const flex_fit_t *fit,
 
 /* step 6: write joints, per frame world poses and weights in dmdx layout */
 static void
-Mod_FlexStore(const flex_model_t *model, const flex_fit_t *fit, flex_skin_t *skin)
+Mod_FlexStore(const flex_model_t *model, const flex_fit_t *fit, model_skin_t *skin)
 {
 	const int bones = fit->bone_count;
 	int bone, frame, vertex, weight = 0, blended = 0;
@@ -1051,7 +1046,7 @@ Mod_FlexStore(const flex_model_t *model, const flex_fit_t *fit, flex_skin_t *ski
  * (https://en.wikipedia.org/wiki/Root_mean_square) and max error
  */
 static void
-Mod_FlexReport(const char *mod_name, const flex_model_t *model, const flex_skin_t *skin)
+Mod_FlexReport(const char *mod_name, const flex_model_t *model, const model_skin_t *skin)
 {
 	float rotations[FLEX_SKIN_MAX_BONES][9];
 	double sum = 0.0;
@@ -1101,26 +1096,63 @@ Mod_FlexReport(const char *mod_name, const flex_model_t *model, const flex_skin_
 		sqrt(sum / ((double)model->num_frames * model->num_xyz)), max_error);
 }
 
+static void
+Mod_FMFreeTempData(flex_fit_t *fit)
+{
+	free(fit->vertex_bone);
+	free(fit->positions);
+	free(fit->orients);
+	free(fit->matrices);
+	free(fit->items);
+}
+
 /* fm frames carry no weights, so fit rigid bones to the baked vertex animation */
 static qboolean
-Mod_FlexConvert(const char *mod_name, const flex_model_t *model, flex_skin_t *skin)
+Mod_FlexConvert(const char *mod_name, const flex_model_t *model, model_skin_t *skin)
 {
 	const size_t slots = (size_t)model->num_frames * FLEX_SKIN_MAX_BONES;
-	flex_sort_t *items;
-	qboolean ok = false;
 	flex_fit_t fit;
 	int vertex, bone;
 
 	memset(&fit, 0, sizeof(fit));
 	fit.vertex_bone = malloc(model->num_xyz * sizeof(*fit.vertex_bone));
-	fit.positions = malloc(slots * sizeof(*fit.positions));
-	fit.orients = malloc(slots * sizeof(*fit.orients));
-	fit.matrices = malloc(slots * sizeof(*fit.matrices));
-	items = malloc(model->num_xyz * sizeof(*items));
-	if (!fit.vertex_bone || !fit.positions || !fit.orients || !fit.matrices || !items)
+	if (!fit.vertex_bone)
 	{
-		Com_Printf("%s: %s out of memory\n", __func__, mod_name);
-		goto done;
+		Mod_FMFreeTempData(&fit);
+		YQ2_COM_CHECK_OOM(fit.vertex_bone, "calloc()", model->num_xyz * sizeof(*fit.vertex_bone))
+		return false;
+	}
+
+	fit.positions = malloc(slots * sizeof(*fit.positions));
+	if (!fit.positions)
+	{
+		Mod_FMFreeTempData(&fit);
+		YQ2_COM_CHECK_OOM(fit.positions, "calloc()", slots * sizeof(*fit.positions))
+		return false;
+	}
+
+	fit.orients = malloc(slots * sizeof(*fit.orients));
+	if (!fit.orients)
+	{
+		Mod_FMFreeTempData(&fit);
+		YQ2_COM_CHECK_OOM(fit.orients, "calloc()", slots * sizeof(*fit.orients))
+		return false;
+	}
+
+	fit.matrices = malloc(slots * sizeof(*fit.matrices));
+	if (!fit.matrices)
+	{
+		Mod_FMFreeTempData(&fit);
+		YQ2_COM_CHECK_OOM(fit.matrices, "calloc()", slots * sizeof(*fit.matrices))
+		return false;
+	}
+
+	fit.items = malloc(model->num_xyz * sizeof(*fit.items));
+	if (!fit.items)
+	{
+		Mod_FMFreeTempData(&fit);
+		YQ2_COM_CHECK_OOM(fit.items, "calloc()", model->num_xyz * sizeof(*fit.items))
+		return false;
 	}
 
 	Mod_FlexFitInitFixed(model, &fit);
@@ -1151,8 +1183,9 @@ Mod_FlexConvert(const char *mod_name, const flex_model_t *model, flex_skin_t *sk
 		{
 			if (fit.bone_count == FLEX_SKIN_MAX_BONES)
 			{
+				Mod_FMFreeTempData(&fit);
 				Com_Printf("%s: %s needs too many bones\n", __func__, mod_name);
-				goto done;
+				return false;
 			}
 
 			fit.nodes[bone] = first;
@@ -1172,7 +1205,7 @@ Mod_FlexConvert(const char *mod_name, const flex_model_t *model, flex_skin_t *sk
 	Mod_FlexAssign(model, &fit);
 	Mod_FlexFitBones(model, &fit);
 	/* step 5: grow bones until the limit or nothing is left to split */
-	while (fit.bone_count < FLEX_SKIN_MAX_BONES && Mod_FlexSplitWorst(model, &fit, items))
+	while (fit.bone_count < FLEX_SKIN_MAX_BONES && Mod_FlexSplitWorst(model, &fit))
 	{
 		Mod_FlexFitBones(model, &fit);
 		Mod_FlexAssign(model, &fit);
@@ -1180,32 +1213,50 @@ Mod_FlexConvert(const char *mod_name, const flex_model_t *model, flex_skin_t *sk
 	}
 
 	skin->joints = calloc(fit.bone_count, sizeof(*skin->joints));
-	skin->poses = calloc((size_t)model->num_frames * fit.bone_count, sizeof(*skin->poses));
-	skin->weights = calloc((size_t)model->num_xyz * 2, sizeof(*skin->weights));
-	skin->verts = calloc(model->num_xyz, sizeof(*skin->verts));
-	if (!skin->joints || !skin->poses || !skin->weights || !skin->verts)
+	if (!skin->joints)
 	{
-		Com_Printf("%s: %s out of memory\n", __func__, mod_name);
-		goto done;
+		Mod_FMFreeTempData(&fit);
+		YQ2_COM_CHECK_OOM(skin->joints, "calloc()",
+			fit.bone_count * sizeof(*skin->joints))
+		return false;
+	}
+
+	skin->poses = calloc(model->num_frames * fit.bone_count, sizeof(*skin->poses));
+	if (!skin->poses)
+	{
+		Mod_FMFreeTempData(&fit);
+		YQ2_COM_CHECK_OOM(skin->poses, "calloc()",
+			model->num_frames * fit.bone_count * sizeof(*skin->poses))
+		return false;
+	}
+
+	skin->weights = calloc(model->num_xyz * 2, sizeof(*skin->weights));
+	if (!skin->weights)
+	{
+		Mod_FMFreeTempData(&fit);
+		YQ2_COM_CHECK_OOM(skin->weights, "calloc()",
+			model->num_xyz * 2 * sizeof(*skin->weights))
+		return false;
+	}
+
+	skin->verts = calloc(model->num_xyz, sizeof(*skin->verts));
+	if (!skin->verts)
+	{
+		Mod_FMFreeTempData(&fit);
+		YQ2_COM_CHECK_OOM(skin->verts, "calloc()",
+			model->num_xyz * sizeof(*skin->verts))
+		return false;
 	}
 
 	Mod_FlexStore(model, &fit, skin);
 	Mod_FlexReport(mod_name, model, skin);
-	ok = true;
-
-done:
-	free(fit.vertex_bone);
-	free(fit.positions);
-	free(fit.orients);
-	free(fit.matrices);
-	free(items);
-
-	return ok;
+	Mod_FMFreeTempData(&fit);
+	return true;
 }
 
 /* fm joints only, without weights */
 static qboolean
-Mod_FlexStoreSkeleton(const flex_model_t *model, flex_skin_t *skin)
+Mod_FlexStoreSkeleton(const flex_model_t *model, model_skin_t *skin)
 {
 	int i;
 
@@ -1232,20 +1283,10 @@ Mod_FlexStoreSkeleton(const flex_model_t *model, flex_skin_t *skin)
 	return true;
 }
 
-void
-Mod_FreeFlexSkin(flex_skin_t *skin)
-{
-	free(skin->joints);
-	free(skin->poses);
-	free(skin->weights);
-	free(skin->verts);
-	memset(skin, 0, sizeof(*skin));
-}
-
 qboolean
 Mod_LoadFlexSkin(const char *mod_name, const void *buffer, int modfilelen,
 	int num_xyz, int num_frames, int num_mesh_nodes, size_t inframesize,
-	flex_skin_t *skin)
+	model_skin_t *skin)
 {
 	flex_model_t model;
 
@@ -1263,37 +1304,13 @@ Mod_LoadFlexSkin(const char *mod_name, const void *buffer, int modfilelen,
 
 	if (model.num_joints > 0 && !Mod_FlexConvert(mod_name, &model, skin))
 	{
-		Mod_FreeFlexSkin(skin);
+		Mod_FreeModelSkin(skin);
 		if (!Mod_FlexStoreSkeleton(&model, skin))
 		{
-			Mod_FreeFlexSkin(skin);
+			Mod_FreeModelSkin(skin);
 		}
 	}
 
 	Mod_FlexFreeModel(&model);
 	return true;
-}
-
-void
-Mod_StoreFlexSkin(dmdx_t *pheader, const flex_skin_t *skin)
-{
-	if (pheader->num_joints != skin->num_joints ||
-		pheader->num_weights != skin->num_weights ||
-		skin->num_joints <= 0)
-	{
-		return;
-	}
-
-	memcpy((byte *)pheader + pheader->ofs_joints, skin->joints,
-		skin->num_joints * sizeof(*skin->joints));
-	memcpy((byte *)pheader + pheader->ofs_baseframe_joints, skin->poses,
-		(size_t)pheader->num_frames * skin->num_joints * sizeof(*skin->poses));
-
-	if (skin->num_weights > 0)
-	{
-		memcpy((byte *)pheader + pheader->ofs_weights, skin->weights,
-			skin->num_weights * sizeof(*skin->weights));
-		memcpy((byte *)pheader + pheader->ofs_mesh_verteces, skin->verts,
-			pheader->num_xyz * sizeof(*skin->verts));
-	}
 }

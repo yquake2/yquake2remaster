@@ -3,8 +3,6 @@
 
 void VID_GetPalette(byte **colormap, unsigned *d_8to24table);
 
-cvar_t *r_skeletalanimation;
-
 static GLuint skins[16];
 static unsigned char colormap[256][3];
 static qboolean palette_ready = false;

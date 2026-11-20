@@ -65,6 +65,7 @@ void Mod_LoadAnimGroupList(dmdx_t *pheader, qboolean sequence);
 void Mod_LoadModel_AnimGroupNamesFix(dmdx_t *pheader, const namesconvert_t *names);
 dmdx_t *Mod_LoadAllocate(const char *mod_name, dmdx_t *dmdxheader, void **extradata);
 void Mod_Mat3x4ToQuat(const float m[3][4], vec4_t q);
+void Mod_Mat3x4ToPose(const float m[3][4], vec3_t pos, quat_t orient);
 void *Mod_LoadModelFile(const char *mod_name, const void *buffer, int modfilelen);
 byte *Mod_LoadEmbdedImage(const char *mod_name, int texture_index, byte *raw, int len,
 	int *width, int *height, int *bitsPerPixel);
@@ -72,7 +73,7 @@ void Mod_LittleHeader(const int *in, size_t len, int *out);
 void Mod_RawDecodeImageWithPalette(const char *filename, const byte *raw, int len,
 	byte **pic, byte **palette, int *width, int *height, int *bitsPerPixel);
 
-/* flex skeleton converted to skinned joints */
+/* temporary skeletal data converted to the common model layout */
 typedef struct
 {
 	int num_joints;
@@ -81,15 +82,15 @@ typedef struct
 	dmdx_baseframe_joint_t *poses; /* num_frames * num_joints */
 	dmdx_weight_t *weights;
 	dmdx_vertex_t *verts; /* num_xyz, only with weights */
-} flex_skin_t;
+} model_skin_t;
 
+void Mod_StoreModelSkin(dmdx_t *pheader, const model_skin_t *skin);
+void Mod_FreeModelSkin(model_skin_t *skin);
 const char *Mod_LoadModel_FlexSection(const void *in_buffer, size_t modfilelen,
 	const char *section_name, int *section_version, size_t *section_size);
 qboolean Mod_LoadFlexSkin(const char *mod_name, const void *buffer, int modfilelen,
 	int num_xyz, int num_frames, int num_mesh_nodes, size_t inframesize,
-	flex_skin_t *skin);
-void Mod_StoreFlexSkin(dmdx_t *pheader, const flex_skin_t *skin);
-void Mod_FreeFlexSkin(flex_skin_t *skin);
+	model_skin_t *skin);
 
 /* models */
 void *Mod_LoadModel_CTC(const char *mod_name, const void *buffer,

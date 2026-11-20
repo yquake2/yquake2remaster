@@ -721,8 +721,29 @@ set(Pakextract-Header
 	)
 
 set(Viewer-Source
+	${CLIENT_SRC_DIR}/cl_image.c
+	${REF_SRC_DIR}/files/mesh.c
+	${COMMON_SRC_DIR}/md4.c
 	${COMMON_SRC_DIR}/shared/shared.c
+	${COMMON_SRC_DIR}/cmodels.c
+	${COMMON_SRC_DIR}/threads.c
+	${COMMON_SRC_DIR}/zone.c
+	${COMMON_SRC_DIR}/models/image.c
+	${COMMON_SRC_DIR}/models/loadfile.c
 	${COMMON_SRC_DIR}/models/mesh.c
+	${COMMON_SRC_DIR}/models/models.c
+	${COMMON_SRC_DIR}/models/models_ctc.c
+	${COMMON_SRC_DIR}/models/models_fm.c
+	${COMMON_SRC_DIR}/models/models_utils.c
+	${COMMON_SRC_DIR}/models/models_hlmdl.c
+	${COMMON_SRC_DIR}/models/models_image.c
+	${COMMON_SRC_DIR}/models/models_mda.c
+	${COMMON_SRC_DIR}/models/models_mdl.c
+	${COMMON_SRC_DIR}/models/models_md5.c
+	${COMMON_SRC_DIR}/models/models_mdr.c
+	${COMMON_SRC_DIR}/models/models_sdef.c
+	${COMMON_SRC_DIR}/models/sprites.c
+	${SOURCE_DIR}/viewer/render.c
 	${SOURCE_DIR}/viewer/main.c
 	)
 
@@ -1060,7 +1081,7 @@ endif()
 if(VIEWER)
 
 # Model viewer utility
-add_executable(viewer ${Viewer-Source} ${Viewer-Header})
+add_executable(viewer ${Viewer-Source} ${Viewer-Header} ${REF-Platform-Specific-Source})
 set_target_properties(viewer PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/release
 	)

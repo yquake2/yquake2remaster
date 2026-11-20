@@ -87,7 +87,7 @@ typedef struct
 
 typedef struct
 {
-	char ident[4];
+	int ident;
 	byte vertex_data[];
 } ctc_skeletal_data_t;
 
@@ -317,11 +317,7 @@ Mod_CTCLoadFrames(const char *mod_name, const dctc_header_t *input,
 					Mod_CTCMatrixMultiply(root_transform,
 						temp->bone_poses[j], world_pose);
 					Mod_CTCConvertMatrix(world_pose, engine_pose);
-
-					pose_row[j].pos[0] = engine_pose[0][3];
-					pose_row[j].pos[1] = engine_pose[1][3];
-					pose_row[j].pos[2] = engine_pose[2][3];
-					Mod_Mat3x4ToQuat(engine_pose,
+					Mod_Mat3x4ToPose(engine_pose, pose_row[j].pos,
 						pose_row[j].orient);
 
 					if (i == 0)
@@ -340,7 +336,7 @@ Mod_CTCLoadFrames(const char *mod_name, const dctc_header_t *input,
 			}
 		}
 
-		posed_vertices = calloc((size_t)input->num_xyz,
+		posed_vertices = calloc(input->num_xyz,
 			sizeof(*posed_vertices));
 		if (!posed_vertices)
 		{
@@ -421,6 +417,33 @@ Mod_CTCLoadFrames(const char *mod_name, const dctc_header_t *input,
 	return true;
 }
 
+static const namesconvert_t anox_ctc_names[] = {
+	{"a2atak", "a2atak"},
+	{"amb", "idle"}, /* ambient */
+	{"atak", "attack"},
+	{"bskill", "bskill"},
+	{"cine", "cine"},
+	{"climb", "climb"},
+	{"dart", "dart"},
+	{"die", "death"},
+	{"gest", "gest"},
+	{"grab", "grab"},
+	{"hit", "hit"},
+	{"lookl", "lookl"},
+	{"lookr", "lookr"},
+	{"run", "run"},
+	{"sit", "sit"},
+	{"skill", "skill"},
+	{"talk", "talk"},
+	{"turn_l", "turn_l"},
+	{"turn_r", "turn_r"},
+	{"w_skill", "w_skill"},
+	{"walk", "walk"},
+	{"win", "win"},
+	{"wskill", "wskill"},
+	{NULL, NULL}
+};
+
 static qboolean
 Mod_CTCBuildGeometry(const char *mod_name, const dctc_header_t *input,
 	const byte *src, dmdx_t *pheader)
@@ -488,13 +511,10 @@ Mod_CTCBuildGeometry(const char *mod_name, const dctc_header_t *input,
 				(const ctc_animation_input_t *)(src + input->ofs_animgroup) + i;
 			int first_frame = LittleLong(animation->first_frame);
 			int last_frame = LittleLong(animation->last_frame);
-			char name[17];
 
-			memcpy(name, animation->name, sizeof(animation->name));
-			name[16] = '\0';
-			Q_strlcpy(framegroups[i].name, name,
-				sizeof(framegroups[i].name));
+			Q_strlcpy(framegroups[i].name, animation->name, Q_min(sizeof(framegroups[i].name), sizeof(animation->name)));
 			Q_strlwr(framegroups[i].name);
+
 			framegroups[i].ofs = frame_offset;
 			framegroups[i].num = last_frame - first_frame + 1;
 			frame_offset += framegroups[i].num;
@@ -507,6 +527,8 @@ Mod_CTCBuildGeometry(const char *mod_name, const dctc_header_t *input,
 	{
 		Mod_LoadAnimGroupList(pheader, true);
 	}
+
+	Mod_LoadModel_AnimGroupNamesFix(pheader, anox_ctc_names);
 
 	return true;
 }
@@ -533,7 +555,7 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 	Mod_LittleHeader((const int *)buffer, sizeof(input) / sizeof(int),
 		(int *)&input);
 
-	if (input.ident != CTCHEADER || input.version < 8 || input.version > 11)
+	if (input.ident != CTCHEADER || input.version != CTC_VERSION)
 	{
 		Com_Printf("%s: %s has an unsupported CTC header or version %d\n",
 			__func__, mod_name, input.version);
@@ -726,7 +748,6 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 		return NULL;
 	}
 
-
 	frame_key_count = (size_t)input.num_bones + 1;
 	if (frame_key_count > (size_t)-1 / sizeof(ctc_frame_key_t))
 	{
@@ -746,12 +767,13 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 		return NULL;
 	}
 
-	temp.vertices = calloc((size_t)input.num_xyz, sizeof(*temp.vertices));
+	temp.vertices = calloc(input.num_xyz, sizeof(*temp.vertices));
 	if (!temp.vertices)
 	{
+		Mod_CTCFreeTempData(&temp);
 		YQ2_COM_CHECK_OOM(temp.vertices, "calloc()",
 			(size_t)input.num_xyz * sizeof(*temp.vertices))
-		goto failed;
+		return NULL;
 	}
 
 	{
@@ -774,41 +796,47 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 
 	if (input.num_bones)
 	{
-		temp.bones = calloc((size_t)input.num_bones, sizeof(*temp.bones));
-		temp.bone_poses = calloc((size_t)input.num_bones,
-			sizeof(*temp.bone_poses));
-		temp.bone_transforms = calloc((size_t)input.num_bones,
-			sizeof(*temp.bone_transforms));
-		temp.bone_ready = calloc((size_t)input.num_bones, sizeof(*temp.bone_ready));
-		temp.vertex_weights = calloc((size_t)input.num_xyz,
-			sizeof(*temp.vertex_weights));
+		temp.bones = calloc(input.num_bones, sizeof(*temp.bones));
 		if (!temp.bones)
 		{
+			Mod_CTCFreeTempData(&temp);
 			YQ2_COM_CHECK_OOM(temp.bones, "calloc()", input.num_bones)
-			goto failed;
+			return NULL;
 		}
+
+		temp.bone_poses = calloc(input.num_bones, sizeof(*temp.bone_poses));
 		if (!temp.bone_poses)
 		{
+			Mod_CTCFreeTempData(&temp);
 			YQ2_COM_CHECK_OOM(temp.bone_poses, "calloc()",
 				(size_t)input.num_bones * sizeof(*temp.bone_poses))
-			goto failed;
+			return NULL;
 		}
+
+		temp.bone_transforms = calloc(input.num_bones, sizeof(*temp.bone_transforms));
 		if (!temp.bone_transforms)
 		{
+			Mod_CTCFreeTempData(&temp);
 			YQ2_COM_CHECK_OOM(temp.bone_transforms, "calloc()",
 				(size_t)input.num_bones * sizeof(*temp.bone_transforms))
-			goto failed;
+			return NULL;
 		}
+
+		temp.bone_ready = calloc(input.num_bones, sizeof(*temp.bone_ready));
 		if (!temp.bone_ready)
 		{
+			Mod_CTCFreeTempData(&temp);
 			YQ2_COM_CHECK_OOM(temp.bone_ready, "calloc()", input.num_bones)
-			goto failed;
+			return NULL;
 		}
+
+		temp.vertex_weights = calloc(input.num_xyz, sizeof(*temp.vertex_weights));
 		if (!temp.vertex_weights)
 		{
+			Mod_CTCFreeTempData(&temp);
 			YQ2_COM_CHECK_OOM(temp.vertex_weights, "calloc()",
 				(size_t)input.num_xyz * sizeof(*temp.vertex_weights))
-			goto failed;
+			return NULL;
 		}
 
 		for (i = 0; i < input.num_bones; ++i)
@@ -822,10 +850,12 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 			if (parent_plus_one < 0 || parent_plus_one > input.num_bones ||
 				parent_plus_one == i + 1)
 			{
+				Mod_CTCFreeTempData(&temp);
 				Com_Printf("%s: %s contains an invalid CTC bone parent\n",
 					__func__, mod_name);
-				goto failed;
+				return NULL;
 			}
+
 			temp.bones[i].parent = parent_plus_one - 1;
 			for (j = 0; j < 4; ++j)
 			{
@@ -844,14 +874,17 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 			const ctc_skeletal_data_t *skeletal =
 				(const ctc_skeletal_data_t *)(src + cursor);
 
-			if (memcmp(skeletal->ident, "STGW", sizeof(skeletal->ident)))
+			if (LittleLong(skeletal->ident) != CTCSKELHEADER)
 			{
+				Mod_CTCFreeTempData(&temp);
 				Com_Printf("%s: %s has invalid CTC skeletal data\n",
 					__func__, mod_name);
-				goto failed;
+				return NULL;
 			}
+
 			cursor += sizeof(skeletal->ident);
 		}
+
 		for (i = 0; i < input.num_xyz; ++i)
 		{
 			const ctc_vertex_weights_input_t *input_weights =
@@ -860,95 +893,95 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 
 			if (file_size - cursor < sizeof(input_weights->num_weights))
 			{
+				Mod_CTCFreeTempData(&temp);
 				Com_Printf("%s: %s has truncated CTC skeletal data\n",
 					__func__, mod_name);
-				goto failed;
+				return NULL;
 			}
+
 			count = LittleLong(input_weights->num_weights);
 			if (count < 0 || count > input.num_bones ||
 				(size_t)count >
 					(file_size - cursor - sizeof(input_weights->num_weights)) /
-						sizeof(ctc_weight_t))
+						sizeof(ctc_weight_t) ||
+				num_weights > (size_t)INT_MAX - (size_t)count)
 			{
-				Com_Printf("%s: %s has invalid CTC vertex weights\n",
-					__func__, mod_name);
-				goto failed;
-			}
-			if (num_weights > (size_t)INT_MAX - (size_t)count)
-			{
+				Mod_CTCFreeTempData(&temp);
 				Com_Printf("%s: %s has too many CTC vertex weights\n",
 					__func__, mod_name);
-				goto failed;
+				return NULL;
 			}
+
 			temp.vertex_weights[i].first = (int)num_weights;
 			temp.vertex_weights[i].count = count;
 			num_weights += (size_t)count;
 			cursor += sizeof(input_weights->num_weights) +
 				(size_t)count * sizeof(ctc_weight_t);
 		}
-		if (num_weights > (size_t)-1 / sizeof(*temp.weights))
+
+		if (num_weights > (size_t)-1 / sizeof(*temp.weights) ||
+			num_weights > (size_t)INT_MAX)
 		{
+			Mod_CTCFreeTempData(&temp);
 			Com_Printf("%s: %s has too many CTC vertex weights\n",
 				__func__, mod_name);
-			goto failed;
-		}
-		if (num_weights > (size_t)INT_MAX)
-		{
-			Com_Printf("%s: %s has too many CTC vertex weights\n",
-				__func__, mod_name);
-			goto failed;
-		}
-		temp.weights = calloc(num_weights, sizeof(*temp.weights));
-		if (!temp.weights && num_weights)
-		{
-			YQ2_COM_CHECK_OOM(temp.weights, "calloc()",
-				num_weights * sizeof(*temp.weights))
-			goto failed;
+			return NULL;
 		}
 
-		cursor = (size_t)input.ofs_skeletal +
-			sizeof(ctc_skeletal_data_t);
-		num_weights = 0;
-		for (i = 0; i < input.num_xyz; ++i)
+		if (num_weights)
 		{
-			const ctc_vertex_weights_input_t *input_weights =
-				(const ctc_vertex_weights_input_t *)(src + cursor);
-			int count = LittleLong(input_weights->num_weights);
-			int j;
-			float total_weight = 0.0f;
-
-			for (j = 0; j < count; ++j)
+			temp.weights = calloc(num_weights, sizeof(*temp.weights));
+			if (!temp.weights)
 			{
-				const ctc_weight_t *input_weight =
-					&input_weights->weights[j];
-				float weight = LittleFloat(input_weight->weight);
-
-				if (weight > 0.0f)
-				{
-					total_weight += weight;
-				}
+				Mod_CTCFreeTempData(&temp);
+				YQ2_COM_CHECK_OOM(temp.weights, "calloc()",
+					num_weights * sizeof(*temp.weights))
+				return NULL;
 			}
 
-			for (j = 0; j < count; ++j)
+			cursor = (size_t)input.ofs_skeletal + sizeof(ctc_skeletal_data_t);
+			num_weights = 0;
+			for (i = 0; i < input.num_xyz; ++i)
 			{
-				const ctc_weight_t *input_weight =
-					&input_weights->weights[j];
-				int bone = LittleLong(input_weight->bone);
-				float weight = LittleFloat(input_weight->weight);
+				const ctc_vertex_weights_input_t *input_weights =
+					(const ctc_vertex_weights_input_t *)(src + cursor);
+				int count = LittleLong(input_weights->num_weights);
+				int j;
+				float total_weight = 0.0f;
 
-				if (bone < 0 || bone >= input.num_bones || weight < 0.0f)
+				for (j = 0; j < count; ++j)
 				{
-					Com_Printf("%s: %s contains invalid CTC vertex weights\n",
-						__func__, mod_name);
-					goto failed;
+					const ctc_weight_t *input_weight = &input_weights->weights[j];
+					float weight = LittleFloat(input_weight->weight);
+
+					if (weight > 0.0f)
+					{
+						total_weight += weight;
+					}
 				}
-				temp.weights[num_weights].bone = bone;
-				temp.weights[num_weights].weight =
-					total_weight > 0.0f ? weight / total_weight : 0.0f;
-				++num_weights;
+
+				for (j = 0; j < count; ++j)
+				{
+					const ctc_weight_t *input_weight = &input_weights->weights[j];
+					int bone = LittleLong(input_weight->bone);
+					float weight = LittleFloat(input_weight->weight);
+
+					if (bone < 0 || bone >= input.num_bones || weight < 0.0f)
+					{
+						Mod_CTCFreeTempData(&temp);
+						Com_Printf("%s: %s contains invalid CTC vertex weights\n",
+							__func__, mod_name);
+						return NULL;
+					}
+
+					temp.weights[num_weights].bone = bone;
+					temp.weights[num_weights].weight =
+						total_weight > 0.0f ? weight / total_weight : 0.0f;
+					++num_weights;
+				}
+				cursor += sizeof(input_weights->num_weights) +
+					(size_t)count * sizeof(ctc_weight_t);
 			}
-			cursor += sizeof(input_weights->num_weights) +
-				(size_t)count * sizeof(ctc_weight_t);
 		}
 	}
 
@@ -1019,16 +1052,13 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 		}
 	}
 
-	if (!Mod_CTCLoadFrames(mod_name, &input, src, framesize,
-		pheader, &temp))
+	if (!Mod_CTCLoadFrames(mod_name, &input, src, framesize, pheader, &temp) ||
+		!Mod_CTCBuildGeometry(mod_name, &input, src, pheader))
 	{
-		goto failed;
+		Mod_CTCFreeTempData(&temp);
+		return NULL;
 	}
 
-	if (!Mod_CTCBuildGeometry(mod_name, &input, src, pheader))
-	{
-		goto failed;
-	}
 	Mod_LoadCmdGenerate(pheader);
 	Mod_LoadFixImages(mod_name, pheader, false);
 	Com_DPrintf("%s: loaded %s as %d-frame CTC geometry "
@@ -1037,14 +1067,5 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 		input.num_xyz, input.num_tris);
 	Mod_CTCFreeTempData(&temp);
 	return extradata;
-
-failed:
-	Mod_CTCFreeTempData(&temp);
-	if (extradata)
-	{
-		Hunk_End();
-		Hunk_Free(extradata);
-	}
-	return NULL;
 }
 
