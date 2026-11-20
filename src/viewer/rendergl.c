@@ -1,7 +1,5 @@
 #include "rendergl.h"
 
-cvar_t *r_skeletalanimation;
-
 static GLuint skins[16];
 GLuint ftex;
 

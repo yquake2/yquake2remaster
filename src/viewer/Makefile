@@ -47,6 +47,7 @@ COMMON_FILES = \
 	../common/shared/shared.c \
 	../common/cmodels.c \
 	../common/threads.c \
+	../common/zone.c \
 	../backends/unix/shared/hunk.c \
 	../client/refresh/files/mesh.c \
 	../common/models/image.c \

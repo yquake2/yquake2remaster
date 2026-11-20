@@ -78,15 +78,6 @@ typedef struct {
 	float radius;
 } Model;
 
-void
-Com_Printf (const char *msg, ...)
-{
-	va_list argptr;
-	va_start(argptr, msg);
-	vprintf(msg, argptr);
-	va_end(argptr);
-}
-
 static void model_free(Model *model)
 {
 	free(model->data);
