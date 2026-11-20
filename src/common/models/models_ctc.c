@@ -182,47 +182,9 @@ Mod_CTCTransformNormal(const vec4_t matrix[3], const vec3_t normal, vec3_t out)
 }
 
 static void
-Mod_CTCConvertPoint(const vec3_t point, vec3_t out)
-{
-	out[0] = -point[2];
-	out[1] = point[0];
-	out[2] = point[1];
-}
-
-static void
 Mod_CTCConvertMatrix(const vec4_t matrix[4], float out[3][4])
 {
-	static const float coordinate[3][3] =
-	{
-		{ 0.0f, 0.0f, -1.0f },
-		{ 1.0f, 0.0f,  0.0f },
-		{ 0.0f, 1.0f,  0.0f }
-	};
-	int row, col, k, l;
-
-	for (row = 0; row < 3; ++row)
-	{
-		for (col = 0; col < 4; ++col)
-		{
-			out[row][col] = 0.0f;
-			for (k = 0; k < 3; ++k)
-			{
-				if (col < 3)
-				{
-					for (l = 0; l < 3; ++l)
-					{
-						out[row][col] += coordinate[row][k] *
-							matrix[k][l] * coordinate[col][l];
-					}
-				}
-				else
-				{
-					out[row][col] += coordinate[row][k] *
-						matrix[k][3];
-				}
-			}
-		}
-	}
+	memcpy(out, matrix, sizeof(float) * 3 * 4);
 }
 
 static qboolean
@@ -236,14 +198,10 @@ Mod_CTCLoadFrames(const char *mod_name, const dctc_header_t *input,
 	{
 		const byte *frame_data = src + input->ofs_frames +
 			(size_t)i * framesize;
-		vec4_t root_transform[4];
 		daliasxframe_t *frame = (daliasxframe_t *)((byte *)pheader +
 			pheader->ofs_frames + (size_t)i * pheader->framesize);
 		dmdx_vert_t *posed_vertices;
 		int j, completed;
-
-		Mod_CTCKeyMatrix((const ctc_frame_key_t *)frame_data,
-			root_transform);
 
 		if (input->num_bones)
 		{
@@ -257,9 +215,8 @@ Mod_CTCLoadFrames(const char *mod_name, const dctc_header_t *input,
 				for (j = 0; j < input->num_bones; ++j)
 				{
 					vec4_t key_transform[4], pose_transform[4];
-					vec4_t skin_transform[4];
 					const byte *key = frame_data +
-						((size_t)j + 1) *
+						(size_t)j *
 						sizeof(ctc_frame_key_t);
 
 					if (temp->bone_ready[j] ||
@@ -285,9 +242,7 @@ Mod_CTCLoadFrames(const char *mod_name, const dctc_header_t *input,
 					}
 					memcpy(temp->bone_poses[j], pose_transform,
 						sizeof(pose_transform));
-					Mod_CTCMatrixMultiply(root_transform,
-						pose_transform, skin_transform);
-					Mod_CTCMatrixMultiply(skin_transform,
+					Mod_CTCMatrixMultiply(pose_transform,
 						temp->bones[j].base_transform,
 						temp->bone_transforms[j]);
 					temp->bone_ready[j] = 1;
@@ -311,12 +266,9 @@ Mod_CTCLoadFrames(const char *mod_name, const dctc_header_t *input,
 
 				for (j = 0; j < input->num_bones; ++j)
 				{
-					vec4_t world_pose[4];
 					float engine_pose[3][4];
 
-					Mod_CTCMatrixMultiply(root_transform,
-						temp->bone_poses[j], world_pose);
-					Mod_CTCConvertMatrix(world_pose, engine_pose);
+					Mod_CTCConvertMatrix(temp->bone_poses[j], engine_pose);
 					Mod_Mat3x4ToPose(engine_pose, pose_row[j].pos,
 						pose_row[j].orient);
 
@@ -380,27 +332,27 @@ Mod_CTCLoadFrames(const char *mod_name, const dctc_header_t *input,
 				}
 				else
 				{
-					Mod_CTCTransformPoint(root_transform, temp->vertices[j].xyz,
+					Mod_CTCTransformPoint(temp->bone_transforms[0], temp->vertices[j].xyz,
 						position);
-					Mod_CTCTransformNormal(root_transform, temp->vertices[j].norm,
+					Mod_CTCTransformNormal(temp->bone_transforms[0], temp->vertices[j].norm,
 						normal);
 				}
 			}
-			else
+			else if (input->num_bones)
 			{
-				Mod_CTCTransformPoint(root_transform, temp->vertices[j].xyz,
+				Mod_CTCTransformPoint(temp->bone_transforms[0], temp->vertices[j].xyz,
 					position);
-				Mod_CTCTransformNormal(root_transform, temp->vertices[j].norm,
+				Mod_CTCTransformNormal(temp->bone_transforms[0], temp->vertices[j].norm,
 					normal);
 			}
+			else
+			{
+				VectorCopy(temp->vertices[j].xyz, position);
+				VectorCopy(temp->vertices[j].norm, normal);
+			}
 
-			/* Convert posed CTC coordinates to the Anachronox model basis. */
-			posed_vertices[j].xyz[0] = -position[2];
-			posed_vertices[j].xyz[1] = position[0];
-			posed_vertices[j].xyz[2] = position[1];
-			posed_vertices[j].norm[0] = -normal[2];
-			posed_vertices[j].norm[1] = normal[0];
-			posed_vertices[j].norm[2] = normal[1];
+			VectorCopy(position, posed_vertices[j].xyz);
+			VectorCopy(normal, posed_vertices[j].norm);
 		}
 
 		/* limit frame ids to 2**16 */
@@ -748,7 +700,7 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 		return NULL;
 	}
 
-	frame_key_count = (size_t)input.num_bones + 1;
+	frame_key_count = (size_t)input.num_bones;
 	if (frame_key_count > (size_t)-1 / sizeof(ctc_frame_key_t))
 	{
 		Com_Printf("%s: %s has an invalid CTC frame key count\n",
@@ -1040,14 +992,11 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 					out_weights + temp.vertex_weights[b].first + k;
 				const ctc_weight_t *in_weight =
 					temp.weights + temp.vertex_weights[b].first + k;
-				vec3_t local_position;
-
 				out_weight->joint = in_weight->bone;
 				out_weight->bias = in_weight->weight;
 				Mod_CTCTransformPoint(
 					temp.bones[in_weight->bone].base_transform,
-					temp.vertices[b].xyz, local_position);
-				Mod_CTCConvertPoint(local_position, out_weight->pos);
+					temp.vertices[b].xyz, out_weight->pos);
 			}
 		}
 	}
