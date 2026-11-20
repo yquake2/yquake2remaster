@@ -87,7 +87,7 @@ typedef struct
 
 typedef struct
 {
-	char ident[4];
+	int ident;
 	byte vertex_data[];
 } ctc_skeletal_data_t;
 
@@ -417,6 +417,33 @@ Mod_CTCLoadFrames(const char *mod_name, const dctc_header_t *input,
 	return true;
 }
 
+static const namesconvert_t anox_ctc_names[] = {
+	{"a2atak", "a2atak"},
+	{"amb", "idle"}, /* ambient */
+	{"atak", "attack"},
+	{"bskill", "bskill"},
+	{"cine", "cine"},
+	{"climb", "climb"},
+	{"dart", "dart"},
+	{"die", "death"},
+	{"gest", "gest"},
+	{"grab", "grab"},
+	{"hit", "hit"},
+	{"lookl", "lookl"},
+	{"lookr", "lookr"},
+	{"run", "run"},
+	{"sit", "sit"},
+	{"skill", "skill"},
+	{"talk", "talk"},
+	{"turn_l", "turn_l"},
+	{"turn_r", "turn_r"},
+	{"w_skill", "w_skill"},
+	{"walk", "walk"},
+	{"win", "win"},
+	{"wskill", "wskill"},
+	{NULL, NULL}
+};
+
 static qboolean
 Mod_CTCBuildGeometry(const char *mod_name, const dctc_header_t *input,
 	const byte *src, dmdx_t *pheader)
@@ -484,11 +511,10 @@ Mod_CTCBuildGeometry(const char *mod_name, const dctc_header_t *input,
 				(const ctc_animation_input_t *)(src + input->ofs_animgroup) + i;
 			int first_frame = LittleLong(animation->first_frame);
 			int last_frame = LittleLong(animation->last_frame);
-			char name[17];
 
-			Q_strlcpy(name, animation->name, Q_min(sizeof(name), sizeof(animation->name)));
-			Q_strlcpy(framegroups[i].name, name, sizeof(framegroups[i].name));
+			Q_strlcpy(framegroups[i].name, animation->name, Q_min(sizeof(framegroups[i].name), sizeof(animation->name)));
 			Q_strlwr(framegroups[i].name);
+
 			framegroups[i].ofs = frame_offset;
 			framegroups[i].num = last_frame - first_frame + 1;
 			frame_offset += framegroups[i].num;
@@ -501,6 +527,8 @@ Mod_CTCBuildGeometry(const char *mod_name, const dctc_header_t *input,
 	{
 		Mod_LoadAnimGroupList(pheader, true);
 	}
+
+	Mod_LoadModel_AnimGroupNamesFix(pheader, anox_ctc_names);
 
 	return true;
 }
@@ -527,7 +555,7 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 	Mod_LittleHeader((const int *)buffer, sizeof(input) / sizeof(int),
 		(int *)&input);
 
-	if (input.ident != CTCHEADER || input.version < 8 || input.version > 11)
+	if (input.ident != CTCHEADER || input.version != CTC_VERSION)
 	{
 		Com_Printf("%s: %s has an unsupported CTC header or version %d\n",
 			__func__, mod_name, input.version);
@@ -846,7 +874,7 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 			const ctc_skeletal_data_t *skeletal =
 				(const ctc_skeletal_data_t *)(src + cursor);
 
-			if (memcmp(skeletal->ident, "STGW", sizeof(skeletal->ident)))
+			if (LittleLong(skeletal->ident) != CTCSKELHEADER)
 			{
 				Mod_CTCFreeTempData(&temp);
 				Com_Printf("%s: %s has invalid CTC skeletal data\n",

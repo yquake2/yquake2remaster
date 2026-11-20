@@ -188,7 +188,7 @@ Checked with:
     lighting with remastered maps,
 * [ ] soft: use separete texture hi-color buffer for ui in soft render,
 * [ ] soft: add fog distance effect (optional),
-* [ ] reuse memory from models cache in renders model list,
+* [ ] reuse memory from models cache in renders model list (single instance),
 * [ ] reuse memory from models cache for bsp,
 * [ ] game: fix broken base3 with sorted fields names,
 * [ ] game: code has not reset ctf flag on load saves,
@@ -205,11 +205,9 @@ Checked with:
 * [ ] ReRelease: console `~` incorrectly show multibyte characters,
 * [ ] ReRelease: basicsjam1_detrohogga: fix droptofloor startsolid,
 * [ ] ReRelease: mgu5m2: glitch at `-773 -911 190`,
-* [ ] vk: cleanup `PUSH_CONSTANT_*`,
 * [ ] gl1, gl3, gl4, vk, soft: implement direction of `CS_SHADOWLIGHTS`,
 * [ ] gl3, gl4: implement color multiplication and alpha gradient for `misc_flare`,
-* [ ] gl3, gl4, vk: fix and port `r_bloom`,
-* [ ] gl1, gl3, gl4, vk: apply improvements from gl3 to other renders,
+* [ ] vk: fix and port `r_bloom`,
 * [ ] soft: implement color multiplication and alpha combine or make black
       parts transparent for `misc_flare`,
 * [ ] ReRelease: Add support of `func_eye`,
@@ -233,6 +231,7 @@ Checked with:
 * [ ] Quake 3: finish map load logic,
 * [ ] Quake, Half-Life, Hexen 2: fix brush flags,
 * [ ] Anachronox: load atd as sprite,
+* [ ] Anachronox: fix incorrect rendering of `grumpos_com` load CTC,
 * [ ] Anachronox: fix incorrect scale of `ob_stop-flame` and `ob_wommhill01`,
 * [ ] Anachronox: skins load broken with mingw win64 build,
 * [ ] Anachronox: support material load textures/textureinfo.dat,
@@ -260,7 +259,10 @@ Checked with:
 * [ ] Dynamic count of entities on client.
 
 ### Next release:
-* [ ] Anachronox: CTC entity format,
+* [x] vk: cleanup `PUSH_CONSTANT_*`,
+* [x] gl3, gl4: fix and port `r_bloom`,
+* [x] gl1, gl3, gl4, vk: apply improvements from gl3 to other renders,
+* [x] Anachronox: CTC entity format,
 * [x] ReRelease: Add `target_achievement` support,
 * [x] Minimal multiplayer KEX/RR2023 protocol support based on https://github.com/res2k/q2proto
       and https://github.com/Paril/quake2-rerelease-dll,
@@ -268,8 +270,6 @@ Checked with:
 * [x] ReRelease: implement demo protocol based on https://github.com/res2k/q2proto
       and https://github.com/Paril/quake2-rerelease-dll,
 * [x] ReRelease: select start level through `mapddb.json`
-
-### Fixed:
 * [x] game: preserve thirdperson flag on new level load,
 * [x] renders: optimize count of threads,
 * [x] Infinity: Add support of `item_radar`,

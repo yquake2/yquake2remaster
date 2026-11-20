@@ -339,49 +339,6 @@ typedef struct hlmdl_sequence_s
 #define MAX_MD2SKINS 32
 #define MAX_SKINNAME 64
 
-/* CTC model file format */
-#define CTCHEADER (('L' << 24) + ('D' << 16) + ('M' << 8) + 'S')
-
-typedef struct
-{
-	int ident; /* magic number: "SMDL" */
-	int version;
-	int skinwidth;
-	int skinheight;
-	int pad_0x10;
-	int num_skins;
-	int num_xyz;
-	int num_st;
-	int num_tris;
-	int num_glcmds;
-	int num_frames;
-	int num_animgroup;
-	int num_bones;
-	int pad_0x34;
-	int pad_0x38;
-	int pad_0x3C;
-	int pad_0x40;
-	int pad_0x44;
-	int pad_0x48;
-	int ofs_skins;
-	int ofs_verts;
-	int pad_0x54;
-	int ofs_tris;
-	int ofs_st;
-	int ofs_bones;
-	int ofs_skeletal;
-	int ofs_animgroup;
-	int ofs_frames;
-	int ofs_glcmds;
-	int pad_0x74;
-	int pad_0x78;
-	int pad_0x7C;
-	int pad_0x80;
-	int pad_0x84;
-	int pad_0x88;
-	int ofs_end;
-} dctc_header_t;
-
 typedef struct
 {
 	short s;
@@ -487,6 +444,51 @@ typedef struct
 	int num_tagged_triangles;
 	int ofs_tagged_triangles;
 } dmdla_t;
+
+/* .CTC Anachronox model file format */
+#define CTCHEADER (('L' << 24) + ('D' << 16) + ('M' << 8) + 'S') /* little-endian "SMDL" */
+#define CTCSKELHEADER (('W' << 24) + ('G' << 16) + ('T' << 8) + 'S') /* little-endian "STGW" */
+#define CTC_VERSION 11
+
+typedef struct
+{
+	int ident; /* magic number: "SMDL" */
+	int version;
+	int skinwidth;
+	int skinheight;
+	int pad_0x10;
+	int num_skins;
+	int num_xyz;
+	int num_st;
+	int num_tris;
+	int num_glcmds;
+	int num_frames;
+	int num_animgroup;
+	int num_bones;
+	int pad_0x34;
+	int pad_0x38;
+	int pad_0x3C;
+	int pad_0x40;
+	int pad_0x44;
+	int pad_0x48;
+	int ofs_skins;
+	int ofs_verts;
+	int pad_0x54;
+	int ofs_tris;
+	int ofs_st;
+	int ofs_bones;
+	int ofs_skeletal;
+	int ofs_animgroup;
+	int ofs_frames;
+	int ofs_glcmds;
+	int pad_0x74;
+	int pad_0x78;
+	int pad_0x7C;
+	int pad_0x80;
+	int pad_0x84;
+	int pad_0x88;
+	int ofs_end;
+} dctc_header_t;
 
 /* .FM triangle model file format */
 
