@@ -549,9 +549,10 @@ Mod_FlexFitInitFixed(const flex_model_t *model, flex_fit_t *fit)
  * the best translation maps the rest centroid to the frame centroid
  * (https://en.wikipedia.org/wiki/Centroid), rotation comes from the
  * cross-covariance (https://en.wikipedia.org/wiki/Cross-covariance_matrix)
+ * stride skips the frames that the error functions do not sample
  */
 static void
-Mod_FlexFitBones(const flex_model_t *model, flex_fit_t *fit)
+Mod_FlexFitBones(const flex_model_t *model, flex_fit_t *fit, int stride)
 {
 	const vec3_t *rest = model->verts;
 	int counts[FLEX_SKIN_MAX_BONES];
@@ -577,7 +578,7 @@ Mod_FlexFitBones(const flex_model_t *model, flex_fit_t *fit)
 		}
 	}
 
-	for (frame = 0; frame < model->num_frames; frame++)
+	for (frame = 0; frame < model->num_frames; frame += stride)
 	{
 		const vec3_t *current = model->verts + (size_t)frame * model->num_xyz;
 		double covariance[FLEX_SKIN_MAX_BONES][9];
@@ -1200,17 +1201,20 @@ Mod_FlexConvert(const char *mod_name, const flex_model_t *model, model_skin_t *s
 	}
 	fit.base_count = fit.bone_count;
 
-	/* steps 3-4 on the seed bones, fit again after vertices moved */
-	Mod_FlexFitBones(model, &fit);
+	/* steps 3-4 on the seed bones, fit again after vertices moved,
+	 * only on the frames the error functions look at */
+	Mod_FlexFitBones(model, &fit, FLEX_SKIN_FRAME_STRIDE);
 	Mod_FlexAssign(model, &fit);
-	Mod_FlexFitBones(model, &fit);
+	Mod_FlexFitBones(model, &fit, FLEX_SKIN_FRAME_STRIDE);
 	/* step 5: grow bones until the limit or nothing is left to split */
 	while (fit.bone_count < FLEX_SKIN_MAX_BONES && Mod_FlexSplitWorst(model, &fit))
 	{
-		Mod_FlexFitBones(model, &fit);
+		Mod_FlexFitBones(model, &fit, FLEX_SKIN_FRAME_STRIDE);
 		Mod_FlexAssign(model, &fit);
-		Mod_FlexFitBones(model, &fit);
+		Mod_FlexFitBones(model, &fit, FLEX_SKIN_FRAME_STRIDE);
 	}
+
+	Mod_FlexFitBones(model, &fit, 1);
 
 	skin->joints = calloc(fit.bone_count, sizeof(*skin->joints));
 	if (!skin->joints)
