@@ -558,6 +558,7 @@ set(Client-Source
 	${COMMON_SRC_DIR}/models/models_sdef.c
 	${COMMON_SRC_DIR}/models/models_utils.c
 	${COMMON_SRC_DIR}/models/sprites.c
+	${COMMON_SRC_DIR}/threads.c
 	${COMMON_SRC_DIR}/frame.c
 	${COMMON_SRC_DIR}/netchan.c
 	${COMMON_SRC_DIR}/pmove.c
@@ -659,6 +660,7 @@ set(Server-Source
 	${COMMON_SRC_DIR}/models/models_sdef.c
 	${COMMON_SRC_DIR}/models/models_utils.c
 	${COMMON_SRC_DIR}/models/sprites.c
+	${COMMON_SRC_DIR}/threads.c
 	${COMMON_SRC_DIR}/md4.c
 	${COMMON_SRC_DIR}/frame.c
 	${COMMON_SRC_DIR}/movemsg.c

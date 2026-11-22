@@ -99,7 +99,6 @@ R_ParallelTasks(size_t rows, size_t min_rows_per_task,
 
 	if (threads <= 1 || rows <= min_rows_per_task)
 	{
-		printf("check %ld < %ld\n", rows, min_rows_per_task);
 		fn(0, rows, user);
 		return;
 	}
