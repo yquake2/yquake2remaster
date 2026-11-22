@@ -227,10 +227,20 @@ Mod_CTCConvertMatrix(const vec4_t matrix[4], float out[3][4])
 
 static qboolean
 Mod_CTCLoadFrames(const char *mod_name, const dctc_header_t *input,
-	const byte *src, size_t framesize, dmdx_t *pheader,
-	ctc_temp_data_t *temp)
+	const byte *src, dmdx_t *pheader, ctc_temp_data_t *temp, int offset)
 {
-	int i;
+	dmdx_vert_t *posed_vertices;
+	size_t i, framesize;
+
+	framesize = (input->num_bones + offset) * sizeof(ctc_frame_key_t);
+
+	posed_vertices = malloc(input->num_xyz * sizeof(*posed_vertices));
+	if (!posed_vertices)
+	{
+		YQ2_COM_CHECK_OOM(posed_vertices, "calloc()",
+			(size_t)input->num_xyz * sizeof(*posed_vertices))
+		return false;
+	}
 
 	for (i = 0; i < input->num_frames; ++i)
 	{
@@ -239,11 +249,23 @@ Mod_CTCLoadFrames(const char *mod_name, const dctc_header_t *input,
 		vec4_t root_transform[4];
 		daliasxframe_t *frame = (daliasxframe_t *)((byte *)pheader +
 			pheader->ofs_frames + (size_t)i * pheader->framesize);
-		dmdx_vert_t *posed_vertices;
-		int j, completed;
+		size_t j, completed;
 
-		Mod_CTCKeyMatrix((const ctc_frame_key_t *)frame_data,
-			root_transform);
+		memset(posed_vertices, 0, input->num_xyz * sizeof(*posed_vertices));
+
+		if (offset)
+		{
+			Mod_CTCKeyMatrix((const ctc_frame_key_t *)frame_data,
+				root_transform);
+		}
+		else
+		{
+			ctc_frame_key_t key = {
+				.translation = { 0.0f, 0.0f, 0.0f },
+				.angles      = { 0.0f, -90.0f, 0.0f }
+			};
+			Mod_CTCKeyMatrix(&key, root_transform);
+		}
 
 		if (input->num_bones)
 		{
@@ -258,9 +280,7 @@ Mod_CTCLoadFrames(const char *mod_name, const dctc_header_t *input,
 				{
 					vec4_t key_transform[4], pose_transform[4];
 					vec4_t skin_transform[4];
-					const byte *key = frame_data +
-						((size_t)j + 1) *
-						sizeof(ctc_frame_key_t);
+					const byte *key = frame_data + (j + offset) * sizeof(ctc_frame_key_t);
 
 					if (temp->bone_ready[j] ||
 						(temp->bones[j].parent >= 0 &&
@@ -294,10 +314,12 @@ Mod_CTCLoadFrames(const char *mod_name, const dctc_header_t *input,
 					++completed;
 					progress = true;
 				}
+
 				if (!progress)
 				{
 					Com_Printf("%s: %s contains a cyclic CTC bone hierarchy\n",
 						__func__, mod_name);
+					free(posed_vertices);
 					return false;
 				}
 			}
@@ -306,8 +328,7 @@ Mod_CTCLoadFrames(const char *mod_name, const dctc_header_t *input,
 			{
 				dmdx_baseframe_joint_t *pose_row =
 					(dmdx_baseframe_joint_t *)((byte *)pheader +
-						pheader->ofs_baseframe_joints) +
-					(size_t)i * pheader->num_joints;
+						pheader->ofs_baseframe_joints) + i * pheader->num_joints;
 
 				for (j = 0; j < input->num_bones; ++j)
 				{
@@ -323,8 +344,7 @@ Mod_CTCLoadFrames(const char *mod_name, const dctc_header_t *input,
 					if (i == 0)
 					{
 						dmdx_joint_t *out_joints =
-							(dmdx_joint_t *)((byte *)pheader +
-								pheader->ofs_joints);
+							(dmdx_joint_t *)((byte *)pheader + pheader->ofs_joints);
 
 						VectorCopy(pose_row[j].pos,
 							out_joints[j].pos);
@@ -334,15 +354,6 @@ Mod_CTCLoadFrames(const char *mod_name, const dctc_header_t *input,
 					}
 				}
 			}
-		}
-
-		posed_vertices = calloc(input->num_xyz,
-			sizeof(*posed_vertices));
-		if (!posed_vertices)
-		{
-			YQ2_COM_CHECK_OOM(posed_vertices, "calloc()",
-				(size_t)input->num_xyz * sizeof(*posed_vertices))
-			return false;
 		}
 
 		for (j = 0; j < input->num_xyz; ++j)
@@ -404,15 +415,16 @@ Mod_CTCLoadFrames(const char *mod_name, const dctc_header_t *input,
 		}
 
 		/* limit frame ids to 2**16 */
-		snprintf(frame->name, sizeof(frame->name), "frame%d", i % 0xFFFF);
+		snprintf(frame->name, sizeof(frame->name), "frame%d", (int)(i % 0xFFFF));
 		for (j = 0; j < input->num_xyz; ++j)
 		{
 			VectorNormalize(posed_vertices[j].norm);
 		}
 
 		PrepareFrameVertex(posed_vertices, input->num_xyz, frame);
-		free(posed_vertices);
 	}
+
+	free(posed_vertices);
 
 	return true;
 }
@@ -533,6 +545,39 @@ Mod_CTCBuildGeometry(const char *mod_name, const dctc_header_t *input,
 	return true;
 }
 
+static int
+Mod_CTCDetectRootBone(dctc_header_t *input)
+{
+	int *ofs_start, *ofs_end, ofs_frames_end;
+
+	ofs_start = &input->ofs_skins;
+	ofs_end = &input->ofs_end;
+	ofs_frames_end = input->ofs_end;
+
+	while (ofs_start < ofs_end)
+	{
+		if (*ofs_start > input->ofs_frames && *ofs_start < ofs_frames_end)
+		{
+			ofs_frames_end = *ofs_start;
+		}
+		ofs_start++;
+	}
+
+	ofs_frames_end -= input->ofs_frames;
+
+	if (ofs_frames_end == input->num_bones * sizeof(ctc_frame_key_t) * input->num_frames)
+	{
+		return 0;
+	}
+
+	if (ofs_frames_end == (input->num_bones + 1) * sizeof(ctc_frame_key_t) * input->num_frames)
+	{
+		return 1;
+	}
+
+	return -1;
+}
+
 void *
 Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 {
@@ -542,7 +587,7 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 	ctc_temp_data_t temp = { 0 };
 	const byte *src = buffer;
 	void *extradata = NULL;
-	size_t file_size, framesize, frame_key_count, cursor, num_weights = 0;
+	size_t file_size, cursor, num_weights = 0, bones_offset;
 	size_t animation_frame_count = 0;
 	int i;
 
@@ -598,13 +643,6 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 		return NULL;
 	}
 
-	if (input.num_glcmds < 0)
-	{
-		Com_Printf("%s: %s has an invalid CTC GL command count\n",
-			__func__, mod_name);
-		return NULL;
-	}
-
 	if (input.num_frames <= 0)
 	{
 		Com_Printf("%s: %s has an invalid CTC frame count\n",
@@ -636,9 +674,9 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 
 	if (input.num_skins &&
 		(input.ofs_skins < 0 ||
-		 (size_t)input.ofs_skins > file_size ||
-		 (size_t)input.num_skins >
-			(file_size - (size_t)input.ofs_skins) / MAX_SKINNAME))
+		 input.ofs_skins > file_size ||
+		 input.num_skins >
+			(file_size - input.ofs_skins) / MAX_SKINNAME))
 	{
 		Com_Printf("%s: %s has an invalid CTC skin section range\n",
 			__func__, mod_name);
@@ -646,9 +684,9 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 	}
 
 	if (input.ofs_verts < 0 ||
-		(size_t)input.ofs_verts > file_size ||
-		(size_t)input.num_xyz >
-			(file_size - (size_t)input.ofs_verts) / sizeof(dmdx_vert_t))
+		input.ofs_verts > file_size ||
+		input.num_xyz >
+			(file_size - input.ofs_verts) / sizeof(dmdx_vert_t))
 	{
 		Com_Printf("%s: %s has an invalid CTC vertex section range\n",
 			__func__, mod_name);
@@ -656,9 +694,9 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 	}
 
 	if (input.ofs_tris < 0 ||
-		(size_t)input.ofs_tris > file_size ||
-		(size_t)input.num_tris >
-			(file_size - (size_t)input.ofs_tris) / sizeof(short[3]))
+		input.ofs_tris > file_size ||
+		input.num_tris >
+			(file_size - input.ofs_tris) / sizeof(short[3]))
 	{
 		Com_Printf("%s: %s has an invalid CTC triangle section range\n",
 			__func__, mod_name);
@@ -666,9 +704,9 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 	}
 
 	if (input.ofs_st < 0 ||
-		(size_t)input.ofs_st > file_size ||
-		(size_t)input.num_tris >
-			(file_size - (size_t)input.ofs_st) / sizeof(float[3][2]))
+		input.ofs_st > file_size ||
+		input.num_tris >
+			(file_size - input.ofs_st) / sizeof(float[3][2]))
 	{
 		Com_Printf("%s: %s has an invalid CTC texture coordinate section range\n",
 			__func__, mod_name);
@@ -677,9 +715,9 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 
 	if (input.num_bones &&
 		(input.ofs_bones < 0 ||
-		 (size_t)input.ofs_bones > file_size ||
-		 (size_t)input.num_bones >
-			(file_size - (size_t)input.ofs_bones) /
+		 input.ofs_bones > file_size ||
+		 input.num_bones >
+			(file_size - input.ofs_bones) /
 				sizeof(ctc_bone_t)))
 	{
 		Com_Printf("%s: %s has an invalid CTC bone section range\n",
@@ -689,9 +727,9 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 
 	if (input.num_bones &&
 		(input.ofs_skeletal < 0 ||
-		 (size_t)input.ofs_skeletal > file_size ||
+		 input.ofs_skeletal > file_size ||
 		 sizeof(ctc_skeletal_data_t) >
-			file_size - (size_t)input.ofs_skeletal))
+			file_size - input.ofs_skeletal))
 	{
 		Com_Printf("%s: %s has an invalid CTC skeletal data range\n",
 			__func__, mod_name);
@@ -700,9 +738,9 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 
 	if (input.num_animgroup &&
 		(input.ofs_animgroup < 0 ||
-		 (size_t)input.ofs_animgroup > file_size ||
-		 (size_t)input.num_animgroup >
-			(file_size - (size_t)input.ofs_animgroup) /
+		 input.ofs_animgroup > file_size ||
+		 input.num_animgroup >
+			(file_size - input.ofs_animgroup) /
 				sizeof(ctc_animation_input_t)))
 	{
 		Com_Printf("%s: %s has an invalid CTC animation group range\n",
@@ -722,7 +760,7 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 			animation->name[0] == '\0' ||
 			first_frame < 0 || last_frame < first_frame ||
 			(size_t)(last_frame - first_frame) >=
-				(size_t)input.num_frames)
+				input.num_frames)
 		{
 			Com_Printf("%s: %s contains an invalid CTC animation range\n",
 				__func__, mod_name);
@@ -730,7 +768,7 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 		}
 
 		animation_frames = (size_t)(last_frame - first_frame) + 1;
-		if (animation_frames > (size_t)input.num_frames -
+		if (animation_frames > input.num_frames -
 			animation_frame_count)
 		{
 			Com_Printf("%s: %s CTC animation ranges exceed the frame count\n",
@@ -741,26 +779,24 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 	}
 
 	if (input.num_animgroup &&
-		animation_frame_count != (size_t)input.num_frames)
+		animation_frame_count != input.num_frames)
 	{
 		Com_Printf("%s: %s CTC animation ranges do not cover all frames\n",
 			__func__, mod_name);
 		return NULL;
 	}
 
-	frame_key_count = (size_t)input.num_bones + 1;
-	if (frame_key_count > (size_t)-1 / sizeof(ctc_frame_key_t))
+	bones_offset = Mod_CTCDetectRootBone(&input);
+	if (bones_offset < 0)
 	{
-		Com_Printf("%s: %s has an invalid CTC frame key count\n",
+		Com_Printf("%s: %s CTC issues with number bones in frames\n",
 			__func__, mod_name);
 		return NULL;
 	}
-	framesize = frame_key_count * sizeof(ctc_frame_key_t);
 
 	if (input.ofs_frames < 0 ||
-		(size_t)input.ofs_frames > file_size ||
-		(size_t)input.num_frames >
-			(file_size - (size_t)input.ofs_frames) / framesize)
+		input.ofs_frames > file_size ||
+		(size_t)(input.num_frames * (input.num_bones + bones_offset) * sizeof(ctc_frame_key_t)) > file_size)
 	{
 		Com_Printf("%s: %s has truncated or overlapping CTC frame data\n",
 			__func__, mod_name);
@@ -772,7 +808,7 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 	{
 		Mod_CTCFreeTempData(&temp);
 		YQ2_COM_CHECK_OOM(temp.vertices, "calloc()",
-			(size_t)input.num_xyz * sizeof(*temp.vertices))
+			input.num_xyz * sizeof(*temp.vertices))
 		return NULL;
 	}
 
@@ -809,7 +845,7 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 		{
 			Mod_CTCFreeTempData(&temp);
 			YQ2_COM_CHECK_OOM(temp.bone_poses, "calloc()",
-				(size_t)input.num_bones * sizeof(*temp.bone_poses))
+				input.num_bones * sizeof(*temp.bone_poses))
 			return NULL;
 		}
 
@@ -818,7 +854,7 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 		{
 			Mod_CTCFreeTempData(&temp);
 			YQ2_COM_CHECK_OOM(temp.bone_transforms, "calloc()",
-				(size_t)input.num_bones * sizeof(*temp.bone_transforms))
+				input.num_bones * sizeof(*temp.bone_transforms))
 			return NULL;
 		}
 
@@ -835,7 +871,7 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 		{
 			Mod_CTCFreeTempData(&temp);
 			YQ2_COM_CHECK_OOM(temp.vertex_weights, "calloc()",
-				(size_t)input.num_xyz * sizeof(*temp.vertex_weights))
+				input.num_xyz * sizeof(*temp.vertex_weights))
 			return NULL;
 		}
 
@@ -869,7 +905,7 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 			}
 		}
 
-		cursor = (size_t)input.ofs_skeletal;
+		cursor = input.ofs_skeletal;
 		{
 			const ctc_skeletal_data_t *skeletal =
 				(const ctc_skeletal_data_t *)(src + cursor);
@@ -939,7 +975,7 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 				return NULL;
 			}
 
-			cursor = (size_t)input.ofs_skeletal + sizeof(ctc_skeletal_data_t);
+			cursor = input.ofs_skeletal + sizeof(ctc_skeletal_data_t);
 			num_weights = 0;
 			for (i = 0; i < input.num_xyz; ++i)
 			{
@@ -1052,7 +1088,7 @@ Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 		}
 	}
 
-	if (!Mod_CTCLoadFrames(mod_name, &input, src, framesize, pheader, &temp) ||
+	if (!Mod_CTCLoadFrames(mod_name, &input, src, pheader, &temp, bones_offset) ||
 		!Mod_CTCBuildGeometry(mod_name, &input, src, pheader))
 	{
 		Mod_CTCFreeTempData(&temp);

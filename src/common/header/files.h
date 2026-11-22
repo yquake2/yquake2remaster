@@ -461,7 +461,7 @@ typedef struct
 	int num_xyz;
 	int num_st;
 	int num_tris;
-	int num_glcmds;
+	int pad_0x24;
 	int num_frames;
 	int num_animgroup;
 	int num_bones;
@@ -480,7 +480,7 @@ typedef struct
 	int ofs_skeletal;
 	int ofs_animgroup;
 	int ofs_frames;
-	int ofs_glcmds;
+	int pad_0x70;
 	int pad_0x74;
 	int pad_0x78;
 	int pad_0x7C;

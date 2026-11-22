@@ -93,6 +93,7 @@ For complete technical specifications and compatibility tables, see [.agents/doc
 
 * 8.71RR16+:
 
+[![Check CTC/Level menu](https://img.youtube.com/vi/qsVZxdeYbsU/hqdefault.jpg)](https://www.youtube.com/watch?v=qsVZxdeYbsU)
 [![Check demo protocol](https://img.youtube.com/vi/_R7kf0anjng/hqdefault.jpg)](https://www.youtube.com/watch?v=_R7kf0anjng)
 [![Check Infinity state](https://img.youtube.com/vi/2nHpWCUecYw/hqdefault.jpg)](https://www.youtube.com/watch?v=2nHpWCUecYw)
 
@@ -231,7 +232,6 @@ Checked with:
 * [ ] Quake 3: finish map load logic,
 * [ ] Quake, Half-Life, Hexen 2: fix brush flags,
 * [ ] Anachronox: load atd as sprite,
-* [ ] Anachronox: fix incorrect rendering of `grumpos_com` load CTC,
 * [ ] Anachronox: fix incorrect scale of `ob_stop-flame` and `ob_wommhill01`,
 * [ ] Anachronox: skins load broken with mingw win64 build,
 * [ ] Anachronox: support material load textures/textureinfo.dat,
@@ -259,6 +259,7 @@ Checked with:
 * [ ] Dynamic count of entities on client.
 
 ### Next release:
+* [x] Anachronox: fix incorrect rendering of `grumpos_com` load CTC,
 * [x] vk: cleanup `PUSH_CONSTANT_*`,
 * [x] gl3, gl4: fix and port `r_bloom`,
 * [x] gl1, gl3, gl4, vk: apply improvements from gl3 to other renders,
