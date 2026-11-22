@@ -544,48 +544,36 @@ Mod_FlexFitInitFixed(const flex_model_t *model, flex_fit_t *fit)
 	}
 }
 
-/*
- * step 3: per frame rigid fit of every generated bone to its vertices,
- * the best translation maps the rest centroid to the frame centroid
- * (https://en.wikipedia.org/wiki/Centroid), rotation comes from the
- * cross-covariance (https://en.wikipedia.org/wiki/Cross-covariance_matrix)
- * stride skips the frames that the error functions do not sample
- */
-static void
-Mod_FlexFitBones(const flex_model_t *model, flex_fit_t *fit, int stride)
+typedef struct
 {
+	const flex_model_t *model;
+	flex_fit_t *fit;
+	int stride;
+	const int *counts;
+} flex_fit_job_t;
+
+static void
+Mod_FlexFitBones_Worker(size_t start, size_t end, void *user)
+{
+	const flex_fit_job_t *job = (const flex_fit_job_t *)user;
+	const flex_model_t *model = job->model;
+	flex_fit_t *fit = job->fit;
+	const int *counts = job->counts;
+	const int stride = job->stride;
 	const vec3_t *rest = model->verts;
-	int counts[FLEX_SKIN_MAX_BONES];
-	vec3_t sums[FLEX_SKIN_MAX_BONES];
-	int bone, vertex, frame, i, j;
+	size_t i;
 
-	/* rest centroid of each bone */
-	memset(counts, 0, sizeof(counts));
-	memset(sums, 0, sizeof(sums));
-	for (vertex = 0; vertex < model->num_xyz; vertex++)
+	for (i = start; i < end; i++)
 	{
-		bone = fit->vertex_bone[vertex];
-		counts[bone]++;
-		VectorAdd(sums[bone], rest[vertex], sums[bone]);
-	}
-
-	/* an empty generated bone keeps its last center */
-	for (bone = fit->fixed_count; bone < fit->bone_count; bone++)
-	{
-		if (counts[bone])
-		{
-			VectorScale(sums[bone], 1.0f / counts[bone], fit->centers[bone]);
-		}
-	}
-
-	for (frame = 0; frame < model->num_frames; frame += stride)
-	{
+		int frame = (int)i * stride;
 		const vec3_t *current = model->verts + (size_t)frame * model->num_xyz;
 		double covariance[FLEX_SKIN_MAX_BONES][9];
 		vec3_t targets[FLEX_SKIN_MAX_BONES];
+		int bone, vertex, j, k;
 
 		memset(covariance, 0, sizeof(covariance));
 		memset(targets, 0, sizeof(targets));
+
 		/* frame centroid of each bone */
 		for (vertex = 0; vertex < model->num_xyz; vertex++)
 		{
@@ -618,11 +606,11 @@ Mod_FlexFitBones(const flex_model_t *model, flex_fit_t *fit, int stride)
 
 			VectorSubtract(rest[vertex], fit->centers[bone], a);
 			VectorSubtract(current[vertex], targets[bone], b);
-			for (i = 0; i < 3; i++)
+			for (j = 0; j < 3; j++)
 			{
-				for (j = 0; j < 3; j++)
+				for (k = 0; k < 3; k++)
 				{
-					covariance[bone][i * 3 + j] += (double)a[i] * b[j];
+					covariance[bone][j * 3 + k] += (double)a[j] * b[k];
 				}
 			}
 		}
@@ -636,6 +624,50 @@ Mod_FlexFitBones(const flex_model_t *model, flex_fit_t *fit, int stride)
 			Quat_toMat3(fit->orients[index], fit->matrices[index]);
 		}
 	}
+}
+
+/*
+ * step 3: per frame rigid fit of every generated bone to its vertices,
+ * the best translation maps the rest centroid to the frame centroid
+ * (https://en.wikipedia.org/wiki/Centroid), rotation comes from the
+ * cross-covariance (https://en.wikipedia.org/wiki/Cross-covariance_matrix)
+ * stride skips the frames that the error functions do not sample
+ */
+static void
+Mod_FlexFitBones(const flex_model_t *model, flex_fit_t *fit, int stride)
+{
+	const vec3_t *rest = model->verts;
+	int counts[FLEX_SKIN_MAX_BONES];
+	vec3_t sums[FLEX_SKIN_MAX_BONES];
+	int bone, vertex;
+	flex_fit_job_t job;
+
+	/* rest centroid of each bone */
+	memset(counts, 0, sizeof(counts));
+	memset(sums, 0, sizeof(sums));
+	for (vertex = 0; vertex < model->num_xyz; vertex++)
+	{
+		bone = fit->vertex_bone[vertex];
+		counts[bone]++;
+		VectorAdd(sums[bone], rest[vertex], sums[bone]);
+	}
+
+	/* an empty generated bone keeps its last center */
+	for (bone = fit->fixed_count; bone < fit->bone_count; bone++)
+	{
+		if (counts[bone])
+		{
+			VectorScale(sums[bone], 1.0f / counts[bone], fit->centers[bone]);
+		}
+	}
+
+	job.model = model;
+	job.fit = fit;
+	job.stride = stride;
+	job.counts = counts;
+
+	R_ParallelTasks((model->num_frames + stride - 1) / stride, 1024,
+		Mod_FlexFitBones_Worker, &job, __func__);
 }
 
 /* rigid bone transform of a rest vertex: frame position + R * (rest - center) */
