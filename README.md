@@ -1,6 +1,4 @@
-Thread in fm load, sort entitities, fake first bone in ctc
-
-fm-male - 18.9s
+Thread in fm load, sort entitities
 
 # Yamagi Quake II Remaster
 

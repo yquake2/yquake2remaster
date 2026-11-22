@@ -47,6 +47,7 @@
 
 #include "models.h"
 #include "mesh.h"
+#include <time.h>
 
 #define FLEX_MAX_JOINTS 3
 #define FLEX_MESH_NODE_SIZE 516
@@ -1254,20 +1255,59 @@ Mod_FlexConvert(const char *mod_name, const flex_model_t *model, model_skin_t *s
 	}
 	fit.base_count = fit.bone_count;
 
-	/* steps 3-4 on the seed bones, fit again after vertices moved,
-	 * only on the frames the error functions look at */
-	Mod_FlexFitBones(model, &fit, FLEX_SKIN_FRAME_STRIDE);
-	Mod_FlexAssign(model, &fit);
-	Mod_FlexFitBones(model, &fit, FLEX_SKIN_FRAME_STRIDE);
-	/* step 5: grow bones until the limit or nothing is left to split */
-	while (fit.bone_count < FLEX_SKIN_MAX_BONES && Mod_FlexSplitWorst(model, &fit))
 	{
-		Mod_FlexFitBones(model, &fit, FLEX_SKIN_FRAME_STRIDE);
-		Mod_FlexAssign(model, &fit);
-		Mod_FlexFitBones(model, &fit, FLEX_SKIN_FRAME_STRIDE);
-	}
+		clock_t start_time = clock();
+		clock_t step3_total = 0, step4_total = 0, step5_total = 0;
+		clock_t t0;
 
-	Mod_FlexFitBones(model, &fit, 1);
+		/* steps 3-4 on the seed bones, fit again after vertices moved,
+		 * only on the frames the error functions look at */
+		t0 = clock();
+		Mod_FlexFitBones(model, &fit, FLEX_SKIN_FRAME_STRIDE);
+		step3_total += clock() - t0;
+
+		t0 = clock();
+		Mod_FlexAssign(model, &fit);
+		step4_total += clock() - t0;
+
+		t0 = clock();
+		Mod_FlexFitBones(model, &fit, FLEX_SKIN_FRAME_STRIDE);
+		step3_total += clock() - t0;
+
+		/* step 5: grow bones until the limit or nothing is left to split */
+		while (fit.bone_count < FLEX_SKIN_MAX_BONES)
+		{
+			t0 = clock();
+			if (!Mod_FlexSplitWorst(model, &fit))
+			{
+				break;
+			}
+			step5_total += clock() - t0;
+
+			t0 = clock();
+			Mod_FlexFitBones(model, &fit, FLEX_SKIN_FRAME_STRIDE);
+			step3_total += clock() - t0;
+
+			t0 = clock();
+			Mod_FlexAssign(model, &fit);
+			step4_total += clock() - t0;
+
+			t0 = clock();
+			Mod_FlexFitBones(model, &fit, FLEX_SKIN_FRAME_STRIDE);
+			step3_total += clock() - t0;
+		}
+
+		t0 = clock();
+		Mod_FlexFitBones(model, &fit, 1);
+		step3_total += clock() - t0;
+
+		Com_DPrintf("%s: timing: fit %.3fs, assign %.3fs, split %.3fs, total %.3fs\n",
+			mod_name,
+			(double)step3_total / CLOCKS_PER_SEC,
+			(double)step4_total / CLOCKS_PER_SEC,
+			(double)step5_total / CLOCKS_PER_SEC,
+			(double)(clock() - start_time) / CLOCKS_PER_SEC);
+	}
 
 	skin->joints = calloc(fit.bone_count, sizeof(*skin->joints));
 	if (!skin->joints)
