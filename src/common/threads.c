@@ -24,16 +24,19 @@
  * =======================================================================
  */
 
+#ifndef DEDICATED_ONLY
 #ifdef USE_SDL3
 #include <SDL3/SDL.h>
 #else
 #include <SDL2/SDL.h>
 #endif
+#endif
 
 #include "header/common.h"
 
+#ifndef DEDICATED_ONLY
 #ifndef R_MAX_THREADS
-#define R_MAX_THREADS 8
+#define R_MAX_THREADS 16
 #endif
 
 typedef struct
@@ -81,11 +84,13 @@ R_RowWorker(void *p)
 	j->fn(j->row_start, j->row_end, j->user);
 	return 0;
 }
+#endif
 
 void
 R_ParallelTasks(size_t rows, size_t min_rows_per_task,
 	void (*fn)(size_t, size_t, void *), void *user, const char *func_name)
 {
+#ifndef DEDICATED_ONLY
 	size_t chunk, t, jobcount, threads;
 	SDL_Thread *th[R_MAX_THREADS];
 	rowjob_t jobs[R_MAX_THREADS];
@@ -152,6 +157,9 @@ R_ParallelTasks(size_t rows, size_t min_rows_per_task,
 		}
 	}
 
-	Com_DPrintf("%s: %s threads " YQ2_COM_PRIdS " # " YQ2_COM_PRIdS " \n",
-		__func__, func_name, jobcount, min_rows_per_task);
+	Com_DPrintf("%s: %s threads " YQ2_COM_PRIdS " # " YQ2_COM_PRIdS "/" YQ2_COM_PRIdS "\n",
+		__func__, func_name, jobcount, min_rows_per_task, rows);
+#else
+	fn(0, rows, user);
+#endif
 }

@@ -1010,6 +1010,10 @@ void Sys_SetHighDPIMode(void);
 const char *Sys_GetBinaryDir(void);
 void Sys_SetupFPU(void);
 
+// threads.c
+void R_ParallelTasks(size_t rows, size_t min_rows_per_task,
+	void (*fn)(size_t, size_t, void *), void *user, const char *func_name);
+
 /* ======================================================================= */
 
 /* stringlist_t API
