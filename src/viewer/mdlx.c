@@ -268,7 +268,10 @@ main(int argc, char *argv[])
 						break;
 				}
 
-				iskin %= skin_count;
+				if (skin_count > 0)
+				{
+					iskin %= skin_count;
+				}
 				xrotate %= 360;
 				yrotate %= 360;
 				zrotate %= 360;
