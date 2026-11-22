@@ -643,6 +643,8 @@ static int
 entitycmpfnc(const entity_t *a, const entity_t *b)
 {
 	qboolean a_trans, b_trans;
+	vec3_t va, vb;
+	float dista, distb;
 
 	a_trans = (a->flags & (RF_TRANSLUCENT | RF_FLARE)) != 0;
 	b_trans = (b->flags & (RF_TRANSLUCENT | RF_FLARE)) != 0;
@@ -651,6 +653,17 @@ entitycmpfnc(const entity_t *a, const entity_t *b)
 	if (a_trans != b_trans)
 	{
 		return a_trans ? 1 : -1; /* solid first, transparent second */
+	}
+
+	VectorSubtract(a->origin, cl.refdef.vieworg, va);
+	dista = VectorLengthSquared(va);
+
+	VectorSubtract(b->origin, cl.refdef.vieworg, vb);
+	distb = VectorLengthSquared(vb);
+
+	if (dista != distb)
+	{
+		return (dista < distb) ? -1 : 1; /* near to far */
 	}
 
 	/* all other models are sorted by model then skin */
@@ -827,10 +840,13 @@ V_RenderView(float stereo_separation)
 
 		cl.refdef.rdflags = cl.frame.playerstate.rdflags;
 
-		/* sort entities for better cache locality */
-		qsort(cl.refdef.entities, cl.refdef.num_entities,
-				sizeof(cl.refdef.entities[0]), (int (*)(const void *, const void *))
-				entitycmpfnc);
+		/* sort entities after first entity: solid then transparent, near to far */
+		if (cl.refdef.num_entities > 1)
+		{
+			qsort(cl.refdef.entities + 1, cl.refdef.num_entities - 1,
+					sizeof(cl.refdef.entities[0]), (int (*)(const void *, const void *))
+					entitycmpfnc);
+		}
 	} else if (cl.frame.valid && cl_paused->value && gl1_stereo->value) {
 		// We need to adjust the refdef in stereo mode when paused.
 		vec3_t tmp;
