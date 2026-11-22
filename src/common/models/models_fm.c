@@ -731,31 +731,36 @@ Mod_FlexCompact(const flex_model_t *model, flex_fit_t *fit)
 	fit->bone_count = count;
 }
 
-/*
- * step 4: assignment step of Lloyd's algorithm
- * (https://en.wikipedia.org/wiki/K-means_clustering#Standard_algorithm_(naive_k-means)),
- * the "distance" to a bone is how badly its rigid motion predicts the vertex
- */
-static void
-Mod_FlexAssign(const flex_model_t *model, flex_fit_t *fit)
+typedef struct
 {
-	int vertex, bone;
+	const flex_model_t *model;
+	flex_fit_t *fit;
+} flex_assign_job_t;
 
-	for (vertex = 0; vertex < model->num_xyz; vertex++)
+static void
+Mod_FlexAssign_Worker(size_t start, size_t end, void *user)
+{
+	const flex_assign_job_t *job = (const flex_assign_job_t *)user;
+	const flex_model_t *model = job->model;
+	flex_fit_t *fit = job->fit;
+	size_t vertex;
+
+	for (vertex = start; vertex < end; vertex++)
 	{
 		int best = fit->vertex_bone[vertex];
-		double best_error = Mod_FlexVertexError(model, fit, vertex, best);
+		double best_error = Mod_FlexVertexError(model, fit, (int)vertex, best);
+		int bone;
 
 		for (bone = 0; bone < fit->bone_count; bone++)
 		{
 			double error;
 
-			if (bone == best || !Mod_FlexBoneAllowed(model, fit, vertex, bone))
+			if (bone == best || !Mod_FlexBoneAllowed(model, fit, (int)vertex, bone))
 			{
 				continue;
 			}
 
-			error = Mod_FlexVertexError(model, fit, vertex, bone);
+			error = Mod_FlexVertexError(model, fit, (int)vertex, bone);
 			if (error < best_error)
 			{
 				best_error = error;
@@ -765,6 +770,22 @@ Mod_FlexAssign(const flex_model_t *model, flex_fit_t *fit)
 
 		fit->vertex_bone[vertex] = best;
 	}
+}
+
+/*
+ * step 4: assignment step of Lloyd's algorithm
+ * (https://en.wikipedia.org/wiki/K-means_clustering#Standard_algorithm_(naive_k-means)),
+ * the "distance" to a bone is how badly its rigid motion predicts the vertex
+ */
+static void
+Mod_FlexAssign(const flex_model_t *model, flex_fit_t *fit)
+{
+	flex_assign_job_t job;
+
+	job.model = model;
+	job.fit = fit;
+
+	R_ParallelTasks(model->num_xyz, 1024, Mod_FlexAssign_Worker, &job, __func__);
 
 	Mod_FlexCompact(model, fit);
 }
