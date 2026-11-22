@@ -1,3 +1,7 @@
+Thread in fm load, sort entitities, fake first bone in ctc
+
+fm-male - 18.9s
+
 # Yamagi Quake II Remaster
 
 [![Coverity Scan](https://img.shields.io/coverity/scan/31780)](https://scan.coverity.com/projects/yquake2-yquake2remaster)
