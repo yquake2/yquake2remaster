@@ -581,15 +581,14 @@ Mod_CTCDetectRootBone(dctc_header_t *input)
 void *
 Mod_LoadModel_CTC(const char *mod_name, const void *buffer, int modfilelen)
 {
-	dctc_header_t input;
-	dmdx_t dmdxheader;
-	dmdx_t *pheader = NULL;
+	size_t file_size, cursor, num_weights = 0;
+	dmdx_t dmdxheader, *pheader = NULL;
+	size_t animation_frame_count = 0;
 	ctc_temp_data_t temp = { 0 };
 	const byte *src = buffer;
 	void *extradata = NULL;
-	size_t file_size, cursor, num_weights = 0, bones_offset;
-	size_t animation_frame_count = 0;
-	int i;
+	int i, bones_offset;
+	dctc_header_t input;
 
 	if (modfilelen < (int)sizeof(input))
 	{
