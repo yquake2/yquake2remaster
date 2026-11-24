@@ -642,6 +642,17 @@ V_Gun_Model_f(void)
 static int
 entitycmpfnc(const entity_t *a, const entity_t *b)
 {
+	qboolean a_trans, b_trans;
+
+	a_trans = (a->flags & (RF_TRANSLUCENT | RF_FLARE)) != 0;
+	b_trans = (b->flags & (RF_TRANSLUCENT | RF_FLARE)) != 0;
+
+	/* solid first */
+	if (a_trans != b_trans)
+	{
+		return a_trans ? 1 : -1; /* solid first, transparent second */
+	}
+
 	/* all other models are sorted by model then skin */
 	if (a->model == b->model)
 	{
