@@ -415,7 +415,7 @@ Cmd_Give_f(edict_t *ent)
 				continue;
 			}
 
-			if (it->flags & (IT_ARMOR | IT_WEAPON | IT_AMMO))
+			if (it->flags & (IT_ARMOR | IT_WEAPON | IT_AMMO | IT_TECH))
 			{
 				continue;
 			}
