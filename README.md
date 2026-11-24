@@ -259,25 +259,6 @@ Checked with:
 * [ ] Dynamic count of entities on client.
 
 ### Next release:
-* [x] Anachronox: fix incorrect rendering of `grumpos_com` load CTC,
-* [x] vk: cleanup `PUSH_CONSTANT_*`,
-* [x] gl3, gl4: fix and port `r_bloom`,
-* [x] gl1, gl3, gl4, vk: apply improvements from gl3 to other renders,
-* [x] Anachronox: CTC entity format,
-* [x] ReRelease: Add `target_achievement` support,
-* [x] Minimal multiplayer KEX/RR2023 protocol support based on https://github.com/res2k/q2proto
-      and https://github.com/Paril/quake2-rerelease-dll,
-* [x] ReRelease: extend server player_state_t MAX_STATS limit,
-* [x] ReRelease: implement demo protocol based on https://github.com/res2k/q2proto
-      and https://github.com/Paril/quake2-rerelease-dll,
-* [x] ReRelease: select start level through `mapddb.json`
-* [x] game: preserve thirdperson flag on new level load,
-* [x] renders: optimize count of threads,
-* [x] Infinity: Add support of `item_radar`,
-* [x] vulkan: rearange surfaces before render,
-* [x] vulkan: add fog distance effect,
-* [x] Oblivion: Finish support of `func_rotate_train`, add `speeds` for `path_corner`,
-* [x] Oblivion: Add support of `ammo_dod`.
 
 ### Not a goal:
 

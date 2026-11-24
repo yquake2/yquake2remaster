@@ -1,3 +1,24 @@
+Quake II 8.71RR17:
+- Anachronox: fix incorrect rendering of `grumpos_com` load CTC,
+- vk: cleanup `PUSH_CONSTANT_*`,
+- gl3, gl4: fix and port `r_bloom`,
+- gl1, gl3, gl4, vk: apply improvements from gl3 to other renders,
+- Anachronox: CTC entity format,
+- ReRelease: Add `target_achievement` support,
+- Minimal multiplayer KEX/RR2023 protocol support based on https://github.com/res2k/q2proto
+      and https://github.com/Paril/quake2-rerelease-dll,
+- ReRelease: extend server player_state_t MAX_STATS limit,
+- ReRelease: implement demo protocol based on https://github.com/res2k/q2proto
+      and https://github.com/Paril/quake2-rerelease-dll,
+- ReRelease: select start level through `mapddb.json`
+- game: preserve thirdperson flag on new level load,
+- renders: optimize count of threads,
+- Infinity: Add support of `item_radar`,
+- vulkan: rearange surfaces before render,
+- vulkan: add fog distance effect,
+- Oblivion: Finish support of `func_rotate_train`, add `speeds` for `path_corner`,
+- Oblivion: Add support of `ammo_dod`.
+
 Quake II 8.71RR16:
 - Fixes from yquake2,
 - Improved image load warnings and cache logic,
