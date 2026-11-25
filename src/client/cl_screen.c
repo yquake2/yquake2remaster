@@ -1514,8 +1514,7 @@ SCR_DrawStats(void)
 static void
 SCR_DrawLayout(void)
 {
-	if (!cl.frame.playerstate.stats[STAT_LAYOUTS] &&
-		cls.serverProtocol != PROTOCOL_Q2TEST_VERSION)
+	if (!cl.frame.playerstate.stats[STAT_LAYOUTS])
 	{
 		return;
 	}
@@ -1788,21 +1787,12 @@ SCR_UpdateScreen(void)
 			SCR_DrawStats();
 			SCR_DrawSpeed();
 
-			if (cls.serverProtocol == PROTOCOL_Q2TEST_VERSION)
-			{
-				/* Q2Test has no layout stat, the layout shows while set */
-				if (cl.layout[0])
-				{
-					SCR_DrawLayout();
-				}
-			}
-			else if (cl.frame.playerstate.stats[STAT_LAYOUTS] & LAYOUTS_LAYOUT)
+			if (cl.frame.playerstate.stats[STAT_LAYOUTS] & LAYOUTS_LAYOUT)
 			{
 				SCR_DrawLayout();
 			}
 
-			if ((cls.serverProtocol != PROTOCOL_Q2TEST_VERSION) &&
-				(cl.frame.playerstate.stats[STAT_LAYOUTS] & LAYOUTS_INVENTORY))
+			if (cl.frame.playerstate.stats[STAT_LAYOUTS] & LAYOUTS_INVENTORY)
 			{
 				CL_DrawInventory();
 			}

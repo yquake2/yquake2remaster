@@ -3805,15 +3805,7 @@ CL_ParseServerMessage(void)
 
 			case svc_layout:
 				s = MSG_ReadString(&net_message);
-				/* Q2Test layout message toggles the layout display */
-				if (cls.serverProtocol == PROTOCOL_Q2TEST_VERSION && cl.layout[0])
-				{
-					cl.layout[0] = '\0';
-				}
-				else
-				{
-					Q_strlcpy(cl.layout, s, sizeof(cl.layout));
-				}
+				Q_strlcpy(cl.layout, s, sizeof(cl.layout));
 				break;
 
 			case svc_playerinfo:
