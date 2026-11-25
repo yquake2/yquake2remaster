@@ -48,9 +48,9 @@ typedef SDL_cond q2_cond_t;
 #define Q2_UnlockMutex SDL_UnlockMutex
 #define Q2_CreateCond SDL_CreateCond
 #define Q2_DestroyCond SDL_DestroyCond
-#define Q2_SignalCond SDL_SignalCond
-#define Q2_BroadcastCond SDL_BroadcastCond
-#define Q2_WaitCond SDL_WaitCond
+#define Q2_SignalCond SDL_CondSignal
+#define Q2_BroadcastCond SDL_CondBroadcast
+#define Q2_WaitCond SDL_CondWait
 #endif
 #endif
 

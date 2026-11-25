@@ -470,11 +470,9 @@ cleanup(void)
  */
 void perspectiveGL( GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar )
 {
-	const GLdouble pi = 3.1415926535897932384626433832795;
 	GLdouble fW, fH;
 
-	//fH = tan( (fovY / 2) / 180 * pi ) * zNear;
-	fH = tan( fovY / 360 * pi ) * zNear;
+	fH = tan( fovY / 360 * M_PI ) * zNear;
 	fW = fH * aspect;
 
 	glFrustum( -fW, fW, -fH, fH, zNear, zFar );
@@ -483,8 +481,7 @@ void perspectiveGL( GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFa
 void
 reshape(int w, int h)
 {
-	const double pi = 3.1415926535897932384626433832795;
-	const double vertical_half_fov = 45.0 * pi / 360.0;
+	const double vertical_half_fov = 45.0 * M_PI / 360.0;
 	double aspect, half_fov, fit_distance, camera_distance;
 	double z_near, z_far;
 

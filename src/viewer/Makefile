@@ -36,8 +36,8 @@ YQ2_ARCH ?= $(shell uname -m)
 endif
 endif
 
-SDL_CFLAGS := $(shell pkg-config --cflags sdl2 2>/dev/null)
-SDL_LIBS := $(shell pkg-config --libs sdl2 2>/dev/null || echo -lSDL2)
+SDL_CFLAGS := $(shell sdl2-config --cflags)
+SDL_LIBS :=  $(shell sdl2-config --libs)
 
 CFLAGS = -g -Wall $(SDL_CFLAGS)
 LDLIBS = -lm -lGL -lGLU $(SDL_LIBS)
