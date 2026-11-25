@@ -19,7 +19,7 @@
  *
  * =======================================================================
  *
- * Multithreaded workers based on SDL
+ * Multithreaded workers and thread pool based on SDL
  *
  * =======================================================================
  */
@@ -27,8 +27,30 @@
 #ifndef DEDICATED_ONLY
 #ifdef USE_SDL3
 #include <SDL3/SDL.h>
+typedef SDL_Mutex q2_mutex_t;
+typedef SDL_Condition q2_cond_t;
+#define Q2_CreateMutex SDL_CreateMutex
+#define Q2_DestroyMutex SDL_DestroyMutex
+#define Q2_LockMutex SDL_LockMutex
+#define Q2_UnlockMutex SDL_UnlockMutex
+#define Q2_CreateCond SDL_CreateCondition
+#define Q2_DestroyCond SDL_DestroyCondition
+#define Q2_SignalCond SDL_SignalCondition
+#define Q2_BroadcastCond SDL_BroadcastCondition
+#define Q2_WaitCond SDL_WaitCondition
 #else
 #include <SDL2/SDL.h>
+typedef SDL_mutex q2_mutex_t;
+typedef SDL_cond q2_cond_t;
+#define Q2_CreateMutex SDL_CreateMutex
+#define Q2_DestroyMutex SDL_DestroyMutex
+#define Q2_LockMutex SDL_LockMutex
+#define Q2_UnlockMutex SDL_UnlockMutex
+#define Q2_CreateCond SDL_CreateCond
+#define Q2_DestroyCond SDL_DestroyCond
+#define Q2_SignalCond SDL_SignalCond
+#define Q2_BroadcastCond SDL_BroadcastCond
+#define Q2_WaitCond SDL_WaitCond
 #endif
 #endif
 
@@ -48,6 +70,19 @@ typedef struct
 } rowjob_t;
 
 static int threads_num = -1;
+static qboolean pool_initialized = false;
+static q2_mutex_t *pool_mutex = NULL;
+static q2_cond_t *pool_cond_work = NULL;
+static q2_cond_t *pool_cond_done = NULL;
+static SDL_Thread *pool_workers[R_MAX_THREADS];
+static int pool_num_workers = 0;
+static qboolean pool_shutdown = false;
+static qboolean pool_has_work = false;
+
+static rowjob_t pool_jobs[R_MAX_THREADS];
+static size_t pool_job_count = 0;
+static size_t pool_next_job = 0;
+static size_t pool_jobs_completed = 0;
 
 static unsigned
 R_NumHWThreads(void)
@@ -78,11 +113,143 @@ R_NumHWThreads(void)
 }
 
 static int
-R_RowWorker(void *p)
+R_ThreadPoolWorker(void *data)
 {
-	const rowjob_t *j = (const rowjob_t *)p;
-	j->fn(j->row_start, j->row_end, j->user);
+	(void)data;
+
+	while (1)
+	{
+		size_t job_index = (size_t)-1;
+
+		Q2_LockMutex(pool_mutex);
+		while (!pool_has_work && !pool_shutdown)
+		{
+			Q2_WaitCond(pool_cond_work, pool_mutex);
+		}
+
+		if (pool_shutdown)
+		{
+			Q2_UnlockMutex(pool_mutex);
+			break;
+		}
+
+		if (pool_next_job < pool_job_count)
+		{
+			job_index = pool_next_job++;
+		}
+
+		Q2_UnlockMutex(pool_mutex);
+
+		if (job_index != (size_t)-1)
+		{
+			const rowjob_t *j = &pool_jobs[job_index];
+			j->fn(j->row_start, j->row_end, j->user);
+
+			Q2_LockMutex(pool_mutex);
+			pool_jobs_completed++;
+			if (pool_jobs_completed == pool_job_count)
+			{
+				Q2_SignalCond(pool_cond_done);
+			}
+			Q2_UnlockMutex(pool_mutex);
+		}
+	}
+
 	return 0;
+}
+
+static void
+R_InitThreadPool(unsigned int threads)
+{
+	unsigned int i;
+
+	if (pool_initialized)
+	{
+		return;
+	}
+
+	pool_mutex = Q2_CreateMutex();
+	pool_cond_work = Q2_CreateCond();
+	pool_cond_done = Q2_CreateCond();
+
+	if (!pool_mutex || !pool_cond_work || !pool_cond_done)
+	{
+		Com_Printf("%s: Failed to create mutex or condition variables: %s\n",
+			__func__, SDL_GetError());
+		if (pool_mutex) { Q2_DestroyMutex(pool_mutex); pool_mutex = NULL; }
+		if (pool_cond_work) { Q2_DestroyCond(pool_cond_work); pool_cond_work = NULL; }
+		if (pool_cond_done) { Q2_DestroyCond(pool_cond_done); pool_cond_done = NULL; }
+		return;
+	}
+
+	pool_num_workers = (threads > 1) ? (int)(threads - 1) : 0;
+	if (pool_num_workers > R_MAX_THREADS - 1)
+	{
+		pool_num_workers = R_MAX_THREADS - 1;
+	}
+
+	pool_shutdown = false;
+	pool_has_work = false;
+
+	for (i = 0; i < (unsigned int)pool_num_workers; ++i)
+	{
+		char name[32];
+		Com_sprintf(name, sizeof(name), "Q2Worker_%u", i);
+		pool_workers[i] = SDL_CreateThread(R_ThreadPoolWorker, name, NULL);
+		if (!pool_workers[i])
+		{
+			Com_Printf("%s: Failed to create worker thread %u: %s\n",
+				__func__, i, SDL_GetError());
+			pool_num_workers = (int)i;
+			break;
+		}
+	}
+
+	pool_initialized = true;
+}
+
+void
+R_ShutdownThreadPool(void)
+{
+	int i;
+
+	if (!pool_initialized)
+	{
+		return;
+	}
+
+	Q2_LockMutex(pool_mutex);
+	pool_shutdown = true;
+	Q2_BroadcastCond(pool_cond_work);
+	Q2_UnlockMutex(pool_mutex);
+
+	for (i = 0; i < pool_num_workers; ++i)
+	{
+		if (pool_workers[i])
+		{
+			SDL_WaitThread(pool_workers[i], NULL);
+			pool_workers[i] = NULL;
+		}
+	}
+
+	if (pool_mutex)
+	{
+		Q2_DestroyMutex(pool_mutex);
+		pool_mutex = NULL;
+	}
+	if (pool_cond_work)
+	{
+		Q2_DestroyCond(pool_cond_work);
+		pool_cond_work = NULL;
+	}
+	if (pool_cond_done)
+	{
+		Q2_DestroyCond(pool_cond_done);
+		pool_cond_done = NULL;
+	}
+
+	pool_initialized = false;
+	pool_num_workers = 0;
 }
 #endif
 
@@ -92,8 +259,6 @@ R_ParallelTasks(size_t rows, size_t min_rows_per_task,
 {
 #ifndef DEDICATED_ONLY
 	size_t chunk, t, jobcount, threads;
-	SDL_Thread *th[R_MAX_THREADS];
-	rowjob_t jobs[R_MAX_THREADS];
 
 	threads = R_NumHWThreads();
 
@@ -109,12 +274,22 @@ R_ParallelTasks(size_t rows, size_t min_rows_per_task,
 	}
 
 	chunk = (rows + threads - 1) / threads;
-	jobcount = 0;
 
+	if (!pool_initialized)
+	{
+		R_InitThreadPool(threads);
+	}
+
+	Q2_LockMutex(pool_mutex);
+	while (pool_has_work)
+	{
+		Q2_WaitCond(pool_cond_done, pool_mutex);
+	}
+
+	pool_job_count = 0;
 	for (t = 0; t < threads; ++t)
 	{
 		size_t start, end;
-		char name[32];
 
 		start = t * chunk;
 		end = start + chunk;
@@ -129,31 +304,62 @@ R_ParallelTasks(size_t rows, size_t min_rows_per_task,
 			end = rows;
 		}
 
-		jobs[jobcount].row_start = start;
-		jobs[jobcount].row_end = end;
-		jobs[jobcount].fn = fn;
-		jobs[jobcount].user = user;
+		pool_jobs[pool_job_count].row_start = start;
+		pool_jobs[pool_job_count].row_end = end;
+		pool_jobs[pool_job_count].fn = fn;
+		pool_jobs[pool_job_count].user = user;
 
-		Com_sprintf(name, sizeof(name), "%s_" YQ2_COM_PRIdS,
-			func_name, jobcount);
-		th[jobcount] = SDL_CreateThread(R_RowWorker, name, &jobs[jobcount]);
-
-		if (!th[jobcount])
-		{
-			Com_Printf("%s: Failed to create thread "YQ2_COM_PRIdS": %s\n",
-				__func__, jobcount, SDL_GetError());
-			fn(start, rows, user);
-			break;
-		}
-
-		++jobcount;
+		++pool_job_count;
 	}
 
-	for (t = 0; t < jobcount; ++t)
+	jobcount = pool_job_count;
+	pool_next_job = 0;
+	pool_jobs_completed = 0;
+	pool_has_work = true;
+
+	Q2_BroadcastCond(pool_cond_work);
+
+	while (1)
 	{
-		if (th[t])
+		size_t job_index = (size_t)-1;
+
+		if (pool_next_job < pool_job_count)
 		{
-			SDL_WaitThread(th[t], NULL);
+			job_index = pool_next_job++;
+		}
+
+		if (job_index != (size_t)-1)
+		{
+			Q2_UnlockMutex(pool_mutex);
+
+			const rowjob_t *j = &pool_jobs[job_index];
+			j->fn(j->row_start, j->row_end, j->user);
+
+			Q2_LockMutex(pool_mutex);
+			pool_jobs_completed++;
+			if (pool_jobs_completed == pool_job_count)
+			{
+				pool_has_work = false;
+				Q2_SignalCond(pool_cond_done);
+				Q2_UnlockMutex(pool_mutex);
+				break;
+			}
+		}
+		else
+		{
+			if (pool_jobs_completed == pool_job_count)
+			{
+				pool_has_work = false;
+				Q2_UnlockMutex(pool_mutex);
+				break;
+			}
+			Q2_WaitCond(pool_cond_done, pool_mutex);
+			if (pool_jobs_completed == pool_job_count)
+			{
+				pool_has_work = false;
+				Q2_UnlockMutex(pool_mutex);
+				break;
+			}
 		}
 	}
 
